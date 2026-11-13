@@ -1,87 +1,81 @@
+<div align="center">
+
+<img src="build/icon.png" alt="Lumen" width="160" height="160" />
+
 # Lumen
 
-**Lumen** is a desktop client for [Jellyfin](https://jellyfin.org), the free and open-source media server. It plays your music and your movies and series on Windows, macOS and Linux, with an interface inspired by the Apple TV and Apple Music apps.
+**A beautiful desktop client for Jellyfin: your movies, shows and music, the Apple way.**
 
-> **Status: in development.** Lumen is not released yet. The features below are the planned v1 scope and are being built now.
+[![Latest release](https://img.shields.io/github/v/release/Dyskolos-Dev/Lumen?style=for-the-badge&label=version&color=8b8cf8)](https://github.com/Dyskolos-Dev/Lumen/releases/latest)
+[![License: MIT](https://img.shields.io/badge/license-MIT-5ec8d8?style=for-the-badge)](LICENSE)
+[![Platforms](https://img.shields.io/badge/platforms-Windows%20%7C%20macOS%20%7C%20Linux-b9a7e8?style=for-the-badge)](https://github.com/Dyskolos-Dev/Lumen/releases/latest)
+[![Jellyfin](https://img.shields.io/badge/Jellyfin-10.9%2B-00a4dc?style=for-the-badge&logo=jellyfin&logoColor=white)](https://jellyfin.org)
 
-Language: **English** · [Français](README.fr.md)
+[**Download**](https://github.com/Dyskolos-Dev/Lumen/releases/latest) · [Website](https://lumen.dyskolos.fr) · [Français](README.fr.md)
 
-## Features
+</div>
 
-Planned for v1 (all **in progress**):
+---
 
-- **Music**: browse albums, artists, playlists and songs; a full music player.
-- **Movies and series**: browse libraries, item details and a video player.
-- **Search** across your libraries.
-- **Multiple servers**: connect to several Jellyfin servers and switch between them.
-- **Bilingual interface**: French and English, following the system language by default.
-- **Casting**: Google Cast, UPnP/DLNA (including WiiM devices), and AirPlay on a best-effort basis.
-- **Apple TV / Apple Music look**: a consistent, polished design system.
+## ✨ Features
 
-## Requirements
+| | |
+|---|---|
+| 🎬 **Movies & TV shows** | Apple TV-style home with a hero banner, Continue Watching, Next Up and Recently Added; rich detail pages, seasons and episodes. |
+| ▶️ **Built-in player** | Direct play or server transcoding (HLS), resume, audio and subtitle tracks, Up Next with auto-play, keyboard shortcuts. |
+| 🎵 **Music** | Apple Music-style library, albums, artists, playlists, queue, shuffle and repeat, full-screen Now Playing. |
+| 🎤 **Synced lyrics** | Time-synced lyrics that scroll with the song; click a line to jump to it. |
+| 📡 **Casting** | Google Cast (music and video), UPnP/DLNA renderers including WiiM, AirPlay on Apple TV (best effort). |
+| 🗂️ **Multiple servers** | Add a server with its address, your account and a name; switch in one click. Only an encrypted token is stored, never your password. |
+| 🔎 **Global search** | Movies, shows, episodes, artists, albums and songs in one place. |
+| 🌗 **Light & dark** | Follows your system, with an accent color of your choice. FR and EN. |
+| 🎮 **Discord Rich Presence** | "Listening to" / "Watching" with artwork, toggle in Settings. |
+| ⌨️ **Native feel** | Media keys and OS media controls, macOS menu bar, ⌘/Ctrl+R to refresh the library. |
+| 🔄 **Automatic updates** | New versions download and install themselves on Windows and Linux (AppImage); on macOS, Lumen tells you and opens the download. |
 
-- [Node.js](https://nodejs.org) **22 or newer**
-- npm (ships with Node.js)
-- A Jellyfin server **10.9 or newer**, reachable from your computer
+## 📥 Install
 
-## Development setup
+Download the installer for your system from the [latest release](https://github.com/Dyskolos-Dev/Lumen/releases/latest):
+
+| System | File |
+|---|---|
+| Windows 10/11 | `Lumen Setup x.y.z.exe` |
+| macOS (Intel & Apple silicon) | `Lumen-x.y.z.dmg` |
+| Linux | `Lumen-x.y.z.AppImage` or `.deb` |
+
+> [!NOTE]
+> The builds are not code-signed yet. On Windows, click **More info → Run anyway** in SmartScreen. On macOS, right-click the app and choose **Open** the first time.
+
+You need a [Jellyfin](https://jellyfin.org) server, version 10.9 or later.
+
+## 🛠️ Development
+
+Requires Node.js 22+ and npm.
 
 ```bash
-git clone <repository-url> lumen
-cd lumen
 npm install
 npm run dev
 ```
 
-`npm run dev` starts the app with electron-vite: the renderer has hot module replacement and the main process restarts on change.
+| Script | What it does |
+|---|---|
+| `npm run dev` | Starts the app with hot reload |
+| `npm run check` | Typecheck, lint, unit tests and build |
+| `npm run e2e` | End-to-end tests against a real server (see [docs/QA.md](docs/QA.md)) |
+| `npm run dist` | Builds the installer for the current system into `release/` |
 
-## Scripts
+Releases are built by GitHub Actions when a `v*` tag is pushed (see [CONTRIBUTING.md](CONTRIBUTING.md)).
 
-| Script                 | What it does                                                         |
-| ---------------------- | -------------------------------------------------------------------- |
-| `npm run dev`          | Run the app in development mode (electron-vite dev)                  |
-| `npm run build`        | Build the main, preload and renderer bundles into `out/`             |
-| `npm run preview`      | Preview the production build (electron-vite preview)                 |
-| `npm run typecheck`    | TypeScript check for the main/preload/shared code, then the renderer |
-| `npm run lint`         | Lint the whole project with ESLint                                   |
-| `npm run format`       | Format the project with Prettier (writes files)                      |
-| `npm run format:check` | Check formatting with Prettier without writing files                 |
-| `npm test`             | Run the unit and component tests once with Vitest (jsdom)            |
-| `npm run check`        | Typecheck, lint, test and build: run this before opening a PR        |
-| `npm run dist`         | Build, then package installers for the current operating system      |
+Learn more in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md), [docs/DESIGN.md](docs/DESIGN.md), [docs/JELLYFIN.md](docs/JELLYFIN.md), [docs/CASTING.md](docs/CASTING.md) and [docs/DISCORD.md](docs/DISCORD.md).
 
-## Building installers
+## 📄 License
 
-`npm run dist` builds the app and packages it with electron-builder into the `release/` folder. Packaging only produces installers for the operating system you run it on:
+Lumen is released under the [MIT License](LICENSE).
 
-| Run on  | Installers produced                                           |
-| ------- | ------------------------------------------------------------- |
-| Windows | NSIS installer (`.exe`)                                       |
-| macOS   | DMG disk image and zip, Intel (x64) and Apple Silicon (arm64) |
-| Linux   | AppImage and Debian package (`.deb`)                          |
+Lumen is an independent project. It is not affiliated with or endorsed by Jellyfin or Apple.
 
-```bash
-npm run dist
-```
+<div align="center">
 
-The installers are not code-signed yet (see "Releasing" in CONTRIBUTING.md). A `v*` tag builds all three systems and publishes one GitHub release; installed apps update themselves from it (Windows, AppImage) or point to the download (macOS, `.deb`).
+Made with ❤️ by [Dyskolos_](https://dyskolos.fr)
 
-## Project layout
-
-Lumen is an Electron + React 19 + TypeScript (strict) application. The source is split into a main process (`src/main`), a preload bridge (`src/preload`), shared IPC contracts (`src/shared`) and the renderer (`src/renderer/src`), organised by feature. Read these documents before making changes:
-
-- [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md): folders, composition points, IPC and i18n conventions.
-- [docs/DESIGN.md](docs/DESIGN.md): design system and visual guidelines.
-- [docs/JELLYFIN.md](docs/JELLYFIN.md): how Lumen talks to Jellyfin servers.
-
-## Contributing
-
-Contributions are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for branch naming, commit messages, the i18n rule and the checks to run before a pull request.
-
-## License
-
-Lumen is released under the MIT License (see [LICENSE](LICENSE)). The license is not final yet and may change before the first release.
-
-## Disclaimer
-
-Lumen is an independent project. It is **not affiliated with, endorsed by or sponsored by** the Jellyfin project or Apple Inc. "Jellyfin" is a trademark of the Jellyfin project; "Apple TV", "Apple Music", "AirPlay" and "Apple" are trademarks of Apple Inc. They are used only to describe compatibility and design inspiration.
+</div>
