@@ -122,7 +122,7 @@ body:has(.jr-shell__now-playing:not(:empty):not([hidden])) {
 .jr-page__content {
   display: flex;
   flex-direction: column;
-  gap: var(--space-8);
+  gap: var(--section-gap);
 }
 .jr-page__content--gutter {
   padding-left: var(--page-gutter);
@@ -156,4 +156,227 @@ body:has(.jr-shell__now-playing:not(:empty):not([hidden])) {
   .jr-shell__refresh[data-spinning] svg {
     animation-duration: 2.5s;
   }
+}
+
+/* ---------------- Interface styles: shell variants ----------------
+ * Tokens do most of the work (styles/interface-styles.css); these are the layout changes tokens
+ * cannot express. The ambient layer sits behind the sidebar and the content. */
+.jr-shell__ambient {
+  display: none;
+}
+html:is([data-style='glass'], [data-style='cinema']) .jr-shell {
+  position: relative;
+}
+html:is([data-style='glass'], [data-style='cinema']) .jr-shell__ambient:not([hidden]) {
+  display: block;
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+html:is([data-style='glass'], [data-style='cinema']) .jr-shell__sidebar {
+  position: relative;
+}
+html:is([data-style='glass'], [data-style='cinema']) .jr-shell__main {
+  background: transparent;
+}
+
+/* ---- Glass: a soft wash to refract, floating sidebar, toolbar and now-playing bar ---- */
+html[data-style='glass'] .jr-shell {
+  background: var(--glass-wash-base);
+}
+html[data-style='glass'] .jr-shell__ambient {
+  background:
+    radial-gradient(55% 50% at 6% 0%, var(--glass-wash-1), transparent 70%),
+    radial-gradient(50% 60% at 100% 6%, var(--glass-wash-2), transparent 72%),
+    radial-gradient(70% 55% at 45% 108%, var(--glass-wash-3), transparent 70%),
+    radial-gradient(
+      38% 40% at 72% 58%,
+      color-mix(in srgb, var(--accent) 14%, transparent),
+      transparent 70%
+    ),
+    var(--glass-wash-base);
+}
+html[data-style='glass'] .jr-shell__sidebar {
+  padding: var(--chrome-inset) 0 var(--chrome-inset) var(--chrome-inset);
+}
+html[data-style='glass'] .jr-shell__sidebar > .jr-sidebar {
+  overflow: hidden;
+  border-right: 0;
+  border-radius: var(--chrome-radius);
+  background: var(--material-regular-bg);
+  -webkit-backdrop-filter: var(--material-regular-filter);
+  backdrop-filter: var(--material-regular-filter);
+  box-shadow: var(--glass-shadow), var(--material-highlight);
+}
+html[data-style='glass'] .jr-shell__sidebar .jr-sidebar__footer {
+  border-top-color: rgb(var(--glass-rgb) / 0.5);
+}
+html[data-style='glass'] .jr-sidebar-item__link--active,
+html[data-style='glass'] .jr-sidebar-item__link--active:hover,
+html[data-style='glass'][data-window-focused='true'] .jr-sidebar-item__link--active {
+  background: rgb(var(--glass-rgb) / 0.7);
+  box-shadow: var(--material-highlight);
+}
+html[data-style='glass'] .jr-page__toolbar .jr-toolbar {
+  position: relative;
+  isolation: isolate;
+  padding: var(--space-2) calc(var(--chrome-inset) + var(--space-3) + var(--titlebar-inset-right)) 0
+    calc(var(--chrome-inset) + var(--space-3));
+}
+html[data-style='glass'] .jr-page__toolbar .jr-toolbar--material {
+  background: transparent;
+  box-shadow: none;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+html[data-style='glass'] .jr-page__toolbar .jr-toolbar::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  top: var(--space-2);
+  bottom: 0;
+  left: var(--chrome-inset);
+  right: calc(var(--chrome-inset) + var(--titlebar-inset-right));
+  border-radius: var(--chrome-radius);
+  background: var(--material-thick-bg);
+  -webkit-backdrop-filter: var(--material-thick-filter);
+  backdrop-filter: var(--material-thick-filter);
+  box-shadow: var(--glass-shadow), var(--material-highlight);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--duration-base) var(--ease-standard);
+}
+html[data-style='glass'] .jr-page__toolbar .jr-toolbar--material::before {
+  opacity: 1;
+}
+html[data-style='glass'] .jr-shell__now-playing {
+  position: absolute;
+  z-index: var(--z-toolbar);
+  left: var(--chrome-inset);
+  right: var(--chrome-inset);
+  bottom: var(--chrome-inset);
+  border-top: 0;
+  border-radius: var(--chrome-radius);
+  box-shadow: var(--glass-shadow), var(--material-highlight);
+}
+/* The bar floats over the page: leave room to scroll the last row out from under it. */
+html[data-style='glass']
+  .jr-shell__main:has(> .jr-shell__now-playing:not(:empty):not([hidden]))
+  .jr-shell__scroll {
+  padding-bottom: calc(var(--now-playing-height) + 2 * var(--chrome-inset));
+}
+
+/* ---- Cinema: blurred artwork behind everything, a sidebar that recedes to icons ---- */
+html[data-style='cinema'] .jr-shell {
+  background: var(--surface-window);
+  transition: background-color 700ms var(--ease-standard);
+}
+html[data-style='cinema'] .jr-shell__ambient {
+  background:
+    radial-gradient(
+      80% 60% at 18% 0%,
+      color-mix(in srgb, var(--ambient) 32%, transparent),
+      transparent 72%
+    ),
+    radial-gradient(
+      60% 60% at 100% 100%,
+      color-mix(in srgb, var(--ambient-2) 24%, transparent),
+      transparent 70%
+    );
+}
+html[data-style='cinema'] .jr-shell__ambient-art {
+  position: absolute;
+  inset: -12%;
+  background: var(--ambient-image) center / cover no-repeat;
+  filter: blur(90px) saturate(150%);
+  opacity: var(--cinema-art-opacity);
+  animation: jr-ambient-in 900ms var(--ease-out) both;
+}
+html[data-style='cinema'] .jr-shell__ambient::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    color-mix(in srgb, var(--surface-window) 45%, transparent) 65%,
+    color-mix(in srgb, var(--surface-window) 85%, transparent) 100%
+  );
+}
+@keyframes jr-ambient-in {
+  from {
+    opacity: 0;
+  }
+}
+html[data-style='cinema'] .jr-shell__sidebar {
+  z-index: 2;
+  width: var(--sidebar-rail-width);
+}
+html[data-style='cinema'] .jr-shell__sidebar > .jr-sidebar {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: var(--sidebar-rail-width);
+  overflow: hidden;
+  border-right: 0;
+  background: transparent;
+  transition:
+    width var(--duration-base) var(--ease-out),
+    background-color var(--duration-base) var(--ease-standard),
+    box-shadow var(--duration-base) var(--ease-standard);
+}
+/* Contents keep the full width while the rail clips them: nothing reflows when it expands. */
+html[data-style='cinema'] .jr-shell__sidebar > .jr-sidebar > * {
+  min-width: var(--sidebar-width);
+}
+html[data-style='cinema'] .jr-shell__sidebar :is(.jr-sidebar__scroll, .jr-sidebar__footer) {
+  padding-left: calc((var(--sidebar-rail-width) - 40px) / 2);
+}
+html[data-style='cinema'] .jr-shell__sidebar .jr-sidebar__footer {
+  border-top-color: transparent;
+}
+html[data-style='cinema'] .jr-shell__sidebar .jr-sidebar-item__link {
+  gap: var(--space-3);
+  padding: 0 calc((40px - var(--sidebar-icon-size)) / 2);
+  border-radius: var(--radius-md);
+}
+html[data-style='cinema'] .jr-shell__sidebar:is(:hover, :has(:focus-visible)) > .jr-sidebar {
+  width: var(--sidebar-width);
+  background: var(--material-thick-bg);
+  -webkit-backdrop-filter: var(--material-thick-filter);
+  backdrop-filter: var(--material-thick-filter);
+  box-shadow: var(--shadow-lg);
+}
+html[data-style='cinema']
+  .jr-shell__sidebar
+  :is(
+    .jr-sidebar__header,
+    .jr-sidebar-section__title,
+    .jr-sidebar-item__label,
+    .jr-sidebar-item__trailing,
+    .jr-shell__footer-row
+  ) {
+  transition: opacity var(--duration-fast) var(--ease-standard);
+}
+html[data-style='cinema']
+  .jr-shell__sidebar:not(:hover, :has(:focus-visible))
+  :is(
+    .jr-sidebar__header,
+    .jr-sidebar-section__title,
+    .jr-sidebar-item__label,
+    .jr-sidebar-item__trailing,
+    .jr-shell__footer-row
+  ) {
+  opacity: 0;
+  pointer-events: none;
+}
+html[data-style='cinema']
+  .jr-shell__sidebar:not(:hover, :has(:focus-visible))
+  .jr-sidebar-item__link {
+  width: 40px;
+}
+html[data-style='cinema'] .jr-shell__now-playing {
+  border-top-color: color-mix(in srgb, var(--label) 8%, transparent);
 }

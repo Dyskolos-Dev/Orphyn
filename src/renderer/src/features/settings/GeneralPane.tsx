@@ -1,18 +1,28 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { ACCENT_PRESETS, List, ListRow, SegmentedControl, useTheme } from '@renderer/design'
+import {
+  ACCENT_PRESETS,
+  List,
+  ListRow,
+  SegmentedControl,
+  Toggle,
+  useInterfaceStyle,
+  useTheme,
+} from '@renderer/design'
 import {
   LANGUAGE_CHOICES,
   getLanguageChoice,
   setLanguageChoice,
   type LanguageChoice,
 } from './language'
+import { StyleGallery } from './StyleGallery'
 
 const HEX = /^#[0-9a-f]{6}$/i
 
 export function GeneralPane() {
   const { t } = useTranslation('settings')
   const { mode, accent, setMode, setAccent } = useTheme()
+  const { reduceTransparency, setReduceTransparency } = useInterfaceStyle()
   const [language, setLanguage] = useState<LanguageChoice>(getLanguageChoice)
   const custom = HEX.test(accent)
 
@@ -54,6 +64,23 @@ export function GeneralPane() {
                 { value: 'light', label: t('general.appearance.light') },
                 { value: 'dark', label: t('general.appearance.dark') },
               ]}
+            />
+          }
+        />
+      </List>
+
+      <List variant="inset" header={t('general.style.header')}>
+        <li className="jr-list__item">
+          <StyleGallery />
+        </li>
+        <ListRow
+          title={t('general.style.reduceTransparency.label')}
+          subtitle={t('general.style.reduceTransparency.description')}
+          trailing={
+            <Toggle
+              aria-label={t('general.style.reduceTransparency.label')}
+              checked={reduceTransparency}
+              onChange={setReduceTransparency}
             />
           }
         />

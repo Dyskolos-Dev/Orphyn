@@ -3,6 +3,7 @@ import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Outlet, useLocation, useNavigate } from 'react-router'
 import { ThemeProvider, ToastViewport, useWindowState } from '@renderer/design'
+import { ShellAmbient } from './ShellAmbient'
 import { applyWindowStateToDocument } from '@renderer/design/platform'
 import { ShellContext, useImmersiveState, type ShellContextValue } from './context'
 import { useShellExtensions, type ShellExtension } from './registry'
@@ -77,6 +78,7 @@ function ShellLayout() {
   return (
     <ShellContext.Provider value={ctx}>
       <div className={clsx('jr-shell', immersive && 'jr-shell--immersive')}>
+        <ShellAmbient scrollRef={scrollRef} hidden={immersive} />
         <div className="jr-shell__sidebar" hidden={immersive}>
           <ShellSidebar
             searchRef={searchRef}

@@ -1,8 +1,8 @@
-import { act, render, renderHook, screen } from '@testing-library/react'
+import { act, render, renderHook, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router'
 import i18n from '@renderer/i18n'
-import { themeStore } from '@renderer/design'
+import { interfaceStyleStore, themeStore } from '@renderer/design'
 import {
   DEFAULT_PLAYBACK_PREFERENCES,
   PLAYBACK_PREFERENCES_KEY,
@@ -114,5 +114,37 @@ describe('GeneralPane', () => {
 
     await act(() => i18n.changeLanguage('en'))
     themeStore.setMode('system')
+  })
+
+  it('picks an interface style from the gallery and reduces transparency', async () => {
+    const user = userEvent.setup()
+    await act(() => i18n.changeLanguage('en'))
+    interfaceStyleStore.reload()
+    render(
+      <MemoryRouter>
+        <GeneralPane />
+      </MemoryRouter>,
+    )
+
+    const gallery = screen.getByRole('radiogroup', { name: 'Interface style' })
+    const cards = within(gallery).getAllByRole('radio')
+    expect(cards).toHaveLength(5)
+    expect(within(gallery).getByRole('radio', { name: /^Classic/ })).toBeChecked()
+    // Each card holds a live miniature carrying its own style.
+    expect(gallery.querySelectorAll('.jr-style-preview__window[data-style]')).toHaveLength(5)
+
+    await user.click(within(gallery).getByRole('radio', { name: /^Cinema/ }))
+    expect(document.documentElement.dataset['style']).toBe('cinema')
+    expect(localStorage.getItem('orphyn.interface.style')).toBe('cinema')
+    expect(within(gallery).getByRole('radio', { name: /^Cinema/ })).toBeChecked()
+
+    await user.click(screen.getByRole('switch', { name: 'Reduce transparency' }))
+    expect(document.documentElement.dataset['reduceTransparency']).toBe('true')
+    expect(localStorage.getItem('orphyn.interface.reduceTransparency')).toBe('true')
+
+    act(() => {
+      interfaceStyleStore.setStyle('classic')
+      interfaceStyleStore.setReduceTransparency(false)
+    })
   })
 })

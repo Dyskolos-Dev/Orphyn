@@ -116,7 +116,7 @@
   display: flex;
   align-items: center;
   gap: var(--space-3);
-  min-height: 48px;
+  min-height: var(--track-row-height);
   padding: var(--space-1-5) var(--space-2);
   border-radius: var(--radius-md);
   color: var(--label);
@@ -156,7 +156,7 @@
   color: var(--accent);
 }
 .jr-track__art {
-  width: 40px;
+  width: var(--track-art-size);
   border-radius: var(--radius-xs);
 }
 .jr-track__play {
@@ -182,7 +182,7 @@
   visibility: hidden;
 }
 .jr-track--with-art .jr-track__lead {
-  width: 40px;
+  width: var(--track-art-size);
 }
 .jr-track__main {
   flex: 1.4 1 0;

@@ -1,0 +1,351 @@
+/* ---------------- Interface style gallery (Settings > General > Interface Style) ---------------- */
+.jr-style-gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: var(--space-5) var(--space-4);
+  padding: var(--space-4);
+}
+.jr-style-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2-5);
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-lg);
+  background: none;
+  color: var(--label);
+  text-align: start;
+}
+.jr-style-card:focus-visible {
+  outline: none;
+}
+.jr-style-card:focus-visible .jr-style-preview {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+.jr-style-card__text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-0-5);
+  padding: 0 var(--space-0-5);
+}
+.jr-style-card__name {
+  font: var(--text-headline);
+  letter-spacing: var(--tracking-headline);
+}
+.jr-style-card__description {
+  font: var(--text-footnote);
+  color: var(--secondary-label);
+}
+.jr-style-card__check {
+  position: absolute;
+  z-index: 1;
+  top: var(--space-2);
+  right: var(--space-2);
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: var(--radius-full);
+  background: var(--accent);
+  color: var(--accent-contrast);
+  box-shadow: var(--shadow-sm);
+}
+.jr-style-card__check svg {
+  width: 13px;
+  height: 13px;
+}
+
+/* The miniature: a 720×450 window laid out with the style's real tokens, scaled to the card. */
+.jr-style-preview {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 16 / 10;
+  border-radius: var(--radius-lg);
+  box-shadow:
+    0 0 0 0.5px var(--separator),
+    var(--shadow-sm);
+  transition:
+    box-shadow var(--duration-fast) var(--ease-standard),
+    transform var(--duration-base) var(--ease-spring);
+}
+.jr-style-card:hover .jr-style-preview {
+  transform: translateY(-2px);
+  box-shadow:
+    0 0 0 0.5px var(--separator),
+    var(--shadow-md);
+}
+.jr-style-card--selected .jr-style-preview,
+.jr-style-card--selected:hover .jr-style-preview {
+  box-shadow:
+    0 0 0 2px var(--accent),
+    0 0 0 6px var(--accent-tint);
+}
+.jr-style-preview__window {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: flex;
+  width: 720px;
+  height: 450px;
+  overflow: hidden;
+  transform: scale(var(--jr-preview-scale, 0.4));
+  transform-origin: 0 0;
+  background: var(--surface-window);
+  color: var(--label);
+  pointer-events: none;
+}
+.jr-style-preview__backdrop {
+  display: none;
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+.jr-style-preview__sidebar {
+  position: relative;
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  gap: 2px;
+  width: var(--sidebar-width);
+  margin: var(--chrome-inset) 0 var(--chrome-inset) var(--chrome-inset);
+  padding: 40px 10px 10px;
+  border-right: 0.5px solid var(--separator);
+  border-radius: var(--chrome-radius);
+  background: var(--surface-sidebar);
+}
+.jr-style-preview__search {
+  height: 26px;
+  margin: 0 2px 14px;
+  border-radius: var(--radius-md);
+  background: var(--tertiary-system-fill);
+}
+.jr-style-preview__nav {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  height: var(--sidebar-item-height);
+  padding: 0 var(--space-2);
+  border-radius: var(--radius-sm);
+}
+.jr-style-preview__nav i {
+  flex: none;
+  width: var(--sidebar-icon-size);
+  height: var(--sidebar-icon-size);
+  border-radius: 5px;
+  background: var(--accent);
+}
+.jr-style-preview__nav b {
+  height: 8px;
+  border-radius: var(--radius-full);
+  background: var(--secondary-label);
+  opacity: 0.6;
+}
+.jr-style-preview__nav.is-active {
+  background: var(--system-fill);
+}
+.jr-style-preview__main {
+  position: relative;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+.jr-style-preview__toolbar {
+  flex: none;
+  height: var(--toolbar-height);
+  background: var(--material-thick-bg);
+  -webkit-backdrop-filter: var(--material-thick-filter);
+  backdrop-filter: var(--material-thick-filter);
+  box-shadow: 0 0.5px 0 var(--separator);
+}
+.jr-style-preview__content {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  padding: var(--space-4) var(--page-gutter) 0;
+}
+.jr-style-preview__title {
+  margin-bottom: var(--space-4);
+  font: var(--text-large-title);
+  letter-spacing: var(--tracking-large-title);
+}
+.jr-style-preview__shelf {
+  display: grid;
+  grid-auto-columns: calc(96px * var(--card-scale));
+  grid-auto-flow: column;
+  gap: var(--shelf-gap);
+  margin-bottom: var(--space-5);
+}
+.jr-style-preview__card {
+  aspect-ratio: 2 / 3;
+  border-radius: var(--radius-poster);
+  background: linear-gradient(160deg, var(--system-orange), var(--system-pink));
+  box-shadow: var(--shadow-artwork);
+}
+.jr-style-preview__card[data-tone='1'] {
+  background: linear-gradient(160deg, var(--system-teal), var(--system-indigo));
+}
+.jr-style-preview__card[data-tone='2'] {
+  background: linear-gradient(160deg, var(--system-yellow), var(--system-orange));
+}
+.jr-style-preview__card[data-tone='3'] {
+  background: linear-gradient(160deg, var(--system-green), var(--system-teal));
+}
+.jr-style-preview__rows {
+  display: flex;
+  flex-direction: column;
+}
+.jr-style-preview__row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2-5);
+  height: var(--track-row-height);
+  padding: 0 var(--space-2);
+  border-radius: var(--radius-md);
+}
+.jr-style-preview__row:nth-child(even) {
+  background: var(--quaternary-system-fill);
+}
+.jr-style-preview__row i {
+  flex: none;
+  width: calc(var(--track-row-height) * 0.6);
+  aspect-ratio: 1;
+  border-radius: var(--radius-xs);
+  background: var(--system-fill);
+}
+.jr-style-preview__row b {
+  width: 40%;
+  height: 8px;
+  border-radius: var(--radius-full);
+  background: var(--secondary-label);
+  opacity: 0.5;
+}
+.jr-style-preview__row.is-current b {
+  background: var(--accent);
+  opacity: 1;
+}
+.jr-style-preview__player {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: var(--space-4);
+  height: var(--now-playing-height);
+  padding: 0 var(--space-4);
+  border-top: 0.5px solid var(--separator);
+  background: var(--material-thick-bg);
+  -webkit-backdrop-filter: var(--material-thick-filter);
+  backdrop-filter: var(--material-thick-filter);
+}
+.jr-style-preview__play {
+  width: 22px;
+  height: 22px;
+  border-radius: var(--radius-full);
+  background: var(--label);
+}
+.jr-style-preview__lcd {
+  flex: 1;
+  max-width: 240px;
+  height: 34px;
+  margin: 0 auto;
+  border-radius: var(--radius-md);
+  background: var(--tertiary-system-fill);
+}
+
+/* Glass: wash behind, floating translucent sidebar, toolbar and player. */
+.jr-style-preview__window[data-style='glass'] {
+  background: var(--glass-wash-base);
+}
+.jr-style-preview__window[data-style='glass'] .jr-style-preview__backdrop {
+  display: block;
+  background:
+    radial-gradient(55% 50% at 6% 0%, var(--glass-wash-1), transparent 70%),
+    radial-gradient(50% 60% at 100% 6%, var(--glass-wash-2), transparent 72%),
+    radial-gradient(70% 55% at 45% 108%, var(--glass-wash-3), transparent 70%),
+    var(--glass-wash-base);
+}
+.jr-style-preview__window[data-style='glass']
+  :is(.jr-style-preview__sidebar, .jr-style-preview__toolbar, .jr-style-preview__player) {
+  border: 0;
+  border-radius: var(--chrome-radius);
+  box-shadow: var(--glass-shadow), var(--material-highlight);
+}
+.jr-style-preview__window[data-style='glass'] .jr-style-preview__sidebar {
+  background: var(--material-regular-bg);
+  -webkit-backdrop-filter: var(--material-regular-filter);
+  backdrop-filter: var(--material-regular-filter);
+}
+.jr-style-preview__window[data-style='glass'] .jr-style-preview__toolbar {
+  height: calc(var(--toolbar-height) - var(--space-2));
+  margin: var(--space-2) var(--chrome-inset) 0;
+}
+.jr-style-preview__window[data-style='glass'] .jr-style-preview__player {
+  margin: 0 var(--chrome-inset) var(--chrome-inset);
+}
+.jr-style-preview__window[data-style='glass'] .jr-style-preview__nav.is-active {
+  background: rgb(var(--glass-rgb) / 0.7);
+  box-shadow: var(--material-highlight);
+}
+
+/* Cinema: an artwork glow tints everything; the sidebar is a rail of icons. */
+.jr-style-preview__window[data-style='cinema'] {
+  --ambient-rgb: 196 84 52;
+  --ambient-rgb-2: 72 56 150;
+}
+.jr-style-preview__window[data-style='cinema'] .jr-style-preview__backdrop {
+  display: block;
+}
+.jr-style-preview__window[data-style='cinema'] .jr-style-preview__art {
+  position: absolute;
+  inset: -20%;
+  background:
+    radial-gradient(40% 50% at 30% 30%, rgb(var(--ambient-rgb)), transparent 70%),
+    radial-gradient(45% 50% at 75% 60%, rgb(var(--ambient-rgb-2)), transparent 70%);
+  filter: blur(40px);
+  opacity: var(--cinema-art-opacity);
+}
+.jr-style-preview__window[data-style='cinema'] .jr-style-preview__sidebar {
+  width: var(--sidebar-rail-width);
+  padding-inline: calc((var(--sidebar-rail-width) - 40px) / 2);
+  border-right: 0;
+  background: transparent;
+}
+.jr-style-preview__window[data-style='cinema']
+  :is(.jr-style-preview__search, .jr-style-preview__nav b) {
+  visibility: hidden;
+}
+.jr-style-preview__window[data-style='cinema'] .jr-style-preview__nav {
+  width: 40px;
+  padding: 0 calc((40px - var(--sidebar-icon-size)) / 2);
+}
+.jr-style-preview__window[data-style='cinema'] .jr-style-preview__card {
+  background: linear-gradient(160deg, rgb(var(--ambient-rgb)), rgb(var(--ambient-rgb-2)));
+}
+.jr-style-preview__window[data-style='cinema']
+  .jr-style-preview__card:is([data-tone='1'], [data-tone='3']) {
+  background: linear-gradient(200deg, rgb(var(--ambient-rgb-2)), var(--cinema-base));
+}
+.jr-style-preview__window[data-style='cinema'] .jr-style-preview__player {
+  border-top-color: transparent;
+}
+
+/* Minimal: monochrome, no zebra, hairlines. */
+.jr-style-preview__window[data-style='minimal'] .jr-style-preview__nav i {
+  background: var(--secondary-label);
+}
+.jr-style-preview__window[data-style='minimal'] .jr-style-preview__nav.is-active {
+  background: var(--quaternary-system-fill);
+}
+.jr-style-preview__window[data-style='minimal'] .jr-style-preview__row {
+  border-radius: 0;
+  background: transparent;
+}
+.jr-style-preview__window[data-style='minimal'] .jr-style-preview__row + .jr-style-preview__row {
+  box-shadow: inset 0 0.5px 0 var(--separator);
+}
+.jr-style-preview__window[data-style='minimal'] .jr-style-preview__row.is-current b {
+  background: var(--label);
+  opacity: 0.85;
+}

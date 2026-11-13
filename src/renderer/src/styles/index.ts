@@ -4,9 +4,13 @@ import './tokens.css'
 import './base.css'
 import './typography.css'
 import './materials.css'
+import './interface-styles.css'
 import { applyStoredTheme } from '@renderer/design/theme/theme'
+import { applyStoredInterfaceStyle } from '@renderer/design/theme/interfaceStyle'
 
-// Apply the persisted theme before React renders, so there is no light/dark flash on launch.
+// Apply the persisted theme and interface style before React renders, so there is no flash on
+// launch.
 applyStoredTheme()
+applyStoredInterfaceStyle()
 
 export {}

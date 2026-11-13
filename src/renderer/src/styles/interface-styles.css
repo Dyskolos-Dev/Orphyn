@@ -1,0 +1,387 @@
+/*
+ * Interface styles (owner: design agent). Documented in docs/DESIGN.md, "Interface styles".
+ *
+ * Each style is a token layer on [data-style='…'] (ThemeProvider writes it on <html>; the Settings
+ * previews put it on their own subtree). Layers override style tokens only (tokens.css, "Style
+ * tokens"): materials, radii, type scale, spacing, card sizes, sidebar width, row heights. The few
+ * things tokens cannot express are component variants, scoped to html[data-style='…'] so they
+ * never reach a preview of another style, at the end of this file and in shell.css.
+ *
+ * Theme-dependent primitives a layer needs are declared on :root / [data-theme='dark'], and the
+ * layer is declared on `[data-style='x'] [data-theme]` too, so a forced theme (HeroBanner) re-resolves it.
+ *
+ * Classic is the base tokens, unchanged: it has no layer.
+ */
+
+/* ---------------- Theme-dependent primitives used by the layers ---------------- */
+:root {
+  /* Glass */
+  --glass-rgb: 255 255 255;
+  --glass-highlight:
+    inset 0 1px 0 rgb(255 255 255 / 0.75), inset 0 0 0 0.5px rgb(255 255 255 / 0.45),
+    0 0 0 0.5px rgb(0 0 0 / 0.06);
+  --glass-shadow: 0 10px 40px rgb(15 20 40 / 0.12), 0 2px 8px rgb(15 20 40 / 0.06);
+  --glass-wash-1: rgb(255 214 232 / 0.85);
+  --glass-wash-2: rgb(196 222 255 / 0.9);
+  --glass-wash-3: rgb(214 246 236 / 0.8);
+  --glass-wash-base: #eef0f6;
+  /* Cinema */
+  --cinema-base: #f6f6f8;
+  --cinema-tint-amount: 9%;
+  --cinema-art-opacity: 0.32;
+  /* Minimal */
+  --minimal-surface: #ffffff;
+}
+[data-theme='dark'] {
+  --glass-rgb: 38 38 44;
+  --glass-highlight:
+    inset 0 1px 0 rgb(255 255 255 / 0.16), inset 0 0 0 0.5px rgb(255 255 255 / 0.09),
+    0 0 0 0.5px rgb(0 0 0 / 0.4);
+  --glass-shadow: 0 12px 44px rgb(0 0 0 / 0.45), 0 2px 8px rgb(0 0 0 / 0.3);
+  --glass-wash-1: rgb(120 40 90 / 0.55);
+  --glass-wash-2: rgb(30 60 130 / 0.6);
+  --glass-wash-3: rgb(20 90 90 / 0.45);
+  --glass-wash-base: #121318;
+  --cinema-base: #0b0b0d;
+  --cinema-tint-amount: 20%;
+  --cinema-art-opacity: 0.55;
+  --minimal-surface: #161618;
+}
+
+/* ================================ Glass ================================ */
+/* Translucent everything: strong blur + saturation, specular edges, rounder, floating chrome. */
+[data-style='glass'],
+[data-style='glass'] [data-theme] {
+  --material-ultra-thin-bg: rgb(var(--glass-rgb) / 0.22);
+  --material-thin-bg: rgb(var(--glass-rgb) / 0.38);
+  --material-regular-bg: rgb(var(--glass-rgb) / 0.5);
+  --material-thick-bg: rgb(var(--glass-rgb) / 0.62);
+  --material-ultra-thin-filter: blur(20px) saturate(190%);
+  --material-thin-filter: blur(28px) saturate(200%);
+  --material-regular-filter: blur(36px) saturate(210%);
+  --material-thick-filter: blur(48px) saturate(220%);
+  --material-highlight: var(--glass-highlight);
+}
+[data-style='glass'] {
+  --radius-xs: 6px;
+  --radius-sm: 8px;
+  --radius-md: 11px;
+  --radius-lg: 16px;
+  --radius-xl: 22px;
+  --radius-2xl: 28px;
+  --radius-artwork: 12px;
+  --radius-poster: 14px;
+  --radius-control: 10px;
+  --sidebar-item-height: 32px;
+  /* The floating toolbar sits 8px below the window edge. */
+  --toolbar-height: 60px;
+  --chrome-inset: 10px;
+  --chrome-radius: 22px;
+}
+
+/* ================================ Cinema ================================ */
+/* Immersive: the page's artwork tints the UI and glows behind it; bigger type and artwork. */
+[data-style='cinema'],
+[data-style='cinema'] [data-theme] {
+  /* --ambient-rgb is written on <html> by the shell from the visible artwork. */
+  --ambient: rgb(var(--ambient-rgb, 128 128 136));
+  --ambient-2: rgb(var(--ambient-rgb-2, var(--ambient-rgb, 96 96 104)));
+  --surface-window: color-mix(
+    in srgb,
+    var(--ambient) var(--cinema-tint-amount),
+    var(--cinema-base)
+  );
+  --surface-sidebar: color-mix(in srgb, var(--surface-window) 70%, transparent);
+  --surface-grouped: color-mix(in srgb, var(--ambient) 6%, var(--secondary-system-background));
+  --material-ultra-thin-bg: color-mix(in srgb, var(--surface-window) 30%, transparent);
+  --material-thin-bg: color-mix(in srgb, var(--surface-window) 50%, transparent);
+  --material-regular-bg: color-mix(in srgb, var(--surface-window) 66%, transparent);
+  --material-thick-bg: color-mix(in srgb, var(--surface-window) 78%, transparent);
+}
+[data-style='cinema'] {
+  --text-large-title: 800 40px/46px var(--font-display);
+  --text-title-1: 800 32px/38px var(--font-display);
+  --text-title-2: 700 25px/31px var(--font-display);
+  --text-title-3: 600 21px/26px var(--font-display);
+  --text-headline: 600 16px/21px var(--font-text);
+  --text-body: 400 16px/22px var(--font-text);
+  --text-callout: 400 15px/20px var(--font-text);
+  --text-subheadline: 400 14px/19px var(--font-text);
+  --tracking-large-title: -0.03em;
+  --tracking-title: -0.022em;
+  --radius-artwork: 10px;
+  --radius-poster: 12px;
+  --page-gutter: 48px;
+  --section-gap: var(--space-10);
+  --shelf-gap: var(--space-6);
+  --grid-gap: var(--space-8) var(--space-6);
+  --card-scale: 1.25;
+  --shelf-density: -1;
+  --hero-height: clamp(480px, 80vh, 1000px);
+  /* The sidebar recedes to a rail of icons and expands over the content on hover. */
+  --sidebar-rail-width: 60px;
+  --sidebar-item-height: 36px;
+  --sidebar-icon-size: 20px;
+}
+/* The macOS traffic lights need a wider rail. */
+[data-platform='darwin'][data-style='cinema'] {
+  --sidebar-rail-width: 80px;
+}
+
+/* ================================ Minimal ================================ */
+/* Pure and typographic: flat opaque surfaces, no blur, hairlines, air, accent used sparingly. */
+[data-style='minimal'],
+[data-style='minimal'] [data-theme] {
+  --surface-window: var(--minimal-surface);
+  --surface-sidebar: var(--minimal-surface);
+  --surface-grouped: var(--minimal-surface);
+  --material-ultra-thin-bg: color-mix(in srgb, var(--minimal-surface) 92%, transparent);
+  --material-thin-bg: var(--minimal-surface);
+  --material-regular-bg: var(--minimal-surface);
+  --material-thick-bg: var(--minimal-surface);
+  --material-ultra-thin-filter: none;
+  --material-thin-filter: none;
+  --material-regular-filter: none;
+  --material-thick-filter: none;
+  --shadow-artwork: none;
+}
+[data-style='minimal'] {
+  --radius-xs: 3px;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
+  --radius-artwork: 4px;
+  --radius-poster: 6px;
+  --radius-control: 5px;
+  --text-large-title: 600 36px/42px var(--font-display);
+  --text-title-1: 600 28px/34px var(--font-display);
+  --text-title-2: 600 20px/26px var(--font-display);
+  --text-title-3: 500 18px/24px var(--font-display);
+  --text-headline: 500 15px/20px var(--font-text);
+  --tracking-large-title: -0.03em;
+  --tracking-title: -0.02em;
+  --page-gutter: 56px;
+  --section-gap: var(--space-12);
+  --shelf-gap: var(--space-7);
+  --grid-gap: var(--space-10) var(--space-7);
+}
+
+/* ================================ Compact ================================ */
+/* Dense for large libraries: smaller type, artwork and rows, tighter grids, narrower sidebar. */
+[data-style='compact'] {
+  --radius-md: 6px;
+  --radius-lg: 10px;
+  --radius-xl: 14px;
+  --radius-artwork: 6px;
+  --radius-poster: 7px;
+  --text-large-title: 700 24px/30px var(--font-display);
+  --text-title-1: 700 21px/26px var(--font-display);
+  --text-title-2: 700 17px/22px var(--font-display);
+  --text-title-3: 600 15px/20px var(--font-display);
+  --text-headline: 600 13px/18px var(--font-text);
+  --text-body: 400 13px/18px var(--font-text);
+  --text-callout: 400 13px/17px var(--font-text);
+  --text-subheadline: 400 12px/16px var(--font-text);
+  --text-footnote: 400 11px/14px var(--font-text);
+  --text-caption: 400 10px/13px var(--font-text);
+  --page-gutter: 24px;
+  --section-gap: var(--space-5);
+  --shelf-gap: var(--space-3);
+  --grid-gap: var(--space-4) var(--space-3);
+  --card-scale: 0.72;
+  --shelf-density: 2;
+  --hero-height: clamp(300px, 46vh, 520px);
+  --sidebar-width: 208px;
+  --sidebar-item-height: 26px;
+  --sidebar-icon-size: 16px;
+  --toolbar-height: 44px;
+  --now-playing-height: 60px;
+  --track-row-height: 32px;
+  --track-art-size: 24px;
+}
+
+/* ================================ Reduce transparency ================================ */
+/* Opaque materials and no blur, in every style. */
+html[data-reduce-transparency='true'],
+html[data-reduce-transparency='true'] [data-style],
+html[data-reduce-transparency='true'] [data-theme] {
+  --material-ultra-thin-bg: color-mix(in srgb, var(--surface-window) 94%, var(--label));
+  --material-thin-bg: color-mix(in srgb, var(--surface-window) 94%, var(--label));
+  --material-regular-bg: color-mix(in srgb, var(--surface-window) 95%, var(--label));
+  --material-thick-bg: color-mix(in srgb, var(--surface-window) 96%, var(--label));
+  --material-ultra-thin-filter: none;
+  --material-thin-filter: none;
+  --material-regular-filter: none;
+  --material-thick-filter: none;
+}
+html[data-reduce-transparency='true'] *,
+html[data-reduce-transparency='true'] *::before,
+html[data-reduce-transparency='true'] *::after {
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+
+/* ================================ Switching ================================ */
+/* A short cross-fade between two styles (View Transitions, see interfaceStyle.ts). */
+html[data-style-transition]::view-transition-old(root),
+html[data-style-transition]::view-transition-new(root) {
+  animation-duration: 220ms;
+  animation-timing-function: cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+
+/* ================================ Component variants ================================ */
+/* Only what tokens cannot express. The shell's own variants live in shell.css. */
+
+/* ---- Glass: specular artwork edges, glass lists, sheets and liquid buttons ---- */
+html[data-style='glass'] .jr-artwork:not(.jr-artwork--none)::after {
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.32),
+    inset 0 0 0 0.5px rgb(255 255 255 / 0.16),
+    inset 0 -18px 30px -24px rgb(0 0 0 / 0.25);
+}
+html[data-style='glass'] .jr-list-group--inset .jr-list {
+  background: var(--material-thin-bg);
+  -webkit-backdrop-filter: var(--material-thin-filter);
+  backdrop-filter: var(--material-thin-filter);
+  box-shadow: var(--material-highlight);
+}
+html[data-style='glass'] .jr-sheet {
+  background: var(--material-thick-bg);
+  -webkit-backdrop-filter: var(--material-thick-filter);
+  backdrop-filter: var(--material-thick-filter);
+  box-shadow: var(--shadow-lg), var(--material-highlight);
+}
+html[data-style='glass'] :is(.jr-popover, .jr-toast) {
+  box-shadow: var(--shadow-popover), var(--material-highlight);
+}
+html[data-style='glass'] .jr-button:not(.jr-button--plain),
+html[data-style='glass']
+  .jr-icon-button:is(.jr-icon-button--gray, .jr-icon-button--filled, .jr-icon-button--tinted) {
+  background-image: linear-gradient(
+    180deg,
+    rgb(255 255 255 / 0.3),
+    rgb(255 255 255 / 0.06) 52%,
+    rgb(255 255 255 / 0) 53%,
+    rgb(255 255 255 / 0.08)
+  );
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.5),
+    inset 0 0 0 0.5px rgb(255 255 255 / 0.22),
+    0 4px 14px color-mix(in srgb, var(--jr-btn-bg, var(--accent)) 28%, transparent);
+}
+html[data-style='glass'] .jr-button:is(.jr-button--gray, .jr-button--tinted),
+html[data-style='glass'] .jr-icon-button.jr-icon-button--gray {
+  -webkit-backdrop-filter: var(--material-thin-filter);
+  backdrop-filter: var(--material-thin-filter);
+  box-shadow: var(--material-highlight);
+}
+html[data-style='glass'] .jr-button.jr-button--gray {
+  --jr-btn-bg: var(--material-thin-bg);
+  --jr-btn-bg-hover: var(--material-regular-bg);
+  --jr-btn-bg-active: var(--material-thick-bg);
+}
+html[data-style='glass'] .jr-icon-button--glass {
+  background-image: linear-gradient(180deg, rgb(255 255 255 / 0.22), rgb(255 255 255 / 0) 55%);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.4),
+    inset 0 0 0 0.5px rgb(255 255 255 / 0.2);
+}
+html[data-style='glass'] .jr-segmented {
+  background: var(--material-thin-bg);
+  box-shadow: var(--material-highlight);
+}
+html[data-style='glass'] .jr-segmented__thumb {
+  background: rgb(var(--glass-rgb) / 0.9);
+  box-shadow:
+    0 3px 10px rgb(0 0 0 / 0.12),
+    inset 0 1px 0 rgb(255 255 255 / 0.6);
+}
+html[data-style='glass'] .jr-shelf__chevron {
+  box-shadow: var(--shadow-md), var(--material-highlight);
+}
+
+/* ---- Minimal: monochrome icons, no zebra, hairline rows, quiet selection ---- */
+html[data-style='minimal'] .jr-sidebar-item__icon {
+  color: var(--secondary-label);
+}
+html[data-style='minimal'] .jr-sidebar-item__link--active,
+html[data-style='minimal'] .jr-sidebar-item__link--active:hover,
+html[data-style='minimal'][data-window-focused='true'] .jr-sidebar-item__link--active {
+  background: var(--quaternary-system-fill);
+  font-weight: 600;
+}
+html[data-style='minimal'] .jr-sidebar-item__link--active .jr-sidebar-item__icon {
+  color: var(--label);
+}
+html[data-style='minimal'] .jr-track {
+  border-radius: 0;
+}
+html[data-style='minimal'] .jr-track:nth-child(even) {
+  background: transparent;
+}
+html[data-style='minimal'] .jr-track + .jr-track {
+  box-shadow: inset 0 0.5px 0 var(--separator);
+}
+html[data-style='minimal'] .jr-track:hover {
+  background: var(--quaternary-system-fill);
+}
+html[data-style='minimal'] .jr-track--selected,
+html[data-style='minimal'] .jr-track--selected:hover {
+  background: var(--tertiary-system-fill);
+  color: var(--label);
+}
+html[data-style='minimal'] .jr-list-group--inset .jr-list {
+  background: transparent;
+  box-shadow: inset 0 0 0 0.5px var(--separator);
+}
+html[data-style='minimal'] .jr-shelf__see-all {
+  color: var(--secondary-label);
+}
+html[data-style='minimal'] .jr-sheet {
+  box-shadow:
+    0 24px 60px rgb(0 0 0 / 0.14),
+    0 0 0 0.5px var(--separator);
+}
+
+/* ---- Compact: one-line track rows (title · artist) to fit 32px ---- */
+html[data-style='compact'] .jr-track {
+  padding-block: 0;
+  gap: var(--space-2);
+}
+html[data-style='compact'] .jr-track__main {
+  flex-direction: row;
+  align-items: baseline;
+  gap: var(--space-2);
+}
+html[data-style='compact'] .jr-track__title {
+  flex: 0 1 auto;
+  max-width: 60%;
+}
+html[data-style='compact'] .jr-track__artist {
+  flex: 1 1 0;
+  min-width: 0;
+  font: var(--text-subheadline);
+}
+html[data-style='compact'] .jr-track__lead {
+  width: 28px;
+}
+html[data-style='compact'] .jr-track--with-art .jr-track__lead {
+  width: var(--track-art-size);
+}
+html[data-style='compact'] .jr-row {
+  min-height: 36px;
+}
+
+/* ---- Cinema: content sits on the ambient artwork ---- */
+html[data-style='cinema'] .jr-list-group--inset .jr-list {
+  background: var(--material-thin-bg);
+  -webkit-backdrop-filter: var(--material-thin-filter);
+  backdrop-filter: var(--material-thin-filter);
+}
+html[data-style='cinema'] .jr-track:nth-child(even) {
+  background: color-mix(in srgb, var(--label) 4%, transparent);
+}
+html[data-style='cinema'] .jr-hero__title {
+  font-size: clamp(42px, 5.2vw, 72px);
+}

@@ -2,8 +2,25 @@
 // Rules and catalogue: docs/DESIGN.md.
 
 // Theme
-export { ThemeProvider, useTheme } from './theme/ThemeProvider'
-export type { ThemeProviderProps, UseThemeResult } from './theme/ThemeProvider'
+export { ThemeProvider, useInterfaceStyle, useTheme } from './theme/ThemeProvider'
+export type {
+  ThemeProviderProps,
+  UseInterfaceStyleResult,
+  UseThemeResult,
+} from './theme/ThemeProvider'
+export {
+  INTERFACE_STYLES,
+  INTERFACE_STYLE_STORAGE_KEYS,
+  interfaceStyleStore,
+  type InterfaceStyle,
+  type InterfaceStyleState,
+} from './theme/interfaceStyle'
+export {
+  extractPalette,
+  useAmbientArtwork,
+  type AmbientArtwork,
+  type AmbientPalette,
+} from './theme/ambient'
 export {
   ACCENT_PRESETS,
   THEME_MODES,

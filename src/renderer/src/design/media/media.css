@@ -248,7 +248,7 @@
 
 /* ---------------- Shelf ---------------- */
 .jr-shelf {
-  --jr-shelf-gap: var(--space-5);
+  --jr-shelf-gap: var(--shelf-gap);
   position: relative;
   container-type: inline-size;
   min-width: 0;
@@ -287,9 +287,11 @@
 }
 .jr-shelf__viewport {
   --jr-shelf-count: 6;
+  /* Items per row for the width, adjusted by the style's density (never below 2). */
+  --jr-shelf-n: max(2, calc(var(--jr-shelf-count) + var(--shelf-density)));
   --jr-shelf-item-w: calc(
-    (100cqi - 2 * var(--page-gutter) - (var(--jr-shelf-count) - 1) * var(--jr-shelf-gap)) /
-      var(--jr-shelf-count)
+    (100cqi - 2 * var(--page-gutter) - (var(--jr-shelf-n) - 1) * var(--jr-shelf-gap)) /
+      var(--jr-shelf-n)
   );
   position: relative;
 }
@@ -436,8 +438,11 @@
 /* ---------------- Grid ---------------- */
 .jr-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(var(--jr-grid-min), 1fr));
-  gap: var(--jr-grid-gap, var(--space-6) var(--space-5));
+  grid-template-columns: repeat(
+    auto-fill,
+    minmax(calc(var(--jr-grid-min) * var(--card-scale)), 1fr)
+  );
+  gap: var(--jr-grid-gap, var(--grid-gap));
   margin: 0;
   padding: 0;
 }
@@ -451,7 +456,7 @@
   display: flex;
   align-items: flex-end;
   min-height: 420px;
-  height: clamp(420px, 70vh, 860px);
+  height: var(--hero-height);
   overflow: hidden;
   background: #000;
   color: var(--label);

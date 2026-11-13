@@ -25,6 +25,37 @@
       "light": "Clair",
       "dark": "Sombre"
     },
+    "style": {
+      "header": "Style de l’interface",
+      "label": "Style de l’interface",
+      "selected": "Sélectionné",
+      "styles": {
+        "classic": {
+          "name": "Classique",
+          "description": "Le style de référence : équilibré, aéré et familier."
+        },
+        "glass": {
+          "name": "Verre",
+          "description": "Des couches translucides qui captent la lumière et flottent sur un halo."
+        },
+        "cinema": {
+          "name": "Cinéma",
+          "description": "Immersif : l’affiche ou la pochette affichée teinte toute l’interface."
+        },
+        "minimal": {
+          "name": "Minimal",
+          "description": "Épuré et typographique : surfaces mates, filets fins, couleur discrète."
+        },
+        "compact": {
+          "name": "Compact",
+          "description": "Lignes denses et visuels plus petits, pensé pour les grandes bibliothèques."
+        }
+      },
+      "reduceTransparency": {
+        "label": "Réduire la transparence",
+        "description": "Surfaces opaques et sans flou, dans tous les styles."
+      }
+    },
     "accent": {
       "header": "Couleur d’accentuation",
       "label": "Couleur d’accentuation",

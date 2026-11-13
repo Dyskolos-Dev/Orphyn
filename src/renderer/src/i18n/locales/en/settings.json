@@ -25,6 +25,37 @@
       "light": "Light",
       "dark": "Dark"
     },
+    "style": {
+      "header": "Interface Style",
+      "label": "Interface style",
+      "selected": "Selected",
+      "styles": {
+        "classic": {
+          "name": "Classic",
+          "description": "The signature look: balanced, airy and familiar."
+        },
+        "glass": {
+          "name": "Glass",
+          "description": "Translucent, light-catching layers that float over a soft glow."
+        },
+        "cinema": {
+          "name": "Cinema",
+          "description": "Immersive: the artwork you are viewing tints the whole interface."
+        },
+        "minimal": {
+          "name": "Minimal",
+          "description": "Pure and typographic: flat surfaces, hairlines and quiet colour."
+        },
+        "compact": {
+          "name": "Compact",
+          "description": "Dense rows and smaller artwork, made for large libraries."
+        }
+      },
+      "reduceTransparency": {
+        "label": "Reduce transparency",
+        "description": "Opaque surfaces without blur, in every style."
+      }
+    },
     "accent": {
       "header": "Accent Colour",
       "label": "Accent colour",

@@ -18,19 +18,19 @@ Colours follow a system palette, with light values on `:root` and dark values on
 `[data-theme='dark']`. Any element with `data-theme="dark"` re-scopes the tokens for its subtree (the
 HeroBanner does this, so everything placed on artwork is white-on-dark).
 
-| Token                                                                    | Use                                                        |
-| ------------------------------------------------------------------------ | ---------------------------------------------------------- |
-| `--system-background`, `--secondary-system-background`, `--tertiary-...` | System backgrounds                           |
-| `--surface-window`                                                       | Content area background (`#fff` / `#1d1d1f`)               |
-| `--surface-sidebar`                                                      | Sidebar; `transparent` when the native material shows      |
-| `--surface-elevated`                                                     | Sheets, popovers' solid fallback                           |
-| `--surface-hover` / `--surface-pressed` / `--surface-selected`           | Row and button states                                      |
-| `--label`, `--secondary-label`, `--tertiary-label`, `--quaternary-label` | Text, from primary to disabled                             |
-| `--separator`, `--opaque-separator`                                      | Hairlines (always `0.5px`)                                 |
-| `--system-fill` … `--quaternary-system-fill`                             | Neutral fills (gray buttons, tracks, fields)               |
-| `--accent`, `--accent-contrast`, `--accent-tint`                         | Accent (default red `#fa2d48`); text on accent |
-| `--link` (systemBlue), `--danger` (systemRed), `--success`               | Links, destructive, success                                |
-| `--system-red/pink/orange/yellow/green/teal/blue/indigo/purple/gray`     | Raw system colours (status dots, charts)                    |
+| Token                                                                    | Use                                                   |
+| ------------------------------------------------------------------------ | ----------------------------------------------------- |
+| `--system-background`, `--secondary-system-background`, `--tertiary-...` | System backgrounds                                    |
+| `--surface-window`                                                       | Content area background (`#fff` / `#1d1d1f`)          |
+| `--surface-sidebar`                                                      | Sidebar; `transparent` when the native material shows |
+| `--surface-elevated`                                                     | Sheets, popovers' solid fallback                      |
+| `--surface-hover` / `--surface-pressed` / `--surface-selected`           | Row and button states                                 |
+| `--label`, `--secondary-label`, `--tertiary-label`, `--quaternary-label` | Text, from primary to disabled                        |
+| `--separator`, `--opaque-separator`                                      | Hairlines (always `0.5px`)                            |
+| `--system-fill` … `--quaternary-system-fill`                             | Neutral fills (gray buttons, tracks, fields)          |
+| `--accent`, `--accent-contrast`, `--accent-tint`                         | Accent (default red `#fa2d48`); text on accent        |
+| `--link` (systemBlue), `--danger` (systemRed), `--success`               | Links, destructive, success                           |
+| `--system-red/pink/orange/yellow/green/teal/blue/indigo/purple/gray`     | Raw system colours (status dots, charts)              |
 
 Accent: one of `ACCENT_PRESETS` (`red` default, `pink`, `orange`, `yellow`, `green`, `teal`, `blue`,
 `indigo`, `purple`, `graphite`) or a custom `#rrggbb` (text colour on it is computed). Use the accent for
@@ -158,6 +158,69 @@ setAccent('blue' | '#30d158') // persisted ("orphyn.theme.accent")
 `ThemeProvider` is mounted by the shell; `useTheme()` works anywhere. The stored theme is applied before
 React renders (no flash). In `system` mode the app follows the OS appearance live. The native window
 (vibrancy, Mica, caption buttons) follows the chosen mode.
+
+### Interface styles
+
+The user picks one of five interface styles in Settings > General > Interface Style. Each works in light
+and dark and with every accent; switching is instant (a 220 ms cross-fade through View Transitions,
+skipped under "Reduce motion") and persisted.
+
+| Style     | Character                                                                                                                                                                                                   |
+| --------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `classic` | The base tokens, unchanged (default).                                                                                                                                                                       |
+| `glass`   | Translucent materials everywhere, strong blur + saturation, specular top edges, rounder corners, sidebar / toolbar / now-playing bar floating off the window edges over a soft colour wash, liquid buttons. |
+| `cinema`  | The visible artwork tints the whole UI and glows, blurred, behind it; the sidebar recedes to a rail of icons and expands over the content on hover (or keyboard focus); bigger type and artwork.            |
+| `minimal` | Flat opaque surfaces, no blur, no artwork shadows, hairlines, more whitespace, monochrome sidebar icons, quiet selection.                                                                                   |
+| `compact` | Smaller type scale, artwork and rows (track rows 32 px, one line), tighter shelves and grids, 208 px sidebar.                                                                                               |
+
+```tsx
+import { useInterfaceStyle } from '@renderer/design'
+
+const { style, reduceTransparency, setStyle, setReduceTransparency } = useInterfaceStyle()
+setStyle('glass') // persisted ("orphyn.interface.style"), <html data-style="glass">
+setReduceTransparency(true) // persisted, <html data-reduce-transparency="true">: opaque, no blur, every style
+```
+
+**How it works: token layers.** `tokens.css` splits the tokens in two:
+
+- _Theme tokens_ (colours) on `:root` / `[data-theme='dark']`, as before.
+- _Style tokens_, declared on `:root, [data-style]` (materials also on `[data-theme]`): materials
+  (`--material-*-bg/-filter`, `--material-highlight`), radii, the type scale (`--text-*`, `--tracking-*`),
+  `--page-gutter`, `--section-gap`, `--shelf-gap`, `--grid-gap`, `--card-scale` (multiplies grid item widths),
+  `--shelf-density` (added to the items per shelf), `--hero-height`, `--sidebar-width`, `--sidebar-item-height`,
+  `--sidebar-icon-size`, `--toolbar-height`, `--now-playing-height`, `--track-row-height`, `--track-art-size`,
+  `--chrome-inset` / `--chrome-radius` (floating chrome), and the tintable surfaces `--surface-window`,
+  `--surface-sidebar`, `--surface-grouped`, `--shadow-artwork` (their theme values are `--*-base`).
+
+`styles/interface-styles.css` holds one layer per style, `[data-style='x']` overriding style tokens (and
+`[data-style='x'] [data-theme]` for values that depend on the theme, so a forced theme such as the HeroBanner
+re-resolves them). Theme-dependent primitives a layer needs (`--glass-rgb`, `--cinema-base`, ...) sit on
+`:root` / `[data-theme='dark']` at the top of that file. Because defaults are redeclared on every `[data-style]`
+element, any subtree can wear another style than the window: the Settings previews are live miniatures laid
+out with the real tokens under their own `data-style`.
+
+What tokens cannot express is a component variant scoped to `html[data-style='x']` (so it never reaches a
+preview): at the end of `interface-styles.css` for design components (glass lists, sheets, liquid buttons;
+minimal tracks; compact one-line track rows), in `shell/shell.css` for the layout (floating glass chrome, the
+cinema rail and ambient layer). Features never need to change: build pages with the tokens and components.
+
+**Cinema's ambient artwork.** `ShellAmbient` (shell) uses `useAmbientArtwork(scrollRef, enabled)` from the
+design system: it watches the scroll container (route changes, images loading, scrolling) for the largest
+visible `.jr-artwork__img` (a `.jr-hero__backdrop` wins), samples it on a 32×32 canvas (`extractPalette`,
+cached per URL; `null` when the server forbids cross-origin reads, then only the blurred image shows) and
+writes `--ambient-rgb` / `--ambient-rgb-2` on `<html>`. The cinema layer mixes them into the surfaces.
+
+**Adding a style.**
+
+1. Add its id to `INTERFACE_STYLES` (`design/theme/interfaceStyle.ts`).
+2. Add a `[data-style='id']` layer in `styles/interface-styles.css`: override style tokens only; put
+   theme-dependent values on `[data-style='id'], [data-style='id'] [data-theme]` with primitives on
+   `:root` / `[data-theme='dark']`.
+3. Only if tokens are not enough, add `html[data-style='id'] .jr-…` variants (design components at the end of
+   `interface-styles.css`, shell layout in `shell.css`), and a `.jr-style-preview__window[data-style='id']`
+   rule in `features/settings/StyleGallery.css` if the miniature needs one.
+4. Add `general.style.styles.id.name` / `.description` to `settings.json` (en, fr).
+5. Check it in light and dark, with "Reduce transparency" on and off.
 
 ## 3. Window (`window.orphyn.window`)
 
