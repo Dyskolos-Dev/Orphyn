@@ -1,0 +1,130 @@
+{
+  "nav": {
+    "albums": "Albums",
+    "artists": "Artistes",
+    "playlists": "Playlists",
+    "songs": "Titres"
+  },
+  "home": {
+    "title": "À l’écoute",
+    "empty": "Rien à écouter pour l’instant",
+    "emptyHint": "Ajoutez une bibliothèque musicale à votre serveur Jellyfin, elle apparaîtra ici.",
+    "recentlyPlayed": "Écoutés récemment",
+    "recentlyAdded": "Ajoutés récemment",
+    "instantMix": "Mix instantané",
+    "instantMixFrom": "D’après {{name}}",
+    "favoriteAlbums": "Albums favoris",
+    "favoriteArtists": "Artistes favoris",
+    "playlists": "Playlists"
+  },
+  "library": {
+    "count_one": "{{count}} élément",
+    "count_other": "{{count}} éléments",
+    "songCount_one": "{{count}} titre",
+    "songCount_other": "{{count}} titres",
+    "sort": "Trier",
+    "error": "Impossible de charger votre bibliothèque",
+    "retry": "Réessayer",
+    "loading": "Chargement…"
+  },
+  "sort": {
+    "name": "Nom",
+    "artist": "Artiste",
+    "year": "Année",
+    "added": "Date d’ajout"
+  },
+  "albums": {
+    "empty": "Aucun album",
+    "emptyHint": "Les albums de votre bibliothèque musicale apparaîtront ici."
+  },
+  "artists": {
+    "empty": "Aucun artiste",
+    "emptyHint": "Les artistes de votre bibliothèque musicale apparaîtront ici."
+  },
+  "playlists": {
+    "empty": "Aucune playlist",
+    "emptyHint": "Les playlists créées dans Jellyfin apparaîtront ici."
+  },
+  "songs": {
+    "empty": "Aucun titre",
+    "emptyHint": "Les titres de votre bibliothèque musicale apparaîtront ici.",
+    "title": "Titre",
+    "artist": "Artiste",
+    "album": "Album",
+    "time": "Durée"
+  },
+  "album": {
+    "disc": "Disque {{n}}",
+    "notFound": "Album introuvable",
+    "footer_one": "{{count}} titre",
+    "footer_other": "{{count}} titres",
+    "durationMinutes": "{{minutes}} min",
+    "durationHours": "{{hours}} h {{minutes}} min",
+    "moreBy": "Plus de {{artist}}"
+  },
+  "playlist": {
+    "notFound": "Playlist introuvable",
+    "kind": "Playlist",
+    "empty": "Cette playlist est vide"
+  },
+  "artist": {
+    "notFound": "Artiste introuvable",
+    "eyebrow": "Artiste",
+    "topSongs": "Titres populaires",
+    "albums": "Albums",
+    "singles": "Singles et EP",
+    "appearsOn": "Apparaît sur",
+    "similar": "Artistes similaires"
+  },
+  "actions": {
+    "play": "Lecture",
+    "shuffle": "Aléatoire",
+    "playNext": "Lire ensuite",
+    "addToQueue": "Ajouter à la file d’attente",
+    "favorite": "Ajouter aux favoris",
+    "unfavorite": "Retirer des favoris",
+    "goToAlbum": "Aller à l’album",
+    "goToArtist": "Aller à l’artiste",
+    "more": "Plus"
+  },
+  "player": {
+    "controls": "Commandes de lecture",
+    "shuffle": "Aléatoire",
+    "previous": "Précédent",
+    "play": "Lecture",
+    "pause": "Pause",
+    "next": "Suivant",
+    "repeat": {
+      "off": "Répéter : désactivé",
+      "all": "Répéter : tout",
+      "one": "Répéter : un titre"
+    },
+    "seek": "Position",
+    "mute": "Couper le son",
+    "unmute": "Rétablir le son",
+    "volume": "Volume",
+    "nowPlaying": "En lecture",
+    "openNowPlaying": "Ouvrir En lecture",
+    "lyrics": "Paroles",
+    "queue": "À suivre",
+    "close": "Fermer",
+    "view": "Affichage",
+    "unplayable": "Impossible de lire « {{title}} », titre ignoré",
+    "loadFailed": "Impossible de démarrer la lecture"
+  },
+  "queue": {
+    "title": "À suivre",
+    "empty": "La file d’attente est vide",
+    "clear": "Effacer",
+    "play": "Lire {{title}}",
+    "remove": "Retirer {{title}}",
+    "playing": "En lecture",
+    "addedNext": "Lecture ensuite",
+    "addedLast": "Ajouté à la file d’attente"
+  },
+  "lyrics": {
+    "title": "Paroles",
+    "none": "Pas de paroles",
+    "noneHint": "Ce titre n’a pas de paroles sur votre serveur."
+  }
+}
