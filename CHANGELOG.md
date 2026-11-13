@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [1.0.5] - 2026-11-13
+
+### Fixed
+
+- Windows release build: the custom installer art is generated in CI before packaging.
+
 ## [1.0.4] - 2026-11-13
 
 ### Changed

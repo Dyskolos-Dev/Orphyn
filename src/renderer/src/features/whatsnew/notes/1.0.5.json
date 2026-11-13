@@ -1,0 +1,22 @@
+{
+  "fr": {
+    "title": "Petite mise au point",
+    "items": [
+      {
+        "icon": "download",
+        "title": "Installeur Windows publié",
+        "text": "Le nouvel installeur de la 1.0.4 est maintenant disponible sur Windows, avec toutes les nouveautés de cette version."
+      }
+    ]
+  },
+  "en": {
+    "title": "A quick fix",
+    "items": [
+      {
+        "icon": "download",
+        "title": "Windows installer published",
+        "text": "The new installer from 1.0.4 is now available on Windows, together with everything else in that release."
+      }
+    ]
+  }
+}

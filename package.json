@@ -1,6 +1,6 @@
 {
   "name": "lumen",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Lumen - a desktop Jellyfin client for music, movies and series",
   "private": true,
   "homepage": "https://github.com/Dyskolos-Dev/Lumen",

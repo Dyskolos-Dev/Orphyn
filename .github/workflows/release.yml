@@ -32,6 +32,13 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Generate the Windows installer art
+        # build/installer-art/ is generated (and git-ignored): the custom NSIS pages include it.
+        if: runner.os == 'Windows'
+        run: |
+          npx playwright install chromium
+          npm run installer-art
+
       - name: Build and publish
         # Each OS job uploads its own files to the same release (electron-builder creates it once and
         # reuses it), so one tag gives one release with everything attached.
