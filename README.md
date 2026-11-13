@@ -39,9 +39,10 @@ Download the installer for your system from the [latest release](https://github.
 
 | System | File |
 |---|---|
-| Windows 10/11 | `Lumen Setup x.y.z.exe` |
-| macOS (Intel & Apple silicon) | `Lumen-x.y.z.dmg` |
-| Linux | `Lumen-x.y.z.AppImage` or `.deb` |
+| Windows 10/11 | `Lumen-Setup-x.y.z.exe` |
+| macOS Apple silicon (M1+) | `Lumen-x.y.z-arm64.dmg` |
+| macOS Intel | `Lumen-x.y.z.dmg` |
+| Linux | `Lumen-x.y.z.AppImage` or `lumen_x.y.z_amd64.deb` |
 
 > [!NOTE]
 > The builds are not code-signed yet. On Windows, click **More info → Run anyway** in SmartScreen. On macOS, right-click the app and choose **Open** the first time.

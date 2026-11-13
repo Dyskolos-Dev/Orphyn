@@ -39,9 +39,10 @@ Télécharge l'installeur de ton système dans la [dernière release](https://gi
 
 | Système | Fichier |
 |---|---|
-| Windows 10/11 | `Lumen Setup x.y.z.exe` |
-| macOS (Intel et Apple silicon) | `Lumen-x.y.z.dmg` |
-| Linux | `Lumen-x.y.z.AppImage` ou `.deb` |
+| Windows 10/11 | `Lumen-Setup-x.y.z.exe` |
+| macOS Apple silicon (M1+) | `Lumen-x.y.z-arm64.dmg` |
+| macOS Intel | `Lumen-x.y.z.dmg` |
+| Linux | `Lumen-x.y.z.AppImage` ou `lumen_x.y.z_amd64.deb` |
 
 > [!NOTE]
 > Les builds ne sont pas encore signés. Sur Windows, clique sur **Informations complémentaires → Exécuter quand même** dans SmartScreen. Sur macOS, fais un clic droit sur l'app puis **Ouvrir** la première fois.
