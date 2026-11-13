@@ -1,0 +1,41 @@
+{
+  "title": "Recherche",
+  "subtitle": "Résultats pour « {{query}} »",
+  "topResult": "Meilleur résultat",
+  "kinds": {
+    "movie": "Film",
+    "series": "Série",
+    "episode": "Épisode",
+    "artist": "Artiste",
+    "album": "Album",
+    "song": "Titre"
+  },
+  "sections": {
+    "movies": "Films",
+    "series": "Séries",
+    "episodes": "Épisodes",
+    "artists": "Artistes",
+    "albums": "Albums",
+    "songs": "Titres"
+  },
+  "empty": {
+    "title": "Cherchez dans votre bibliothèque",
+    "message": "Trouvez films, séries, épisodes, artistes, albums et titres sur votre serveur."
+  },
+  "tooShort": "Saisissez au moins 2 caractères.",
+  "noResults": {
+    "title": "Aucun résultat pour « {{query}} »",
+    "message": "Vérifiez l’orthographe ou essayez une autre recherche."
+  },
+  "error": {
+    "title": "La recherche a échoué",
+    "message": "Le serveur n’a pas répondu. Vérifiez votre connexion et réessayez.",
+    "retry": "Réessayer"
+  },
+  "recent": {
+    "title": "Recherches récentes",
+    "clear": "Effacer"
+  },
+  "episodeLabel": "S{{season}} · E{{episode}}",
+  "playSong": "Lire {{title}}"
+}

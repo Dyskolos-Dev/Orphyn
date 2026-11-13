@@ -1,0 +1,122 @@
+{
+  "title": "Réglages",
+  "nav": "Sections des réglages",
+  "panes": {
+    "general": "Général",
+    "servers": "Serveurs",
+    "playback": "Lecture",
+    "music": "Musique",
+    "about": "À propos"
+  },
+  "general": {
+    "language": {
+      "header": "Langue",
+      "label": "Langue",
+      "description": "S’applique immédiatement.",
+      "system": "Système",
+      "fr": "Français",
+      "en": "English"
+    },
+    "appearance": {
+      "header": "Apparence",
+      "label": "Apparence",
+      "system": "Système",
+      "light": "Clair",
+      "dark": "Sombre"
+    },
+    "accent": {
+      "header": "Couleur d’accentuation",
+      "label": "Couleur d’accentuation",
+      "custom": "Couleur personnalisée",
+      "colors": {
+        "red": "Rouge",
+        "pink": "Rose",
+        "orange": "Orange",
+        "yellow": "Jaune",
+        "green": "Vert",
+        "teal": "Turquoise",
+        "blue": "Bleu",
+        "indigo": "Indigo",
+        "purple": "Violet",
+        "graphite": "Graphite"
+      }
+    }
+  },
+  "servers": {
+    "header": "Vos serveurs",
+    "empty": "Aucun serveur",
+    "emptyMessage": "Ajoutez un serveur Jellyfin pour commencer à regarder et écouter.",
+    "add": "Ajouter un serveur…",
+    "active": "Actif",
+    "switch": "Activer",
+    "rename": "Renommer",
+    "renameTitle": "Renommer le serveur",
+    "renameLabel": "Nom du serveur",
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "needsLogin": "Connexion requise",
+    "signInAgain": "Se reconnecter",
+    "signOut": "Se déconnecter et supprimer…",
+    "remove": "Supprimer",
+    "removeTitle": "Supprimer « {{name}} » ?",
+    "removeMessage": "Vous serez déconnecté de ce serveur sur cet appareil. Vos médias restent sur le serveur.",
+    "removeConfirm": "Supprimer le serveur",
+    "more": "Actions pour {{name}}",
+    "details": "{{user}} · {{url}}",
+    "storageWarning": "Les jetons de connexion ne peuvent pas être chiffrés sur cet ordinateur : ils restent en mémoire uniquement, vous devrez donc vous reconnecter après avoir relancé Jellyra.",
+    "removeFailed": "Le serveur n’a pas pu être supprimé."
+  },
+  "playback": {
+    "videoHeader": "Vidéo",
+    "maxBitrate": "Qualité maximale de streaming",
+    "maxBitrateFooter": "Réduisez-la sur une connexion lente. Jellyfin transcodera ce qui la dépasse.",
+    "auto": "Automatique",
+    "mbps": "{{value}} Mbit/s",
+    "audioLanguage": "Langue audio préférée",
+    "subtitleLanguage": "Langue des sous-titres préférée",
+    "subtitlesOff": "Désactivés",
+    "defaultTrack": "Par défaut",
+    "autoPlayNext": "Lire l’épisode suivant automatiquement",
+    "autoPlayNextDescription": "À la fin d’un épisode, le suivant démarre après un court compte à rebours.",
+    "reset": "Rétablir les valeurs par défaut",
+    "languages": {
+      "eng": "Anglais",
+      "fre": "Français",
+      "spa": "Espagnol",
+      "ger": "Allemand",
+      "ita": "Italien",
+      "por": "Portugais",
+      "jpn": "Japonais",
+      "kor": "Coréen",
+      "chi": "Chinois",
+      "rus": "Russe"
+    }
+  },
+  "music": {
+    "header": "Musique",
+    "crossfade": "Fondu enchaîné",
+    "crossfadeDescription": "Fond la fin d’un morceau dans le suivant. Bientôt disponible.",
+    "crossfadeOff": "Désactivé",
+    "quality": "Qualité de streaming",
+    "qualityFooter": "Original lit le fichier tel quel. Un débit demande au serveur de transcoder, ce qui économise des données.",
+    "original": "Original",
+    "kbps": "{{value}} kbit/s"
+  },
+  "about": {
+    "app": "Jellyra",
+    "version": "Version {{version}}",
+    "server": "Serveur connecté",
+    "serverName": "Nom",
+    "serverVersion": "Version de Jellyfin",
+    "serverUrl": "Adresse",
+    "user": "Connecté en tant que",
+    "noServer": "Aucun serveur connecté",
+    "links": "Liens",
+    "jellyfin": "Jellyfin",
+    "jellyfinDescription": "Le système multimédia libre derrière votre bibliothèque",
+    "docs": "Documentation de Jellyfin",
+    "tokenStorage": "Stockage de la connexion",
+    "encrypted": "Chiffré avec le trousseau du système",
+    "notEncrypted": "En mémoire uniquement (aucun stockage sécurisé disponible)"
+  }
+}

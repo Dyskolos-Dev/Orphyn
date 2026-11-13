@@ -1,7 +1,6 @@
 import type { RouteObject } from 'react-router'
-import { StubPage } from '@renderer/shell/StubPage'
+import { OnboardingPage } from './OnboardingPage'
+import './register'
 
 /** Route table for the servers feature. Owned by the servers agent. */
-export const serversRoutes: RouteObject[] = [
-  { path: '/onboarding', element: <StubPage name="Onboarding" /> },
-]
+export const serversRoutes: RouteObject[] = [{ path: '/onboarding', element: <OnboardingPage /> }]

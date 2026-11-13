@@ -1,0 +1,58 @@
+{
+  "steps": { "label": "Step {{current}} of {{total}}" },
+  "address": {
+    "title": "Connect to your server",
+    "subtitle": "Enter the address of your Jellyfin server.",
+    "label": "Server address",
+    "placeholder": "jellyfin.example.com or 192.168.1.10:8096",
+    "hint": "The port and protocol are detected for you.",
+    "connect": "Connect",
+    "checking": "Looking for your server…",
+    "found": "Server found",
+    "foundDetail": "{{name}} · Jellyfin {{version}}",
+    "continue": "Continue"
+  },
+  "login": {
+    "title": "Sign in",
+    "subtitle": "Sign in to {{name}} with your Jellyfin account.",
+    "username": "Username",
+    "password": "Password",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password",
+    "signIn": "Sign In",
+    "back": "Back",
+    "reloginTitle": "Sign in again",
+    "reloginSubtitle": "Your session on {{name}} expired. Sign in as {{user}} to continue."
+  },
+  "name": {
+    "title": "Name this server",
+    "subtitle": "Choose a name to recognise it in the sidebar.",
+    "label": "Server name",
+    "hint": "You can rename it later in Settings.",
+    "finish": "Start Watching"
+  },
+  "errors": {
+    "invalid_url": "Enter a valid server address.",
+    "unreachable": "Jellyra could not reach this server. Check the address and your connection.",
+    "not_jellyfin": "This address answered, but it is not a Jellyfin server.",
+    "tls": "The server's certificate could not be verified.",
+    "version_too_old": "This server runs Jellyfin {{version}}. Jellyra needs version 10.9 or newer.",
+    "version_too_old_unknown": "This server is too old. Jellyra needs Jellyfin 10.9 or newer.",
+    "invalid_credentials": "Wrong username or password.",
+    "server_error": "The server returned an error. Try again later.",
+    "generic": "Something went wrong. Try again."
+  },
+  "switcher": {
+    "label": "Server",
+    "menu": "Servers",
+    "active": "Active server: {{name}}",
+    "none": "No server",
+    "add": "Add Server…",
+    "manage": "Manage Servers…",
+    "needsLogin": "Sign in required"
+  },
+  "add": {
+    "title": "Add a Server",
+    "description": "Connect to another Jellyfin server."
+  }
+}

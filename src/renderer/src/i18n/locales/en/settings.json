@@ -1,0 +1,122 @@
+{
+  "title": "Settings",
+  "nav": "Settings sections",
+  "panes": {
+    "general": "General",
+    "servers": "Servers",
+    "playback": "Playback",
+    "music": "Music",
+    "about": "About"
+  },
+  "general": {
+    "language": {
+      "header": "Language",
+      "label": "Language",
+      "description": "Applies immediately.",
+      "system": "System",
+      "fr": "Français",
+      "en": "English"
+    },
+    "appearance": {
+      "header": "Appearance",
+      "label": "Appearance",
+      "system": "System",
+      "light": "Light",
+      "dark": "Dark"
+    },
+    "accent": {
+      "header": "Accent Colour",
+      "label": "Accent colour",
+      "custom": "Custom colour",
+      "colors": {
+        "red": "Red",
+        "pink": "Pink",
+        "orange": "Orange",
+        "yellow": "Yellow",
+        "green": "Green",
+        "teal": "Teal",
+        "blue": "Blue",
+        "indigo": "Indigo",
+        "purple": "Purple",
+        "graphite": "Graphite"
+      }
+    }
+  },
+  "servers": {
+    "header": "Your servers",
+    "empty": "No server yet",
+    "emptyMessage": "Add a Jellyfin server to start watching and listening.",
+    "add": "Add Server…",
+    "active": "Active",
+    "switch": "Make Active",
+    "rename": "Rename",
+    "renameTitle": "Rename Server",
+    "renameLabel": "Server name",
+    "save": "Save",
+    "cancel": "Cancel",
+    "needsLogin": "Sign in required",
+    "signInAgain": "Sign In Again",
+    "signOut": "Sign Out and Remove…",
+    "remove": "Remove",
+    "removeTitle": "Remove “{{name}}”?",
+    "removeMessage": "You will be signed out of this server on this device. Your media stays on the server.",
+    "removeConfirm": "Remove Server",
+    "more": "Actions for {{name}}",
+    "details": "{{user}} · {{url}}",
+    "storageWarning": "Sign-in tokens cannot be encrypted on this computer, so they are kept in memory only: you will need to sign in again after restarting Jellyra.",
+    "removeFailed": "The server could not be removed."
+  },
+  "playback": {
+    "videoHeader": "Video",
+    "maxBitrate": "Maximum streaming quality",
+    "maxBitrateFooter": "Lower this on a slow connection. Jellyfin will transcode what exceeds it.",
+    "auto": "Automatic",
+    "mbps": "{{value}} Mbps",
+    "audioLanguage": "Preferred audio language",
+    "subtitleLanguage": "Preferred subtitle language",
+    "subtitlesOff": "Off",
+    "defaultTrack": "Default",
+    "autoPlayNext": "Play next episode automatically",
+    "autoPlayNextDescription": "When an episode ends, the next one starts after a short countdown.",
+    "reset": "Reset to Defaults",
+    "languages": {
+      "eng": "English",
+      "fre": "French",
+      "spa": "Spanish",
+      "ger": "German",
+      "ita": "Italian",
+      "por": "Portuguese",
+      "jpn": "Japanese",
+      "kor": "Korean",
+      "chi": "Chinese",
+      "rus": "Russian"
+    }
+  },
+  "music": {
+    "header": "Music",
+    "crossfade": "Crossfade",
+    "crossfadeDescription": "Blend the end of a song into the next one. Coming soon.",
+    "crossfadeOff": "Off",
+    "quality": "Streaming quality",
+    "qualityFooter": "Original plays the file as stored. A bitrate asks the server to transcode, which saves data.",
+    "original": "Original",
+    "kbps": "{{value}} kbps"
+  },
+  "about": {
+    "app": "Jellyra",
+    "version": "Version {{version}}",
+    "server": "Connected server",
+    "serverName": "Name",
+    "serverVersion": "Jellyfin version",
+    "serverUrl": "Address",
+    "user": "Signed in as",
+    "noServer": "Not connected to a server",
+    "links": "Links",
+    "jellyfin": "Jellyfin",
+    "jellyfinDescription": "The free software media system behind your library",
+    "docs": "Jellyfin documentation",
+    "tokenStorage": "Sign-in storage",
+    "encrypted": "Encrypted with your system keychain",
+    "notEncrypted": "Memory only (no secure storage available)"
+  }
+}

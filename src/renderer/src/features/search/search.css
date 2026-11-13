@@ -1,0 +1,53 @@
+.jr-search {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}
+.jr-search__loading {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  padding: 0 var(--page-gutter);
+}
+.jr-search__top,
+.jr-search__songs {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: 0 var(--page-gutter);
+}
+.jr-search__recent-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.jr-search__top-card {
+  display: flex;
+  align-items: center;
+  gap: var(--space-6);
+  padding: var(--space-5);
+  border-radius: var(--radius-xl);
+  background: var(--tertiary-system-fill);
+  color: var(--label);
+  text-decoration: none;
+  transition: background var(--duration-fast) var(--ease-standard);
+}
+.jr-search__top-card:hover {
+  background: var(--quaternary-system-fill);
+}
+.jr-search__top-art {
+  flex-shrink: 0;
+  width: 160px;
+}
+.jr-search__top-art--2x3 {
+  width: 120px;
+}
+.jr-search__top-art--16x9 {
+  width: 240px;
+}
+.jr-search__top-text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+}

@@ -1,0 +1,58 @@
+{
+  "steps": { "label": "Étape {{current}} sur {{total}}" },
+  "address": {
+    "title": "Connectez-vous à votre serveur",
+    "subtitle": "Saisissez l’adresse de votre serveur Jellyfin.",
+    "label": "Adresse du serveur",
+    "placeholder": "jellyfin.exemple.com ou 192.168.1.10:8096",
+    "hint": "Le port et le protocole sont détectés automatiquement.",
+    "connect": "Se connecter",
+    "checking": "Recherche de votre serveur…",
+    "found": "Serveur trouvé",
+    "foundDetail": "{{name}} · Jellyfin {{version}}",
+    "continue": "Continuer"
+  },
+  "login": {
+    "title": "Connexion",
+    "subtitle": "Connectez-vous à {{name}} avec votre compte Jellyfin.",
+    "username": "Nom d’utilisateur",
+    "password": "Mot de passe",
+    "showPassword": "Afficher le mot de passe",
+    "hidePassword": "Masquer le mot de passe",
+    "signIn": "Se connecter",
+    "back": "Retour",
+    "reloginTitle": "Reconnectez-vous",
+    "reloginSubtitle": "Votre session sur {{name}} a expiré. Connectez-vous en tant que {{user}} pour continuer."
+  },
+  "name": {
+    "title": "Nommez ce serveur",
+    "subtitle": "Choisissez un nom pour le reconnaître dans la barre latérale.",
+    "label": "Nom du serveur",
+    "hint": "Vous pourrez le renommer plus tard dans les Réglages.",
+    "finish": "Commencer"
+  },
+  "errors": {
+    "invalid_url": "Saisissez une adresse de serveur valide.",
+    "unreachable": "Jellyra n’a pas pu joindre ce serveur. Vérifiez l’adresse et votre connexion.",
+    "not_jellyfin": "Cette adresse répond, mais ce n’est pas un serveur Jellyfin.",
+    "tls": "Le certificat du serveur n’a pas pu être vérifié.",
+    "version_too_old": "Ce serveur utilise Jellyfin {{version}}. Jellyra nécessite la version 10.9 ou plus récente.",
+    "version_too_old_unknown": "Ce serveur est trop ancien. Jellyra nécessite Jellyfin 10.9 ou plus récent.",
+    "invalid_credentials": "Nom d’utilisateur ou mot de passe incorrect.",
+    "server_error": "Le serveur a renvoyé une erreur. Réessayez plus tard.",
+    "generic": "Une erreur s’est produite. Réessayez."
+  },
+  "switcher": {
+    "label": "Serveur",
+    "menu": "Serveurs",
+    "active": "Serveur actif : {{name}}",
+    "none": "Aucun serveur",
+    "add": "Ajouter un serveur…",
+    "manage": "Gérer les serveurs…",
+    "needsLogin": "Connexion requise"
+  },
+  "add": {
+    "title": "Ajouter un serveur",
+    "description": "Connectez-vous à un autre serveur Jellyfin."
+  }
+}
