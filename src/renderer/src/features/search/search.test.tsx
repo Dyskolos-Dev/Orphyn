@@ -9,6 +9,11 @@ const mocks = vi.hoisted(() => ({
   isPending: false,
   isError: false,
   term: '',
+  played: [] as string[],
+}))
+
+vi.mock('@renderer/features/music', () => ({
+  musicPlayer: { playItem: (id: string) => mocks.played.push(id) },
 }))
 
 vi.mock('@renderer/jellyfin', () => ({
@@ -164,12 +169,12 @@ describe('SearchPage', () => {
     expect(screen.getByTestId('where')).toHaveTextContent('/video/item/e1')
   })
 
-  it('sends a song to its album while no music player exists', async () => {
+  it('plays a song with the music player', async () => {
     const user = userEvent.setup()
     renderPage('/search?q=dune')
     const row = await screen.findByText('Dune Theme')
     await user.dblClick(row)
-    expect(screen.getByTestId('where')).toHaveTextContent('/music/album/al1')
+    expect(mocks.played).toContain('t1')
   })
 
   it('shows the no-results state', async () => {

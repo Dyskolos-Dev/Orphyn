@@ -1,7 +1,7 @@
 import { Clock, Disc3, Film, Music, Search, SearchX, TriangleAlert, Tv, User } from 'lucide-react'
 import { useEffect, useState, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Link, useNavigate, useSearchParams } from 'react-router'
+import { Link, useSearchParams } from 'react-router'
 import {
   Artwork,
   Button,
@@ -20,6 +20,7 @@ import {
   initials,
 } from '@renderer/design'
 import { imageUrl, useSearch, type BaseItemDto } from '@renderer/jellyfin'
+import { musicPlayer } from '@renderer/features/music'
 import { ShellPage } from '@renderer/shell'
 import { groupResults, routeFor, type ResultKind, type ResultSection } from './grouping'
 import { addRecentSearch, clearRecentSearches, useRecentSearches } from './recents'
@@ -133,7 +134,6 @@ function Loading() {
 
 function Results({ term, data }: { term: string; data: Parameters<typeof groupResults>[0] }) {
   const { t } = useTranslation('search')
-  const navigate = useNavigate()
   const grouped = groupResults(data, term)
 
   if (grouped.total === 0) {
@@ -160,7 +160,9 @@ function Results({ term, data }: { term: string; data: Parameters<typeof groupRe
         <SectionView
           key={section.id}
           section={section}
-          onPlaySong={(item) => void navigate(routeFor('song', item))}
+          onPlaySong={(item) => {
+            if (item.Id) void musicPlayer.playItem(item.Id)
+          }}
         />
       ))}
     </>
