@@ -1,10 +1,15 @@
 import { app, BrowserWindow } from 'electron'
 import { registerAccountsIpc } from './accounts'
 import { registerCastIpc } from './cast'
+import { applyStartupSwitches } from './startup'
 import { createMainWindow } from './window'
 
-void app.whenReady().then(() => {
-  registerAccountsIpc()
+// Must run before `ready`: user data location and Chromium features are fixed at startup.
+applyStartupSwitches()
+
+void app.whenReady().then(async () => {
+  // The renderer asks for the accounts as soon as it loads: the store must be open first.
+  await registerAccountsIpc()
   registerCastIpc()
   createMainWindow()
 

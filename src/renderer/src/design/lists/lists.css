@@ -141,10 +141,11 @@
   position: relative;
   flex: none;
   width: 36px;
+  /* Stretch to the row height so the number / equalizer centre on the title. (A `height: 100%`
+     here resolved against the row's auto height, disabled the stretch and pinned it to the top.) */
   align-self: stretch;
   display: grid;
   place-items: center;
-  height: 100%;
 }
 .jr-track__number {
   font-variant-numeric: tabular-nums;

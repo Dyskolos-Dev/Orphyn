@@ -197,14 +197,18 @@ export const useInstantMix = (itemId: string | undefined, limit = 50) =>
     { staleTime: STALE.item, enabled: !!itemId },
   )
 
-/** Lyrics of a track: `null` when it has none; `synced` tells whether lines carry timestamps. */
-export const useLyrics = (itemId: string | undefined) =>
+/**
+ * Lyrics of a track: `null` when it has none; `synced` tells whether lines carry timestamps.
+ * Pass the track's `HasLyrics` (Jellyfin ≥ 10.9 fills it in item lists): when it is `false` no
+ * request is made, so tracks without lyrics do not cost a 404 each.
+ */
+export const useLyrics = (itemId: string | undefined, hasLyrics?: boolean | null) =>
   useScoped(
     (a) => jfKeys.lyrics(a, itemId ?? ''),
     (c) => ep.fetchLyrics(c.api, itemId as string),
     {
       staleTime: STALE.lyrics,
-      enabled: !!itemId,
+      enabled: !!itemId && hasLyrics !== false,
     },
   )
 

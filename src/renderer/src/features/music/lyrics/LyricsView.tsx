@@ -13,9 +13,16 @@ const MANUAL_SCROLL_GRACE_MS = 3500
  * Lyrics like Apple Music: synced lines with the current one large and bright, the others dimmed,
  * smooth auto-scroll, click a line to seek. Unsynced lyrics are plain text.
  */
-export function LyricsView({ trackId }: { trackId: string | undefined }) {
+export function LyricsView({
+  trackId,
+  hasLyrics,
+}: {
+  trackId: string | undefined
+  /** The track's `HasLyrics`: `false` shows the empty state without asking the server. */
+  hasLyrics?: boolean | null
+}) {
   const { t } = useTranslation('music')
-  const query = useLyrics(trackId)
+  const query = useLyrics(trackId, hasLyrics)
   const lyrics = query.data
   const synced = !!lyrics?.synced
   const active = useMusicPlayer((s) =>

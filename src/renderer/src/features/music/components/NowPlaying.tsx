@@ -157,7 +157,11 @@ function Sheet() {
             className="jrm-np__panel"
             aria-label={view === 'lyrics' ? t('player.lyrics') : t('player.queue')}
           >
-            {view === 'lyrics' ? <LyricsView trackId={track.Id ?? undefined} /> : <QueueView />}
+            {view === 'lyrics' ? (
+              <LyricsView trackId={track.Id ?? undefined} hasLyrics={track.HasLyrics} />
+            ) : (
+              <QueueView />
+            )}
           </section>
         )}
       </div>

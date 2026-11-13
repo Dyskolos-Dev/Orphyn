@@ -78,7 +78,7 @@ export interface ConnectParams {
   url: string
   username: string
   password: string
-  /** User-chosen display name; defaults to the server's own name. */
+  /** User-chosen display name; defaults to the existing entry's name, else the server's. */
   name?: string
   http?: AxiosInstance
 }
@@ -92,7 +92,8 @@ export async function connectServer(p: ConnectParams): Promise<ConnectResult> {
   const res = await login(info.url, p.username, p.password, deviceId, p.http)
   if (!res.ok) return res
   const account = await window.jellyra.accounts.add({
-    name: p.name?.trim() || info.serverName,
+    // Empty: the store keeps an existing account's name, or uses the server's name.
+    name: p.name?.trim() ?? '',
     url: info.url,
     serverId: info.serverId,
     serverName: info.serverName,

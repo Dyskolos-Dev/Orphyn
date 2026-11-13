@@ -7,18 +7,20 @@ import { AccountStore } from './store'
 
 export { AccountStore } from './store'
 
-let store: AccountStore | null = null
+let store: Promise<AccountStore> | null = null
 
-export function getAccountStore(): AccountStore {
-  store ??= new AccountStore({
+/** Opens the store once (decrypting tokens is asynchronous). Call after `app` is ready. */
+export function getAccountStore(): Promise<AccountStore> {
+  store ??= AccountStore.open({
     filePath: join(app.getPath('userData'), 'accounts.json'),
     storage: safeStorage,
   })
   return store
 }
 
-export function registerAccountsIpc(): void {
-  const s = getAccountStore()
+/** Resolves once the store is open and every handler is registered: await it before loading a window. */
+export async function registerAccountsIpc(): Promise<void> {
+  const s = await getAccountStore()
   if (!s.encrypted) console.warn('[accounts]', s.getStatus().warning)
   ipcMain.handle(C.list, () => s.list())
   ipcMain.handle(C.add, (_e, input: NewServerAccount) => s.add(input))

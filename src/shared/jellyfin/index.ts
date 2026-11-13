@@ -29,6 +29,7 @@ export interface ServerAccount {
 
 /** Input of `accounts.add`. The token comes from AuthenticateByName; passwords are never passed. */
 export interface NewServerAccount {
+  /** Display name; empty keeps the name of an existing entry for this server and user. */
   name: string
   url: string
   serverId: string

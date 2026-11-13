@@ -24,7 +24,7 @@ const mocks = vi.hoisted(() => ({
   activate: vi.fn(),
   refreshAccounts: vi.fn(),
   rename: vi.fn(),
-  state: { status: 'no-server' as string },
+  state: { status: 'no-server' as string, account: null as ServerAccount | null },
 }))
 
 vi.mock('@renderer/jellyfin', () => {
@@ -37,7 +37,7 @@ vi.mock('@renderer/jellyfin', () => {
         refreshAccounts: mocks.refreshAccounts,
         init: vi.fn(),
         accounts: [],
-        account: null,
+        account: mocks.state.account,
         needsLogin: {},
       }),
     },
@@ -55,6 +55,7 @@ import { ServerGuard } from './ServerGuard'
 beforeEach(() => {
   vi.clearAllMocks()
   mocks.state.status = 'no-server'
+  mocks.state.account = null
   mocks.activate.mockResolvedValue(undefined)
   mocks.refreshAccounts.mockResolvedValue(undefined)
   mocks.rename.mockImplementation((_id: string, name: string) =>
@@ -110,6 +111,29 @@ describe('ConnectFlow', () => {
     await waitFor(() => expect(onDone).toHaveBeenCalled())
     expect(mocks.rename).toHaveBeenCalledWith('acc-1', 'Salon')
     expect(mocks.activate).toHaveBeenCalledWith(expect.objectContaining({ name: 'Salon' }))
+  })
+
+  it('switches to the new token at once when signing in again to the active server', async () => {
+    mocks.state.account = account
+    mocks.probeServer.mockResolvedValue({
+      ok: true,
+      info: {
+        url: 'http://nas:8096',
+        serverId: 'srv',
+        serverName: 'Home Jellyfin',
+        version: '10.11.10',
+      },
+    })
+    mocks.connectServer.mockResolvedValue({ ok: true, account })
+    const user = userEvent.setup()
+    render(<ConnectFlow onDone={vi.fn()} />)
+    await user.type(screen.getByLabelText('Server address'), 'nas{Enter}')
+    await user.click(await screen.findByRole('button', { name: 'Continue' }))
+    await user.type(await screen.findByLabelText('Username'), 'alice')
+    await user.type(screen.getByLabelText('Password'), 'secret{Enter}')
+    // Before the naming step is finished (the user may close the sheet there).
+    await screen.findByLabelText('Server name')
+    expect(mocks.activate).toHaveBeenCalledWith(account)
   })
 
   it.each([

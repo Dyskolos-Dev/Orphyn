@@ -97,6 +97,11 @@
 .jr-video-section {
   padding-inline: var(--page-gutter);
 }
+/* Shelves carry their own page gutter and bleed to the window edges: undo the section padding
+   so the episodes line up with the season picker above them. */
+.jr-video-section > .jr-shelf {
+  margin-inline: calc(-1 * var(--page-gutter));
+}
 .jr-video-seasons {
   display: flex;
   align-items: center;

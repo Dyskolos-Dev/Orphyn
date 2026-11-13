@@ -3,11 +3,14 @@ import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from '
 import { dirname } from 'node:path'
 import type { AccountsStatus, NewServerAccount, ServerAccount } from '@shared/jellyfin'
 
-/** The subset of Electron's safeStorage the store needs (injectable for tests). */
+/**
+ * The subset of Electron's safeStorage the store needs (injectable for tests). Only the async
+ * API: the synchronous one is deprecated since Electron 45 and logs a warning on every call.
+ */
 export interface SecureStorage {
-  isEncryptionAvailable(): boolean
-  encryptString(plain: string): Buffer
-  decryptString(encrypted: Buffer): string
+  isAsyncEncryptionAvailable(): Promise<boolean>
+  encryptStringAsync(plain: string): Promise<Buffer>
+  decryptStringAsync(encrypted: Buffer): Promise<{ result: string; shouldReEncrypt: boolean }>
   /** Linux only: 'basic_text' means no real keyring, i.e. effectively clear text. */
   getSelectedStorageBackend?(): string
 }
@@ -39,16 +42,29 @@ export class AccountStore {
   private data: StoredFile
   /** Clear tokens, in memory only. Authoritative source for getToken. */
   private readonly tokens = new Map<string, string>()
+  /** base64 ciphertext of each token: what `save` writes. */
+  private readonly ciphers = new Map<string, string>()
 
-  constructor(deps: AccountStoreDeps) {
+  /** Use `AccountStore.open`: encryption availability and decryption are asynchronous. */
+  private constructor(
+    deps: AccountStoreDeps,
+    private readonly encryptionAvailable: boolean,
+  ) {
     this.deps = { now: () => new Date(), uuid: randomUUID, ...deps }
-    this.data = this.load()
+    this.data = this.emptyFile()
+  }
+
+  static async open(deps: AccountStoreDeps): Promise<AccountStore> {
+    const s = deps.storage
+    const available =
+      (await s.isAsyncEncryptionAvailable()) && s.getSelectedStorageBackend?.() !== 'basic_text'
+    const store = new AccountStore(deps, available)
+    await store.load()
+    return store
   }
 
   get encrypted(): boolean {
-    const s = this.deps.storage
-    if (!s.isEncryptionAvailable()) return false
-    return s.getSelectedStorageBackend?.() !== 'basic_text'
+    return this.encryptionAvailable
   }
 
   getStatus(): AccountsStatus {
@@ -74,15 +90,23 @@ export class AccountStore {
     return this.tokens.get(id) ?? null
   }
 
-  /** Adds an account; the same server+user is updated in place (new token, new url/name). */
-  add(input: NewServerAccount): ServerAccount {
+  /**
+   * Adds an account; the same server+user is updated in place (new token, new url/name). Two
+   * entries for one user could not both work anyway: Jellyfin revokes the previous token of a
+   * device when it signs in again.
+   */
+  async add(input: NewServerAccount): Promise<ServerAccount> {
+    const cipher = this.encrypted
+      ? (await this.deps.storage.encryptStringAsync(input.accessToken)).toString('base64')
+      : null
     const now = this.deps.now().toISOString()
     const existing = this.data.accounts.find(
       (a) => a.serverId === input.serverId && a.userId === input.userId,
     )
     const stored: StoredAccount = {
       id: existing?.id ?? this.deps.uuid(),
-      name: input.name.trim() || input.serverName,
+      // Signing in again without a name keeps the one the user chose.
+      name: input.name.trim() || existing?.name || input.serverName,
       url: input.url,
       serverId: input.serverId,
       serverName: input.serverName,
@@ -96,6 +120,8 @@ export class AccountStore {
     if (existing) Object.assign(existing, stored)
     else this.data.accounts.push(stored)
     this.tokens.set(stored.id, input.accessToken)
+    if (cipher) this.ciphers.set(stored.id, cipher)
+    else this.ciphers.delete(stored.id)
     if (!this.data.activeId) this.data.activeId = stored.id
     this.save()
     return this.toPublic(existing ?? stored)
@@ -109,10 +135,20 @@ export class AccountStore {
     return this.toPublic(a)
   }
 
+  /**
+   * Forgets an account. When it was the active one, the most recently used remaining account
+   * takes over (only removing the last one leads back to onboarding).
+   */
   remove(id: string): void {
     this.data.accounts = this.data.accounts.filter((a) => a.id !== id)
     this.tokens.delete(id)
-    if (this.data.activeId === id) this.data.activeId = null
+    this.ciphers.delete(id)
+    if (this.data.activeId === id) {
+      const next = [...this.data.accounts].sort((a, b) =>
+        b.lastUsedAt.localeCompare(a.lastUsedAt),
+      )[0]
+      this.data.activeId = next?.id ?? null
+    }
     this.save()
   }
 
@@ -146,57 +182,57 @@ export class AccountStore {
     }
   }
 
-  private load(): StoredFile {
-    const fresh: StoredFile = {
-      version: 1,
-      deviceId: this.deps.uuid(),
-      activeId: null,
-      accounts: [],
-    }
+  private emptyFile(): StoredFile {
+    return { version: 1, deviceId: this.deps.uuid(), activeId: null, accounts: [] }
+  }
+
+  private async load(): Promise<void> {
     if (!existsSync(this.deps.filePath)) {
-      this.data = fresh
       this.save()
-      return fresh
+      return
     }
     let parsed: Partial<StoredFile>
     try {
       parsed = JSON.parse(readFileSync(this.deps.filePath, 'utf8')) as Partial<StoredFile>
     } catch {
-      this.data = fresh // corrupt file: start clean (user signs in again)
-      this.save()
-      return fresh
+      this.save() // corrupt file: start clean (user signs in again)
+      return
     }
-    const data: StoredFile = {
+    this.data = {
       version: 1,
-      deviceId: parsed.deviceId || fresh.deviceId,
+      deviceId: parsed.deviceId || this.data.deviceId,
       activeId: parsed.activeId ?? null,
       accounts: Array.isArray(parsed.accounts) ? parsed.accounts : [],
     }
-    for (const a of data.accounts) {
+    let reEncrypted = false
+    for (const a of this.data.accounts) {
       if (!a.accessToken || !this.encrypted) continue
       try {
-        this.tokens.set(a.id, this.deps.storage.decryptString(Buffer.from(a.accessToken, 'base64')))
+        const { result, shouldReEncrypt } = await this.deps.storage.decryptStringAsync(
+          Buffer.from(a.accessToken, 'base64'),
+        )
+        this.tokens.set(a.id, result)
+        let cipher = a.accessToken
+        if (shouldReEncrypt) {
+          cipher = (await this.deps.storage.encryptStringAsync(result)).toString('base64')
+          reEncrypted = true
+        }
+        this.ciphers.set(a.id, cipher)
       } catch {
         // undecryptable (keychain changed): token lost, user must log in again
       }
     }
-    return data
+    if (reEncrypted) this.save()
   }
 
   private save(): void {
     const out: StoredFile = {
       ...this.data,
-      accounts: this.data.accounts.map((a) => {
-        const token = this.tokens.get(a.id)
-        return {
-          ...a,
-          // Never write a clear-text token: without encryption nothing is persisted.
-          accessToken:
-            token && this.encrypted
-              ? this.deps.storage.encryptString(token).toString('base64')
-              : null,
-        }
-      }),
+      accounts: this.data.accounts.map((a) => ({
+        ...a,
+        // Never write a clear-text token: without encryption nothing is persisted.
+        accessToken: this.encrypted ? (this.ciphers.get(a.id) ?? null) : null,
+      })),
     }
     mkdirSync(dirname(this.deps.filePath), { recursive: true })
     const tmp = `${this.deps.filePath}.tmp`

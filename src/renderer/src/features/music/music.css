@@ -342,18 +342,19 @@
   justify-content: center;
   gap: var(--space-4);
   width: 100%;
-  max-width: 440px;
+  /* The column is as wide as the artwork, so title, scrubber and volume line up with its edges. */
+  max-width: min(440px, 44vh);
   min-height: 0;
   margin-inline: auto;
+  transition: max-width var(--duration-slow) var(--ease-standard);
+}
+.jrm-np[data-view='lyrics'] .jrm-np__main,
+.jrm-np[data-view='queue'] .jrm-np__main {
+  max-width: max(300px, 34vh);
 }
 .jrm-np__art {
-  width: min(100%, 44vh);
+  width: 100%;
   box-shadow: var(--shadow-lg);
-  transition: width var(--duration-slow) var(--ease-standard);
-}
-.jrm-np[data-view='lyrics'] .jrm-np__art,
-.jrm-np[data-view='queue'] .jrm-np__art {
-  width: min(100%, 30vh);
 }
 .jrm-np__meta {
   display: flex;

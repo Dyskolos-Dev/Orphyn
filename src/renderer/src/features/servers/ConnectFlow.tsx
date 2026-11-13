@@ -85,9 +85,17 @@ export function ConnectFlow({ variant = 'page', onDone }: ConnectFlowProps) {
         password,
       })
       if (res.ok) {
-        void useSession.getState().refreshAccounts()
+        const session = useSession.getState()
+        if (session.account?.id === res.account.id) {
+          // Signed in again to the active server: Jellyfin has just revoked this device's
+          // previous token, so switch to the new one now, not only when the flow is finished
+          // (closing the sheet at the naming step would leave the app on a dead token).
+          await session.activate(res.account)
+        } else {
+          void session.refreshAccounts()
+        }
         setAccount(res.account)
-        setName(found.info.serverName)
+        setName(res.account.name)
         go('name')
       } else {
         setLoginError(errorMessage(t, res.error))
