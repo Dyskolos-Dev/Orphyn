@@ -1,0 +1,43 @@
+{
+  "nav": {
+    "label": "Principale",
+    "watch": "Regarder",
+    "music": "Musique",
+    "home": "Accueil",
+    "movies": "Films",
+    "series": "Séries",
+    "albums": "Albums",
+    "artists": "Artistes",
+    "playlists": "Playlists",
+    "songs": "Morceaux",
+    "settings": "Réglages",
+    "more": "Plus",
+    "back": "Retour"
+  },
+  "search": {
+    "placeholder": "Rechercher",
+    "label": "Rechercher dans Jellyra"
+  },
+  "slots": {
+    "nowPlaying": "À l’écoute",
+    "server": "Serveur"
+  },
+  "design": {
+    "seeAll": "Tout afficher",
+    "scrollBack": "Défiler vers l’arrière",
+    "scrollForward": "Défiler vers l’avant",
+    "close": "Fermer",
+    "clear": "Effacer",
+    "loading": "Chargement",
+    "dismiss": "Ignorer",
+    "play": "Lire",
+    "playItem": "Lire {{title}}",
+    "more": "Plus",
+    "moreFor": "Plus pour {{title}}",
+    "progress": "{{percent}} % regardé",
+    "remaining": "Il reste {{time}}",
+    "explicit": "Explicite",
+    "nowPlaying": "En cours de lecture",
+    "trackNumber": "Piste {{number}}"
+  }
+}

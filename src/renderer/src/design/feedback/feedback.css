@@ -1,0 +1,162 @@
+/* ---------------- Spinner ---------------- */
+.jr-spinner {
+  --jr-spin-size: 24px;
+  position: relative;
+  display: inline-block;
+  flex-shrink: 0;
+  width: var(--jr-spin-size);
+  height: var(--jr-spin-size);
+  color: var(--secondary-label);
+}
+.jr-spinner--small {
+  --jr-spin-size: 16px;
+}
+.jr-spinner--large {
+  --jr-spin-size: 36px;
+}
+.jr-spinner__spoke {
+  position: absolute;
+  inset: 0;
+}
+.jr-spinner__spoke::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: calc(50% - var(--jr-spin-size) * 0.045);
+  width: calc(var(--jr-spin-size) * 0.09);
+  height: calc(var(--jr-spin-size) * 0.28);
+  border-radius: var(--radius-full);
+  background: currentColor;
+}
+.jr-spinner__spoke {
+  animation: jr-spinner-fade 1s linear infinite;
+}
+@keyframes jr-spinner-fade {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0.15;
+  }
+}
+
+/* ---------------- Skeleton ---------------- */
+.jr-skeleton {
+  display: block;
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radius-sm);
+  background: var(--surface-placeholder);
+}
+.jr-skeleton::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in srgb, var(--label) 6%, transparent),
+    transparent
+  );
+  animation: jr-skeleton-shimmer 1.6s var(--ease-in-out) infinite;
+}
+@keyframes jr-skeleton-shimmer {
+  to {
+    transform: translateX(100%);
+  }
+}
+.jr-skeleton--text {
+  height: 0.8em;
+  width: 100%;
+  margin: 0.2em 0;
+  border-radius: var(--radius-xs);
+}
+.jr-skeleton--circle {
+  border-radius: var(--radius-full);
+}
+.jr-skeleton-lines {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+/* ---------------- EmptyState ---------------- */
+.jr-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  max-width: 420px;
+  margin: 0 auto;
+  text-align: center;
+}
+.jr-empty--page {
+  min-height: 50vh;
+  padding: var(--space-12) var(--space-6);
+}
+.jr-empty--inline {
+  padding: var(--space-8) var(--space-4);
+}
+.jr-empty__icon {
+  margin-bottom: var(--space-2);
+  color: var(--tertiary-label);
+}
+.jr-empty__icon svg {
+  width: 56px;
+  height: 56px;
+  stroke-width: 1.4;
+}
+.jr-empty--inline .jr-empty__icon svg {
+  width: 36px;
+  height: 36px;
+}
+.jr-empty__title {
+  font: var(--text-title-3);
+  letter-spacing: var(--tracking-title);
+}
+.jr-empty__message {
+  font: var(--text-callout);
+  color: var(--secondary-label);
+}
+.jr-empty__action {
+  margin-top: var(--space-3);
+}
+
+/* ---------------- ProgressRing ---------------- */
+.jr-progress-ring {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+.jr-progress-ring svg {
+  position: absolute;
+  inset: 0;
+}
+.jr-progress-ring__track {
+  stroke: var(--system-fill);
+}
+.jr-progress-ring__value {
+  stroke: var(--accent);
+  transition: stroke-dashoffset var(--duration-slow) var(--ease-out);
+}
+.jr-progress-ring--indeterminate svg {
+  animation: jr-ring-spin 0.9s linear infinite;
+}
+@keyframes jr-ring-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.jr-progress-ring__content {
+  position: relative;
+  display: inline-flex;
+  color: var(--accent);
+}
+.jr-progress-ring__content svg {
+  position: static;
+  width: 40%;
+  height: 40%;
+}

@@ -1,0 +1,28 @@
+/* Material utility classes (translucent blurred backgrounds). Prefer the <Material> component. */
+.jr-material-ultra-thin,
+.jr-material-thin,
+.jr-material-regular,
+.jr-material-thick {
+  -webkit-backdrop-filter: var(--jr-material-filter);
+  backdrop-filter: var(--jr-material-filter);
+  background-color: var(--jr-material-bg);
+}
+.jr-material-ultra-thin {
+  --jr-material-bg: var(--material-ultra-thin-bg);
+  --jr-material-filter: var(--material-ultra-thin-filter);
+}
+.jr-material-thin {
+  --jr-material-bg: var(--material-thin-bg);
+  --jr-material-filter: var(--material-thin-filter);
+}
+.jr-material-regular {
+  --jr-material-bg: var(--material-regular-bg);
+  --jr-material-filter: var(--material-regular-filter);
+}
+.jr-material-thick {
+  --jr-material-bg: var(--material-thick-bg);
+  --jr-material-filter: var(--material-thick-filter);
+}
+.jr-material-bordered {
+  box-shadow: inset 0 0 0 0.5px var(--material-border);
+}

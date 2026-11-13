@@ -1,0 +1,131 @@
+/* App shell layout (owner: shell agent). */
+.jr-shell {
+  display: flex;
+  height: 100%;
+  overflow: hidden;
+}
+.jr-shell__sidebar {
+  display: flex;
+  flex-shrink: 0;
+  height: 100%;
+}
+.jr-shell__main {
+  position: relative;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+  height: 100%;
+  background: var(--surface-window);
+}
+.jr-shell__scroll {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  /* Keeps the sticky toolbar's material blur sampling the page. */
+  isolation: isolate;
+}
+.jr-shell--immersive .jr-shell__main {
+  background: #000;
+}
+
+/* Bottom now-playing bar: only visible when something is plugged in. */
+.jr-shell__now-playing {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  min-height: var(--now-playing-height);
+  padding: 0 var(--space-4);
+  border-top: 0.5px solid var(--separator);
+}
+.jr-shell__now-playing:empty {
+  display: none;
+}
+body:has(.jr-shell__now-playing:not(:empty):not([hidden])) {
+  --jr-toast-offset: var(--now-playing-height);
+}
+.jr-shell__now-playing > * {
+  flex: 1;
+  min-width: 0;
+}
+.jr-shell__server-switcher:empty {
+  display: none;
+}
+.jr-shell__server-switcher {
+  margin-bottom: var(--space-1);
+}
+
+/* ---------------- ShellPage ---------------- */
+.jr-page {
+  position: relative;
+  min-height: 100%;
+  padding-bottom: var(--space-12);
+}
+.jr-page__toolbar {
+  position: sticky;
+  z-index: var(--z-toolbar);
+  top: 0;
+  /* The content slides under the toolbar. */
+  margin-bottom: calc(-1 * var(--toolbar-height));
+}
+.jr-page--large .jr-page__header {
+  padding-top: var(--toolbar-height);
+}
+.jr-page--inline .jr-page__content {
+  padding-top: var(--toolbar-height);
+}
+/* Over a hero the toolbar is transparent with light glyphs. */
+.jr-page--hero .jr-toolbar--transparent {
+  color: #fff;
+}
+.jr-page--hero .jr-toolbar--transparent .jr-icon-button {
+  color: rgb(255 255 255 / 0.85);
+}
+.jr-page__header {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding-left: var(--page-gutter);
+  padding-right: var(--page-gutter);
+  padding-bottom: var(--space-5);
+}
+.jr-page__titles {
+  min-width: 0;
+}
+.jr-page__title {
+  margin-top: var(--space-2);
+  font: var(--text-large-title);
+  letter-spacing: var(--tracking-large-title);
+}
+.jr-page__subtitle {
+  margin-top: var(--space-1);
+  font: var(--text-callout);
+  color: var(--secondary-label);
+}
+.jr-page__accessory {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: var(--space-2);
+}
+.jr-page__sentinel {
+  position: absolute;
+  left: 0;
+  bottom: var(--space-5);
+  width: 1px;
+  height: 1px;
+}
+.jr-page__content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}
+.jr-page__content--gutter {
+  padding-left: var(--page-gutter);
+  padding-right: var(--page-gutter);
+}
