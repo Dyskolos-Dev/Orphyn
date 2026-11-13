@@ -1,3 +1,4 @@
+import { getPlaybackPreferences } from '@renderer/features/settings'
 import Hls from 'hls.js'
 import {
   PlaybackReporter,
@@ -110,7 +111,7 @@ export const defaultControllerDeps: ControllerDeps = {
     isHls: true,
     method: 'Transcode',
   }),
-  getMaxBitrate: () => undefined,
+  getMaxBitrate: () => getPlaybackPreferences().maxVideoBitrate ?? undefined,
   announceExclusive: () =>
     window.dispatchEvent(
       new CustomEvent('jellyra:exclusive-playback', { detail: { source: 'video' } }),

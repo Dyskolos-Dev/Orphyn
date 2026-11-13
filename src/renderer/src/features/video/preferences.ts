@@ -1,7 +1,7 @@
+import { usePlaybackPreferences } from '@renderer/features/settings'
+
 /**
- * Playback preferences used by the video feature. The settings feature will export
- * `usePlaybackPreferences()`; until it lands everything reads preferences through this one
- * function, so swapping the source is a one-line change here.
+ * Playback preferences used by the video feature, read from Settings' `usePlaybackPreferences()`.
  */
 export interface VideoPlaybackPreferences {
   /** Max streaming bitrate in bits/s; undefined = server / profile default. */
@@ -19,5 +19,11 @@ export const DEFAULT_VIDEO_PREFERENCES: VideoPlaybackPreferences = {
 }
 
 export function useVideoPlaybackPreferences(): VideoPlaybackPreferences {
-  return DEFAULT_VIDEO_PREFERENCES
+  const p = usePlaybackPreferences()
+  return {
+    maxBitrate: p.maxVideoBitrate ?? undefined,
+    audioLanguage: p.preferredAudioLanguage ?? undefined,
+    subtitleLanguage: p.preferredSubtitleLanguage ?? undefined,
+    autoPlayNext: p.autoPlayNext,
+  }
 }
