@@ -238,7 +238,7 @@ describe('PlayerEngine', () => {
   it('persists the queue while playing', () => {
     store.getState().play(tracks(3), 1)
     vi.advanceTimersByTime(2500)
-    const saved = JSON.parse(localStorage.getItem('jellyra.music.player') ?? '{}')
+    const saved = JSON.parse(localStorage.getItem('lumen.music.player') ?? '{}')
     expect(saved.index).toBe(1)
     expect(saved.queue).toHaveLength(3)
   })

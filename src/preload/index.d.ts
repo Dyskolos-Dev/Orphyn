@@ -1,8 +1,8 @@
-import type { JellyraApi } from '@shared/ipc'
+import type { LumenApi } from '@shared/ipc'
 
 declare global {
   interface Window {
-    jellyra: JellyraApi
+    lumen: LumenApi
   }
 }
 

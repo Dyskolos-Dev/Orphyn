@@ -35,7 +35,7 @@ interface StoredFile {
 }
 
 const NO_ENCRYPTION_WARNING =
-  'Secure storage is unavailable on this system: access tokens are kept in memory only and you will have to sign in again after restarting Jellyra.'
+  'Secure storage is unavailable on this system: access tokens are kept in memory only and you will have to sign in again after restarting Lumen.'
 
 export class AccountStore {
   private readonly deps: Required<AccountStoreDeps>

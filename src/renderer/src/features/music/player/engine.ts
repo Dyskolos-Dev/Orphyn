@@ -7,7 +7,7 @@ import type { AudioOutput, OutputEvent } from './output'
 import type { Track } from './types'
 
 /** Event other media players (video, cast) fire when they start, so music pauses. */
-export const EXCLUSIVE_PLAYBACK_EVENT = 'jellyra:exclusive-playback'
+export const EXCLUSIVE_PLAYBACK_EVENT = 'lumen:exclusive-playback'
 
 export interface ExclusivePlaybackDetail {
   source: string

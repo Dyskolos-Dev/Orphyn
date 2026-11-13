@@ -51,7 +51,7 @@ export interface SessionState {
   markNeedsLogin: (id: string) => void
 }
 
-const accountsApi = () => window.jellyra.accounts
+const accountsApi = () => window.lumen.accounts
 
 export const useSession = create<SessionState>((set, get) => {
   /** Monotonic token so a slow activation cannot overwrite a newer one. */

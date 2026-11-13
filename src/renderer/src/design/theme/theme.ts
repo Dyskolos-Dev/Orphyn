@@ -28,8 +28,8 @@ export const THEME_MODES: readonly ThemeMode[] = ['system', 'light', 'dark']
 export const DEFAULT_MODE: ThemeMode = 'system'
 export const DEFAULT_ACCENT: AccentColor = 'red'
 export const THEME_STORAGE_KEYS = {
-  mode: 'jellyra.theme.mode',
-  accent: 'jellyra.theme.accent',
+  mode: 'lumen.theme.mode',
+  accent: 'lumen.theme.accent',
 } as const
 
 const HEX = /^#[0-9a-f]{6}$/i
@@ -113,7 +113,7 @@ export function applyThemeToDocument(resolved: ResolvedTheme, accent: AccentColo
 
 /** Tells the native window (vibrancy, Mica, caption buttons) about the theme. Safe outside Electron. */
 function syncNative(mode: ThemeMode, resolved: ResolvedTheme): void {
-  const api = typeof window !== 'undefined' ? window.jellyra?.window : undefined
+  const api = typeof window !== 'undefined' ? window.lumen?.window : undefined
   if (!api) return
   void api.setAppearance?.(mode).catch(() => undefined)
   void api

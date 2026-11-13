@@ -36,7 +36,7 @@ const open = (storage: SecureStorage = fakeStorage(), extra = {}) =>
   AccountStore.open({ filePath: file, storage, ...extra })
 
 beforeEach(() => {
-  dir = mkdtempSync(join(tmpdir(), 'jellyra-acc-'))
+  dir = mkdtempSync(join(tmpdir(), 'lumen-acc-'))
   file = join(dir, 'accounts.json')
 })
 afterEach(() => rmSync(dir, { recursive: true, force: true }))

@@ -1,5 +1,5 @@
 /*
- * Jellyra design tokens (owner: design agent). Documented in docs/DESIGN.md.
+ * Lumen design tokens (owner: design agent). Documented in docs/DESIGN.md.
  *
  * Layer 1, Apple system colours (names follow UIKit/AppKit: systemBackground, label, ...).
  * Layer 2, semantic tokens the components use (--surface-*, --text-*, --accent, ...).

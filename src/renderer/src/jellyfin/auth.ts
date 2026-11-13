@@ -27,7 +27,7 @@ interface AuthenticationResult {
   User?: { Id?: string; Name?: string }
 }
 
-/** POST /Users/AuthenticateByName as client "Jellyra" with this install's deviceId. */
+/** POST /Users/AuthenticateByName as client "Lumen" with this install's deviceId. */
 export async function login(
   url: string,
   username: string,
@@ -88,10 +88,10 @@ export async function connectServer(p: ConnectParams): Promise<ConnectResult> {
   const probe = await probeServer(p.url, { http: p.http })
   if (!probe.ok) return probe
   const info: ServerInfo = probe.info
-  const deviceId = await window.jellyra.accounts.getDeviceId()
+  const deviceId = await window.lumen.accounts.getDeviceId()
   const res = await login(info.url, p.username, p.password, deviceId, p.http)
   if (!res.ok) return res
-  const account = await window.jellyra.accounts.add({
+  const account = await window.lumen.accounts.add({
     // Empty: the store keeps an existing account's name, or uses the server's name.
     name: p.name?.trim() ?? '',
     url: info.url,
@@ -107,9 +107,9 @@ export async function connectServer(p: ConnectParams): Promise<ConnectResult> {
 
 /** Revokes the session on the server (best effort: offline is fine) then forgets the account. */
 export async function logoutAccount(account: ServerAccount, http?: AxiosInstance): Promise<void> {
-  const token = await window.jellyra.accounts.getToken(account.id)
+  const token = await window.lumen.accounts.getToken(account.id)
   if (token) {
-    const deviceId = await window.jellyra.accounts.getDeviceId()
+    const deviceId = await window.lumen.accounts.getDeviceId()
     const api = createJellyfinApi({ baseUrl: account.url, deviceId, accessToken: token, http })
     try {
       await jfRequest<void>(api, 'POST', '/Sessions/Logout')
@@ -119,5 +119,5 @@ export async function logoutAccount(account: ServerAccount, http?: AxiosInstance
       }
     }
   }
-  await window.jellyra.accounts.remove(account.id)
+  await window.lumen.accounts.remove(account.id)
 }

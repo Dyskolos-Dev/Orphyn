@@ -33,11 +33,11 @@
   },
   "errors": {
     "invalid_url": "Saisissez une adresse de serveur valide.",
-    "unreachable": "Jellyra n’a pas pu joindre ce serveur. Vérifiez l’adresse et votre connexion.",
+    "unreachable": "Lumen n’a pas pu joindre ce serveur. Vérifiez l’adresse et votre connexion.",
     "not_jellyfin": "Cette adresse répond, mais ce n’est pas un serveur Jellyfin.",
     "tls": "Le certificat du serveur n’a pas pu être vérifié.",
-    "version_too_old": "Ce serveur utilise Jellyfin {{version}}. Jellyra nécessite la version 10.9 ou plus récente.",
-    "version_too_old_unknown": "Ce serveur est trop ancien. Jellyra nécessite Jellyfin 10.9 ou plus récent.",
+    "version_too_old": "Ce serveur utilise Jellyfin {{version}}. Lumen nécessite la version 10.9 ou plus récente.",
+    "version_too_old_unknown": "Ce serveur est trop ancien. Lumen nécessite Jellyfin 10.9 ou plus récent.",
     "invalid_credentials": "Nom d’utilisateur ou mot de passe incorrect.",
     "server_error": "Le serveur a renvoyé une erreur. Réessayez plus tard.",
     "generic": "Une erreur s’est produite. Réessayez."

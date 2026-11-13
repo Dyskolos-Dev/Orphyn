@@ -113,7 +113,7 @@ describe('theme', () => {
   it('pushes the appearance to the native window when running in Electron', () => {
     const setAppearance = vi.fn(() => Promise.resolve())
     const setTitleBarOverlay = vi.fn(() => Promise.resolve())
-    ;(window as unknown as { jellyra: unknown }).jellyra = {
+    ;(window as unknown as { lumen: unknown }).lumen = {
       window: { setAppearance, setTitleBarOverlay },
     }
     try {
@@ -124,7 +124,7 @@ describe('theme', () => {
         symbolColor: '#ffffff',
       })
     } finally {
-      delete (window as unknown as { jellyra?: unknown }).jellyra
+      delete (window as unknown as { lumen?: unknown }).lumen
     }
   })
 

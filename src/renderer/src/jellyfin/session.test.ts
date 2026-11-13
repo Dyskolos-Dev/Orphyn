@@ -11,7 +11,7 @@ const authOk = {
 }
 
 describe('login', () => {
-  it('sends the Jellyra client identity and never leaks the password', async () => {
+  it('sends the Lumen client identity and never leaks the password', async () => {
     const { http, calls } = fakeHttp(() => ({ data: authOk }))
     const spy = vi.spyOn(console, 'log')
     const res = await login('http://s:8096', 'bob', 'hunter2', 'dev-9', http)
@@ -20,7 +20,7 @@ describe('login', () => {
     expect(call.url).toBe('http://s:8096/Users/AuthenticateByName')
     expect(call.data).toEqual({ Username: 'bob', Pw: 'hunter2' })
     const auth = String(call.headers['Authorization'])
-    expect(auth).toContain('Client="Jellyra"')
+    expect(auth).toContain('Client="Lumen"')
     expect(auth).toContain('DeviceId="dev-9"')
     expect(auth).not.toContain('hunter2')
     expect(JSON.stringify(spy.mock.calls)).not.toContain('hunter2')
@@ -63,7 +63,7 @@ describe('connectServer / logout', () => {
       http,
     })
     expect(res.ok).toBe(true)
-    const accounts = await window.jellyra.accounts.list()
+    const accounts = await window.lumen.accounts.list()
     expect(accounts).toHaveLength(1)
     expect(accounts[0]).toMatchObject({ name: 'Salon', serverId: 'srv', userId: 'u1' })
     expect(JSON.stringify(accounts)).not.toContain('hunter2')
@@ -77,7 +77,7 @@ describe('connectServer / logout', () => {
     const logout = calls.find((c) => c.url.endsWith('/Sessions/Logout'))
     expect(logout?.method).toBe('POST')
     expect(String(logout?.headers['Authorization'])).toContain('Token="TOKEN-1"')
-    expect(await window.jellyra.accounts.list()).toEqual([])
+    expect(await window.lumen.accounts.list()).toEqual([])
   })
 
   it('logout still removes the account when the server is offline', async () => {
@@ -85,7 +85,7 @@ describe('connectServer / logout', () => {
     const res = await connectServer({ url: 'http://s:8096', username: 'bob', password: 'p', http })
     if (!res.ok) throw new Error('connect failed')
     await logoutAccount(res.account, fakeHttp(() => networkError()).http)
-    expect(await window.jellyra.accounts.list()).toEqual([])
+    expect(await window.lumen.accounts.list()).toEqual([])
   })
 })
 
@@ -151,12 +151,12 @@ describe('session store', () => {
     expect(s.api?.basePath).toBe('http://b')
     expect(s.api?.accessToken).toBe('tb')
     expect(queryClient.getQueryCache().getAll()).toHaveLength(0)
-    expect((await window.jellyra.accounts.getActive())?.id).toBe(b.id)
+    expect((await window.lumen.accounts.getActive())?.id).toBe(b.id)
   })
 
   it('a missing token requires login', async () => {
     const { tokens } = installFakeAccounts()
-    await window.jellyra.accounts.add({
+    await window.lumen.accounts.add({
       name: 'A',
       url: 'http://a',
       serverId: 'sa',

@@ -1,4 +1,4 @@
-# Jellyra architecture
+# Lumen architecture
 
 Electron + electron-vite + React 19 + TypeScript (strict), npm. Desktop Jellyfin client for music and
 movies/series. The layout is built so several agents can work in separate folders without editing the
@@ -27,7 +27,7 @@ imports from feature-owned folders.
 | `src/main/window/`                    | window agent                                          | `createMainWindow`, window IPC handlers                                         |
 | `src/main/accounts/`                  | servers agent                                         | `registerAccountsIpc`, secure account/token storage                             |
 | `src/main/cast/`                      | cast agent                                            | `registerCastIpc`, Chromecast/DLNA discovery                                    |
-| `src/preload/`                        | foundation (+ per-API files by the owner of that API) | `window.jellyra` bridge                                                         |
+| `src/preload/`                        | foundation (+ per-API files by the owner of that API) | `window.lumen` bridge                                                         |
 | `src/shared/ipc/`                     | owner of each API file                                | IPC channel names + typed API contracts (`window.ts`, `accounts.ts`, `cast.ts`) |
 | `src/renderer/src/app/`               | foundation                                            | `App.tsx`, `routes.tsx` (composition)                                           |
 | `src/renderer/src/shell/`             | shell agent                                           | `AppShell.tsx` layout (sidebar + outlet)                                        |
@@ -52,8 +52,8 @@ imports from feature-owned folders.
    `createMainWindow()` (`src/main/window/index.ts`). Each owner edits only its folder; the
    function signatures stay the same.
 2. **Preload** (`src/preload/index.ts`) exposes
-   `window.jellyra = { window, accounts, cast, platform }` built from `src/preload/window.ts`,
-   `accounts.ts`, `cast.ts`. Types: `src/shared/ipc/*.ts` (`JellyraApi` in `shared/ipc/index.ts`) and
+   `window.lumen = { window, accounts, cast, platform }` built from `src/preload/window.ts`,
+   `accounts.ts`, `cast.ts`. Types: `src/shared/ipc/*.ts` (`LumenApi` in `shared/ipc/index.ts`) and
    the global `Window` augmentation in `src/preload/index.d.ts`. Security: `contextIsolation: true`,
    `nodeIntegration: false`, `sandbox: true` (preload may only import `electron` and `@shared/*`).
 3. **Routes** (`src/renderer/src/app/routes.tsx`) spreads `xxxRoutes` arrays exported from
@@ -101,7 +101,7 @@ by these literal paths; do not invent new top-level paths without updating this 
 - Preload files never expose `ipcRenderer` itself, only typed functions. Payloads must be
   structured-cloneable and defined in `src/shared/ipc/<domain>.ts`.
 - Main handlers are registered inside the domain's `registerXxxIpc()`. Secrets (tokens) stay in main.
-- The renderer reaches the API through `window.jellyra.<domain>`.
+- The renderer reaches the API through `window.lumen.<domain>`.
 
 ## i18n namespace convention
 

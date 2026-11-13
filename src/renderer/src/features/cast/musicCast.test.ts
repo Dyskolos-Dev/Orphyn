@@ -55,7 +55,7 @@ describe('music output switching', () => {
     loads.length = 0
     ended = []
     sess = []
-    ;(window as unknown as { jellyra: unknown }).jellyra = {
+    ;(window as unknown as { lumen: unknown }).lumen = {
       cast: {
         load: vi.fn(async (_id: string, media: CastMedia) => void loads.push({ media })),
         play: vi.fn(async () => undefined),

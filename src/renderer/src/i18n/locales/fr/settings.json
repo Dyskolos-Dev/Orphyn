@@ -63,7 +63,7 @@
     "removeConfirm": "Supprimer le serveur",
     "more": "Actions pour {{name}}",
     "details": "{{user}} · {{url}}",
-    "storageWarning": "Les jetons de connexion ne peuvent pas être chiffrés sur cet ordinateur : ils restent en mémoire uniquement, vous devrez donc vous reconnecter après avoir relancé Jellyra.",
+    "storageWarning": "Les jetons de connexion ne peuvent pas être chiffrés sur cet ordinateur : ils restent en mémoire uniquement, vous devrez donc vous reconnecter après avoir relancé Lumen.",
     "removeFailed": "Le serveur n’a pas pu être supprimé."
   },
   "playback": {
@@ -103,7 +103,7 @@
     "kbps": "{{value}} kbit/s"
   },
   "about": {
-    "app": "Jellyra",
+    "app": "Lumen",
     "version": "Version {{version}}",
     "server": "Serveur connecté",
     "serverName": "Nom",

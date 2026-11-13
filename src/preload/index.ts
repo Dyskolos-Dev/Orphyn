@@ -1,14 +1,14 @@
 import { contextBridge } from 'electron'
-import type { JellyraApi } from '@shared/ipc'
+import type { LumenApi } from '@shared/ipc'
 import { accountsApi } from './accounts'
 import { castApi } from './cast'
 import { windowApi } from './window'
 
-const api: JellyraApi = {
+const api: LumenApi = {
   window: windowApi,
   accounts: accountsApi,
   cast: castApi,
   platform: process.platform,
 }
 
-contextBridge.exposeInMainWorld('jellyra', api)
+contextBridge.exposeInMainWorld('lumen', api)

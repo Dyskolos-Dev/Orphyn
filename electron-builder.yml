@@ -1,5 +1,5 @@
-appId: app.jellyra.desktop
-productName: Jellyra
+appId: app.lumen.desktop
+productName: Lumen
 directories:
   buildResources: build
   output: release

@@ -31,7 +31,7 @@ test('onboarding: bad address, wrong password, then success and naming the serve
 
     // Unreachable address.
     const address = page.getByLabel('Server address')
-    await address.fill('https://jellyra-e2e.invalid')
+    await address.fill('https://lumen-e2e.invalid')
     await page.getByRole('button', { name: 'Connect' }).click()
     await expect(page.getByText(/could not reach this server/)).toBeVisible({ timeout: 30_000 })
     await screenshotBothThemes(page, 'onboarding-unreachable-en')
@@ -62,7 +62,7 @@ test('onboarding: bad address, wrong password, then success and naming the serve
 
     expectCleanLogs(logs, [
       // Expected failures of this scenario.
-      /jellyra-e2e\.invalid/,
+      /lumen-e2e\.invalid/,
       /\/not-a-jellyfin-base\//,
       /401 POST .*\/Users\/AuthenticateByName/,
     ])

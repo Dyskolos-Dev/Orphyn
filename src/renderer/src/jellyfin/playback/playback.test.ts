@@ -80,7 +80,7 @@ describe('getPlaybackInfo', () => {
     ]) {
       expect(req.url).toContain(p)
     }
-    expect((req.data as { DeviceProfile: { Name: string } }).DeviceProfile.Name).toMatch(/Jellyra/)
+    expect((req.data as { DeviceProfile: { Name: string } }).DeviceProfile.Name).toMatch(/Lumen/)
   })
 
   it('transcode: relative HLS TranscodingUrl becomes absolute and gets an ApiKey', async () => {

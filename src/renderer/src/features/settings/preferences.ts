@@ -1,12 +1,12 @@
 /**
- * Playback + music preferences, persisted in localStorage under `jellyra.playback.preferences`
+ * Playback + music preferences, persisted in localStorage under `lumen.playback.preferences`
  * (one JSON object, see `PlaybackPreferences`). Read them anywhere with `usePlaybackPreferences()`
  * (reactive) or `getPlaybackPreferences()` (imperative, e.g. when building a playback request).
  * Unknown / invalid stored values fall back to the defaults field by field.
  */
 import { useSyncExternalStore } from 'react'
 
-export const PLAYBACK_PREFERENCES_KEY = 'jellyra.playback.preferences'
+export const PLAYBACK_PREFERENCES_KEY = 'lumen.playback.preferences'
 
 /**
  * - `maxVideoBitrate`: ceiling for video streaming in **bits per second** (pass it as `maxBitrate`

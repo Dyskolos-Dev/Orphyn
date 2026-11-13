@@ -8,7 +8,7 @@ import { credentials, launchApp, newProfileDir, type Credentials, type RunningAp
 let profile: string | null = null
 
 export function sharedProfile(): string {
-  profile ??= process.env['JELLYRA_E2E_PROFILE'] || newProfileDir()
+  profile ??= process.env['LUMEN_E2E_PROFILE'] || newProfileDir()
   return profile
 }
 

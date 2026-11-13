@@ -63,7 +63,7 @@
     "removeConfirm": "Remove Server",
     "more": "Actions for {{name}}",
     "details": "{{user}} · {{url}}",
-    "storageWarning": "Sign-in tokens cannot be encrypted on this computer, so they are kept in memory only: you will need to sign in again after restarting Jellyra.",
+    "storageWarning": "Sign-in tokens cannot be encrypted on this computer, so they are kept in memory only: you will need to sign in again after restarting Lumen.",
     "removeFailed": "The server could not be removed."
   },
   "playback": {
@@ -103,7 +103,7 @@
     "kbps": "{{value}} kbps"
   },
   "about": {
-    "app": "Jellyra",
+    "app": "Lumen",
     "version": "Version {{version}}",
     "server": "Connected server",
     "serverName": "Name",

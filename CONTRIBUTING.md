@@ -1,4 +1,4 @@
-# Contributing to Jellyra
+# Contributing to Lumen
 
 Thank you for helping. This guide explains how to propose changes. Read [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) first: it describes the folder ownership and the composition points you must respect.
 
@@ -67,7 +67,7 @@ Use the pull request template: it lists these points as a checklist.
 
 ## Internationalisation (i18n) rule
 
-Jellyra ships in French and English. **Every user-visible string must exist in both languages**:
+Lumen ships in French and English. **Every user-visible string must exist in both languages**:
 
 - add the key to `src/renderer/src/i18n/locales/en/<namespace>.json` **and** to `src/renderer/src/i18n/locales/fr/<namespace>.json`;
 - use the same key in both files; never hard-code a user-visible string in a component;
@@ -77,7 +77,7 @@ A missing key in either language is a bug, and reviewers will ask for it to be f
 
 ## Reporting bugs and requesting features
 
-Open an issue using the bug report or feature request template. For bugs, include your operating system, Jellyra version, Jellyfin server version and the steps to reproduce.
+Open an issue using the bug report or feature request template. For bugs, include your operating system, Lumen version, Jellyfin server version and the steps to reproduce.
 
 ## Licence
 

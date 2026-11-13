@@ -47,7 +47,7 @@ export interface ProfileOptions {
   maxStreamingBitrate?: number
 }
 
-/** DeviceProfile for Jellyra. Direct play whenever Chromium can, else HLS fMP4 h264/aac. */
+/** DeviceProfile for Lumen. Direct play whenever Chromium can, else HLS fMP4 h264/aac. */
 export function buildDeviceProfile(opts: ProfileOptions = {}): DeviceProfile {
   const s = opts.support ?? detectCodecSupport()
   const channels = String(opts.maxAudioChannels ?? 6)
@@ -111,7 +111,7 @@ export function buildDeviceProfile(opts: ProfileOptions = {}): DeviceProfile {
   }
 
   return {
-    Name: 'Jellyra (Electron)',
+    Name: 'Lumen (Electron)',
     MaxStreamingBitrate: maxBitrate,
     MaxStaticBitrate: maxBitrate,
     MusicStreamingTranscodingBitrate: 192_000,

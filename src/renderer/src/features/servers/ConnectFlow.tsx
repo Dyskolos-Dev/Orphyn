@@ -119,7 +119,7 @@ export function ConnectFlow({ variant = 'page', onDone }: ConnectFlowProps) {
       let saved = account
       const trimmed = name.trim()
       if (trimmed && trimmed !== account.name) {
-        saved = (await window.jellyra.accounts.rename(account.id, trimmed)) ?? account
+        saved = (await window.lumen.accounts.rename(account.id, trimmed)) ?? account
       }
       await useSession.getState().activate(saved)
       onDone(saved)

@@ -80,7 +80,7 @@ describe('AppShell', () => {
       'page',
     )
     expect(within(nav).getByRole('link', { name: 'Settings' })).toHaveAttribute('href', '/settings')
-    expect(within(nav).getByRole('searchbox', { name: 'Search Jellyra' })).toBeInTheDocument()
+    expect(within(nav).getByRole('searchbox', { name: 'Search Lumen' })).toBeInTheDocument()
   })
 
   it('shows the large title, and collapses it into the toolbar on scroll', async () => {
@@ -88,7 +88,7 @@ describe('AppShell', () => {
     expect(screen.getByRole('heading', { level: 1, name: 'Albums' })).toBeInTheDocument()
     const toolbarTitle = container.querySelector('.jr-toolbar__title')!
     expect(container.querySelector('.jr-page__toolbar .jr-toolbar')).toHaveClass('jr-drag')
-    expect(document.title).toBe('Albums – Jellyra')
+    expect(document.title).toBe('Albums – Lumen')
 
     // jsdom has no layout: place the end of the large title by hand.
     const scroller = screen.getByRole('main')
@@ -111,20 +111,20 @@ describe('AppShell', () => {
   it('navigates to /search?q= while typing in the sidebar search', async () => {
     const user = userEvent.setup()
     const { router } = renderShell('/video')
-    await user.type(screen.getByRole('searchbox', { name: 'Search Jellyra' }), 'dune')
+    await user.type(screen.getByRole('searchbox', { name: 'Search Lumen' }), 'dune')
     expect(router.state.location.pathname).toBe('/search')
     expect(screen.getByText('q=dune')).toBeInTheDocument()
     // Typing replaced the history entry instead of pushing one per letter.
     act(() => void router.navigate(-1))
     await waitFor(() => expect(router.state.location.pathname).toBe('/video'))
-    expect(screen.getByRole('searchbox', { name: 'Search Jellyra' })).toHaveValue('')
+    expect(screen.getByRole('searchbox', { name: 'Search Lumen' })).toHaveValue('')
   })
 
   it('focuses the search with Ctrl+F', async () => {
     const user = userEvent.setup()
     renderShell('/video')
     await user.keyboard('{Control>}f{/Control}')
-    expect(screen.getByRole('searchbox', { name: 'Search Jellyra' })).toHaveFocus()
+    expect(screen.getByRole('searchbox', { name: 'Search Lumen' })).toHaveFocus()
   })
 
   it('lets features plug in through the registry without editing the shell', async () => {

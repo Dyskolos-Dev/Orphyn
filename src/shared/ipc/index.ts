@@ -6,7 +6,7 @@ export * from './accounts'
 export * from './cast'
 export * from './window'
 
-export interface JellyraApi {
+export interface LumenApi {
   window: WindowApi
   accounts: AccountsApi
   cast: CastApi

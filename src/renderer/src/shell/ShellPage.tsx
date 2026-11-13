@@ -56,7 +56,7 @@ export function ShellPage({
   const [collapsed, setCollapsed] = useState(header === 'inline')
 
   useEffect(() => {
-    document.title = title ? `${title} – Jellyra` : 'Jellyra'
+    document.title = title ? `${title} – Lumen` : 'Lumen'
   }, [title])
 
   useEffect(() => {

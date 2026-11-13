@@ -1,8 +1,8 @@
-# Jellyra
+# Lumen
 
-**Jellyra** is a desktop client for [Jellyfin](https://jellyfin.org), the free and open-source media server. It plays your music and your movies and series on Windows, macOS and Linux, with an interface inspired by the Apple TV and Apple Music apps.
+**Lumen** is a desktop client for [Jellyfin](https://jellyfin.org), the free and open-source media server. It plays your music and your movies and series on Windows, macOS and Linux, with an interface inspired by the Apple TV and Apple Music apps.
 
-> **Status: in development.** Jellyra is not released yet. The features below are the planned v1 scope and are being built now.
+> **Status: in development.** Lumen is not released yet. The features below are the planned v1 scope and are being built now.
 
 Language: **English** · [Français](README.fr.md)
 
@@ -27,8 +27,8 @@ Planned for v1 (all **in progress**):
 ## Development setup
 
 ```bash
-git clone <repository-url> jellyra
-cd jellyra
+git clone <repository-url> lumen
+cd lumen
 npm install
 npm run dev
 ```
@@ -68,11 +68,11 @@ The installers are not code-signed yet. Signing for Windows and macOS (certifica
 
 ## Project layout
 
-Jellyra is an Electron + React 19 + TypeScript (strict) application. The source is split into a main process (`src/main`), a preload bridge (`src/preload`), shared IPC contracts (`src/shared`) and the renderer (`src/renderer/src`), organised by feature. Read these documents before making changes:
+Lumen is an Electron + React 19 + TypeScript (strict) application. The source is split into a main process (`src/main`), a preload bridge (`src/preload`), shared IPC contracts (`src/shared`) and the renderer (`src/renderer/src`), organised by feature. Read these documents before making changes:
 
 - [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md): folders, composition points, IPC and i18n conventions.
 - [docs/DESIGN.md](docs/DESIGN.md): design system and visual guidelines.
-- [docs/JELLYFIN.md](docs/JELLYFIN.md): how Jellyra talks to Jellyfin servers.
+- [docs/JELLYFIN.md](docs/JELLYFIN.md): how Lumen talks to Jellyfin servers.
 
 ## Contributing
 
@@ -80,8 +80,8 @@ Contributions are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for branch nam
 
 ## License
 
-Jellyra is released under the MIT License (see [LICENSE](LICENSE)). The license is not final yet and may change before the first release.
+Lumen is released under the MIT License (see [LICENSE](LICENSE)). The license is not final yet and may change before the first release.
 
 ## Disclaimer
 
-Jellyra is an independent project. It is **not affiliated with, endorsed by or sponsored by** the Jellyfin project or Apple Inc. "Jellyfin" is a trademark of the Jellyfin project; "Apple TV", "Apple Music", "AirPlay" and "Apple" are trademarks of Apple Inc. They are used only to describe compatibility and design inspiration.
+Lumen is an independent project. It is **not affiliated with, endorsed by or sponsored by** the Jellyfin project or Apple Inc. "Jellyfin" is a trademark of the Jellyfin project; "Apple TV", "Apple Music", "AirPlay" and "Apple" are trademarks of Apple Inc. They are used only to describe compatibility and design inspiration.

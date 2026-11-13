@@ -15,7 +15,7 @@ test.afterAll(async () => {
 })
 
 async function search(page: Page, term: string): Promise<void> {
-  const field = page.getByRole('searchbox', { name: 'Search Jellyra' })
+  const field = page.getByRole('searchbox', { name: 'Search Lumen' })
   await field.fill(term)
   await expect(page).toHaveURL(/#\/search\?q=/)
   await expect(page.getByText(`Results for “${term}”`)).toBeVisible()
@@ -48,7 +48,7 @@ test('search: a movie, an artist and a song, then play the song and read its lyr
   try {
     // Empty state.
     await page.keyboard.press('Control+f')
-    await expect(page.getByRole('searchbox', { name: 'Search Jellyra' })).toBeFocused()
+    await expect(page.getByRole('searchbox', { name: 'Search Lumen' })).toBeFocused()
 
     await search(page, movie.Name)
     const movies = page.locator('.jr-shelf', { has: page.getByRole('heading', { name: 'Movies' }) })

@@ -21,10 +21,10 @@ export function mergeFeatureList(current: string, features: readonly string[]): 
 
 /**
  * Optional user data override, used by the end-to-end suite to start from a clean profile:
- * `JELLYRA_USER_DATA_DIR` must be an absolute path, otherwise it is ignored.
+ * `LUMEN_USER_DATA_DIR` must be an absolute path, otherwise it is ignored.
  */
 export function userDataOverride(env: NodeJS.ProcessEnv = process.env): string | null {
-  const dir = env['JELLYRA_USER_DATA_DIR']?.trim()
+  const dir = env['LUMEN_USER_DATA_DIR']?.trim()
   return dir && isAbsolute(dir) ? dir : null
 }
 

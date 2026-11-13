@@ -32,7 +32,7 @@ export interface CreateApiOptions {
   http?: AxiosInstance
 }
 
-/** Creates an SDK `Api` carrying the Jellyra client name/version and the install's deviceId. */
+/** Creates an SDK `Api` carrying the Lumen client name/version and the install's deviceId. */
 export function createJellyfinApi(opts: CreateApiOptions): Api {
   return new Api(
     opts.baseUrl,

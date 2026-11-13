@@ -1,5 +1,5 @@
 /**
- * Launches the built Jellyra app with Playwright's Electron driver and records everything that
+ * Launches the built Lumen app with Playwright's Electron driver and records everything that
  * could reveal a bug: renderer console errors / warnings (React warnings included), uncaught
  * exceptions, main-process stderr, failed or 4xx/5xx requests.
  */
@@ -24,18 +24,18 @@ export interface Credentials {
 
 /** Test server credentials, from the environment only (never committed). */
 export function credentials(): Credentials | null {
-  const url = process.env['JELLYRA_E2E_URL']?.trim()
-  const user = process.env['JELLYRA_E2E_USER']?.trim()
-  const password = process.env['JELLYRA_E2E_PASSWORD']
+  const url = process.env['LUMEN_E2E_URL']?.trim()
+  const user = process.env['LUMEN_E2E_USER']?.trim()
+  const password = process.env['LUMEN_E2E_PASSWORD']
   if (!url || !user || !password) return null
   return { url: url.replace(/\/+$/, ''), user, password }
 }
 
 export const SKIP_REASON =
-  'JELLYRA_E2E_URL, JELLYRA_E2E_USER and JELLYRA_E2E_PASSWORD are not set: e2e suite skipped.'
+  'LUMEN_E2E_URL, LUMEN_E2E_USER and LUMEN_E2E_PASSWORD are not set: e2e suite skipped.'
 
 export function newProfileDir(): string {
-  return mkdtempSync(join(tmpdir(), 'jellyra-e2e-'))
+  return mkdtempSync(join(tmpdir(), 'lumen-e2e-'))
 }
 
 export interface LogEntry {
@@ -68,7 +68,7 @@ export async function launchApp(opts: LaunchOptions): Promise<RunningApp> {
     cwd: ROOT,
     env: {
       ...process.env,
-      JELLYRA_USER_DATA_DIR: opts.profileDir,
+      LUMEN_USER_DATA_DIR: opts.profileDir,
       ELECTRON_ENABLE_LOGGING: '1',
       // Never load a dev server: the suite always tests the production build.
       ELECTRON_RENDERER_URL: '',

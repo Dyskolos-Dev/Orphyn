@@ -1,11 +1,11 @@
 /**
  * Interface language choice: `system` (follow the OS), `fr` or `en`. Persisted under
- * `jellyra.language`; applied at module load (before the first render) and instantly on change.
+ * `lumen.language`; applied at module load (before the first render) and instantly on change.
  */
 import i18n from '@renderer/i18n'
 
 export type LanguageChoice = 'system' | 'fr' | 'en'
-export const LANGUAGE_STORAGE_KEY = 'jellyra.language'
+export const LANGUAGE_STORAGE_KEY = 'lumen.language'
 export const LANGUAGE_CHOICES: readonly LanguageChoice[] = ['system', 'fr', 'en']
 
 export function isLanguageChoice(v: unknown): v is LanguageChoice {

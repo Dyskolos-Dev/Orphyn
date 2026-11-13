@@ -1,8 +1,8 @@
-# Jellyra
+# Lumen
 
-**Jellyra** est un client de bureau pour [Jellyfin](https://jellyfin.org), le serveur multimédia libre et gratuit. Il lit votre musique, vos films et vos séries sur Windows, macOS et Linux, avec une interface inspirée des applications Apple TV et Apple Musique.
+**Lumen** est un client de bureau pour [Jellyfin](https://jellyfin.org), le serveur multimédia libre et gratuit. Il lit votre musique, vos films et vos séries sur Windows, macOS et Linux, avec une interface inspirée des applications Apple TV et Apple Musique.
 
-> **Statut : en développement.** Jellyra n'est pas encore publié. Les fonctionnalités ci-dessous correspondent au périmètre prévu pour la v1 et sont en cours de réalisation.
+> **Statut : en développement.** Lumen n'est pas encore publié. Les fonctionnalités ci-dessous correspondent au périmètre prévu pour la v1 et sont en cours de réalisation.
 
 Langue : [English](README.md) · **Français**
 
@@ -27,8 +27,8 @@ Prévu pour la v1 (toutes **en cours**) :
 ## Mise en place pour le développement
 
 ```bash
-git clone <url-du-depot> jellyra
-cd jellyra
+git clone <url-du-depot> lumen
+cd lumen
 npm install
 npm run dev
 ```
@@ -68,11 +68,11 @@ Les installeurs ne sont pas encore signés numériquement. La signature Windows 
 
 ## Organisation du projet
 
-Jellyra est une application Electron + React 19 + TypeScript (strict). Le code est réparti entre un processus principal (`src/main`), un pont preload (`src/preload`), les contrats IPC partagés (`src/shared`) et le renderer (`src/renderer/src`), organisé par fonctionnalité. Lisez ces documents avant toute modification :
+Lumen est une application Electron + React 19 + TypeScript (strict). Le code est réparti entre un processus principal (`src/main`), un pont preload (`src/preload`), les contrats IPC partagés (`src/shared`) et le renderer (`src/renderer/src`), organisé par fonctionnalité. Lisez ces documents avant toute modification :
 
 - [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) : dossiers, points de composition, conventions IPC et i18n.
 - [docs/DESIGN.md](docs/DESIGN.md) : système de design et directives visuelles.
-- [docs/JELLYFIN.md](docs/JELLYFIN.md) : comment Jellyra communique avec les serveurs Jellyfin.
+- [docs/JELLYFIN.md](docs/JELLYFIN.md) : comment Lumen communique avec les serveurs Jellyfin.
 
 ## Contribuer
 
@@ -80,8 +80,8 @@ Les contributions sont les bienvenues. Consultez [CONTRIBUTING.md](CONTRIBUTING.
 
 ## Licence
 
-Jellyra est distribué sous licence MIT (voir [LICENSE](LICENSE)). La licence n'est pas encore définitive et peut changer avant la première version publiée.
+Lumen est distribué sous licence MIT (voir [LICENSE](LICENSE)). La licence n'est pas encore définitive et peut changer avant la première version publiée.
 
 ## Avertissement
 
-Jellyra est un projet indépendant. Il **n'est ni affilié, ni approuvé, ni parrainé** par le projet Jellyfin ni par Apple Inc. « Jellyfin » est une marque du projet Jellyfin ; « Apple TV », « Apple Musique », « AirPlay » et « Apple » sont des marques d'Apple Inc. Elles ne sont citées que pour décrire la compatibilité et l'inspiration visuelle.
+Lumen est un projet indépendant. Il **n'est ni affilié, ni approuvé, ni parrainé** par le projet Jellyfin ni par Apple Inc. « Jellyfin » est une marque du projet Jellyfin ; « Apple TV », « Apple Musique », « AirPlay » et « Apple » sont des marques d'Apple Inc. Elles ne sont citées que pour décrire la compatibilité et l'inspiration visuelle.

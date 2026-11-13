@@ -1,7 +1,7 @@
 import { useSyncExternalStore } from 'react'
 
 /** Recent searches, newest first, in localStorage under this key (JSON array of strings). */
-export const RECENT_SEARCHES_KEY = 'jellyra.search.recent'
+export const RECENT_SEARCHES_KEY = 'lumen.search.recent'
 export const MAX_RECENT_SEARCHES = 8
 
 function read(): string[] {

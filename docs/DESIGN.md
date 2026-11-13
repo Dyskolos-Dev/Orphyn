@@ -1,6 +1,6 @@
-# Jellyra design system
+# Lumen design system
 
-Jellyra looks and behaves like **Apple TV** (movies, series) and **Apple Music** (music) on macOS, follows
+Lumen looks and behaves like **Apple TV** (movies, series) and **Apple Music** (music) on macOS, follows
 Apple's Human Interface Guidelines, and keeps the same look on Windows and Linux. Features build their
 pages **only** with the components below: import them from `@renderer/design`, and the page frame from
 `@renderer/shell`. Do not write raw colours, font sizes or shadows in feature code: use the tokens.
@@ -151,15 +151,15 @@ Songs are `TrackRow`s in a `TrackList`, settings are `ListRow`s in an inset `Lis
 import { useTheme } from '@renderer/design'
 
 const { mode, resolvedTheme, accent, setMode, setAccent } = useTheme()
-setMode('system' | 'light' | 'dark') // instant, persisted (localStorage "jellyra.theme.mode")
-setAccent('blue' | '#30d158') // persisted ("jellyra.theme.accent")
+setMode('system' | 'light' | 'dark') // instant, persisted (localStorage "lumen.theme.mode")
+setAccent('blue' | '#30d158') // persisted ("lumen.theme.accent")
 ```
 
 `ThemeProvider` is mounted by the shell; `useTheme()` works anywhere. The stored theme is applied before
 React renders (no flash). In `system` mode the app follows the OS appearance live. The native window
 (vibrancy, Mica, caption buttons) follows the chosen mode.
 
-## 3. Window (`window.jellyra.window`)
+## 3. Window (`window.lumen.window`)
 
 ```ts
 import { useWindowState } from '@renderer/design'

@@ -65,7 +65,7 @@ export function fakeHttp(handler: FakeHandler): FakeHttp {
 export const networkError = (code = 'ECONNREFUSED') =>
   new AxiosError('connect failed', code, undefined, null, undefined)
 
-/** Minimal in-memory implementation of window.jellyra.accounts. */
+/** Minimal in-memory implementation of window.lumen.accounts. */
 export function installFakeAccounts() {
   const accounts: import('@shared/jellyfin').ServerAccount[] = []
   const tokens = new Map<string, string>()
@@ -105,6 +105,6 @@ export function installFakeAccounts() {
     getDeviceId: async () => 'device-1',
     getStatus: async () => ({ encrypted: true }),
   }
-  ;(window as unknown as { jellyra: unknown }).jellyra = { accounts: api }
+  ;(window as unknown as { lumen: unknown }).lumen = { accounts: api }
   return { api, tokens }
 }

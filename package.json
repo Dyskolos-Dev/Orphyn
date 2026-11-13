@@ -1,10 +1,10 @@
 {
-  "name": "jellyra",
+  "name": "lumen",
   "version": "0.1.0",
-  "description": "Jellyra - a desktop Jellyfin client for music, movies and series",
+  "description": "Lumen - a desktop Jellyfin client for music, movies and series",
   "private": true,
   "main": "./out/main/index.js",
-  "author": "Jellyra",
+  "author": "Lumen",
   "license": "UNLICENSED",
   "scripts": {
     "dev": "electron-vite dev",
