@@ -1,0 +1,41 @@
+{
+  "title": "Search",
+  "subtitle": "Results for “{{query}}”",
+  "topResult": "Top Result",
+  "kinds": {
+    "movie": "Movie",
+    "series": "Series",
+    "episode": "Episode",
+    "artist": "Artist",
+    "album": "Album",
+    "song": "Song"
+  },
+  "sections": {
+    "movies": "Movies",
+    "series": "Series",
+    "episodes": "Episodes",
+    "artists": "Artists",
+    "albums": "Albums",
+    "songs": "Songs"
+  },
+  "empty": {
+    "title": "Search Your Library",
+    "message": "Find movies, series, episodes, artists, albums and songs on your server."
+  },
+  "tooShort": "Type at least 2 characters.",
+  "noResults": {
+    "title": "No Results for “{{query}}”",
+    "message": "Check the spelling or try a different search."
+  },
+  "error": {
+    "title": "Search Failed",
+    "message": "The server could not answer. Check your connection and try again.",
+    "retry": "Try Again"
+  },
+  "recent": {
+    "title": "Recent Searches",
+    "clear": "Clear"
+  },
+  "episodeLabel": "S{{season}} · E{{episode}}",
+  "playSong": "Play {{title}}"
+}

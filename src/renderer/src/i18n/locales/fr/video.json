@@ -1,0 +1,93 @@
+{
+  "home": {
+    "title": "Regarder",
+    "featured": "À la une",
+    "slide": "Afficher l’élément {{n}}",
+    "continueWatching": "Reprendre la lecture",
+    "nextUp": "À suivre",
+    "recentlyAdded": "Ajouts récents : {{library}}",
+    "favourites": "Favoris",
+    "noLibrary": {
+      "title": "Aucun film ni série",
+      "message": "Ajoutez une bibliothèque de films ou de séries à votre serveur Jellyfin pour les regarder ici."
+    },
+    "loadError": "Impossible de charger votre bibliothèque."
+  },
+  "library": {
+    "movies": "Films",
+    "series": "Séries",
+    "count_one": "{{count}} élément",
+    "count_other": "{{count}} éléments",
+    "sort": "Trier",
+    "sortName": "Nom",
+    "sortDateAdded": "Date d’ajout",
+    "sortReleaseDate": "Date de sortie",
+    "sortRating": "Note",
+    "filter": "Filtrer",
+    "filterAll": "Tous",
+    "filterUnplayed": "Non vus",
+    "filterPlayed": "Vus",
+    "genre": "Genre",
+    "allGenres": "Tous les genres",
+    "empty": {
+      "title": "Rien ici",
+      "message": "Aucun élément ne correspond à ces filtres."
+    },
+    "jumpTo": "Aller à la lettre"
+  },
+  "item": {
+    "play": "Lire",
+    "resume": "Reprendre à {{minutes}} min",
+    "playEpisode": "Lire S{{season}} É{{episode}}",
+    "resumeEpisode": "Reprendre S{{season}} É{{episode}}",
+    "fromStart": "Lire depuis le début",
+    "trailer": "Bande-annonce",
+    "markWatched": "Marquer comme vu",
+    "markUnwatched": "Marquer comme non vu",
+    "favourite": "Ajouter aux favoris",
+    "unfavourite": "Retirer des favoris",
+    "synopsis": "Synopsis",
+    "castCrew": "Distribution et équipe",
+    "similar": "Vous aimerez aussi",
+    "episodes": "Épisodes",
+    "season": "Saison {{number}}",
+    "specials": "Épisodes spéciaux",
+    "seasonPicker": "Saison",
+    "episodeLabel": "S{{season}} · É{{episode}}",
+    "minutesLeft": "{{minutes}} min restantes",
+    "watched": "Vu",
+    "seasonsCount_one": "{{count}} saison",
+    "seasonsCount_other": "{{count}} saisons",
+    "notFound": {
+      "title": "Introuvable",
+      "message": "Cet élément n’est plus disponible."
+    },
+    "more": "Plus"
+  },
+  "player": {
+    "back": "Retour",
+    "play": "Lecture",
+    "pause": "Pause",
+    "rewind": "Reculer de 10 secondes",
+    "forward": "Avancer de 10 secondes",
+    "volume": "Volume",
+    "mute": "Couper le son",
+    "unmute": "Rétablir le son",
+    "fullscreen": "Passer en plein écran",
+    "exitFullscreen": "Quitter le plein écran",
+    "audio": "Audio",
+    "subtitles": "Sous-titres",
+    "subtitlesOff": "Désactivés",
+    "speed": "Vitesse de lecture",
+    "seek": "Position",
+    "upNext": "À suivre",
+    "playNow": "Lire maintenant",
+    "cancel": "Annuler",
+    "startsIn": "Lecture dans {{seconds}} s",
+    "loading": "Chargement…",
+    "errorTitle": "Échec de la lecture",
+    "errorMessage": "Cette vidéo n’a pas pu être lue.",
+    "retry": "Réessayer",
+    "transcoding": "Conversion pour la lecture"
+  }
+}

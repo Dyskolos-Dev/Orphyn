@@ -1,0 +1,93 @@
+{
+  "home": {
+    "title": "Watch Now",
+    "featured": "Featured",
+    "slide": "Show item {{n}}",
+    "continueWatching": "Continue Watching",
+    "nextUp": "Next Up",
+    "recentlyAdded": "Recently Added in {{library}}",
+    "favourites": "Favourites",
+    "noLibrary": {
+      "title": "No Movies or TV Shows",
+      "message": "Add a movie or TV library to your Jellyfin server to watch it here."
+    },
+    "loadError": "Could not load your library."
+  },
+  "library": {
+    "movies": "Movies",
+    "series": "TV Shows",
+    "count_one": "{{count}} item",
+    "count_other": "{{count}} items",
+    "sort": "Sort",
+    "sortName": "Name",
+    "sortDateAdded": "Date Added",
+    "sortReleaseDate": "Release Date",
+    "sortRating": "Rating",
+    "filter": "Filter",
+    "filterAll": "All",
+    "filterUnplayed": "Unwatched",
+    "filterPlayed": "Watched",
+    "genre": "Genre",
+    "allGenres": "All Genres",
+    "empty": {
+      "title": "Nothing Here",
+      "message": "No items match these filters."
+    },
+    "jumpTo": "Jump to letter"
+  },
+  "item": {
+    "play": "Play",
+    "resume": "Resume at {{minutes}} min",
+    "playEpisode": "Play S{{season}} E{{episode}}",
+    "resumeEpisode": "Resume S{{season}} E{{episode}}",
+    "fromStart": "Play from Beginning",
+    "trailer": "Trailer",
+    "markWatched": "Mark as Watched",
+    "markUnwatched": "Mark as Unwatched",
+    "favourite": "Add to Favourites",
+    "unfavourite": "Remove from Favourites",
+    "synopsis": "Synopsis",
+    "castCrew": "Cast & Crew",
+    "similar": "You Might Also Like",
+    "episodes": "Episodes",
+    "season": "Season {{number}}",
+    "specials": "Specials",
+    "seasonPicker": "Season",
+    "episodeLabel": "S{{season}} · E{{episode}}",
+    "minutesLeft": "{{minutes}} min left",
+    "watched": "Watched",
+    "seasonsCount_one": "{{count}} season",
+    "seasonsCount_other": "{{count}} seasons",
+    "notFound": {
+      "title": "Not Found",
+      "message": "This item is no longer available."
+    },
+    "more": "More"
+  },
+  "player": {
+    "back": "Back",
+    "play": "Play",
+    "pause": "Pause",
+    "rewind": "Back 10 seconds",
+    "forward": "Forward 10 seconds",
+    "volume": "Volume",
+    "mute": "Mute",
+    "unmute": "Unmute",
+    "fullscreen": "Enter Full Screen",
+    "exitFullscreen": "Exit Full Screen",
+    "audio": "Audio",
+    "subtitles": "Subtitles",
+    "subtitlesOff": "Off",
+    "speed": "Playback Speed",
+    "seek": "Seek",
+    "upNext": "Up Next",
+    "playNow": "Play Now",
+    "cancel": "Cancel",
+    "startsIn": "Starts in {{seconds}} s",
+    "loading": "Loading…",
+    "errorTitle": "Playback Failed",
+    "errorMessage": "This video could not be played.",
+    "retry": "Try Again",
+    "transcoding": "Converting for playback"
+  }
+}
