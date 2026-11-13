@@ -1,5 +1,6 @@
 import type { RouteObject } from 'react-router'
-import './register'
+import { StubPage } from '@renderer/shell/StubPage'
+import './register' // installs the picker in the music and video players
 
-/** Route table for the cast feature: it has no page of its own, importing it installs the picker. */
-export const castRoutes: RouteObject[] = []
+/** Route table for the cast feature. */
+export const castRoutes: RouteObject[] = [{ path: '/cast', element: <StubPage name="Cast" /> }]
