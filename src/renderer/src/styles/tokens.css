@@ -1,0 +1,316 @@
+/*
+ * Jellyra design tokens (owner: design agent). Documented in docs/DESIGN.md.
+ *
+ * Layer 1, Apple system colours (names follow UIKit/AppKit: systemBackground, label, ...).
+ * Layer 2, semantic tokens the components use (--surface-*, --text-*, --accent, ...).
+ * Light values live on :root, dark values on [data-theme='dark'] (set by ThemeProvider on <html>).
+ */
+
+:root {
+  color-scheme: light;
+
+  /* ---- Apple system colours, light ---- */
+  --system-background: #ffffff;
+  --secondary-system-background: #f2f2f7;
+  --tertiary-system-background: #ffffff;
+  --system-grouped-background: #f2f2f7;
+  --secondary-system-grouped-background: #ffffff;
+
+  --label: #000000;
+  --secondary-label: rgb(60 60 67 / 0.6);
+  --tertiary-label: rgb(60 60 67 / 0.3);
+  --quaternary-label: rgb(60 60 67 / 0.18);
+
+  --separator: rgb(60 60 67 / 0.29);
+  --opaque-separator: #c6c6c8;
+
+  --system-fill: rgb(120 120 128 / 0.2);
+  --secondary-system-fill: rgb(120 120 128 / 0.16);
+  --tertiary-system-fill: rgb(118 118 128 / 0.12);
+  --quaternary-system-fill: rgb(116 116 128 / 0.08);
+
+  --system-red: #ff3b30;
+  --system-pink: #ff2d55;
+  --system-orange: #ff9500;
+  --system-yellow: #ffcc00;
+  --system-green: #34c759;
+  --system-teal: #30b0c7;
+  --system-blue: #007aff;
+  --system-indigo: #5856d6;
+  --system-purple: #af52de;
+  --system-gray: #8e8e93;
+  /* Apple Music's signature red-pink. */
+  --music-red: #fa2d48;
+
+  /* ---- Semantic surfaces ---- */
+  --surface-window: #ffffff;
+  --surface-sidebar: #f5f5f7;
+  --surface-elevated: #ffffff;
+  --surface-grouped: var(--secondary-system-background);
+  --surface-hover: rgb(0 0 0 / 0.05);
+  --surface-pressed: rgb(0 0 0 / 0.09);
+  --surface-selected: rgb(0 0 0 / 0.08);
+  --surface-placeholder: #e5e5ea;
+  --scrim: rgb(0 0 0 / 0.3);
+
+  /* ---- Accent (set by ThemeProvider via [data-accent] or an inline --accent) ---- */
+  --accent: var(--music-red);
+  --accent-contrast: #ffffff;
+
+  /* ---- Materials: background + backdrop-filter ---- */
+  --material-ultra-thin-bg: rgb(246 246 246 / 0.36);
+  --material-thin-bg: rgb(246 246 246 / 0.56);
+  --material-regular-bg: rgb(246 246 246 / 0.72);
+  --material-thick-bg: rgb(246 246 246 / 0.86);
+  --material-ultra-thin-filter: blur(16px) saturate(180%);
+  --material-thin-filter: blur(24px) saturate(180%);
+  --material-regular-filter: blur(30px) saturate(180%);
+  --material-thick-filter: blur(40px) saturate(200%);
+  --material-border: rgb(0 0 0 / 0.08);
+
+  /* ---- Radii ---- */
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-2xl: 22px;
+  --radius-full: 9999px;
+  --radius-artwork: 8px;
+  --radius-poster: 10px;
+  --radius-control: 7px;
+
+  /* ---- Shadows (subtle in light, deeper in dark) ---- */
+  --shadow-xs: 0 1px 1px rgb(0 0 0 / 0.06);
+  --shadow-sm: 0 1px 3px rgb(0 0 0 / 0.1), 0 1px 2px rgb(0 0 0 / 0.06);
+  --shadow-md: 0 4px 14px rgb(0 0 0 / 0.1), 0 1px 3px rgb(0 0 0 / 0.08);
+  --shadow-lg: 0 12px 40px rgb(0 0 0 / 0.16), 0 2px 8px rgb(0 0 0 / 0.08);
+  --shadow-artwork: 0 2px 6px rgb(0 0 0 / 0.08), 0 8px 24px rgb(0 0 0 / 0.1);
+  --shadow-popover: 0 0 0 0.5px rgb(0 0 0 / 0.12), 0 10px 36px rgb(0 0 0 / 0.18);
+
+  /* ---- Spacing: 4pt grid ---- */
+  --space-0: 0;
+  --space-px: 1px;
+  --space-0-5: 2px;
+  --space-1: 4px;
+  --space-1-5: 6px;
+  --space-2: 8px;
+  --space-2-5: 10px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-7: 28px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-20: 80px;
+  /* Horizontal page margin, Apple TV / Music use ~40px on desktop. */
+  --page-gutter: 40px;
+
+  /* ---- Motion ---- */
+  --duration-instant: 100ms;
+  --duration-fast: 160ms;
+  --duration-base: 240ms;
+  --duration-slow: 360ms;
+  --duration-slower: 520ms;
+  --ease-standard: cubic-bezier(0.25, 0.1, 0.25, 1);
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  /* Critically damped spring (stiffness 300, damping 30), sampled. */
+  --ease-spring: linear(
+    0,
+    0.081 2.5%,
+    0.28 6.5%,
+    0.5 11%,
+    0.683 15.8%,
+    0.817 20.9%,
+    0.906 26.3%,
+    0.958 32.3%,
+    0.986 39.4%,
+    0.998 48.6%,
+    1
+  );
+  /* Small overshoot, for things that "pop" (toggles, toasts). */
+  --ease-spring-bouncy: linear(
+    0,
+    0.124 3.4%,
+    0.448 9.6%,
+    0.784 16.6%,
+    0.997 23.4%,
+    1.075 29.4%,
+    1.085 34.4%,
+    1.052 42.3%,
+    1.007 54.9%,
+    0.995 66.6%,
+    1
+  );
+
+  /* ---- Typography ---- */
+  --font-text:
+    -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro', 'Inter Variable',
+    'Segoe UI Variable Text', 'Segoe UI', system-ui, sans-serif;
+  --font-display:
+    -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro', 'Inter Variable',
+    'Segoe UI Variable Display', 'Segoe UI', system-ui, sans-serif;
+  --font-rounded: ui-rounded, 'SF Pro Rounded', var(--font-text);
+  --font-mono: ui-monospace, 'SF Mono', 'Cascadia Mono', Menlo, Consolas, monospace;
+
+  /* size / line-height / weight / tracking per text style */
+  --text-large-title: 700 32px/38px var(--font-display);
+  --text-title-1: 700 26px/32px var(--font-display);
+  --text-title-2: 700 22px/28px var(--font-display);
+  --text-title-3: 600 19px/24px var(--font-display);
+  --text-headline: 600 15px/20px var(--font-text);
+  --text-body: 400 15px/20px var(--font-text);
+  --text-callout: 400 14px/19px var(--font-text);
+  --text-subheadline: 400 13px/18px var(--font-text);
+  --text-footnote: 400 12px/16px var(--font-text);
+  --text-caption: 400 11px/14px var(--font-text);
+  --tracking-large-title: -0.022em;
+  --tracking-title: -0.018em;
+  --tracking-headline: -0.01em;
+  --tracking-body: -0.006em;
+  --tracking-caption: 0;
+
+  /* ---- Layout ---- */
+  --sidebar-width: 248px;
+  --toolbar-height: 52px;
+  --now-playing-height: 64px;
+  /* Space reserved for native window buttons (set per platform below). */
+  --titlebar-inset-left: 0px;
+  --titlebar-inset-right: 0px;
+  --z-sticky: 10;
+  --z-toolbar: 20;
+  --z-popover: 100;
+  --z-modal: 200;
+  --z-toast: 300;
+}
+
+/* ---------------- Dark ---------------- */
+[data-theme='dark'] {
+  color-scheme: dark;
+
+  --system-background: #000000;
+  --secondary-system-background: #1c1c1e;
+  --tertiary-system-background: #2c2c2e;
+  --system-grouped-background: #000000;
+  --secondary-system-grouped-background: #1c1c1e;
+
+  --label: #ffffff;
+  --secondary-label: rgb(235 235 245 / 0.6);
+  --tertiary-label: rgb(235 235 245 / 0.3);
+  --quaternary-label: rgb(235 235 245 / 0.16);
+
+  --separator: rgb(84 84 88 / 0.6);
+  --opaque-separator: #38383a;
+
+  --system-fill: rgb(120 120 128 / 0.36);
+  --secondary-system-fill: rgb(120 120 128 / 0.32);
+  --tertiary-system-fill: rgb(118 118 128 / 0.24);
+  --quaternary-system-fill: rgb(118 118 128 / 0.18);
+
+  --system-red: #ff453a;
+  --system-pink: #ff375f;
+  --system-orange: #ff9f0a;
+  --system-yellow: #ffd60a;
+  --system-green: #30d158;
+  --system-teal: #40c8e0;
+  --system-blue: #0a84ff;
+  --system-indigo: #5e5ce6;
+  --system-purple: #bf5af2;
+  --system-gray: #8e8e93;
+  --music-red: #fa2d48;
+
+  --surface-window: #1d1d1f;
+  --surface-sidebar: #262628;
+  --surface-elevated: #2c2c2e;
+  --surface-hover: rgb(255 255 255 / 0.06);
+  --surface-pressed: rgb(255 255 255 / 0.1);
+  --surface-selected: rgb(255 255 255 / 0.1);
+  --surface-placeholder: #2c2c2e;
+  --scrim: rgb(0 0 0 / 0.5);
+
+  --material-ultra-thin-bg: rgb(30 30 32 / 0.36);
+  --material-thin-bg: rgb(30 30 32 / 0.56);
+  --material-regular-bg: rgb(30 30 32 / 0.72);
+  --material-thick-bg: rgb(30 30 32 / 0.86);
+  --material-border: rgb(255 255 255 / 0.1);
+
+  --shadow-xs: 0 1px 1px rgb(0 0 0 / 0.3);
+  --shadow-sm: 0 1px 3px rgb(0 0 0 / 0.4), 0 1px 2px rgb(0 0 0 / 0.3);
+  --shadow-md: 0 4px 14px rgb(0 0 0 / 0.4), 0 1px 3px rgb(0 0 0 / 0.3);
+  --shadow-lg: 0 12px 40px rgb(0 0 0 / 0.55), 0 2px 8px rgb(0 0 0 / 0.3);
+  --shadow-artwork: 0 2px 6px rgb(0 0 0 / 0.3), 0 8px 24px rgb(0 0 0 / 0.35);
+  --shadow-popover: 0 0 0 0.5px rgb(255 255 255 / 0.14), 0 10px 36px rgb(0 0 0 / 0.5);
+}
+
+/*
+ * Derived tokens. Re-declared on every [data-theme] scope so that a subtree forced to a theme
+ * (e.g. <div data-theme="dark"> inside HeroBanner) resolves them against its own colours.
+ */
+:root,
+[data-theme] {
+  --accent-tint: color-mix(in srgb, var(--accent) 14%, transparent);
+  --accent-tint-hover: color-mix(in srgb, var(--accent) 22%, transparent);
+  --link: var(--system-blue);
+  --danger: var(--system-red);
+  --success: var(--system-green);
+  --focus-ring: color-mix(in srgb, var(--accent) 55%, transparent);
+}
+
+/* ---------------- Accent presets ---------------- */
+[data-accent='red'] {
+  --accent: var(--music-red);
+}
+[data-accent='pink'] {
+  --accent: var(--system-pink);
+}
+[data-accent='orange'] {
+  --accent: var(--system-orange);
+}
+[data-accent='yellow'] {
+  --accent: var(--system-yellow);
+  --accent-contrast: #000000;
+}
+[data-accent='green'] {
+  --accent: var(--system-green);
+}
+[data-accent='teal'] {
+  --accent: var(--system-teal);
+}
+[data-accent='blue'] {
+  --accent: var(--system-blue);
+}
+[data-accent='indigo'] {
+  --accent: var(--system-indigo);
+}
+[data-accent='purple'] {
+  --accent: var(--system-purple);
+}
+[data-accent='graphite'] {
+  --accent: var(--system-gray);
+}
+
+/* ---------------- Platform adjustments ---------------- */
+/* macOS: traffic lights sit in the sidebar's top-left corner. */
+[data-platform='darwin'] {
+  --titlebar-inset-left: 78px;
+}
+[data-platform='darwin'][data-fullscreen='true'] {
+  --titlebar-inset-left: 0px;
+}
+/* Windows: the native caption buttons (title bar overlay) take the top-right corner. */
+[data-platform='win32'] {
+  --titlebar-inset-right: 140px;
+}
+[data-platform='win32'][data-fullscreen='true'] {
+  --titlebar-inset-right: 0px;
+}
+/* With a native material (vibrancy / Mica) the sidebar lets the desktop show through. */
+[data-material='vibrancy'],
+[data-material='mica'] {
+  --surface-sidebar: transparent;
+}

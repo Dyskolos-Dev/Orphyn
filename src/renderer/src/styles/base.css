@@ -1,4 +1,11 @@
-/* Placeholder base styles; replaced by the design agent. */
+/* Global base styles (owner: design agent). Tokens are in tokens.css. */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
 html,
 body,
 #root {
@@ -6,6 +13,151 @@ body,
   margin: 0;
 }
 
+html {
+  font: var(--text-body);
+  letter-spacing: var(--tracking-body);
+  color: var(--label);
+  background: var(--surface-window);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  font-synthesis: none;
+  /* Inter: SF-like single-storey a off, tabular-friendly alternates. */
+  font-feature-settings:
+    'cv11' 1,
+    'ss01' 1;
+}
+
+/* A native material is behind the window: let it show through where the shell is transparent. */
+html[data-material='vibrancy'],
+html[data-material='mica'] {
+  background: transparent;
+}
+
 body {
-  font-family: system-ui, sans-serif;
+  overflow: hidden;
+  /* Desktop apps do not select chrome text; content that should be selectable opts in. */
+  user-select: none;
+  -webkit-user-select: none;
+  cursor: default;
+}
+
+input,
+textarea,
+[contenteditable='true'],
+.jr-selectable {
+  user-select: text;
+  -webkit-user-select: text;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  letter-spacing: inherit;
+  color: inherit;
+}
+
+button {
+  cursor: default;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+img,
+svg,
+video {
+  display: block;
+  max-width: 100%;
+}
+
+h1,
+h2,
+h3,
+h4,
+p,
+ul,
+ol,
+figure {
+  margin: 0;
+}
+
+ul,
+ol {
+  padding: 0;
+  list-style: none;
+}
+
+a {
+  color: var(--link);
+  text-decoration: none;
+}
+
+/* Focus: Apple-style accent ring, only for keyboard focus. */
+:focus {
+  outline: none;
+}
+:focus-visible {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 1px;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--accent) 30%, transparent);
+}
+
+/* Thin overlay-like scrollbars on Windows / Linux (macOS keeps its own overlay scrollbars). */
+html:not([data-platform='darwin']) ::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+html:not([data-platform='darwin']) ::-webkit-scrollbar-track {
+  background: transparent;
+}
+html:not([data-platform='darwin']) ::-webkit-scrollbar-thumb {
+  background: var(--system-fill);
+  border: 4px solid transparent;
+  border-radius: var(--radius-full);
+  background-clip: padding-box;
+}
+html:not([data-platform='darwin']) ::-webkit-scrollbar-thumb:hover {
+  background-color: var(--tertiary-label);
+}
+
+/* Window drag regions (Electron). Interactive children opt out automatically. */
+.jr-drag {
+  -webkit-app-region: drag;
+  app-region: drag;
+}
+.jr-drag :is(button, a, input, select, textarea, [role='button'], [tabindex], .jr-no-drag),
+.jr-no-drag {
+  -webkit-app-region: no-drag;
+  app-region: no-drag;
+}
+
+/* Screen-reader only text. */
+.jr-visually-hidden {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
+    scroll-behavior: auto !important;
+  }
 }

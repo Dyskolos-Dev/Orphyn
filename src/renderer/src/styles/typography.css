@@ -1,0 +1,78 @@
+/* Text-style utility classes, one per Apple text style. Prefer the <Text> component. */
+.jr-text-large-title {
+  font: var(--text-large-title);
+  letter-spacing: var(--tracking-large-title);
+}
+.jr-text-title-1 {
+  font: var(--text-title-1);
+  letter-spacing: var(--tracking-title);
+}
+.jr-text-title-2 {
+  font: var(--text-title-2);
+  letter-spacing: var(--tracking-title);
+}
+.jr-text-title-3 {
+  font: var(--text-title-3);
+  letter-spacing: var(--tracking-title);
+}
+.jr-text-headline {
+  font: var(--text-headline);
+  letter-spacing: var(--tracking-headline);
+}
+.jr-text-body {
+  font: var(--text-body);
+  letter-spacing: var(--tracking-body);
+}
+.jr-text-callout {
+  font: var(--text-callout);
+  letter-spacing: var(--tracking-body);
+}
+.jr-text-subheadline {
+  font: var(--text-subheadline);
+  letter-spacing: var(--tracking-body);
+}
+.jr-text-footnote {
+  font: var(--text-footnote);
+  letter-spacing: var(--tracking-caption);
+}
+.jr-text-caption {
+  font: var(--text-caption);
+  letter-spacing: var(--tracking-caption);
+}
+
+.jr-color-primary {
+  color: var(--label);
+}
+.jr-color-secondary {
+  color: var(--secondary-label);
+}
+.jr-color-tertiary {
+  color: var(--tertiary-label);
+}
+.jr-color-accent {
+  color: var(--accent);
+}
+.jr-color-danger {
+  color: var(--danger);
+}
+
+.jr-truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.jr-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.jr-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.jr-tabular {
+  font-variant-numeric: tabular-nums;
+}

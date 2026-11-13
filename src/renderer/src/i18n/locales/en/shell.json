@@ -1,0 +1,43 @@
+{
+  "nav": {
+    "label": "Main",
+    "watch": "Watch",
+    "music": "Music",
+    "home": "Home",
+    "movies": "Movies",
+    "series": "TV Shows",
+    "albums": "Albums",
+    "artists": "Artists",
+    "playlists": "Playlists",
+    "songs": "Songs",
+    "settings": "Settings",
+    "more": "More",
+    "back": "Back"
+  },
+  "search": {
+    "placeholder": "Search",
+    "label": "Search Jellyra"
+  },
+  "slots": {
+    "nowPlaying": "Now Playing",
+    "server": "Server"
+  },
+  "design": {
+    "seeAll": "See All",
+    "scrollBack": "Scroll back",
+    "scrollForward": "Scroll forward",
+    "close": "Close",
+    "clear": "Clear",
+    "loading": "Loading",
+    "dismiss": "Dismiss",
+    "play": "Play",
+    "playItem": "Play {{title}}",
+    "more": "More",
+    "moreFor": "More for {{title}}",
+    "progress": "{{percent}}% watched",
+    "remaining": "{{time}} left",
+    "explicit": "Explicit",
+    "nowPlaying": "Now playing",
+    "trackNumber": "Track {{number}}"
+  }
+}
