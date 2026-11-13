@@ -84,10 +84,13 @@ export class JellyfinProbe {
     return this.get<Item>(`/Items/${id}`, { userId: this.userId, fields: 'MediaStreams' })
   }
 
-  async markUnplayed(id: string): Promise<void> {
-    await fetch(`${this.creds.url}/UserPlayedItems/${id}?userId=${this.userId}`, {
-      method: 'DELETE',
-      headers: this.headers(),
-    })
+  /** Back to unwatched with no resume point (marking it played clears the position first). */
+  async resetProgress(id: string): Promise<void> {
+    for (const method of ['POST', 'DELETE']) {
+      await fetch(`${this.creds.url}/UserPlayedItems/${id}?userId=${this.userId}`, {
+        method,
+        headers: this.headers(),
+      })
+    }
   }
 }

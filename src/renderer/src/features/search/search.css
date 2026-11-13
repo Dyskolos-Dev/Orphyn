@@ -9,6 +9,8 @@
   gap: var(--space-6);
   padding: 0 var(--page-gutter);
 }
+/* The page has no gutter (shelves bring their own): blocks add it themselves. */
+.jr-search__recent,
 .jr-search__top,
 .jr-search__songs {
   display: flex;

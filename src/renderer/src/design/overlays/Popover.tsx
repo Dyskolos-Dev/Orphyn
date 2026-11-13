@@ -164,6 +164,16 @@ function PopoverContent({
     place()
   }, [place])
 
+  // Content that grows after opening (cast devices being discovered, async lists) must be placed
+  // again, otherwise a popover opened upwards grows past the bottom of the window.
+  useEffect(() => {
+    const el = ref.current
+    if (!el || typeof ResizeObserver === 'undefined') return
+    const observer = new ResizeObserver(() => place())
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [place])
+
   useEffect(() => {
     const onPointerDown = (e: PointerEvent) => {
       const target = e.target as Node
@@ -173,17 +183,20 @@ function PopoverContent({
     }
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
+        // Captured on window and stopped there: the page's own Escape (leave the video player,
+        // close a sheet) must not run when Escape only dismisses this popover.
+        e.preventDefault()
         e.stopPropagation()
         onClose()
       }
     }
     window.addEventListener('pointerdown', onPointerDown, true)
-    window.addEventListener('keydown', onKey)
+    window.addEventListener('keydown', onKey, true)
     window.addEventListener('resize', place)
     window.addEventListener('blur', onClose)
     return () => {
       window.removeEventListener('pointerdown', onPointerDown, true)
-      window.removeEventListener('keydown', onKey)
+      window.removeEventListener('keydown', onKey, true)
       window.removeEventListener('resize', place)
       window.removeEventListener('blur', onClose)
     }

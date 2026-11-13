@@ -4,7 +4,7 @@
     "title": "Connectez-vous à votre serveur",
     "subtitle": "Saisissez l’adresse de votre serveur Jellyfin.",
     "label": "Adresse du serveur",
-    "placeholder": "jellyfin.exemple.com ou 192.168.1.10:8096",
+    "placeholder": "jellyfin.exemple.com ou 192.168.1.10",
     "hint": "Le port et le protocole sont détectés automatiquement.",
     "connect": "Se connecter",
     "checking": "Recherche de votre serveur…",

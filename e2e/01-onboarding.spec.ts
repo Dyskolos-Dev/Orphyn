@@ -16,6 +16,17 @@ test('onboarding: bad address, wrong password, then success and naming the serve
   try {
     await expect(page).toHaveURL(/#\/onboarding$/)
     await expect(page.getByRole('heading', { name: 'Connect to your server' })).toBeVisible()
+    // The title stays readable on the window surface in both themes (it used to be black on a
+    // black immersive background in light mode).
+    for (const scheme of ['light', 'dark'] as const) {
+      await page.emulateMedia({ colorScheme: scheme })
+      const colors = await page.evaluate(() => ({
+        text: getComputedStyle(document.querySelector('h1')!).color,
+        surface: getComputedStyle(document.querySelector('.jr-shell__main')!).backgroundColor,
+      }))
+      expect(colors.text).not.toBe(colors.surface)
+    }
+    await page.emulateMedia({ colorScheme: 'light' })
     await screenshotBothThemes(page, 'onboarding-address-en')
 
     // Unreachable address.

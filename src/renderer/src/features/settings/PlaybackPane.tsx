@@ -14,13 +14,11 @@ export function PlaybackPane() {
 
   return (
     <>
-      <List
-        variant="inset"
-        header={t('playback.videoHeader')}
-        footer={t('playback.maxBitrateFooter')}
-      >
+      <List variant="inset" header={t('playback.videoHeader')}>
+        {/* The hint belongs to this row: as the list footer it ended up under the autoplay row. */}
         <ListRow
           title={t('playback.maxBitrate')}
+          subtitle={t('playback.maxBitrateFooter')}
           trailing={
             <ValueMenu
               label={t('playback.maxBitrate')}

@@ -28,9 +28,8 @@
   /* Keeps the sticky toolbar's material blur sampling the page. */
   isolation: isolate;
 }
-.jr-shell--immersive .jr-shell__main {
-  background: #000;
-}
+/* Immersive keeps the window surface: the video player paints its own black stage, and the
+   onboarding page (also immersive) needs the light / dark window background behind its text. */
 
 /* Bottom now-playing bar: only visible when something is plugged in. */
 .jr-shell__now-playing {

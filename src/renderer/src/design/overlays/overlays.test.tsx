@@ -105,6 +105,25 @@ describe('Popover', () => {
     expect(screen.getByRole('button', { name: 'Queue' })).toHaveFocus()
   })
 
+  it('keeps the Escape that dismisses it from the page (e.g. leaving the video player)', async () => {
+    const pageEscape = vi.fn()
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && pageEscape()
+    // Registered before the popover opens, like a page-level shortcut.
+    window.addEventListener('keydown', onKey)
+    try {
+      const user = userEvent.setup()
+      render(<Demo />)
+      await user.click(screen.getByRole('button', { name: 'Queue' }))
+      await user.keyboard('{Escape}')
+      await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull())
+      expect(pageEscape).not.toHaveBeenCalled()
+      await user.keyboard('{Escape}')
+      expect(pageEscape).toHaveBeenCalledTimes(1)
+    } finally {
+      window.removeEventListener('keydown', onKey)
+    }
+  })
+
   it('flips above the anchor and clamps inside the viewport', () => {
     const anchor = { top: 700, bottom: 730, left: 950, right: 990, width: 40, height: 30 }
     const pos = computePosition(anchor, { width: 200, height: 150 }, 'bottom-start', 6, {

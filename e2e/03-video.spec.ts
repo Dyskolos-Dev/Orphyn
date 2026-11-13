@@ -86,7 +86,7 @@ test('video: home, library grid, movie detail, series seasons and episodes', asy
 
 test('video: play a movie, seek, switch audio and subtitles, resume is reported', async () => {
   const movie = await pickMovie()
-  await probe.markUnplayed(movie.Id)
+  await probe.resetProgress(movie.Id)
   const { page, logs, close } = await launchSignedIn()
   try {
     await page.evaluate((id) => (location.hash = `#/video/item/${id}`), movie.Id)
@@ -150,6 +150,16 @@ test('video: play a movie, seek, switch audio and subtitles, resume is reported'
     const position = await currentTime(page)
     await screenshotBothThemes(page, 'video-player-subtitles-en')
 
+    // Cast picker from the video player: "This computer" listed and selected.
+    await revealControls(page)
+    await page.getByRole('button', { name: 'Cast to a device' }).click()
+    const picker = page.getByRole('dialog', { name: 'Play on' })
+    const local = picker.getByRole('menuitemradio', { name: /This computer/ })
+    await expect(local).toHaveAttribute('aria-checked', 'true')
+    await screenshotBothThemes(page, 'cast-picker-video-en')
+    await page.keyboard.press('Escape')
+    await expect(picker).toBeHidden()
+
     // Leave the player: the stop report carries the position.
     await revealControls(page)
     await page.getByRole('button', { name: 'Back', exact: true }).click()
@@ -178,6 +188,6 @@ test('video: play a movie, seek, switch audio and subtitles, resume is reported'
     ])
   } finally {
     await close()
-    await probe.markUnplayed(movie.Id)
+    await probe.resetProgress(movie.Id)
   }
 })

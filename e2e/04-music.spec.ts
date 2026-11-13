@@ -69,7 +69,8 @@ test('music: home, albums, album page, playback, queue, Now Playing and lyrics',
     await screenshotBothThemes(page, 'music-album-en')
 
     // Play the album: the audio actually advances.
-    await page.getByRole('button', { name: 'Play', exact: true }).first().click()
+    await expect(page.locator('main .jr-track-list li').first()).toBeVisible()
+    await page.locator('main').getByRole('button', { name: 'Play', exact: true }).first().click()
     const mini = miniPlayer(page)
     await expect(mini).toContainText(tracks[0]!.Name)
     const seek = mini.getByRole('slider', { name: 'Seek' })

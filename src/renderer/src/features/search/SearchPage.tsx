@@ -65,7 +65,6 @@ export function SearchPage() {
     <ShellPage
       title={t('title')}
       subtitle={q.trim().length >= 2 ? t('subtitle', { query: q.trim() }) : undefined}
-      gutter
     >
       {/* Remember the search once the user opens something from its results. */}
       <div
@@ -105,21 +104,23 @@ function Landing({ recents, onPick }: { recents: string[]; onPick(term: string):
     return <EmptyState icon={<Search />} title={t('empty.title')} message={t('empty.message')} />
   }
   return (
-    <List
-      variant="inset"
-      header={
-        <span className="jr-search__recent-header">
-          {t('recent.title')}
-          <Button variant="plain" size="small" onClick={clearRecentSearches}>
-            {t('recent.clear')}
-          </Button>
-        </span>
-      }
-    >
-      {recents.map((s) => (
-        <ListRow key={s} leading={<Clock />} title={s} onClick={() => onPick(s)} />
-      ))}
-    </List>
+    <div className="jr-search__recent">
+      <List
+        variant="inset"
+        header={
+          <span className="jr-search__recent-header">
+            {t('recent.title')}
+            <Button variant="plain" size="small" onClick={clearRecentSearches}>
+              {t('recent.clear')}
+            </Button>
+          </span>
+        }
+      >
+        {recents.map((s) => (
+          <ListRow key={s} leading={<Clock />} title={s} onClick={() => onPick(s)} />
+        ))}
+      </List>
+    </div>
   )
 }
 
