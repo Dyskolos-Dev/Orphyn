@@ -90,7 +90,9 @@ test('video: play a movie, seek, switch audio and subtitles, resume is reported'
   const { page, logs, close } = await launchSignedIn()
   try {
     await page.evaluate((id) => (location.hash = `#/video/item/${id}`), movie.Id)
+    // The detail page's button, not the (disabled) Play of the music bar that is always there.
     await page
+      .locator('main')
       .getByRole('button', { name: /^(Play|Resume)/ })
       .first()
       .click()

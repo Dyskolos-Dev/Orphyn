@@ -93,6 +93,7 @@ function Sheet() {
         />
         <SegmentedControl<NowPlayingView>
           aria-label={t('player.view')}
+          className="jrm-np__tabs"
           value={view}
           onChange={(v) => useNowPlayingUi.getState().show(v)}
           options={[

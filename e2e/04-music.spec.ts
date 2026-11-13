@@ -1,4 +1,4 @@
-import { expect, test, type Locator, type Page } from '@playwright/test'
+import { expect, test, type CDPSession, type Locator, type Page } from '@playwright/test'
 import { SKIP_REASON, credentials, expectCleanLogs, screenshotBothThemes } from './support/app'
 import { JellyfinProbe, type Item } from './support/jellyfin'
 import { launchSignedIn, requireCredentials } from './support/session'
@@ -33,6 +33,26 @@ async function pickAlbum(): Promise<{ album: Item; tracks: Item[] }> {
     }
   }
   throw new Error('no album with four tracks on the server')
+}
+
+/** Emulates a window size and display scale (deviceScaleFactor) inside the renderer. */
+const sessions = new WeakMap<Page, CDPSession>()
+async function emulate(page: Page, width: number, height: number, scale: number): Promise<void> {
+  // The override lives as long as its session, so one session is kept per page.
+  let cdp = sessions.get(page)
+  if (!cdp) {
+    cdp = await page.context().newCDPSession(page)
+    sessions.set(page, cdp)
+  }
+  await cdp.send('Emulation.setDeviceMetricsOverride', {
+    width,
+    height,
+    deviceScaleFactor: scale,
+    mobile: false,
+  })
+}
+async function clearEmulation(page: Page): Promise<void> {
+  await sessions.get(page)?.send('Emulation.clearDeviceMetricsOverride')
 }
 
 /** The mini player's seek slider value (seconds), as the user sees it. */
@@ -99,6 +119,39 @@ test('music: home, albums, album page, playback, queue, Now Playing and lyrics',
     }
     await page.setViewportSize({ width: 1440, height: 900 })
 
+    // The three groups of the bar never intersect and never exceed it, on any width and scale.
+    for (const scale of [1, 1.25, 1.5]) {
+      for (let width = 800; width <= 2600; width += 100) {
+        await emulate(page, width, 900, scale)
+        await expect.poll(() => page.evaluate(() => window.innerWidth)).toBe(width)
+        const boxes = await mini.evaluate((el) => {
+          const box = (sel: string) => {
+            const r = el.querySelector(sel)!.getBoundingClientRect()
+            return { left: r.left, right: r.right }
+          }
+          const bar = el.getBoundingClientRect()
+          return {
+            bar: { left: bar.left, right: bar.right },
+            parts: [box('.jrm-mini__left'), box('.jrm-mini__capsule'), box('.jrm-mini__right')],
+          }
+        })
+        const label = `width ${width} @${scale}x`
+        const [left, capsule, right] = boxes.parts as [
+          { left: number; right: number },
+          { left: number; right: number },
+          { left: number; right: number },
+        ]
+        expect(left.right, label).toBeLessThanOrEqual(capsule.left + 0.5)
+        expect(capsule.right, label).toBeLessThanOrEqual(right.left + 0.5)
+        for (const part of boxes.parts) {
+          expect(part.left, label).toBeGreaterThanOrEqual(boxes.bar.left - 0.5)
+          expect(part.right, label).toBeLessThanOrEqual(boxes.bar.right + 0.5)
+        }
+      }
+    }
+    await clearEmulation(page)
+    await page.setViewportSize({ width: 1440, height: 900 })
+
     // Next / previous.
     const controls = mini.getByRole('group', { name: 'Playback controls' })
     await controls.getByRole('button', { name: 'Next' }).click()
@@ -133,6 +186,39 @@ test('music: home, albums, album page, playback, queue, Now Playing and lyrics',
     await expect(sheet).toContainText(tracks[0]!.Name)
     await screenshotBothThemes(page, 'music-now-playing-en')
 
+    // The segmented control, artwork and play button share the window's vertical axis.
+    for (const scale of [1, 1.25]) {
+      for (const width of [1000, 1600, 2400]) {
+        await emulate(page, width, 900, scale)
+        await expect.poll(() => page.evaluate(() => window.innerWidth)).toBe(width)
+        await page.waitForTimeout(500)
+        const axes = await sheet.evaluate((el) => {
+          const mid = (node: Element | null) => {
+            const r = node?.getBoundingClientRect()
+            return r ? r.left + r.width / 2 : NaN
+          }
+          return {
+            window: window.innerWidth / 2,
+            tabs: mid(el.querySelector('.jrm-np__tabs')),
+            art: mid(el.querySelector('.jrm-np__art')),
+            play: mid(
+              el.querySelector(
+                '.jrm-np__main [aria-label="Pause"], .jrm-np__main [aria-label="Play"]',
+              ),
+            ),
+          }
+        })
+        for (const key of ['tabs', 'art', 'play'] as const) {
+          expect(
+            Math.abs(axes[key] - axes.window),
+            `${key} @${width} ${scale}x`,
+          ).toBeLessThanOrEqual(2)
+        }
+      }
+    }
+    await clearEmulation(page)
+    await page.setViewportSize({ width: 1440, height: 900 })
+
     // Queue.
     await sheet.getByRole('radio', { name: 'Up Next' }).click()
     const panel = sheet.getByRole('region', { name: 'Up Next' })
@@ -150,6 +236,73 @@ test('music: home, albums, album page, playback, queue, Now Playing and lyrics',
     await sheet.getByRole('button', { name: 'Close' }).click()
     await expect(sheet).toBeHidden()
 
+    expectCleanLogs(logs)
+  } finally {
+    await close()
+  }
+})
+
+test('music: lyrics stay between the top bar and the window bottom, header stays clickable', async () => {
+  const albums = await probe.items({
+    includeItemTypes: 'MusicAlbum',
+    searchTerm: '4h16',
+    limit: 10,
+  })
+  const album = albums.find((a) => a.Name === '4h16') ?? albums[0]
+  test.skip(!album, 'album 4h16 is not on this server')
+  const { page, logs, close } = await launchSignedIn()
+  try {
+    await page.evaluate((id) => (location.hash = `#/music/album/${id}`), album!.Id)
+    const row = page.locator('.jr-track-list li').filter({ hasText: '2s (feat. sanderscore)' })
+    await expect(row.first()).toBeVisible()
+    await row.first().dblclick()
+    await miniPlayer(page).getByRole('button', { name: 'Open Now Playing' }).click()
+    const sheet = page.getByRole('dialog', { name: 'Now Playing' })
+    await sheet.getByRole('radio', { name: 'Lyrics' }).click()
+    await expect(sheet.locator('.jrm-lyric').first()).toBeVisible({ timeout: 20_000 })
+    await page.waitForTimeout(1500) // let the active line scroll into place
+
+    for (const width of [1000, 2000]) {
+      await emulate(page, width, 900, 1.25)
+      await expect.poll(() => page.evaluate(() => window.innerWidth)).toBe(width)
+      await page.waitForTimeout(600)
+      const result = await page.evaluate(() => {
+        const hit = (el: Element | null) => {
+          const r = el?.getBoundingClientRect()
+          if (!r) return null
+          return document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2)
+        }
+        const tabs = [...document.querySelectorAll('.jrm-np__tabs [role="radio"]')]
+        const controls: Record<string, Element | null> = {
+          player: tabs[0] ?? null,
+          lyrics: tabs[1] ?? null,
+          queue: tabs[2] ?? null,
+          close: document.querySelector('.jrm-np__header [aria-label="Close"]'),
+          cast: document.querySelector('.jrm-np__header-end button'),
+        }
+        const hits: Record<string, boolean> = {}
+        for (const [name, el] of Object.entries(controls)) {
+          const top = hit(el)
+          hits[name] = !el ? name === 'cast' : !!top && (top === el || el.contains(top))
+          if (el && top?.closest('.jrm-lyrics')) hits[name] = false
+        }
+        const box = document.querySelector('.jrm-lyrics')!.getBoundingClientRect()
+        const header = document.querySelector('.jrm-np__header')!.getBoundingClientRect()
+        return {
+          hits,
+          boxTop: box.top,
+          headerBottom: header.bottom,
+          boxBottom: box.bottom,
+          h: innerHeight,
+        }
+      })
+      for (const [name, ok] of Object.entries(result.hits)) {
+        expect(ok, `${name} @${width}`).toBe(true)
+      }
+      expect(result.boxTop, `lyrics box top @${width}`).toBeGreaterThanOrEqual(result.headerBottom)
+      expect(result.boxBottom, `lyrics box bottom @${width}`).toBeLessThanOrEqual(result.h - 31)
+    }
+    await clearEmulation(page)
     expectCleanLogs(logs)
   } finally {
     await close()

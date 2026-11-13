@@ -56,6 +56,19 @@ test('onboarding: bad address, wrong password, then success and naming the serve
       await screenshotBothThemes(page, `onboarding-address-${width}-en`)
     }
     await page.setViewportSize({ width: 1440, height: 900 })
+    for (const scale of [1, 1.25]) {
+      const cdp = await page.context().newCDPSession(page)
+      for (const width of [1000, 1600, 2400]) {
+        await cdp.send('Emulation.setDeviceMetricsOverride', {
+          width,
+          height: 900,
+          deviceScaleFactor: scale,
+          mobile: false,
+        })
+        await expectCentred(page)
+      }
+      await cdp.send('Emulation.clearDeviceMetricsOverride')
+    }
 
     // Unreachable address.
     const address = page.getByLabel('Server address')

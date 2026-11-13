@@ -1,6 +1,6 @@
 {
   "name": "lumen",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Lumen - a desktop Jellyfin client for music, movies and series",
   "private": true,
   "homepage": "https://github.com/Dyskolos-Dev/Lumen",
@@ -23,6 +23,8 @@
     "format:check": "prettier --check .",
     "test": "vitest run",
     "check": "npm run typecheck && npm run lint && npm run test && npm run build",
+    "installer-art": "node build/scripts/generate-installer-art.mjs",
+    "predist": "npm run installer-art",
     "dist": "npm run build && electron-builder",
     "e2e": "npm run build && playwright test",
     "typecheck:e2e": "tsc --noEmit -p e2e/tsconfig.json"

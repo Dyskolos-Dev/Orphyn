@@ -6,6 +6,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [1.0.4] - 2026-11-13
+
+### Changed
+
+- Windows installer and uninstaller fully custom (nsDialogs): dark navy pages with the logo, flat buttons, a thin progress bar, a Welcome page (Install / Options), an Options page (folder, desktop and start-menu shortcuts, launch at the end) and a Finish page, in French or English following the system language. Silent updates () are unchanged.
+- Now Playing: the Now Playing / Lyrics / Up Next control is centred on the window, title and artist are centred, and artwork, title, progress, transport and volume form one column centred at any window size and display scale.
+- Mini player rebuilt as a three-part flex row (transport, capsule, actions) that cannot overlap, with container queries: volume slider hidden below 1000 px, shuffle and repeat below 820 px. Times show only on hover.
+
+### Added
+
+- End-to-end checks for mini player overlap (800 to 2600 px at 1x, 1.25x, 1.5x) and for Now Playing and onboarding centring.
+
 ## [1.0.3] - 2026-11-13
 
 ### Added

@@ -35,7 +35,13 @@ export function LyricsView({
   useEffect(() => {
     if (!synced || active < 0) return
     if (Date.now() - lastManual.current < MANUAL_SCROLL_GRACE_MS) return
-    lineRefs.current[active]?.scrollIntoView({ block: 'center', behavior: 'smooth' })
+    // Scroll only the lyrics box (never an ancestor): the active line sits at ~35 % of its height.
+    const box = scroller.current
+    const line = lineRefs.current[active]
+    if (!box || !line) return
+    const b = box.getBoundingClientRect()
+    const l = line.getBoundingClientRect()
+    box.scrollBy({ top: l.top + l.height / 2 - (b.top + b.height * 0.35), behavior: 'smooth' })
   }, [active, synced])
 
   // New track: start from the top.

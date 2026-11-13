@@ -1,0 +1,42 @@
+{
+  "fr": {
+    "title": "Tout est à sa place",
+    "items": [
+      {
+        "icon": "download",
+        "title": "Un installeur entièrement redessiné",
+        "text": "Nouvel installeur Windows aux couleurs de Lumen : fond sombre, logo, boutons plats, barre de progression fine, et une page Options pour le dossier et les raccourcis. Le désinstalleur est assorti."
+      },
+      {
+        "icon": "layout",
+        "title": "En lecture parfaitement centré",
+        "text": "Les onglets, la pochette, le titre et les commandes sont centrés dans la fenêtre, quelle que soit sa taille ou l'échelle d'affichage."
+      },
+      {
+        "icon": "music",
+        "title": "Mini-lecteur corrigé sur tous les écrans",
+        "text": "Le volume ne passe plus sur la capsule, et les durées n'apparaissent qu'au survol. Le curseur de volume puis les boutons aléatoire et répétition se masquent proprement quand la fenêtre se réduit."
+      }
+    ]
+  },
+  "en": {
+    "title": "Everything in its place",
+    "items": [
+      {
+        "icon": "download",
+        "title": "A fully redesigned installer",
+        "text": "A new Windows installer in Lumen's style: dark background, logo, flat buttons, a thin progress bar and an Options page for the folder and shortcuts. The uninstaller matches."
+      },
+      {
+        "icon": "layout",
+        "title": "Now Playing, truly centred",
+        "text": "The tabs, artwork, title and controls are centred in the window, whatever its size or the display scale."
+      },
+      {
+        "icon": "music",
+        "title": "Mini player fixed on every screen",
+        "text": "The volume no longer sits on the capsule, and times only show on hover. The volume slider, then shuffle and repeat, hide cleanly as the window narrows."
+      }
+    ]
+  }
+}

@@ -21,6 +21,7 @@ vi.mock('../player/instance', () => ({ startPlayerEngine: vi.fn(), getPlayerEngi
 
 Element.prototype.scrollIntoView = vi.fn()
 Element.prototype.scrollTo = vi.fn()
+Element.prototype.scrollBy = vi.fn()
 
 const tracks = [
   { Id: 'a', Name: 'Song A', Artists: ['Artist'], Album: 'Album', RunTimeTicks: 2e9 },
