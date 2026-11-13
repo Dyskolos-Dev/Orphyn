@@ -1,5 +1,7 @@
 {
-  "steps": { "label": "Step {{current}} of {{total}}" },
+  "steps": {
+    "label": "Step {{current}} of {{total}}"
+  },
   "address": {
     "title": "Connect to your server",
     "subtitle": "Enter the address of your Jellyfin server.",
@@ -54,5 +56,12 @@
   "add": {
     "title": "Add a Server",
     "description": "Connect to another Jellyfin server."
+  },
+  "welcome": {
+    "title": "Welcome to Lumen"
+  },
+  "success": {
+    "title": "You're signed in",
+    "subtitle": "Connected successfully."
   }
 }

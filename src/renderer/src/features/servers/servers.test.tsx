@@ -102,7 +102,7 @@ describe('ConnectFlow', () => {
       password: 'secret',
     })
 
-    const nameField = await screen.findByLabelText('Server name')
+    const nameField = await screen.findByLabelText('Server name', {}, { timeout: 5000 })
     expect(nameField).toHaveValue('Home Jellyfin')
     await user.clear(nameField)
     await user.type(nameField, 'Salon')
@@ -132,7 +132,7 @@ describe('ConnectFlow', () => {
     await user.type(await screen.findByLabelText('Username'), 'alice')
     await user.type(screen.getByLabelText('Password'), 'secret{Enter}')
     // Before the naming step is finished (the user may close the sheet there).
-    await screen.findByLabelText('Server name')
+    await screen.findByLabelText('Server name', {}, { timeout: 5000 })
     expect(mocks.activate).toHaveBeenCalledWith(account)
   })
 

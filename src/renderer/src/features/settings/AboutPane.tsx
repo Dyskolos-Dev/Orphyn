@@ -1,7 +1,7 @@
 import type { TFunction } from 'i18next'
 import { ExternalLink } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import { Button, List, ListRow, Text, Toggle } from '@renderer/design'
+import { BrandLogo, Button, List, ListRow, Text, Toggle } from '@renderer/design'
 import { useActiveAccount } from '@renderer/features/servers'
 import { version } from '../../../../../package.json'
 import type { UpdaterState } from '@shared/ipc/updater'
@@ -24,6 +24,7 @@ export function AboutPane() {
   return (
     <>
       <div className="jr-settings__about">
+        <BrandLogo size={72} className="jr-settings__about-logo" />
         <Text variant="title-1">{t('about.app')}</Text>
         <Text variant="callout" color="secondary" selectable>
           {t('about.version', { version })}

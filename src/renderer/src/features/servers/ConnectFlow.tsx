@@ -1,16 +1,19 @@
 import clsx from 'clsx'
 import { AnimatePresence, motion } from 'framer-motion'
 import { CircleCheck, Eye, EyeOff } from 'lucide-react'
-import { useRef, useState, type FormEvent } from 'react'
+import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Button, IconButton, TextField, durations, easings } from '@renderer/design'
+import { Button, IconButton, TextField, durations, easings, springs } from '@renderer/design'
 import { connectServer, probeServer, useSession, type ServerInfo } from '@renderer/jellyfin'
 import type { ServerAccount } from '@shared/jellyfin'
 import { errorMessage } from './errors'
 import './connect.css'
 
-type Step = 'address' | 'login' | 'name'
-const STEPS: readonly Step[] = ['address', 'login', 'name']
+type Step = 'address' | 'login' | 'success' | 'name'
+const STEPS: readonly Step[] = ['address', 'login', 'success', 'name']
+/** The success beat is transient: it is not one of the dots. */
+const DOT_STEPS: readonly Step[] = ['address', 'login', 'name']
+const SUCCESS_MS = 1300
 
 export interface ConnectFlowProps {
   /** `page`: large centred onboarding. `sheet`: inside a Sheet (title shown by the Sheet). */
@@ -49,6 +52,15 @@ export function ConnectFlow({ variant = 'page', onDone }: ConnectFlowProps) {
     direction.current = STEPS.indexOf(next) >= STEPS.indexOf(step) ? 1 : -1
     setStep(next)
   }
+
+  useEffect(() => {
+    if (step !== 'success') return
+    const timer = window.setTimeout(() => {
+      direction.current = 1
+      setStep('name')
+    }, SUCCESS_MS)
+    return () => window.clearTimeout(timer)
+  }, [step])
 
   const foundNow = found && found.typed === address.trim() ? found : null
 
@@ -96,7 +108,7 @@ export function ConnectFlow({ variant = 'page', onDone }: ConnectFlowProps) {
         }
         setAccount(res.account)
         setName(res.account.name)
-        go('name')
+        go('success')
       } else {
         setLoginError(errorMessage(t, res.error))
       }
@@ -129,6 +141,7 @@ export function ConnectFlow({ variant = 'page', onDone }: ConnectFlowProps) {
     }
   }
 
+  const dotStep: Step = step === 'success' ? 'login' : step
   const x = 28 * direction.current
   return (
     <div className={clsx('jr-connect', `jr-connect--${variant}`)}>
@@ -263,6 +276,30 @@ export function ConnectFlow({ variant = 'page', onDone }: ConnectFlowProps) {
               </form>
             )}
 
+            {step === 'success' && (
+              <div className="jr-connect__step jr-connect__success" role="status">
+                <motion.svg
+                  className="jr-connect__check"
+                  viewBox="0 0 52 52"
+                  aria-hidden="true"
+                  initial={{ scale: 0.7, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={springs.bouncy}
+                >
+                  <circle cx="26" cy="26" r="24" className="jr-connect__check-bg" />
+                  <motion.path
+                    d="M15 27 L23 35 L38 19"
+                    className="jr-connect__check-mark"
+                    initial={{ pathLength: 0 }}
+                    animate={{ pathLength: 1 }}
+                    transition={{ duration: durations.slower, ease: easings.out, delay: 0.15 }}
+                  />
+                </motion.svg>
+                <h1 className="jr-connect__title">{t('success.title')}</h1>
+                <p className="jr-connect__subtitle">{t('success.subtitle')}</p>
+              </div>
+            )}
+
             {step === 'name' && (
               <form className="jr-connect__step" onSubmit={(e) => void submitName(e)}>
                 <h1 className="jr-connect__title">{t('name.title')}</h1>
@@ -292,12 +329,15 @@ export function ConnectFlow({ variant = 'page', onDone }: ConnectFlowProps) {
       <div
         className="jr-connect__dots"
         role="img"
-        aria-label={t('steps.label', { current: STEPS.indexOf(step) + 1, total: STEPS.length })}
+        aria-label={t('steps.label', {
+          current: DOT_STEPS.indexOf(dotStep) + 1,
+          total: DOT_STEPS.length,
+        })}
       >
-        {STEPS.map((s) => (
+        {DOT_STEPS.map((s) => (
           <span
             key={s}
-            className={clsx('jr-connect__dot', s === step && 'jr-connect__dot--active')}
+            className={clsx('jr-connect__dot', s === dotStep && 'jr-connect__dot--active')}
           />
         ))}
       </div>

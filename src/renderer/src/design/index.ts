@@ -20,6 +20,9 @@ export {
 export { formatShortcut, getPlatform, modifierLabel, useWindowState } from './platform'
 export type { Platform, UseWindowStateResult } from './platform'
 
+// Brand
+export { BrandLogo } from './BrandLogo'
+
 // Motion presets
 export { durations, easings, springs } from './motion'
 

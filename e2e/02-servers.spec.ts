@@ -67,7 +67,7 @@ test('servers: add the same server again, rename it, remove it, sign back in', a
     await page.getByLabel('Username').fill(c.user)
     await page.getByLabel('Password', { exact: true }).fill(c.password)
     await page.getByRole('button', { name: 'Sign In' }).click()
-    await expect(page.getByLabel('Server name')).toBeVisible()
+    await expect(page.getByLabel('Server name')).toBeVisible({ timeout: 8000 })
     await page.keyboard.press('Escape')
     await expect(page.getByRole('dialog', { name: 'Add a Server' })).toBeHidden()
     await page.getByRole('link', { name: 'Movies' }).click()
