@@ -6,6 +6,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-11-13
+
+### Changed
+
+- Lumen is now **Orphyn**: new name, window titles, installer, artifact names, website (orphyn.dyskolos.fr) and repository (Dyskolos-Dev/Orphyn). The window bridge is `window.orphyn` and the end-to-end variables are `ORPHYN_*`.
+
+### Migration
+
+- Saved servers, window state, settings and the renderer storage (preferences, queue, theme, last seen version) are copied from the old "Lumen" data folder on first start; the `lumen.*` storage keys become `orphyn.*`.
+- The installer upgrades an existing Lumen install in place (the application id is unchanged, so updates keep working) and replaces the old "Lumen" shortcuts.
+
 ## [1.0.5] - 2026-11-13
 
 ### Fixed

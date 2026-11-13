@@ -54,11 +54,11 @@ export function AboutPane() {
             subtitle={updateStatusText(t, updater)}
             trailing={
               updater.status === 'ready' ? (
-                <Button size="small" onClick={() => void window.lumen.updater.install()}>
+                <Button size="small" onClick={() => void window.orphyn.updater.install()}>
                   {t('about.restart')}
                 </Button>
               ) : updater.status === 'available' ? (
-                <Button size="small" onClick={() => void window.lumen.updater.openRelease()}>
+                <Button size="small" onClick={() => void window.orphyn.updater.openRelease()}>
                   {t('about.download')}
                 </Button>
               ) : (
@@ -70,7 +70,7 @@ export function AboutPane() {
                     updater.status === 'checking' ||
                     updater.status === 'downloading'
                   }
-                  onClick={() => void window.lumen.updater.check()}
+                  onClick={() => void window.orphyn.updater.check()}
                 >
                   {t('about.checkForUpdates')}
                 </Button>
@@ -84,7 +84,7 @@ export function AboutPane() {
               <Toggle
                 aria-label={t('about.autoUpdate')}
                 checked={updater.autoUpdate}
-                onChange={(on) => void window.lumen.updater.setAutoUpdate(on)}
+                onChange={(on) => void window.orphyn.updater.setAutoUpdate(on)}
               />
             }
           />

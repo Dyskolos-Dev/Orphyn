@@ -1,8 +1,8 @@
 // @vitest-environment node
 /**
  * Opt-in live check against a real server (not part of the default run):
- *   LUMEN_LIVE_URL=https://demo.jellyfin.org/stable LUMEN_LIVE_USER=demo npx vitest run src/renderer/src/jellyfin/live.test.ts
- * Optional LUMEN_LIVE_PASSWORD. Probes, logs in, lists libraries, resolves a playable movie URL and a
+ *   ORPHYN_LIVE_URL=https://demo.jellyfin.org/stable ORPHYN_LIVE_USER=demo npx vitest run src/renderer/src/jellyfin/live.test.ts
+ * Optional ORPHYN_LIVE_PASSWORD. Probes, logs in, lists libraries, resolves a playable movie URL and a
  * track URL, and fetches the first bytes of each to prove they play.
  */
 import axios from 'axios'
@@ -25,8 +25,8 @@ import { probeServer } from './probe'
 // tsconfig.web has no node types: read the environment through globalThis.
 const env: Record<string, string | undefined> =
   (globalThis as { process?: { env: Record<string, string | undefined> } }).process?.env ?? {}
-const url = env['LUMEN_LIVE_URL']
-const user = env['LUMEN_LIVE_USER'] ?? 'demo'
+const url = env['ORPHYN_LIVE_URL']
+const user = env['ORPHYN_LIVE_USER'] ?? 'demo'
 
 async function firstBytes(target: string): Promise<number> {
   const res = await axios.get(target, {
@@ -48,7 +48,7 @@ describe.runIf(url)('live Jellyfin server', () => {
     const auth = await login(
       probe.info.url,
       user,
-      env['LUMEN_LIVE_PASSWORD'] ?? '',
+      env['ORPHYN_LIVE_PASSWORD'] ?? '',
       'live-test-device',
     )
     expect(auth.ok).toBe(true)

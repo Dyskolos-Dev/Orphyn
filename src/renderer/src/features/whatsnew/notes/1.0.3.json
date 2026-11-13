@@ -14,13 +14,13 @@
       },
       {
         "icon": "download",
-        "title": "Installeur à l'image de Lumen",
+        "title": "Installeur à l'image de Orphyn",
         "text": "L'installeur Windows et l'image disque macOS reprennent les couleurs et le logo de l'application."
       },
       {
         "icon": "sparkles",
         "title": "Cet écran « Nouveautés »",
-        "text": "Après chaque mise à jour, Lumen vous présente ce qui change. Vous pouvez le rouvrir à tout moment depuis Réglages > À propos."
+        "text": "Après chaque mise à jour, Orphyn vous présente ce qui change. Vous pouvez le rouvrir à tout moment depuis Réglages > À propos."
       }
     ]
   },
@@ -39,13 +39,13 @@
       },
       {
         "icon": "download",
-        "title": "An installer that looks like Lumen",
+        "title": "An installer that looks like Orphyn",
         "text": "The Windows installer and the macOS disk image now use the app's colours and logo."
       },
       {
         "icon": "sparkles",
         "title": "This What's New screen",
-        "text": "After each update, Lumen tells you what changed. Reopen it any time from Settings > About."
+        "text": "After each update, Orphyn tells you what changed. Reopen it any time from Settings > About."
       }
     ]
   }

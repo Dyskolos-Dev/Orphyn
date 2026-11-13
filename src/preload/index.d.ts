@@ -1,8 +1,8 @@
-import type { LumenApi } from '@shared/ipc'
+import type { OrphynApi } from '@shared/ipc'
 
 declare global {
   interface Window {
-    lumen: LumenApi
+    orphyn: OrphynApi
   }
 }
 

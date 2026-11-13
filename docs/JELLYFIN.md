@@ -23,7 +23,7 @@ Wrap the app in `<JellyfinProvider>`. It provides the TanStack `QueryClient` and
 `switchServer(id)`, `activate(account)`, `signOut(id)`, `refreshAccounts()`. A 401 on the active server
 sets `status: 'needs-login'`; route to the login screen then.
 
-## Accounts (main process, `window.lumen.accounts`)
+## Accounts (main process, `window.orphyn.accounts`)
 
 `list, add, rename, remove, setActive, getActive, getToken, getDeviceId, getStatus`.
 
@@ -46,7 +46,7 @@ else show(res.error.kind) // probe errors, or invalid_credentials | unreachable 
 await useSession.getState().signOut(account.id) // revokes the session on the server, then removes
 ```
 
-`login(url, user, password, deviceId)` is available on its own. Client identity is `Lumen` + app version.
+`login(url, user, password, deviceId)` is available on its own. Client identity is `Orphyn` + app version.
 Servers older than 10.9 are refused (`version_too_old`).
 
 ## Query hooks
@@ -148,7 +148,7 @@ next-up / latest / albums / artists / search / lyrics, and resolves + range-fetc
 URL. Run it with:
 
 ```
-LUMEN_LIVE_URL=https://demo.jellyfin.org/stable LUMEN_LIVE_USER=demo npx vitest run src/renderer/src/jellyfin/live.test.ts
+ORPHYN_LIVE_URL=https://demo.jellyfin.org/stable ORPHYN_LIVE_USER=demo npx vitest run src/renderer/src/jellyfin/live.test.ts
 ```
 
 It passed against the public demo (Jellyfin 12.4.0), which also showed that newer servers reject the

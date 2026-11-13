@@ -114,7 +114,7 @@ export const defaultControllerDeps: ControllerDeps = {
   getMaxBitrate: () => getPlaybackPreferences().maxVideoBitrate ?? undefined,
   announceExclusive: () =>
     window.dispatchEvent(
-      new CustomEvent('lumen:exclusive-playback', { detail: { source: 'video' } }),
+      new CustomEvent('orphyn:exclusive-playback', { detail: { source: 'video' } }),
     ),
 }
 

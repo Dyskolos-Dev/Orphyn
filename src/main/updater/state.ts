@@ -1,6 +1,6 @@
 import type { UpdaterState } from '@shared/ipc/updater'
 
-export const RELEASES_URL = 'https://github.com/Dyskolos-Dev/Lumen/releases'
+export const RELEASES_URL = 'https://github.com/Dyskolos-Dev/Orphyn/releases'
 export const FIRST_CHECK_DELAY_MS = 10_000
 export const CHECK_INTERVAL_MS = 6 * 60 * 60_000
 

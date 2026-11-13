@@ -1,6 +1,6 @@
-import logo from '../assets/lumen-logo.png'
+import logo from '../assets/orphyn-logo.png'
 
-/** The official Lumen logo (decorative: the app name is always rendered next to it). */
+/** The official Orphyn logo (decorative: the app name is always rendered next to it). */
 export function BrandLogo({ size = 64, className }: { size?: number; className?: string }) {
   return (
     <img

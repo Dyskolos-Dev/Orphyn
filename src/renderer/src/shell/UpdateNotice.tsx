@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { BrandLogo, dismissToast, toast } from '@renderer/design'
 import { useUpdater } from '@renderer/features/settings/useUpdater'
 
-/** Toast: "Lumen X is ready. Restart to update" or "Lumen X is available". */
+/** Toast: "Orphyn X is ready. Restart to update" or "Orphyn X is available". */
 export function UpdateNotice() {
   const { t } = useTranslation('shell')
   const state = useUpdater()
@@ -12,7 +12,7 @@ export function UpdateNotice() {
 
   useEffect(() => {
     if (!version) return
-    const updater = window.lumen.updater
+    const updater = window.orphyn.updater
     let id: number | null = null
     if (status === 'ready') {
       id = toast({

@@ -1,5 +1,5 @@
 {
-  "app": { "name": "Lumen" },
+  "app": { "name": "Orphyn" },
   "nav": {
     "video": "Video",
     "music": "Music",
@@ -9,9 +9,9 @@
     "cast": "Cast"
   },
   "whatsNew": {
-    "title": "What's new in Lumen {{version}}",
+    "title": "What's new in Orphyn {{version}}",
     "continue": "Continue",
-    "versionHeading": "Lumen {{version}}: {{title}}"
+    "versionHeading": "Orphyn {{version}}: {{title}}"
   },
   "stub": "Placeholder page for {{name}}"
 }

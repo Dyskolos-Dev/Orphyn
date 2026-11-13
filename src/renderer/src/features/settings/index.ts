@@ -1,5 +1,5 @@
 // Settings feature public API.
-// Playback / music preferences (localStorage key `lumen.playback.preferences`): see preferences.ts.
+// Playback / music preferences (localStorage key `orphyn.playback.preferences`): see preferences.ts.
 export {
   AUDIO_BITRATES,
   DEFAULT_PLAYBACK_PREFERENCES,

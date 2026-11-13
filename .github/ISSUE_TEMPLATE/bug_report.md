@@ -21,7 +21,7 @@ What should have happened instead.
 
 ## Environment
 
-- Lumen version (or commit):
+- Orphyn version (or commit):
 - Operating system and version:
 - Jellyfin server version:
 - Language of the interface (FR / EN):

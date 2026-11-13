@@ -1,5 +1,7 @@
+# Deliberately still the pre-rename id: the NSIS upgrade (registry key) and the auto-updater match
+# installs by appId, so changing it would leave 1.0.x users with a second app and no updates.
 appId: app.lumen.desktop
-productName: Lumen
+productName: Orphyn
 copyright: Copyright © Dyskolos_
 directories:
   buildResources: build
@@ -13,7 +15,7 @@ asarUnpack:
 publish:
   provider: github
   owner: Dyskolos-Dev
-  repo: Lumen
+  repo: Orphyn
   releaseType: release
 win:
   target:
@@ -29,12 +31,12 @@ nsis:
   installerIcon: build/icon.ico
   uninstallerIcon: build/icon.ico
   include: build/installer.nsh
-  shortcutName: Lumen
+  shortcutName: Orphyn
   createDesktopShortcut: true
   createStartMenuShortcut: true
   runAfterFinish: false
   deleteAppDataOnUninstall: false
-  artifactName: Lumen-Setup-${version}.${ext}
+  artifactName: Orphyn-Setup-${version}.${ext}
 mac:
   target:
     # zip is what latest-mac.yml points the updater at; dmg is the installer users download.
@@ -49,7 +51,7 @@ mac:
   category: public.app-category.entertainment
   icon: build/icon.png
 dmg:
-  title: Lumen
+  title: Orphyn
   icon: build/icon.png
   background: build/dmg-background.png # build/dmg-background@2x.png is picked up for Retina
   iconSize: 96
@@ -74,7 +76,7 @@ linux:
   synopsis: Desktop Jellyfin client for music, movies and series
   desktop:
     entry:
-      Name: Lumen
+      Name: Orphyn
       Comment: Desktop Jellyfin client
       Categories: AudioVideo;Video;Audio;Player;
-      StartupWMClass: Lumen
+      StartupWMClass: Orphyn

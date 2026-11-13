@@ -5,7 +5,7 @@ import { startDiscordSync } from './sync'
 /** Always mounted: mirrors the music and video players to Discord Rich Presence. */
 function DiscordBackground() {
   useEffect(() => {
-    if (!window.lumen?.discord) return
+    if (!window.orphyn?.discord) return
     return startDiscordSync()
   }, [])
   return null

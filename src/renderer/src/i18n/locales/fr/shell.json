@@ -16,7 +16,7 @@
   },
   "search": {
     "placeholder": "Rechercher",
-    "label": "Rechercher dans Lumen"
+    "label": "Rechercher dans Orphyn"
   },
   "slots": {
     "nowPlaying": "À l’écoute",
@@ -44,11 +44,11 @@
     "label": "Actualiser la bibliothèque"
   },
   "update": {
-    "ready": "Lumen {{version}} est prêt",
+    "ready": "Orphyn {{version}} est prêt",
     "readyHint": "Redémarrez pour mettre à jour",
     "restart": "Redémarrer",
     "later": "Plus tard",
-    "available": "Lumen {{version}} est disponible",
+    "available": "Orphyn {{version}} est disponible",
     "download": "Télécharger"
   }
 }

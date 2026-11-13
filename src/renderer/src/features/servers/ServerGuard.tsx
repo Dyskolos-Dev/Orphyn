@@ -10,10 +10,10 @@ import './connect.css'
  * - no saved server → every route goes to /onboarding,
  * - a saved server while on /onboarding → /video,
  * - the active server needs a new login → Settings › Servers (everything else is blocked).
- * Outside Electron (no `window.lumen.accounts`) it renders its children untouched.
+ * Outside Electron (no `window.orphyn.accounts`) it renders its children untouched.
  */
 export function ServerGuard({ children }: { children: ReactNode }) {
-  const hasBridge = typeof window !== 'undefined' && Boolean(window.lumen?.accounts)
+  const hasBridge = typeof window !== 'undefined' && Boolean(window.orphyn?.accounts)
   const status = useSession((s) => s.status)
   const { pathname } = useLocation()
 

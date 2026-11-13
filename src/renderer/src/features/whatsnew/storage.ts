@@ -1,4 +1,4 @@
-export const LAST_SEEN_KEY = 'lumen.lastSeenVersion'
+export const LAST_SEEN_KEY = 'orphyn.lastSeenVersion'
 
 export function readLastSeen(): string | null {
   try {

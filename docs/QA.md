@@ -1,6 +1,6 @@
 # QA: end-to-end testing against a real Jellyfin server
 
-Lumen has an end-to-end suite that drives the **built** Electron app (`out/main/index.js`) with
+Orphyn has an end-to-end suite that drives the **built** Electron app (`out/main/index.js`) with
 Playwright's Electron driver against a real Jellyfin server. It is separate from `npm run check`
 (which stays offline) and skips itself when no server is configured.
 
@@ -8,21 +8,21 @@ Playwright's Electron driver against a real Jellyfin server. It is separate from
 
 ```sh
 # PowerShell
-$env:LUMEN_E2E_URL = "https://jellyfin.example.com"
-$env:LUMEN_E2E_USER = "user"
-$env:LUMEN_E2E_PASSWORD = "password"
+$env:ORPHYN_E2E_URL = "https://jellyfin.example.com"
+$env:ORPHYN_E2E_USER = "user"
+$env:ORPHYN_E2E_PASSWORD = "password"
 npm run e2e
 
 # POSIX shells
-LUMEN_E2E_URL=https://jellyfin.example.com LUMEN_E2E_USER=user LUMEN_E2E_PASSWORD=password npm run e2e
+ORPHYN_E2E_URL=https://jellyfin.example.com ORPHYN_E2E_USER=user ORPHYN_E2E_PASSWORD=password npm run e2e
 ```
 
 - `npm run e2e` builds the app, then runs `playwright test` (config: `playwright.config.ts`, specs
   in `e2e/`). Without the three variables every scenario is reported as skipped and the run passes.
 - Never commit credentials: they are only read from the environment.
 - Each run uses a fresh temporary user data directory (created by `e2e/global-setup.ts`, passed to
-  the app through `LUMEN_USER_DATA_DIR`), shared by the scenario files, which run in order on one
-  worker. Set `LUMEN_E2E_PROFILE` to an absolute path to reuse a profile while working on one
+  the app through `ORPHYN_USER_DATA_DIR`), shared by the scenario files, which run in order on one
+  worker. Set `ORPHYN_E2E_PROFILE` to an absolute path to reuse a profile while working on one
   scenario (`npx playwright test e2e/04-music.spec.ts`).
 - Screenshots go to `e2e/screenshots/` (git-ignored), `<screen>-<lang>-light.png` and `-dark.png`.
   Light and dark are taken with the theme on "System" and the colour scheme emulated. A page capture

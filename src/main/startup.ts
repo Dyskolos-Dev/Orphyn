@@ -1,5 +1,6 @@
 import { isAbsolute } from 'node:path'
 import { app } from 'electron'
+import { migrateLegacyUserData } from './migrate'
 
 /**
  * Chromium features behind the OS media integration: media keys and the Windows SMTC flyout /
@@ -21,16 +22,18 @@ export function mergeFeatureList(current: string, features: readonly string[]): 
 
 /**
  * Optional user data override, used by the end-to-end suite to start from a clean profile:
- * `LUMEN_USER_DATA_DIR` must be an absolute path, otherwise it is ignored.
+ * `ORPHYN_USER_DATA_DIR` must be an absolute path, otherwise it is ignored.
  */
 export function userDataOverride(env: NodeJS.ProcessEnv = process.env): string | null {
-  const dir = env['LUMEN_USER_DATA_DIR']?.trim()
+  const dir = env['ORPHYN_USER_DATA_DIR']?.trim()
   return dir && isAbsolute(dir) ? dir : null
 }
 
 export function applyStartupSwitches(): void {
   const dir = userDataOverride()
   if (dir) app.setPath('userData', dir)
+  // Pre-1.1 installs stored their data under "Lumen": bring it over before any window exists.
+  else migrateLegacyUserData(app.getPath('userData'), (m) => console.info(m))
 
   const current = app.commandLine.getSwitchValue('enable-features')
   app.commandLine.appendSwitch('enable-features', mergeFeatureList(current, MEDIA_FEATURES))

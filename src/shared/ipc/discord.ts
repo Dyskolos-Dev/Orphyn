@@ -1,8 +1,8 @@
 export const DISCORD_CHANNELS = {
-  getState: 'lumen:discord:get-state',
-  setPresence: 'lumen:discord:set-presence',
-  setSettings: 'lumen:discord:set-settings',
-  stateChanged: 'lumen:discord:state-changed',
+  getState: 'orphyn:discord:get-state',
+  setPresence: 'orphyn:discord:set-presence',
+  setSettings: 'orphyn:discord:set-settings',
+  stateChanged: 'orphyn:discord:state-changed',
 } as const
 
 /** What is playing, as the renderer sees it. Never contains a token: artwork URLs are bare. */
@@ -35,7 +35,7 @@ export type DiscordPresence = MusicPresence | VideoPresence
 export interface DiscordSettings {
   /** "Show what I am playing on Discord". */
   enabled: boolean
-  /** Send the artwork link (it points to the server) instead of the Lumen logo. */
+  /** Send the artwork link (it points to the server) instead of the Orphyn logo. */
   showArtwork: boolean
 }
 

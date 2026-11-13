@@ -64,7 +64,7 @@
     "removeConfirm": "Supprimer le serveur",
     "more": "Actions pour {{name}}",
     "details": "{{user}} · {{url}}",
-    "storageWarning": "Les jetons de connexion ne peuvent pas être chiffrés sur cet ordinateur : ils restent en mémoire uniquement, vous devrez donc vous reconnecter après avoir relancé Lumen.",
+    "storageWarning": "Les jetons de connexion ne peuvent pas être chiffrés sur cet ordinateur : ils restent en mémoire uniquement, vous devrez donc vous reconnecter après avoir relancé Orphyn.",
     "removeFailed": "Le serveur n’a pas pu être supprimé."
   },
   "playback": {
@@ -104,10 +104,10 @@
     "kbps": "{{value}} kbit/s"
   },
   "about": {
-    "app": "Lumen",
+    "app": "Orphyn",
     "version": "Version {{version}}",
     "whatsNew": "Nouveautés",
-    "whatsNewDescription": "Découvrez ce qui change dans Lumen {{version}}",
+    "whatsNewDescription": "Découvrez ce qui change dans Orphyn {{version}}",
     "server": "Serveur connecté",
     "serverName": "Nom",
     "serverVersion": "Version de Jellyfin",
@@ -129,10 +129,10 @@
     "status": {
       "idle": "Pas encore vérifié",
       "checking": "Vérification…",
-      "up-to-date": "Lumen est à jour",
-      "available": "Lumen {{version}} est disponible",
+      "up-to-date": "Orphyn est à jour",
+      "available": "Orphyn {{version}} est disponible",
       "downloading": "Téléchargement de {{version}}… {{percent}} %",
-      "ready": "Lumen {{version}} est prêt. Redémarrez pour mettre à jour",
+      "ready": "Orphyn {{version}} est prêt. Redémarrez pour mettre à jour",
       "error": "Échec de la mise à jour : {{error}}",
       "unsupported": "Les mises à jour ne sont vérifiées que dans une version installée"
     },
@@ -145,12 +145,12 @@
   },
   "discord": {
     "header": "Rich Presence",
-    "footer": "Lumen affiche ce que vous écoutez ou regardez dans votre statut Discord. Rien n’est envoyé lorsque c’est désactivé.",
+    "footer": "Orphyn affiche ce que vous écoutez ou regardez dans votre statut Discord. Rien n’est envoyé lorsque c’est désactivé.",
     "enabled": "Afficher ce que je lis sur Discord",
-    "enabledDescription": "La musique apparaît comme « Écoute Lumen », les vidéos comme « Regarde Lumen ».",
+    "enabledDescription": "La musique apparaît comme « Écoute Orphyn », les vidéos comme « Regarde Orphyn ».",
     "notConfiguredNote": "Discord n’est pas configuré dans cette version, rien n’est affiché pour l’instant.",
     "artwork": "Afficher la pochette",
-    "artworkDescription": "Le lien de la pochette pointe vers votre serveur : il ne fonctionne que si le serveur est joignable en HTTPS public. Sinon, le logo Lumen est affiché.",
+    "artworkDescription": "Le lien de la pochette pointe vers votre serveur : il ne fonctionne que si le serveur est joignable en HTTPS public. Sinon, le logo Orphyn est affiché.",
     "status": "État",
     "unavailable": "Discord n’est disponible que dans l’application de bureau.",
     "statuses": {

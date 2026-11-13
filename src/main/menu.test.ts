@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
 
 vi.mock('electron', () => ({
-  app: { name: 'Lumen' },
+  app: { name: 'Orphyn' },
   BrowserWindow: { getFocusedWindow: () => null, getAllWindows: () => [] },
   Menu: {},
   shell: { openExternal: vi.fn() },
@@ -15,11 +15,11 @@ const labels = (platform: NodeJS.Platform) =>
 describe('application menu', () => {
   it('has the app menu with Settings (Cmd+,) on macOS', () => {
     const [app] = buildMenuTemplate('darwin')
-    expect(app?.label).toBe('Lumen')
+    expect(app?.label).toBe('Orphyn')
     const items = app?.submenu as { accelerator?: string; role?: string }[]
     expect(items.some((i) => i.accelerator === 'Command+,')).toBe(true)
     expect(items.some((i) => i.role === 'quit')).toBe(true)
-    expect(labels('darwin')).toEqual(['Lumen', 'Edit', 'View', 'Window', 'help'])
+    expect(labels('darwin')).toEqual(['Orphyn', 'Edit', 'View', 'Window', 'help'])
   })
 
   it('keeps Edit roles and a Ctrl+R refresh elsewhere', () => {

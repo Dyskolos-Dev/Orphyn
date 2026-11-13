@@ -1,5 +1,5 @@
 {
-  "app": { "name": "Lumen" },
+  "app": { "name": "Orphyn" },
   "nav": {
     "video": "Vidéo",
     "music": "Musique",
@@ -9,9 +9,9 @@
     "cast": "Diffuser"
   },
   "whatsNew": {
-    "title": "Quoi de neuf dans Lumen {{version}}",
+    "title": "Quoi de neuf dans Orphyn {{version}}",
     "continue": "Continuer",
-    "versionHeading": "Lumen {{version}} : {{title}}"
+    "versionHeading": "Orphyn {{version}} : {{title}}"
   },
   "stub": "Page provisoire : {{name}}"
 }

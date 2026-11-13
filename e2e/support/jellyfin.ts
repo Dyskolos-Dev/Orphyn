@@ -6,7 +6,7 @@
 import type { Credentials } from './app'
 
 const AUTH =
-  'MediaBrowser Client="Lumen E2E", Device="e2e", DeviceId="lumen-e2e-probe", Version="0.1.0"'
+  'MediaBrowser Client="Orphyn E2E", Device="e2e", DeviceId="orphyn-e2e-probe", Version="0.1.0"'
 
 export interface Item {
   Id: string

@@ -1,12 +1,13 @@
 {
-  "name": "lumen",
-  "version": "1.0.5",
-  "description": "Lumen - a desktop Jellyfin client for music, movies and series",
+  "name": "orphyn",
+  "version": "1.1.0",
+  "productName": "Orphyn",
+  "description": "Orphyn - a desktop Jellyfin client for music, movies and series",
   "private": true,
-  "homepage": "https://github.com/Dyskolos-Dev/Lumen",
+  "homepage": "https://github.com/Dyskolos-Dev/Orphyn",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Dyskolos-Dev/Lumen.git"
+    "url": "https://github.com/Dyskolos-Dev/Orphyn.git"
   },
   "main": "./out/main/index.js",
   "author": "Dyskolos_",

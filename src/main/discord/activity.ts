@@ -1,11 +1,11 @@
 import type { DiscordPresence, DiscordSettings } from '@shared/ipc/discord'
-import { ASSET_LOGO, ASSET_PAUSE, LUMEN_WEBSITE_URL } from './config'
+import { ASSET_LOGO, ASSET_PAUSE, ORPHYN_WEBSITE_URL } from './config'
 
 /** Discord activity types (discord-api-types `ActivityType`). */
 export const ACTIVITY_LISTENING = 2
 export const ACTIVITY_WATCHING = 3
 
-/** The subset of the RPC `SetActivity` payload Lumen uses. */
+/** The subset of the RPC `SetActivity` payload Orphyn uses. */
 export interface Activity {
   type: number
   details: string
@@ -111,9 +111,9 @@ export function buildActivity(
     largeImageKey: art ?? ASSET_LOGO,
     largeImageText: clip(largeText),
     smallImageKey: ASSET_LOGO,
-    smallImageText: 'Lumen',
-    largeImageUrl: LUMEN_WEBSITE_URL,
-    smallImageUrl: LUMEN_WEBSITE_URL,
+    smallImageText: 'Orphyn',
+    largeImageUrl: ORPHYN_WEBSITE_URL,
+    smallImageUrl: ORPHYN_WEBSITE_URL,
   }
 
   if (presence.paused) {

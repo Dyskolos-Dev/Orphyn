@@ -8,7 +8,7 @@ import './whatsnew.css'
 
 /**
  * Shell provider: once the session is known, compares the app version with
- * `lumen.lastSeenVersion`, shows the notes of every newer version once, then stores the version.
+ * `orphyn.lastSeenVersion`, shows the notes of every newer version once, then stores the version.
  * A fresh install (no stored value, no account) only stores it: onboarding already greets.
  */
 export function WhatsNewHost({ children }: { children: ReactNode }) {

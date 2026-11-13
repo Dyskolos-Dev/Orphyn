@@ -12,7 +12,7 @@ export * from './discord'
 export * from './updater'
 export * from './window'
 
-export interface LumenApi {
+export interface OrphynApi {
   window: WindowApi
   accounts: AccountsApi
   app: AppApi

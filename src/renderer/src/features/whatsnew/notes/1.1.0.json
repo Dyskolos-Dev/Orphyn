@@ -1,0 +1,22 @@
+{
+  "fr": {
+    "title": "Un nouveau nom",
+    "items": [
+      {
+        "icon": "sparkles",
+        "title": "Lumen devient Orphyn",
+        "text": "Le client change de nom. Vos serveurs, réglages et mises à jour sont conservés."
+      }
+    ]
+  },
+  "en": {
+    "title": "A new name",
+    "items": [
+      {
+        "icon": "sparkles",
+        "title": "Lumen is now Orphyn",
+        "text": "The client has a new name. Your servers, settings and updates carry over."
+      }
+    ]
+  }
+}

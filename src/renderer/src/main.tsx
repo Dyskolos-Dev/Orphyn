@@ -1,3 +1,4 @@
+import '@renderer/storageMigration'
 import '@renderer/styles'
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'

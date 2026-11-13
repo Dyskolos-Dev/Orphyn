@@ -1,10 +1,10 @@
 /** Jellyfin types and constants shared by main, preload and renderer. */
 
-export const CLIENT_NAME = 'Lumen'
+export const CLIENT_NAME = 'Orphyn'
 /** Oldest Jellyfin server version the app supports (lyrics API, modern auth). */
 export const MIN_SERVER_VERSION = '10.9.0'
 /** Device name sent to the server (shown in the server's Devices dashboard). */
-export const DEVICE_NAME = 'Lumen Desktop'
+export const DEVICE_NAME = 'Orphyn Desktop'
 
 /** A saved server account as seen by the renderer: never contains the access token. */
 export interface ServerAccount {

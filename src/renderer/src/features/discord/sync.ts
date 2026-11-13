@@ -12,7 +12,7 @@ import { musicPresence, shouldSend, videoPresence, type Sent } from './presence'
  */
 export function startDiscordSync(
   send: (presence: DiscordPresence | null) => void = (p) => {
-    void window.lumen?.discord?.setPresence(p)
+    void window.orphyn?.discord?.setPresence(p)
   },
 ): () => void {
   let sent: Sent | null = null

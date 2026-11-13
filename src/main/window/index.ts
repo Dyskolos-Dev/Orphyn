@@ -172,7 +172,7 @@ export function createMainWindow(): BrowserWindow {
     minWidth: MIN_SIZE.width,
     minHeight: MIN_SIZE.height,
     show: false,
-    title: 'Lumen',
+    title: 'Orphyn',
     ...options,
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),

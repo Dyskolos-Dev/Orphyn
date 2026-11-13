@@ -5,7 +5,7 @@ import type { UpdaterState } from '@shared/ipc/updater'
 export function useUpdater(): UpdaterState | null {
   const [state, setState] = useState<UpdaterState | null>(null)
   useEffect(() => {
-    const api = window.lumen?.updater
+    const api = window.orphyn?.updater
     if (!api) return
     let alive = true
     void api

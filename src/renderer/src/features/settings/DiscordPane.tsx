@@ -13,7 +13,7 @@ export function DiscordPane() {
     )
   const configured = state.status !== 'not-configured'
   const set = (patch: { enabled?: boolean; showArtwork?: boolean }) =>
-    void window.lumen.discord.setSettings(patch)
+    void window.orphyn.discord.setSettings(patch)
 
   return (
     <>

@@ -43,7 +43,7 @@ test('settings: appearance, accent colour and playback preferences', async () =>
     const appearance = page.getByRole('radiogroup', { name: 'Appearance' })
     await appearance.getByRole('radio', { name: 'Dark' }).click()
     await expect.poll(() => html(page, 'data-theme')).toBe('dark')
-    expect(await storage(page, 'lumen.theme.mode')).toBe('dark')
+    expect(await storage(page, 'orphyn.theme.mode')).toBe('dark')
     await page.emulateMedia({ colorScheme: 'light' })
     expect(await html(page, 'data-theme')).toBe('dark') // the choice wins over the OS
     await appearance.getByRole('radio', { name: 'Light' }).click()
@@ -57,11 +57,11 @@ test('settings: appearance, accent colour and playback preferences', async () =>
     // Accent colour.
     const accents = page.getByRole('radiogroup', { name: 'Accent colour' })
     await accents.getByRole('radio', { name: 'Blue' }).click()
-    await expect.poll(() => storage(page, 'lumen.theme.accent')).toBe('blue')
+    await expect.poll(() => storage(page, 'orphyn.theme.accent')).toBe('blue')
     await expect.poll(() => html(page, 'data-accent')).toBe('blue')
     await screenshotBothThemes(page, 'settings-accent-blue-en')
     await accents.getByRole('radio', { name: 'Red' }).click()
-    await expect.poll(() => storage(page, 'lumen.theme.accent')).toBe('red')
+    await expect.poll(() => storage(page, 'orphyn.theme.accent')).toBe('red')
 
     // Playback preferences.
     await openPane(page, 'Playback')
@@ -69,7 +69,7 @@ test('settings: appearance, accent colour and playback preferences', async () =>
     await pickValue(page, 'Preferred audio language', 'French')
     await pickValue(page, 'Preferred subtitle language', 'English')
     await page.getByRole('switch', { name: 'Play next episode automatically' }).click()
-    const prefs = JSON.parse((await storage(page, 'lumen.playback.preferences')) ?? '{}')
+    const prefs = JSON.parse((await storage(page, 'orphyn.playback.preferences')) ?? '{}')
     expect(prefs).toMatchObject({
       maxVideoBitrate: 8_000_000,
       preferredAudioLanguage: 'fre',
@@ -79,14 +79,14 @@ test('settings: appearance, accent colour and playback preferences', async () =>
     await screenshotBothThemes(page, 'settings-playback-en')
     await page.getByRole('button', { name: 'Reset to Defaults' }).click()
     await expect
-      .poll(async () => JSON.parse((await storage(page, 'lumen.playback.preferences')) ?? '{}'))
+      .poll(async () => JSON.parse((await storage(page, 'orphyn.playback.preferences')) ?? '{}'))
       .toMatchObject({ maxVideoBitrate: null, autoPlayNext: true })
 
     // Music quality.
     await openPane(page, 'Music')
     await pickValue(page, 'Streaming quality', '320 kbps')
     await expect
-      .poll(async () => JSON.parse((await storage(page, 'lumen.playback.preferences')) ?? '{}'))
+      .poll(async () => JSON.parse((await storage(page, 'orphyn.playback.preferences')) ?? '{}'))
       .toMatchObject({ audioQuality: 320_000 })
     await screenshotBothThemes(page, 'settings-music-en')
     await pickValue(page, 'Streaming quality', 'Original')
@@ -96,7 +96,7 @@ test('settings: appearance, accent colour and playback preferences', async () =>
 
     // "What's new" reopens the notes of the running version.
     await page.getByText("What's new", { exact: true }).click()
-    await expect(page.getByRole('dialog', { name: /What's new in Lumen/ })).toBeVisible()
+    await expect(page.getByRole('dialog', { name: /What's new in Orphyn/ })).toBeVisible()
     await screenshotBothThemes(page, 'settings-whats-new-en')
     await page.getByRole('button', { name: 'Continue' }).click()
     await expect(page.getByRole('dialog')).toBeHidden()
@@ -129,7 +129,7 @@ test('settings: French interface, applied at once and kept after a restart', asy
       .click()
     await expect(page.getByRole('heading', { name: 'Réglages', level: 1 })).toBeVisible()
     await expect(page.getByRole('link', { name: 'Films' })).toBeVisible()
-    expect(await storage(page, 'lumen.language')).toBe('fr')
+    expect(await storage(page, 'orphyn.language')).toBe('fr')
     expectCleanLogs(running.logs)
   } finally {
     await running.close()

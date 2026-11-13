@@ -35,11 +35,11 @@
   },
   "errors": {
     "invalid_url": "Enter a valid server address.",
-    "unreachable": "Lumen could not reach this server. Check the address and your connection.",
+    "unreachable": "Orphyn could not reach this server. Check the address and your connection.",
     "not_jellyfin": "This address answered, but it is not a Jellyfin server.",
     "tls": "The server's certificate could not be verified.",
-    "version_too_old": "This server runs Jellyfin {{version}}. Lumen needs version 10.9 or newer.",
-    "version_too_old_unknown": "This server is too old. Lumen needs Jellyfin 10.9 or newer.",
+    "version_too_old": "This server runs Jellyfin {{version}}. Orphyn needs version 10.9 or newer.",
+    "version_too_old_unknown": "This server is too old. Orphyn needs Jellyfin 10.9 or newer.",
     "invalid_credentials": "Wrong username or password.",
     "server_error": "The server returned an error. Try again later.",
     "generic": "Something went wrong. Try again."
@@ -58,7 +58,7 @@
     "description": "Connect to another Jellyfin server."
   },
   "welcome": {
-    "title": "Welcome to Lumen"
+    "title": "Welcome to Orphyn"
   },
   "success": {
     "title": "You're signed in",

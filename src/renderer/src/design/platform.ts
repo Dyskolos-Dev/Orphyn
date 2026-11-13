@@ -5,11 +5,11 @@ import type { WindowApi, WindowState } from '@shared/ipc/window'
 export type Platform = 'darwin' | 'win32' | 'linux' | 'web'
 
 function windowApi(): WindowApi | undefined {
-  return typeof window !== 'undefined' ? window.lumen?.window : undefined
+  return typeof window !== 'undefined' ? window.orphyn?.window : undefined
 }
 
 export function getPlatform(): Platform {
-  const p = typeof window !== 'undefined' ? window.lumen?.platform : undefined
+  const p = typeof window !== 'undefined' ? window.orphyn?.platform : undefined
   return p === 'darwin' || p === 'win32' || p === 'linux' ? p : 'web'
 }
 

@@ -22,15 +22,15 @@ describe('mergeFeatureList', () => {
 describe('userDataOverride', () => {
   it('is null when unset or blank', () => {
     expect(userDataOverride({})).toBeNull()
-    expect(userDataOverride({ LUMEN_USER_DATA_DIR: '  ' })).toBeNull()
+    expect(userDataOverride({ ORPHYN_USER_DATA_DIR: '  ' })).toBeNull()
   })
 
   it('ignores relative paths', () => {
-    expect(userDataOverride({ LUMEN_USER_DATA_DIR: 'profile' })).toBeNull()
+    expect(userDataOverride({ ORPHYN_USER_DATA_DIR: 'profile' })).toBeNull()
   })
 
   it('returns an absolute path', () => {
-    const dir = process.platform === 'win32' ? 'C:\\tmp\\lumen' : '/tmp/lumen'
-    expect(userDataOverride({ LUMEN_USER_DATA_DIR: dir })).toBe(dir)
+    const dir = process.platform === 'win32' ? 'C:\\tmp\\orphyn' : '/tmp/orphyn'
+    expect(userDataOverride({ ORPHYN_USER_DATA_DIR: dir })).toBe(dir)
   })
 })

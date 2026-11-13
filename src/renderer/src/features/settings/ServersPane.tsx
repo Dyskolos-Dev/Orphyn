@@ -129,7 +129,7 @@ function RenameSheet({ account, onClose }: { account: ServerAccount | null; onCl
     setBusy(true)
     try {
       if (trimmed !== account.name) {
-        await window.lumen.accounts.rename(account.id, trimmed)
+        await window.orphyn.accounts.rename(account.id, trimmed)
         await useSession.getState().refreshAccounts()
       }
       onClose()

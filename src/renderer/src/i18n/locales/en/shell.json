@@ -16,7 +16,7 @@
   },
   "search": {
     "placeholder": "Search",
-    "label": "Search Lumen"
+    "label": "Search Orphyn"
   },
   "slots": {
     "nowPlaying": "Now Playing",
@@ -44,11 +44,11 @@
     "label": "Refresh library"
   },
   "update": {
-    "ready": "Lumen {{version}} is ready",
+    "ready": "Orphyn {{version}} is ready",
     "readyHint": "Restart to update",
     "restart": "Restart",
     "later": "Later",
-    "available": "Lumen {{version}} is available",
+    "available": "Orphyn {{version}} is available",
     "download": "Download"
   }
 }

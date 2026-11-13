@@ -102,15 +102,15 @@ describe('GeneralPane', () => {
 
     await user.click(screen.getByRole('radio', { name: 'Français' }))
     expect(i18n.language).toBe('fr')
-    expect(localStorage.getItem('lumen.language')).toBe('fr')
+    expect(localStorage.getItem('orphyn.language')).toBe('fr')
     expect((await screen.findAllByText('Apparence')).length).toBeGreaterThan(0)
 
     await user.click(screen.getByRole('radio', { name: 'Sombre' }))
     expect(document.documentElement.dataset['theme']).toBe('dark')
-    expect(localStorage.getItem('lumen.theme.mode')).toBe('dark')
+    expect(localStorage.getItem('orphyn.theme.mode')).toBe('dark')
 
     await user.click(screen.getByRole('radio', { name: 'Bleu' }))
-    expect(localStorage.getItem('lumen.theme.accent')).toBe('blue')
+    expect(localStorage.getItem('orphyn.theme.accent')).toBe('blue')
 
     await act(() => i18n.changeLanguage('en'))
     themeStore.setMode('system')

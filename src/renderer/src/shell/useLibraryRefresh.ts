@@ -29,7 +29,7 @@ export function useLibraryRefreshTriggers(platform: string, refresh: () => void)
       }
     }
     window.addEventListener('keydown', onKey)
-    const offMenu = window.lumen?.app?.onRefresh(refresh)
+    const offMenu = window.orphyn?.app?.onRefresh(refresh)
 
     let hiddenSince: number | null = null
     const leave = () => (hiddenSince ??= Date.now())

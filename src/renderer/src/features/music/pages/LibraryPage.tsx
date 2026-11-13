@@ -17,7 +17,7 @@ export interface SortOption {
 
 /** Sort state persisted per page. */
 export function useSortPref(key: string, options: readonly SortOption[]) {
-  const storageKey = `lumen.music.sort.${key}`
+  const storageKey = `orphyn.music.sort.${key}`
   const [state, setState] = useState<{ id: string; order: 'Ascending' | 'Descending' }>(() => {
     try {
       const raw = JSON.parse(localStorage.getItem(storageKey) ?? 'null') as {

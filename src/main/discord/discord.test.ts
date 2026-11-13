@@ -68,14 +68,14 @@ describe('buildActivity', () => {
     expect(a.endTimestamp).toBe(now - 30_000 + 200_000)
     expect(a.largeImageKey).toBe(art)
     expect(a.largeImageText).toBe('Album')
-    expect(a.smallImageKey).toBe('lumen')
-    expect(a.largeImageUrl).toBe('https://lumen.dyskolos.fr')
-    expect(a.smallImageUrl).toBe('https://lumen.dyskolos.fr')
+    expect(a.smallImageKey).toBe('orphyn')
+    expect(a.largeImageUrl).toBe('https://orphyn.dyskolos.fr')
+    expect(a.smallImageUrl).toBe('https://orphyn.dyskolos.fr')
   })
 
   it('falls back to the logo without artwork', () => {
     const a = buildActivity(song, { showArtwork: false }, now)!
-    expect(a.largeImageKey).toBe('lumen')
+    expect(a.largeImageKey).toBe('orphyn')
   })
 
   it('builds a movie and an episode', () => {

@@ -1,10 +1,10 @@
 export const UPDATER_CHANNELS = {
-  getState: 'lumen:updater:get-state',
-  check: 'lumen:updater:check',
-  install: 'lumen:updater:install',
-  openRelease: 'lumen:updater:open-release',
-  setAutoUpdate: 'lumen:updater:set-auto-update',
-  stateChanged: 'lumen:updater:state-changed',
+  getState: 'orphyn:updater:get-state',
+  check: 'orphyn:updater:check',
+  install: 'orphyn:updater:install',
+  openRelease: 'orphyn:updater:open-release',
+  setAutoUpdate: 'orphyn:updater:set-auto-update',
+  stateChanged: 'orphyn:updater:state-changed',
 } as const
 
 /**

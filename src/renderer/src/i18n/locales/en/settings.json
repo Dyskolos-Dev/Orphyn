@@ -64,7 +64,7 @@
     "removeConfirm": "Remove Server",
     "more": "Actions for {{name}}",
     "details": "{{user}} · {{url}}",
-    "storageWarning": "Sign-in tokens cannot be encrypted on this computer, so they are kept in memory only: you will need to sign in again after restarting Lumen.",
+    "storageWarning": "Sign-in tokens cannot be encrypted on this computer, so they are kept in memory only: you will need to sign in again after restarting Orphyn.",
     "removeFailed": "The server could not be removed."
   },
   "playback": {
@@ -104,10 +104,10 @@
     "kbps": "{{value}} kbps"
   },
   "about": {
-    "app": "Lumen",
+    "app": "Orphyn",
     "version": "Version {{version}}",
     "whatsNew": "What's new",
-    "whatsNewDescription": "See what changed in Lumen {{version}}",
+    "whatsNewDescription": "See what changed in Orphyn {{version}}",
     "server": "Connected server",
     "serverName": "Name",
     "serverVersion": "Jellyfin version",
@@ -129,10 +129,10 @@
     "status": {
       "idle": "Not checked yet",
       "checking": "Checking…",
-      "up-to-date": "Lumen is up to date",
-      "available": "Lumen {{version}} is available",
+      "up-to-date": "Orphyn is up to date",
+      "available": "Orphyn {{version}} is available",
       "downloading": "Downloading {{version}}… {{percent}}%",
-      "ready": "Lumen {{version}} is ready. Restart to update",
+      "ready": "Orphyn {{version}} is ready. Restart to update",
       "error": "Update failed: {{error}}",
       "unsupported": "Updates are only checked in installed builds"
     },
@@ -145,12 +145,12 @@
   },
   "discord": {
     "header": "Rich Presence",
-    "footer": "Lumen shows what you play in your Discord status. Nothing is sent when it is off.",
+    "footer": "Orphyn shows what you play in your Discord status. Nothing is sent when it is off.",
     "enabled": "Show what I am playing on Discord",
-    "enabledDescription": "Music appears as Listening to Lumen, videos as Watching Lumen.",
+    "enabledDescription": "Music appears as Listening to Orphyn, videos as Watching Orphyn.",
     "notConfiguredNote": "Discord is not set up in this build, so nothing is shown yet.",
     "artwork": "Show artwork",
-    "artworkDescription": "The artwork link points to your server, so it only works when the server is reachable over public HTTPS. Otherwise the Lumen logo is shown.",
+    "artworkDescription": "The artwork link points to your server, so it only works when the server is reachable over public HTTPS. Otherwise the Orphyn logo is shown.",
     "status": "Status",
     "unavailable": "Discord is only available in the desktop app.",
     "statuses": {

@@ -47,7 +47,7 @@ describe('UpdaterController', () => {
     expect(c.getState().status).toBe('available')
     c.openRelease()
     expect(env.openExternal).toHaveBeenCalledWith(
-      'https://github.com/Dyskolos-Dev/Lumen/releases/tag/v1.2.0',
+      'https://github.com/Dyskolos-Dev/Orphyn/releases/tag/v1.2.0',
     )
     c.install()
     expect(backend.quitAndInstall).not.toHaveBeenCalled()

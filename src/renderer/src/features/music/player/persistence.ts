@@ -1,7 +1,7 @@
 import { leanTrack } from './track'
 import type { QueueItem, QueueModel, RepeatMode } from './types'
 
-export const STORAGE_KEY = 'lumen.music.player'
+export const STORAGE_KEY = 'orphyn.music.player'
 /** Queues longer than this are cut around the current entry when saved. */
 export const MAX_PERSISTED = 300
 const VERSION = 1

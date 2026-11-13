@@ -45,7 +45,7 @@ function ShellLayout() {
   const { refresh, fetching } = useLibraryRefresh()
   useLibraryRefreshTriggers(platform, refresh)
   const navigate = useNavigate()
-  useEffect(() => window.lumen?.app?.onOpenSettings(() => void navigate('/settings')), [navigate])
+  useEffect(() => window.orphyn?.app?.onOpenSettings(() => void navigate('/settings')), [navigate])
   useEffect(() => {
     applyWindowStateToDocument(platform, { isFullscreen, isMaximized, isFocused, material })
   }, [platform, isFullscreen, isMaximized, isFocused, material])

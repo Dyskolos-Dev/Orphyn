@@ -6,7 +6,7 @@ export function useAccountsStatus(): AccountsStatus | null {
   const [status, setStatus] = useState<AccountsStatus | null>(null)
   useEffect(() => {
     let alive = true
-    window.lumen?.accounts
+    window.orphyn?.accounts
       ?.getStatus()
       .then((s) => alive && setStatus(s))
       .catch(() => undefined)

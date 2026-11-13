@@ -5,7 +5,7 @@ import type { DiscordState } from '@shared/ipc/discord'
 export function useDiscord(): DiscordState | null {
   const [state, setState] = useState<DiscordState | null>(null)
   useEffect(() => {
-    const api = window.lumen?.discord
+    const api = window.orphyn?.discord
     if (!api) return
     let alive = true
     void api

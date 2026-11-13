@@ -11,7 +11,7 @@ function send(channel: string): void {
 /** Application menu template. On Windows / Linux it is hidden (Alt shows it) but keeps Edit roles. */
 export function buildMenuTemplate(
   platform: NodeJS.Platform,
-  name = 'Lumen',
+  name = 'Orphyn',
 ): MenuItemConstructorOptions[] {
   const mac = platform === 'darwin'
   const settings: MenuItemConstructorOptions = {
@@ -78,10 +78,10 @@ export function buildMenuTemplate(
     {
       role: 'help',
       submenu: [
-        { label: 'Lumen Website', click: () => void shell.openExternal(WEBSITE_URL) },
+        { label: 'Orphyn Website', click: () => void shell.openExternal(WEBSITE_URL) },
         {
           label: 'Releases',
-          click: () => void shell.openExternal('https://github.com/Dyskolos-Dev/Lumen/releases'),
+          click: () => void shell.openExternal('https://github.com/Dyskolos-Dev/Orphyn/releases'),
         },
       ],
     },

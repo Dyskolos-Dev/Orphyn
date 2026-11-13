@@ -17,7 +17,7 @@ export interface VersionNotes {
 }
 
 /**
- * The first release that stored `lumen.lastSeenVersion` is 1.0.3: an install that has an account
+ * The first release that stored `orphyn.lastSeenVersion` is 1.0.3: an install that has an account
  * but no stored value comes from this version or an earlier one.
  */
 export const LEGACY_VERSION = '1.0.2'
@@ -35,7 +35,7 @@ export function bundledNotes(): VersionNotes[] {
 }
 
 export interface UpgradeInput {
-  /** Stored `lumen.lastSeenVersion`, or null when never stored. */
+  /** Stored `orphyn.lastSeenVersion`, or null when never stored. */
   lastSeen: string | null
   /** Running app version. */
   current: string

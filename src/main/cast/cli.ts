@@ -58,8 +58,8 @@ async function main(): Promise<void> {
         url,
         mimeType: mime,
         kind: mime.startsWith('video/') ? 'video' : 'audio',
-        title: 'Lumen cast test',
-        artist: 'Lumen',
+        title: 'Orphyn cast test',
+        artist: 'Orphyn',
         album: 'Manual check',
       }
       await manager.load(device.id, media)

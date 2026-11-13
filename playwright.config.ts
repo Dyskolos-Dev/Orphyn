@@ -2,8 +2,8 @@ import { defineConfig } from '@playwright/test'
 
 /**
  * End-to-end suite: drives the built Electron app (out/main/index.js) against a real Jellyfin
- * server. Run with `npm run e2e`; it needs LUMEN_E2E_URL / LUMEN_E2E_USER /
- * LUMEN_E2E_PASSWORD and skips every scenario without them. See docs/QA.md.
+ * server. Run with `npm run e2e`; it needs ORPHYN_E2E_URL / ORPHYN_E2E_USER /
+ * ORPHYN_E2E_PASSWORD and skips every scenario without them. See docs/QA.md.
  */
 export default defineConfig({
   testDir: './e2e',

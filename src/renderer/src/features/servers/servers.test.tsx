@@ -61,14 +61,14 @@ beforeEach(() => {
   mocks.rename.mockImplementation((_id: string, name: string) =>
     Promise.resolve({ ...account, name }),
   )
-  Object.defineProperty(window, 'lumen', {
+  Object.defineProperty(window, 'orphyn', {
     configurable: true,
     value: { accounts: { rename: mocks.rename } },
   })
 })
 
 afterEach(() => {
-  Object.defineProperty(window, 'lumen', { configurable: true, value: undefined })
+  Object.defineProperty(window, 'orphyn', { configurable: true, value: undefined })
 })
 
 describe('ConnectFlow', () => {
@@ -137,7 +137,7 @@ describe('ConnectFlow', () => {
   })
 
   it.each([
-    ['unreachable', 'Lumen could not reach this server. Check the address and your connection.'],
+    ['unreachable', 'Orphyn could not reach this server. Check the address and your connection.'],
     ['not_jellyfin', 'This address answered, but it is not a Jellyfin server.'],
   ])('shows an inline %s error', async (kind, text) => {
     mocks.probeServer.mockResolvedValue({ ok: false, error: { kind, message: 'x' } })
@@ -156,7 +156,7 @@ describe('ConnectFlow', () => {
     render(<ConnectFlow onDone={vi.fn()} />)
     await user.type(screen.getByLabelText('Server address'), 'old{Enter}')
     expect(await screen.findByRole('alert')).toHaveTextContent(
-      'This server runs Jellyfin 10.7.0. Lumen needs version 10.9 or newer.',
+      'This server runs Jellyfin 10.7.0. Orphyn needs version 10.9 or newer.',
     )
   })
 
@@ -225,7 +225,7 @@ describe('ServerGuard', () => {
   })
 
   it('does nothing outside Electron', () => {
-    Object.defineProperty(window, 'lumen', { configurable: true, value: undefined })
+    Object.defineProperty(window, 'orphyn', { configurable: true, value: undefined })
     mocks.state.status = 'no-server'
     renderAt('/video')
     expect(screen.getByText('video')).toBeInTheDocument()

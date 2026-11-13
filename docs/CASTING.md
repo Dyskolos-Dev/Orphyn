@@ -1,13 +1,13 @@
 # Casting backend
 
-Main-process casting for Lumen: Google Cast, UPnP/DLNA (including WiiM / LinkPlay) and AirPlay
-(best effort). The renderer only sees `window.lumen.cast` (typed in `src/shared/ipc/cast.ts`).
+Main-process casting for Orphyn: Google Cast, UPnP/DLNA (including WiiM / LinkPlay) and AirPlay
+(best effort). The renderer only sees `window.orphyn.cast` (typed in `src/shared/ipc/cast.ts`).
 UI and player integration are a separate task.
 
 ## Architecture
 
 ```
-renderer ── window.lumen.cast ── preload/cast.ts ── ipcMain (main/cast/index.ts)
+renderer ── window.orphyn.cast ── preload/cast.ts ── ipcMain (main/cast/index.ts)
                                                           │
                                                      CastManager ── Discovery ── DeviceRegistry
                                                           │            (mDNS + SSDP, expiry)
@@ -96,7 +96,7 @@ list. Sessions survive discovery stopping.
 ## Renderer usage
 
 ```ts
-const cast = window.lumen.cast
+const cast = window.orphyn.cast
 
 const offDevices = cast.onDevicesChanged((devices) => setDevices(devices))
 const offSession = cast.onSessionChanged((s) => setSession(s))

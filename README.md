@@ -1,17 +1,17 @@
 <div align="center">
 
-<img src="build/icon.png" alt="Lumen" width="160" height="160" />
+<img src="build/icon.png" alt="Orphyn" width="160" height="160" />
 
-# Lumen
+# Orphyn
 
 **A beautiful desktop client for Jellyfin: your movies, shows and music, at its best.**
 
-[![Latest release](https://img.shields.io/github/v/release/Dyskolos-Dev/Lumen?style=for-the-badge&label=version&color=8b8cf8)](https://github.com/Dyskolos-Dev/Lumen/releases/latest)
+[![Latest release](https://img.shields.io/github/v/release/Dyskolos-Dev/Orphyn?style=for-the-badge&label=version&color=8b8cf8)](https://github.com/Dyskolos-Dev/Orphyn/releases/latest)
 [![License: MIT](https://img.shields.io/badge/license-MIT-5ec8d8?style=for-the-badge)](LICENSE)
-[![Platforms](https://img.shields.io/badge/platforms-Windows%20%7C%20macOS%20%7C%20Linux-b9a7e8?style=for-the-badge)](https://github.com/Dyskolos-Dev/Lumen/releases/latest)
+[![Platforms](https://img.shields.io/badge/platforms-Windows%20%7C%20macOS%20%7C%20Linux-b9a7e8?style=for-the-badge)](https://github.com/Dyskolos-Dev/Orphyn/releases/latest)
 [![Jellyfin](https://img.shields.io/badge/Jellyfin-10.9%2B-00a4dc?style=for-the-badge&logo=jellyfin&logoColor=white)](https://jellyfin.org)
 
-[**Download**](https://github.com/Dyskolos-Dev/Lumen/releases/latest) · [Website](https://lumen.dyskolos.fr) · [Français](README.fr.md)
+[**Download**](https://github.com/Dyskolos-Dev/Orphyn/releases/latest) · [Website](https://orphyn.dyskolos.fr) · [Français](README.fr.md)
 
 </div>
 
@@ -31,18 +31,18 @@
 | 🌗 **Light & dark** | Follows your system, with an accent color of your choice. FR and EN. |
 | 🎮 **Discord Rich Presence** | "Listening to" / "Watching" with artwork, toggle in Settings. |
 | ⌨️ **Native feel** | Media keys and OS media controls, macOS menu bar, ⌘/Ctrl+R to refresh the library. |
-| 🔄 **Automatic updates** | New versions download and install themselves on Windows and Linux (AppImage); on macOS, Lumen tells you and opens the download. |
+| 🔄 **Automatic updates** | New versions download and install themselves on Windows and Linux (AppImage); on macOS, Orphyn tells you and opens the download. |
 
 ## 📥 Install
 
-Download the installer for your system from the [latest release](https://github.com/Dyskolos-Dev/Lumen/releases/latest):
+Download the installer for your system from the [latest release](https://github.com/Dyskolos-Dev/Orphyn/releases/latest):
 
 | System | File |
 |---|---|
-| Windows 10/11 | `Lumen-Setup-x.y.z.exe` |
-| macOS Apple silicon (M1 and later) | `Lumen-x.y.z-arm64.dmg` |
-| macOS Intel | `Lumen-x.y.z.dmg` |
-| Linux | `Lumen-x.y.z.AppImage` or `lumen_x.y.z_amd64.deb` |
+| Windows 10/11 | `Orphyn-Setup-x.y.z.exe` |
+| macOS Apple silicon (M1 and later) | `Orphyn-x.y.z-arm64.dmg` |
+| macOS Intel | `Orphyn-x.y.z.dmg` |
+| Linux | `Orphyn-x.y.z.AppImage` or `orphyn_x.y.z_amd64.deb` |
 
 > [!NOTE]
 > The builds are not code-signed yet. On Windows, click **More info → Run anyway** in SmartScreen. On macOS, right-click the app and choose **Open** the first time.
@@ -71,9 +71,9 @@ Learn more in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md), [docs/DESIGN.md](doc
 
 ## 📄 License
 
-Lumen is released under the [MIT License](LICENSE).
+Orphyn is released under the [MIT License](LICENSE).
 
-Lumen is an independent project. It is not affiliated with or endorsed by Jellyfin.
+Orphyn is an independent project. It is not affiliated with or endorsed by Jellyfin.
 
 <div align="center">
 
