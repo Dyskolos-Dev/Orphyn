@@ -1,3 +1,4 @@
+import '@renderer/bridge'
 import '@renderer/storageMigration'
 import '@renderer/styles'
 import { StrictMode } from 'react'

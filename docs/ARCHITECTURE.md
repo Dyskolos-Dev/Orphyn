@@ -115,3 +115,11 @@ by these literal paths; do not invent new top-level paths without updating this 
   `cast`) in **both** languages and never edits another feature's file.
 - Files are discovered automatically via `import.meta.glob('./locales/*/*.json', { eager: true })`;
   no registration step is needed. Use `useTranslation('<feature>')`.
+
+## Tauri shell (migration in progress)
+
+A Tauri v2 shell (`src-tauri/`, Rust) runs the same renderer beside the Electron one; see
+`docs/TAURI.md`. `src/renderer/src/bridge/` (imported first by `main.tsx`) installs the same
+`window.orphyn` there, backed by Rust commands. `npm run tauri:dev` / `tauri:build` /
+`check:rust` (part of `npm run check`). Drag regions stay the `jr-drag` / `jr-no-drag` classes.
+`src/shared/webview/` tells which web engine renders the app and what it can play.

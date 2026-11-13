@@ -1,0 +1,4 @@
+# Build output under dist/ (ignored by git and ESLint): cargo generates .js files in its target
+# directory, which ESLint would otherwise lint.
+[build]
+target-dir = "../dist/tauri-target"
