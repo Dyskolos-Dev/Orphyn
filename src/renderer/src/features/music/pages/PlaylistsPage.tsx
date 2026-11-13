@@ -1,8 +1,10 @@
-import { ListMusic } from 'lucide-react'
+import { ListMusic, Plus } from 'lucide-react'
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { usePlaylists } from '@renderer/jellyfin'
+import { Button } from '@renderer/design'
+import { useItems } from '@renderer/jellyfin'
 import { PlaylistCard } from '../components/Cards'
+import { openNewPlaylist } from '../playlists/ui'
 import { LibraryPage, useSortPref, type SortOption } from './LibraryPage'
 
 export function PlaylistsPage() {
@@ -20,7 +22,13 @@ export function PlaylistsPage() {
     [t],
   )
   const sort = useSortPref('playlists', options)
-  const query = usePlaylists({ sortBy: sort.sortBy, sortOrder: sort.sortOrder, pageSize: 60 })
+  const query = useItems({
+    includeItemTypes: ['Playlist'],
+    mediaTypes: ['Audio'],
+    sortBy: sort.sortBy,
+    sortOrder: sort.sortOrder,
+    pageSize: 60,
+  })
   return (
     <LibraryPage
       title={t('nav.playlists')}
@@ -31,6 +39,11 @@ export function PlaylistsPage() {
       emptyTitle={t('playlists.empty')}
       emptyMessage={t('playlists.emptyHint')}
       sortItems={sort.items}
+      actions={
+        <Button icon={<Plus />} onClick={() => openNewPlaylist()}>
+          {t('playlistSheet.title')}
+        </Button>
+      }
     />
   )
 }

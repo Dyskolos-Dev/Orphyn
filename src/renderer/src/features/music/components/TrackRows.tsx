@@ -2,11 +2,13 @@ import { Heart } from 'lucide-react'
 import { Fragment, useState, type MouseEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
-import { Menu, Text, TrackList, TrackRow } from '@renderer/design'
+import { Menu, Text, TrackRow } from '@renderer/design'
 import { useToggleFavorite, type BaseItemDto } from '@renderer/jellyfin'
 import { musicPlayer, useMusicPlayer } from '../player/api'
 import { trackArt, trackArtist, trackArtistId, trackDuration, trackTitle } from '../player/track'
-import { isFavorite, useTrackMenu } from './hooks'
+import { useTrackListInteractions } from '../playlists/interactions'
+import { useTrackMenuWithPlaylists } from '../playlists/menus'
+import { isFavorite } from './hooks'
 
 /** Which track is current and whether the player is running, for the "now playing" row state. */
 export function useRowPlayback() {
@@ -17,8 +19,8 @@ export function useRowPlayback() {
 }
 
 /** One "more" / right-click menu shared by all rows of a list. */
-export function useTrackMenuHost() {
-  const buildItems = useTrackMenu()
+export function useTrackMenuHost(opts?: { onRemove?: (track: BaseItemDto) => void }) {
+  const buildItems = useTrackMenuWithPlaylists(opts)
   const [open, setOpen] = useState<{ track: BaseItemDto; x: number; y: number } | null>(null)
   const show = (track: BaseItemDto) => (e: MouseEvent) => {
     e.preventDefault()
@@ -38,22 +40,23 @@ export function useTrackMenuHost() {
   return { show, menu }
 }
 
-function FavoriteAccessory({ track }: { track: BaseItemDto }) {
+export function FavoriteAccessory({ track }: { track: BaseItemDto }) {
   const { t } = useTranslation('music')
   const toggle = useToggleFavorite()
-  if (!isFavorite(track)) return null
+  const favorite = isFavorite(track)
   return (
     <button
       type="button"
       tabIndex={-1}
-      className="jrm-heart"
-      aria-label={t('actions.unfavorite')}
+      className={favorite ? 'jrm-heart' : 'jrm-heart jrm-heart--off'}
+      aria-label={favorite ? t('actions.unfavorite') : t('actions.favorite')}
+      aria-pressed={favorite}
       onClick={(e) => {
         e.stopPropagation()
-        toggle.mutate({ id: track.Id ?? '', value: false })
+        toggle.mutate({ id: track.Id ?? '', value: !favorite })
       }}
     >
-      <Heart size={14} fill="currentColor" aria-hidden="true" />
+      <Heart size={14} fill={favorite ? 'currentColor' : 'none'} aria-hidden="true" />
     </button>
   )
 }
@@ -67,6 +70,8 @@ export interface SongRowsProps {
   showAlbum?: boolean
   /** Group by disc when the tracks span several discs. */
   groupByDisc?: boolean
+  /** Set on a playlist page: drag to reorder, Delete / menu to remove. */
+  playlist?: BaseItemDto
   'aria-label': string
 }
 
@@ -77,11 +82,19 @@ export function SongRows({
   hideArtist,
   showAlbum,
   groupByDisc,
+  playlist,
   ...rest
 }: SongRowsProps) {
   const { t } = useTranslation('music')
   const { currentId, playing } = useRowPlayback()
-  const { show, menu } = useTrackMenuHost()
+  const ui = useTrackListInteractions({ tracks, playlist })
+  const { show, menu } = useTrackMenuHost(
+    playlist
+      ? {
+          onRemove: (track) => ui.removeTrack(tracks.indexOf(track)),
+        }
+      : undefined,
+  )
 
   const discs = groupByDisc
     ? new Set(tracks.map((x) => x.ParentIndexNumber ?? 1))
@@ -90,7 +103,12 @@ export function SongRows({
 
   return (
     <>
-      <TrackList aria-label={rest['aria-label']} className="jrm-tracklist">
+      <ol
+        ref={ui.listRef}
+        aria-label={rest['aria-label']}
+        className="jr-track-list jrm-tracklist"
+        {...ui.listProps}
+      >
         {tracks.map((track, i) => {
           const artist = trackArtist(track)
           const artistId = trackArtistId(track)
@@ -127,6 +145,8 @@ export function SongRows({
                 }
                 album={showAlbum ? track.Album : undefined}
                 duration={trackDuration(track)}
+                className={ui.rowClass(i)}
+                selected={ui.isSelected(i)}
                 isCurrent={track.Id === currentId}
                 isPlaying={playing}
                 accessory={<FavoriteAccessory track={track} />}
@@ -141,8 +161,9 @@ export function SongRows({
             </Fragment>
           )
         })}
-      </TrackList>
+      </ol>
       {menu}
+      {ui.bar}
     </>
   )
 }

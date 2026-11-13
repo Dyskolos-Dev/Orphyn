@@ -3,7 +3,8 @@
     "albums": "Albums",
     "artists": "Artists",
     "playlists": "Playlists",
-    "songs": "Songs"
+    "songs": "Songs",
+    "favorites": "Favourites"
   },
   "home": {
     "title": "Listen Now",
@@ -43,7 +44,7 @@
   },
   "playlists": {
     "empty": "No Playlists",
-    "emptyHint": "Playlists you create in Jellyfin will appear here."
+    "emptyHint": "Create a playlist with the New Playlist button, or add songs from any menu."
   },
   "songs": {
     "empty": "No Songs",
@@ -65,7 +66,9 @@
   "playlist": {
     "notFound": "Playlist not found",
     "kind": "Playlist",
-    "empty": "This playlist is empty"
+    "empty": "This playlist is empty",
+    "rename": "Rename",
+    "emptyHint": "Add songs from any song or album menu, or drag them onto this playlist in the sidebar."
   },
   "artist": {
     "notFound": "Artist not found",
@@ -127,5 +130,55 @@
     "title": "Lyrics",
     "none": "No lyrics",
     "noneHint": "This song has no lyrics on your server."
+  },
+  "favorites": {
+    "title": "Favourites",
+    "playAll": "Play All",
+    "emptyHint": "Tap the heart on a song, an album or an artist and it will appear here.",
+    "empty": {
+      "songs": "No Favourite Songs",
+      "albums": "No Favourite Albums",
+      "artists": "No Favourite Artists"
+    },
+    "sort": {
+      "name": "Name",
+      "artist": "Artist",
+      "album": "Album",
+      "year": "Year",
+      "added": "Date Added"
+    }
+  },
+  "playlistSheet": {
+    "title": "New Playlist",
+    "name": "Name",
+    "description": "Description (optional)",
+    "cancel": "Cancel",
+    "create": "Create"
+  },
+  "playlistDelete": {
+    "title": "Delete “{{name}}”?",
+    "message": "The playlist is removed from your server. The songs stay in your library.",
+    "confirm": "Delete"
+  },
+  "playlistMenu": {
+    "add": "Add to Playlist…",
+    "new": "New Playlist…",
+    "removeFromThis": "Remove from this Playlist",
+    "remove": "Remove",
+    "delete": "Delete Playlist…"
+  },
+  "playlistToast": {
+    "added": "Added to {{name}}",
+    "created": "Created {{name}}",
+    "removed": "Removed from {{name}}",
+    "deleted": "Deleted {{name}}",
+    "undo": "Undo",
+    "failed": "The server refused the change"
+  },
+  "selection": {
+    "bar": "Selection",
+    "count_one": "{{count}} song selected",
+    "count_other": "{{count}} songs selected",
+    "clear": "Clear selection"
   }
 }

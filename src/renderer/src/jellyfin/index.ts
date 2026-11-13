@@ -12,6 +12,8 @@ export type { ImageOptions } from './images'
 export { jfKeys } from './keys'
 export { refreshLibrary, shouldRefreshOnFocus, REFRESH_AFTER_BLUR_MS } from './refresh'
 export * from './hooks'
+export * from './playlistLogic'
+export type { RemovedEntry } from './playlistOps'
 export * from './playback'
 export type {
   BaseItemDto,

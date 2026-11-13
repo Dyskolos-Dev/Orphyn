@@ -1,11 +1,12 @@
 import { ArrowDown, ArrowUp, Music } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Button, EmptyState, Skeleton, Text, TrackList, TrackRow } from '@renderer/design'
+import { Button, EmptyState, Skeleton, Text, TrackRow } from '@renderer/design'
 import { flattenPages, useSongs } from '@renderer/jellyfin'
 import { ShellPage } from '@renderer/shell'
 import { useWindowedRows } from '../components/hooks'
-import { useRowPlayback, useTrackMenuHost } from '../components/TrackRows'
+import { FavoriteAccessory, useRowPlayback, useTrackMenuHost } from '../components/TrackRows'
+import { useTrackListInteractions } from '../playlists/interactions'
 import { musicPlayer } from '../player/api'
 import { trackArt, trackArtist, trackDuration, trackTitle } from '../player/track'
 
@@ -42,6 +43,7 @@ export function SongsPage() {
   const { listRef, start, end, paddingTop, paddingBottom } = useWindowedRows(total, ROW_HEIGHT)
   const { currentId, playing } = useRowPlayback()
   const { show, menu } = useTrackMenuHost()
+  const ui = useTrackListInteractions({ tracks: songs, firstIndex: start })
 
   // Load more when the window gets close to the end of what is loaded.
   const { hasNextPage, isFetchingNextPage, fetchNextPage } = query
@@ -83,6 +85,9 @@ export function SongsPage() {
           artist={trackArtist(song)}
           album={song.Album}
           duration={trackDuration(song)}
+          className={ui.rowClass(i)}
+          selected={ui.isSelected(i)}
+          accessory={<FavoriteAccessory track={song} />}
           isCurrent={song.Id === currentId}
           isPlaying={playing}
           onPlay={() => {
@@ -133,12 +138,20 @@ export function SongsPage() {
             </Text>
           ) : (
             <div style={{ paddingTop, paddingBottom }}>
-              <TrackList aria-label={t('nav.songs')}>{rows}</TrackList>
+              <ol
+                ref={ui.listRef}
+                aria-label={t('nav.songs')}
+                className="jr-track-list"
+                {...ui.listProps}
+              >
+                {rows}
+              </ol>
             </div>
           )}
         </div>
       )}
       {menu}
+      {ui.bar}
     </ShellPage>
   )
 }

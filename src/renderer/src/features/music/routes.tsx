@@ -1,6 +1,8 @@
 import type { RouteObject } from 'react-router'
 import './music.css'
 import './register'
+import './playlists/register'
+import { FavoritesPage } from './favorites/FavoritesPage'
 import { AlbumPage } from './pages/AlbumPage'
 import { AlbumsPage } from './pages/AlbumsPage'
 import { ArtistPage } from './pages/ArtistPage'
@@ -16,6 +18,7 @@ export const musicRoutes: RouteObject[] = [
   { path: '/music/albums', element: <AlbumsPage /> },
   { path: '/music/artists', element: <ArtistsPage /> },
   { path: '/music/playlists', element: <PlaylistsPage /> },
+  { path: '/music/favorites', element: <FavoritesPage /> },
   { path: '/music/songs', element: <SongsPage /> },
   { path: '/music/album/:id', element: <AlbumPage /> },
   { path: '/music/artist/:id', element: <ArtistPage /> },

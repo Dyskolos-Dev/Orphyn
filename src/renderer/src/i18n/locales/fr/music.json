@@ -3,7 +3,8 @@
     "albums": "Albums",
     "artists": "Artistes",
     "playlists": "Playlists",
-    "songs": "Titres"
+    "songs": "Titres",
+    "favorites": "Coups de cœur"
   },
   "home": {
     "title": "À l’écoute",
@@ -43,7 +44,7 @@
   },
   "playlists": {
     "empty": "Aucune playlist",
-    "emptyHint": "Les playlists créées dans Jellyfin apparaîtront ici."
+    "emptyHint": "Créez une playlist avec le bouton Nouvelle playlist, ou ajoutez des titres depuis n’importe quel menu."
   },
   "songs": {
     "empty": "Aucun titre",
@@ -65,7 +66,9 @@
   "playlist": {
     "notFound": "Playlist introuvable",
     "kind": "Playlist",
-    "empty": "Cette playlist est vide"
+    "empty": "Cette playlist est vide",
+    "rename": "Renommer",
+    "emptyHint": "Ajoutez des titres depuis le menu d’un titre ou d’un album, ou glissez-les sur cette playlist dans la barre latérale."
   },
   "artist": {
     "notFound": "Artiste introuvable",
@@ -127,5 +130,55 @@
     "title": "Paroles",
     "none": "Pas de paroles",
     "noneHint": "Ce titre n’a pas de paroles sur votre serveur."
+  },
+  "favorites": {
+    "title": "Coups de cœur",
+    "playAll": "Tout lire",
+    "emptyHint": "Touchez le cœur d’un titre, d’un album ou d’un artiste pour le retrouver ici.",
+    "empty": {
+      "songs": "Aucun titre favori",
+      "albums": "Aucun album favori",
+      "artists": "Aucun artiste favori"
+    },
+    "sort": {
+      "name": "Nom",
+      "artist": "Artiste",
+      "album": "Album",
+      "year": "Année",
+      "added": "Date d’ajout"
+    }
+  },
+  "playlistSheet": {
+    "title": "Nouvelle playlist",
+    "name": "Nom",
+    "description": "Description (facultatif)",
+    "cancel": "Annuler",
+    "create": "Créer"
+  },
+  "playlistDelete": {
+    "title": "Supprimer « {{name}} » ?",
+    "message": "La playlist est supprimée de votre serveur. Les titres restent dans votre bibliothèque.",
+    "confirm": "Supprimer"
+  },
+  "playlistMenu": {
+    "add": "Ajouter à une playlist…",
+    "new": "Nouvelle playlist…",
+    "removeFromThis": "Retirer de cette playlist",
+    "remove": "Retirer",
+    "delete": "Supprimer la playlist…"
+  },
+  "playlistToast": {
+    "added": "Ajouté à {{name}}",
+    "created": "{{name}} créée",
+    "removed": "Retiré de {{name}}",
+    "deleted": "{{name}} supprimée",
+    "undo": "Annuler",
+    "failed": "Le serveur a refusé la modification"
+  },
+  "selection": {
+    "bar": "Sélection",
+    "count_one": "{{count}} titre sélectionné",
+    "count_other": "{{count}} titres sélectionnés",
+    "clear": "Effacer la sélection"
   }
 }

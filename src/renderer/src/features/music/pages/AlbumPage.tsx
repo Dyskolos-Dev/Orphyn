@@ -7,7 +7,7 @@ import { ShellPage } from '@renderer/shell'
 import { AlbumCard } from '../components/Cards'
 import { DetailHeader } from '../components/DetailHeader'
 import { useFormatTotal } from '../components/format'
-import { useContainerMenu } from '../components/hooks'
+import { useContainerMenuWithPlaylists } from '../playlists/menus'
 import { SongRows } from '../components/TrackRows'
 import { musicPlayer } from '../player/api'
 import { trackDuration } from '../player/track'
@@ -17,7 +17,7 @@ export function AlbumPage() {
   const { id } = useParams()
   const album = useItem(id)
   const tracks = useAlbumTracks(id)
-  const menu = useContainerMenu()
+  const menu = useContainerMenuWithPlaylists()
   const formatTotal = useFormatTotal()
   const artistId = album.data?.AlbumArtists?.[0]?.Id ?? undefined
   const more = useItems({

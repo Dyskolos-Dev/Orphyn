@@ -7,6 +7,10 @@ import { art, isFavorite } from './hooks'
 
 interface DetailHeaderProps {
   item: BaseItemDto
+  /** Replaces the plain title (e.g. an inline-editable name). */
+  title?: ReactNode
+  /** Artwork shown when the item has no image. */
+  fallback?: ReactNode
   /** Line under the title, e.g. the artist link. */
   subtitle?: ReactNode
   meta?: ReactNode
@@ -19,6 +23,8 @@ interface DetailHeaderProps {
 /** Album / playlist header: big artwork with a soft shadow, title, buttons. */
 export function DetailHeader({
   item,
+  title,
+  fallback,
   subtitle,
   meta,
   description,
@@ -37,12 +43,12 @@ export function DetailHeader({
         shape="rounded"
         shadow
         priority
-        fallback={<Music />}
+        fallback={fallback ?? <Music />}
         className="jrm-detail__art"
       />
       <div className="jrm-detail__info">
         <Text variant="title-1" className="jrm-detail__title" data-page-title="">
-          {item.Name}
+          {title ?? item.Name}
         </Text>
         {subtitle && (
           <Text variant="title-3" className="jrm-detail__subtitle">

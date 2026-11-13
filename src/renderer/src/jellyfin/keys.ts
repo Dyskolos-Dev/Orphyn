@@ -22,6 +22,9 @@ export const jfKeys = {
   albumTracks: (acc: string, albumId: string) => ['jf', acc, 'albumTracks', albumId] as const,
   playlistItems: (acc: string, playlistId: string) =>
     ['jf', acc, 'playlistItems', playlistId] as const,
+  userPlaylists: (acc: string) => ['jf', acc, 'userPlaylists'] as const,
+  favorites: (acc: string, kind: 'songs' | 'albums' | 'artists') =>
+    ['jf', acc, 'favorites', kind] as const,
   instantMix: (acc: string, id: string) => ['jf', acc, 'instantMix', id] as const,
   lyrics: (acc: string, id: string) => ['jf', acc, 'lyrics', id] as const,
   search: (acc: string, term: string) => ['jf', acc, 'search', term] as const,

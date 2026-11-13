@@ -82,6 +82,8 @@ interface LibraryPageProps {
   emptyTitle: string
   emptyMessage: string
   sortItems?: readonly MenuItem[]
+  /** Extra toolbar buttons, before the sort menu. */
+  actions?: ReactNode
   count?: number
 }
 
@@ -95,6 +97,7 @@ export function LibraryPage({
   emptyTitle,
   emptyMessage,
   sortItems,
+  actions,
 }: LibraryPageProps) {
   const { t } = useTranslation('music')
   const items = flattenPages(query.data)
@@ -109,9 +112,12 @@ export function LibraryPage({
       title={title}
       subtitle={total != null ? t('library.count', { count: total }) : undefined}
       actions={
-        sortItems && (
-          <MenuButton label={t('library.sort')} icon={<ArrowUpDown />} items={sortItems} />
-        )
+        <>
+          {actions}
+          {sortItems && (
+            <MenuButton label={t('library.sort')} icon={<ArrowUpDown />} items={sortItems} />
+          )}
+        </>
       }
       gutter
     >

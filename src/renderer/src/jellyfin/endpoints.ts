@@ -299,3 +299,130 @@ export const setFavorite = (api: Api, userId: string, id: string, favorite: bool
   jfRequest<unknown>(api, favorite ? 'POST' : 'DELETE', `/UserFavoriteItems/${id}`, {
     params: { userId },
   })
+
+// ---------------------------------------------------------------- playlists
+
+/** POST /Playlists. `itemIds` may hold songs or albums (the server expands albums). Returns the new id. */
+export async function createPlaylist(
+  api: Api,
+  userId: string,
+  name: string,
+  itemIds: readonly string[] = [],
+  opts: { isPublic?: boolean } = {},
+): Promise<string> {
+  const r = await jfRequest<{ Id?: string }>(api, 'POST', '/Playlists', {
+    data: {
+      Name: name,
+      Ids: [...itemIds],
+      UserId: userId,
+      MediaType: 'Audio',
+      IsPublic: opts.isPublic ?? false,
+    },
+  })
+  if (!r?.Id) throw new Error('Jellyfin did not return the new playlist id')
+  return r.Id
+}
+
+/** POST /Playlists/{id} (Jellyfin ≥ 10.9). */
+export const renamePlaylist = (api: Api, playlistId: string, name: string) =>
+  jfRequest<unknown>(api, 'POST', `/Playlists/${playlistId}`, { data: { Name: name } })
+
+/** A playlist is a library item: DELETE /Items/{id}. */
+export const deletePlaylist = (api: Api, playlistId: string) =>
+  jfRequest<unknown>(api, 'DELETE', `/Items/${playlistId}`)
+
+/** Appends songs (or albums) to the end of a playlist. */
+export const addToPlaylist = (
+  api: Api,
+  userId: string,
+  playlistId: string,
+  itemIds: readonly string[],
+) =>
+  jfRequest<unknown>(api, 'POST', `/Playlists/${playlistId}/Items`, {
+    params: { ids: itemIds, userId },
+  })
+
+/** `entryIds` are PlaylistItemIds (one per occurrence), not track ids. */
+export const removeFromPlaylist = (api: Api, playlistId: string, entryIds: readonly string[]) =>
+  jfRequest<unknown>(api, 'DELETE', `/Playlists/${playlistId}/Items`, {
+    params: { entryIds },
+  })
+
+/** Moves one entry (PlaylistItemId) to a 0-based position. */
+export const movePlaylistItem = (api: Api, playlistId: string, entryId: string, newIndex: number) =>
+  jfRequest<unknown>(api, 'POST', `/Playlists/${playlistId}/Items/${entryId}/Move/${newIndex}`)
+
+/** True when the user may edit the playlist (i.e. owns it or was granted edit rights). */
+export async function canEditPlaylist(
+  api: Api,
+  userId: string,
+  playlistId: string,
+): Promise<boolean> {
+  try {
+    const r = await jfRequest<{ CanEdit?: boolean } | undefined>(
+      api,
+      'GET',
+      `/Playlists/${playlistId}/Users/${userId}`,
+      { allowStatus: [404] },
+    )
+    return !!r?.CanEdit
+  } catch {
+    return false
+  }
+}
+
+/** The user's editable music playlists, by name. */
+export async function fetchUserPlaylists(api: Api, userId: string): Promise<BaseItemDto[]> {
+  const page = await fetchItemsPage(
+    api,
+    userId,
+    {
+      includeItemTypes: ['Playlist'],
+      sortBy: ['SortName'],
+      sortOrder: 'Ascending',
+      pageSize: 500,
+      fields: [...DEFAULT_FIELDS, 'ChildCount'],
+    },
+    0,
+  )
+  const audio = page.items.filter((p) => !p.MediaType || p.MediaType === 'Audio')
+  const editable = await Promise.all(audio.map((p) => canEditPlaylist(api, userId, p.Id ?? '')))
+  return audio.filter((_, i) => editable[i])
+}
+
+/** Favourite songs / albums / artists, fully loaded (up to 2000 each). */
+export async function fetchFavorites(
+  api: Api,
+  userId: string,
+  kind: 'songs' | 'albums' | 'artists',
+): Promise<BaseItemDto[]> {
+  const page = await fetchListPage(
+    api,
+    userId,
+    kind,
+    { isFavorite: true, pageSize: 2000, sortBy: kind === 'songs' ? ['SortName'] : undefined },
+    0,
+  )
+  return page.items
+}
+
+/**
+ * Best effort: Jellyfin only lets administrators edit item metadata (POST /Items/{id}), so a plain
+ * user's description is silently not saved. Resolves with whether it was.
+ */
+export async function setPlaylistDescription(
+  api: Api,
+  userId: string,
+  playlistId: string,
+  description: string,
+): Promise<boolean> {
+  try {
+    const item = await fetchItem(api, userId, playlistId)
+    await jfRequest<unknown>(api, 'POST', `/Items/${playlistId}`, {
+      data: { ...item, Overview: description },
+    })
+    return true
+  } catch {
+    return false
+  }
+}

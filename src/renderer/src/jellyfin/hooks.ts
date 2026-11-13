@@ -7,7 +7,9 @@ import {
   type InfiniteData,
 } from '@tanstack/react-query'
 import type { Api } from '@jellyfin/sdk'
+import { useMemo } from 'react'
 import * as ep from './endpoints'
+import * as ops from './playlistOps'
 import { STALE, jfKeys } from './keys'
 import { useSession } from './session'
 import type { BaseItemDto, ItemsPage, ItemsParams, ListKind, ListParams } from './types'
@@ -242,6 +244,67 @@ function useItemMutation(run: (c: Ctx, vars: { id: string; value: boolean }) => 
 export const useMarkPlayed = () =>
   useItemMutation((c, v) => ep.setPlayed(c.api, c.userId, v.id, v.value))
 
-/** `mutate({ id, value: true })` adds to favourites, `false` removes. */
-export const useToggleFavorite = () =>
-  useItemMutation((c, v) => ep.setFavorite(c.api, c.userId, v.id, v.value))
+/** `mutate({ id, value: true })` adds to favourites, `false` removes. Every cached copy flips at once. */
+export function useToggleFavorite() {
+  const qc = useQueryClient()
+  const ctx = useCtx()
+  return useMutation({
+    mutationFn: (vars: { id: string; value: boolean }) =>
+      ops.setFavoriteOp({ ...(ctx as Ctx), qc }, vars.id, vars.value),
+  })
+}
+
+// ---------------------------------------------------------------- playlists & favourites
+
+/** The user's own (editable) music playlists, for pickers, the sidebar and "Add to playlist". */
+export const useUserPlaylists = () =>
+  useScoped(
+    (a) => jfKeys.userPlaylists(a),
+    (c) => ep.fetchUserPlaylists(c.api, c.userId),
+    { staleTime: STALE.catalog },
+  )
+
+const useFavorites = (kind: 'songs' | 'albums' | 'artists') =>
+  useScoped(
+    (a) => jfKeys.favorites(a, kind),
+    (c) => ep.fetchFavorites(c.api, c.userId, kind),
+    { staleTime: STALE.item },
+  )
+
+export const useFavoriteTracks = () => useFavorites('songs')
+export const useFavoriteAlbums = () => useFavorites('albums')
+export const useFavoriteArtists = () => useFavorites('artists')
+
+/** Playlist mutations; each updates the caches (optimistically where it can) and rejects on failure. */
+export function usePlaylistActions() {
+  const qc = useQueryClient()
+  const ctx = useCtx()
+  return useMemo(() => {
+    const c = (): ops.OpsCtx => {
+      if (!ctx) throw new Error('No active Jellyfin server')
+      return { ...ctx, qc }
+    }
+    return {
+      create: (
+        name: string,
+        itemIds?: readonly string[],
+        opts?: { isPublic?: boolean; description?: string },
+      ) => ops.createPlaylistOp(c(), name, itemIds, opts),
+      rename: (playlistId: string, name: string) => ops.renamePlaylistOp(c(), playlistId, name),
+      remove: (playlistId: string) => ops.deletePlaylistOp(c(), playlistId),
+      add: (playlistId: string, itemIds: readonly string[]) =>
+        ops.addToPlaylistOp(c(), playlistId, itemIds),
+      removeEntries: (playlistId: string, entryIds: readonly string[]) =>
+        ops.removeFromPlaylistOp(c(), playlistId, entryIds),
+      restore: (playlistId: string, removed: readonly ops.RemovedEntry[]) =>
+        ops.restoreToPlaylistOp(c(), playlistId, removed),
+      move: (playlistId: string, entryId: string, newIndex: number) =>
+        ops.movePlaylistItemOp(c(), playlistId, entryId, newIndex),
+    }
+  }, [ctx, qc])
+}
+
+/** Heart state of an item as the caches know it (follows optimistic updates). */
+export function useIsFavorite(id: string | undefined): boolean {
+  return !!useItem(id).data?.UserData?.IsFavorite
+}

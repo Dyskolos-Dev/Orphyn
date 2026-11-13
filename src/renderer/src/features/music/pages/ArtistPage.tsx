@@ -1,8 +1,15 @@
-import { Play, Shuffle, User } from 'lucide-react'
+import { Heart, Play, Shuffle, User } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router'
-import { Button, EmptyState, HeroBanner, Shelf, Spinner, Text } from '@renderer/design'
-import { imageUrl, useItem, useItems, useSimilar, type BaseItemDto } from '@renderer/jellyfin'
+import { Button, EmptyState, HeroBanner, IconButton, Shelf, Spinner, Text } from '@renderer/design'
+import {
+  imageUrl,
+  useItem,
+  useItems,
+  useSimilar,
+  useToggleFavorite,
+  type BaseItemDto,
+} from '@renderer/jellyfin'
 import { ShellPage } from '@renderer/shell'
 import { AlbumCard, ArtistCard } from '../components/Cards'
 import { SongRows } from '../components/TrackRows'
@@ -45,6 +52,7 @@ export function ArtistPage() {
     enabled: !!id,
   })
   const similar = useSimilar(id, 12)
+  const fav = useToggleFavorite()
 
   if (artist.isLoading) {
     return (
@@ -101,6 +109,13 @@ export function ArtistPage() {
             >
               {t('actions.shuffle')}
             </Button>
+            <IconButton
+              icon={<Heart fill={item.UserData?.IsFavorite ? 'currentColor' : 'none'} />}
+              label={item.UserData?.IsFavorite ? t('actions.unfavorite') : t('actions.favorite')}
+              variant="gray"
+              pressed={!!item.UserData?.IsFavorite}
+              onClick={() => fav.mutate({ id, value: !item.UserData?.IsFavorite })}
+            />
           </>
         }
       />
