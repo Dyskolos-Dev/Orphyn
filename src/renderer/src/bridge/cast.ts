@@ -1,4 +1,4 @@
-/** Cast bridge: the Rust commands are stubs until the cast migration task fills `src-tauri/src/cast/`. */
+/** Cast bridge: one function per Rust command of `src-tauri/src/cast/` (see docs/CASTING.md). */
 import type { CastDevice, CastSessionState } from '@shared/cast'
 import {
   CAST_CHANNELS as C,

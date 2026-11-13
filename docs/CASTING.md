@@ -52,6 +52,42 @@ list. Sessions survive discovery stopping.
 - App quit (`before-quit`) disposes discovery, polling timers and sockets. All logs are prefixed
   `[cast]`. No handler lets a rejection escape.
 
+## Rust implementation (Tauri shell)
+
+`src-tauri/src/cast/` is a 1:1 port of the Electron backend above, exposed through the commands
+`cast_start_discovery`, `cast_stop_discovery`, `cast_list_devices`, `cast_get_session`,
+`cast_load`, `cast_play`, `cast_pause`, `cast_seek`, `cast_stop`, `cast_set_volume`,
+`cast_set_muted`, `cast_disconnect` and the events `cast:devices-changed`,
+`cast:session-changed`, `cast:ended`, `cast:error`. `src/renderer/src/bridge/cast.ts` maps them to
+the unchanged `CastApi`, so `features/cast` does not know which shell runs.
+
+| Rust file                    | Mirrors            | Notes                                                              |
+| ---------------------------- | ------------------ | ------------------------------------------------------------------ |
+| `model.rs`                   | `shared/cast`      | serde, camelCase JSON                                              |
+| `discovery.rs`               | `discovery.ts`     | `mdns-sd` for `_googlecast`/`_airplay`/`_raop`, own SSDP M-SEARCH on a tokio UDP socket |
+| `registry.rs`                | `registry.ts`      | 90 s expiry, swept every 10 s; mDNS services refreshed by the 20 s rescan |
+| `session.rs`, `manager.rs`   | `session.ts`, `manager.ts` | command serialization (async mutex), reconnect 0.5/2/5 s, `ended` once |
+| `chromecast.rs`              | `chromecast.ts`    | `rust_cast`; see the threading note below                          |
+| `upnp.rs`, `soap.rs`, `didl.rs`, `description.rs` | UPnP files | `reqwest` for SOAP and description fetch (4 s / 5 s timeouts, 512 KB cap) |
+| `airplay.rs`                 | `airplay.ts`       | same legacy HTTP, same limits                                      |
+| `txt.rs`, `xml.rs`           | `*-txt.ts`, `xml.ts` | tolerant hand-written XML parser (devices send sloppy XML)        |
+
+- **Cast threading.** `rust_cast` is blocking and not `Send`, so every Cast connection lives on its own
+  worker thread (commands over a channel, answers through oneshot replies). The thread also polls the
+  receiver once a second, which keeps the heartbeat alive. Three consecutive poll errors, a socket
+  error or a panic on that thread become `onClosed` (and then the session's reconnect logic); a
+  panic never reaches the app. Known limit: the library has no read timeout, so a receiver that
+  disappears without closing the socket is only noticed when the OS drops the connection; a
+  pending command still times out after 10 s and the thread is released on the next teardown.
+- Cast receivers use self-signed certificates, so the connection skips host verification (as the
+  Electron `castv2-client` did).
+- Quit: the main window's `Destroyed` event disposes discovery, polling tasks and worker threads.
+- Logs go through the `log` crate (visible with the log plugin), prefixed `[cast]`.
+
+Tests: `cd src-tauri && cargo test cast` (DIDL/SOAP builders, description and TXT parsing, XML
+helper, Cast metadata and status mapping, UPnP polling with mocked SOAP, session state machine and
+reconnection and manager policy with mocked transports, registry expiry, mDNS refresh/removal).
+
 ## Supported devices and limits
 
 | Device                                 | Protocol                       | Audio  | Video  | Volume / mute              |
