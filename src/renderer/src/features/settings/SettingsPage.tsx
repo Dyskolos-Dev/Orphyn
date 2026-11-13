@@ -1,10 +1,11 @@
-import { Info, Music, Play, Server, Settings as SettingsIcon } from 'lucide-react'
+import { Info, MessageCircle, Music, Play, Server, Settings as SettingsIcon } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useSearchParams } from 'react-router'
 import { SidebarItem } from '@renderer/design'
 import { ShellPage } from '@renderer/shell'
 import { AboutPane } from './AboutPane'
+import { DiscordPane } from './DiscordPane'
 import { GeneralPane } from './GeneralPane'
 import { MusicPane } from './MusicPane'
 import { PlaybackPane } from './PlaybackPane'
@@ -16,6 +17,7 @@ const PANES = [
   { id: 'servers', icon: <Server />, view: <ServersPane /> },
   { id: 'playback', icon: <Play />, view: <PlaybackPane /> },
   { id: 'music', icon: <Music />, view: <MusicPane /> },
+  { id: 'discord', icon: <MessageCircle />, view: <DiscordPane /> },
   { id: 'about', icon: <Info />, view: <AboutPane /> },
 ] as const satisfies readonly { id: string; icon: ReactNode; view: ReactNode }[]
 

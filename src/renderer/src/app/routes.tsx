@@ -1,5 +1,6 @@
 import { Navigate, type RouteObject } from 'react-router'
 import { castRoutes } from '@renderer/features/cast/routes'
+import '@renderer/features/discord'
 import { musicRoutes } from '@renderer/features/music/routes'
 import { searchRoutes } from '@renderer/features/search/routes'
 import { serversRoutes } from '@renderer/features/servers/routes'

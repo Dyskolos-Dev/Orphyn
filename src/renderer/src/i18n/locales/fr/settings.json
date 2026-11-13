@@ -6,6 +6,7 @@
     "servers": "Serveurs",
     "playback": "Lecture",
     "music": "Musique",
+    "discord": "Discord",
     "about": "À propos"
   },
   "general": {
@@ -138,6 +139,24 @@
     "credit": {
       "before": "Fait avec ❤️ par ",
       "author": "Dyskolos_"
+    }
+  },
+  "discord": {
+    "header": "Rich Presence",
+    "footer": "Lumen affiche ce que vous écoutez ou regardez dans votre statut Discord. Rien n’est envoyé lorsque c’est désactivé.",
+    "enabled": "Afficher ce que je lis sur Discord",
+    "enabledDescription": "La musique apparaît comme « Écoute Lumen », les vidéos comme « Regarde Lumen ».",
+    "notConfiguredNote": "Discord n’est pas configuré dans cette version, rien n’est affiché pour l’instant.",
+    "artwork": "Afficher la pochette",
+    "artworkDescription": "Le lien de la pochette pointe vers votre serveur : il ne fonctionne que si le serveur est joignable en HTTPS public. Sinon, le logo Lumen est affiché.",
+    "status": "État",
+    "unavailable": "Discord n’est disponible que dans l’application de bureau.",
+    "statuses": {
+      "connected": "Connecté",
+      "not-configured": "Non configuré",
+      "disabled": "Désactivé",
+      "idle": "En attente de lecture",
+      "unavailable": "Discord n’est pas lancé"
     }
   }
 }

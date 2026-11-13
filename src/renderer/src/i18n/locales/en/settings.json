@@ -6,6 +6,7 @@
     "servers": "Servers",
     "playback": "Playback",
     "music": "Music",
+    "discord": "Discord",
     "about": "About"
   },
   "general": {
@@ -138,6 +139,24 @@
     "credit": {
       "before": "Made with ❤️ by ",
       "author": "Dyskolos_"
+    }
+  },
+  "discord": {
+    "header": "Rich Presence",
+    "footer": "Lumen shows what you play in your Discord status. Nothing is sent when it is off.",
+    "enabled": "Show what I am playing on Discord",
+    "enabledDescription": "Music appears as Listening to Lumen, videos as Watching Lumen.",
+    "notConfiguredNote": "Discord is not set up in this build, so nothing is shown yet.",
+    "artwork": "Show artwork",
+    "artworkDescription": "The artwork link points to your server, so it only works when the server is reachable over public HTTPS. Otherwise the Lumen logo is shown.",
+    "status": "Status",
+    "unavailable": "Discord is only available in the desktop app.",
+    "statuses": {
+      "connected": "Connected",
+      "not-configured": "Not configured",
+      "disabled": "Off",
+      "idle": "Waiting for playback",
+      "unavailable": "Discord not running"
     }
   }
 }
