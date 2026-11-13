@@ -11,3 +11,5 @@ export type {
   PlaybackSnapshot,
   PlaybackStatus,
 } from './controller'
+export { registerVideoCast, VideoCastButtonSlot, VideoCastScreenSlot } from './castSlot'
+export type { VideoCastProps } from './castSlot'

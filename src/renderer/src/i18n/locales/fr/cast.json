@@ -1,0 +1,17 @@
+{
+  "button": "Diffuser sur un appareil",
+  "title": "Lire sur",
+  "thisComputer": "Cet ordinateur",
+  "group": { "speaker": "Enceintes", "tv": "Téléviseurs" },
+  "none": "Aucun autre appareil trouvé sur votre réseau.",
+  "noneVideo": "Aucun appareil compatible vidéo trouvé sur votre réseau.",
+  "connecting": "Connexion…",
+  "connectFailed": "Impossible de lire sur {{device}}",
+  "deviceFailed": "Connexion perdue avec {{device}}",
+  "playingOn": "Lecture sur {{device}}",
+  "volume": "Volume",
+  "seek": "Position",
+  "play": "Lecture",
+  "pause": "Pause",
+  "stop": "Arrêter la diffusion"
+}

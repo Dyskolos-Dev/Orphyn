@@ -1,0 +1,17 @@
+{
+  "button": "Cast to a device",
+  "title": "Play on",
+  "thisComputer": "This computer",
+  "group": { "speaker": "Speakers", "tv": "TVs" },
+  "none": "No other devices found on your network.",
+  "noneVideo": "No video-capable device found on your network.",
+  "connecting": "Connecting…",
+  "connectFailed": "Couldn't play on {{device}}",
+  "deviceFailed": "Lost the connection to {{device}}",
+  "playingOn": "Playing on {{device}}",
+  "volume": "Volume",
+  "seek": "Seek",
+  "play": "Play",
+  "pause": "Pause",
+  "stop": "Stop casting"
+}

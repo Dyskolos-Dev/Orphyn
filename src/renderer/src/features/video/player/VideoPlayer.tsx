@@ -22,6 +22,7 @@ import { pickInitialAudio, pickInitialSubtitle } from '../tracks'
 import { upNextState } from '../upNext'
 import { PlayerControls } from './PlayerControls'
 import { setActiveController } from '../active'
+import { VideoCastButtonSlot, VideoCastScreenSlot, type VideoCastProps } from '../castSlot'
 
 const HIDE_AFTER_MS = 3000
 const SEEK_STEP = 10
@@ -277,6 +278,15 @@ export function VideoPlayer() {
   const loading = snapshot.status === 'loading'
   const showUpNext = up.visible || (ended && Boolean(next) && !prefs.autoPlayNext)
 
+  const castProps: VideoCastProps = {
+    controller,
+    itemId,
+    title,
+    subtitle,
+    artworkUrl: data ? imageUrl(data, 'Backdrop', { maxWidth: 1280 }) : undefined,
+    onHoldChange: setHeld,
+  }
+
   const onStageKey = (e: ReactKeyboardEvent) => e.stopPropagation()
 
   return (
@@ -349,8 +359,11 @@ export function VideoPlayer() {
           onSelectAudio={(a) => void controller.switchTracks({ audioIndex: a.index })}
           onSelectSubtitle={(s) => void controller.selectSubtitle(s ? s.index : -1)}
           onHoldChange={setHeld}
+          castButton={<VideoCastButtonSlot {...castProps} />}
         />
       )}
+
+      <VideoCastScreenSlot {...castProps} />
 
       {showUpNext && next && (
         <div className="jr-video-upnext" data-theme="dark">

@@ -1,7 +1,9 @@
 import { ListMusic, MessageSquareQuote, Music } from 'lucide-react'
+import i18n from 'i18next'
 import { useTranslation } from 'react-i18next'
 import { Artwork, IconButton, Text } from '@renderer/design'
 import { useCurrentTrack, useMusicPlayer } from '../player/api'
+import { useMusicOutputName } from '../player/outputLabel'
 import { trackArt, trackArtist, trackTitle } from '../player/track'
 import { CastButtonSlot } from './CastButtonSlot'
 import { SeekBar, TransportButtons, VolumeControl } from './Transport'
@@ -17,6 +19,7 @@ export function MiniPlayer() {
   const hasLyricsView = useNowPlayingUi((s) => s.open && s.view === 'lyrics')
   const queueView = useNowPlayingUi((s) => s.open && s.view === 'queue')
   const status = useMusicPlayer((s) => s.status)
+  const outputName = useMusicOutputName((s) => s.name)
   if (!track) return null
 
   return (
@@ -46,6 +49,11 @@ export function MiniPlayer() {
             <Text variant="footnote" color="secondary" truncate>
               {[trackArtist(track), track.Album].filter(Boolean).join(' — ')}
             </Text>
+            {outputName && (
+              <Text variant="caption" color="secondary" truncate>
+                {i18n.t('cast:playingOn', { device: outputName })}
+              </Text>
+            )}
           </span>
         </button>
         <div className="jrm-mini__seek" data-loading={status === 'loading' || undefined}>

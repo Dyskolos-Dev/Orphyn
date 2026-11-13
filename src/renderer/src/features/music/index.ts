@@ -1,5 +1,7 @@
 // Public API of the music feature. Other features (search, cast) import only from here.
 export { musicPlayer, useMusicPlayer, useCurrentTrack } from './player/api'
+export { setMusicOutputName, useMusicOutputName } from './player/outputLabel'
+export { describeCurrentTrackForCast } from './player/castMedia'
 export { CastButtonSlot, registerCastButton } from './components/CastButtonSlot'
 export { useNowPlayingUi } from './components/ui-state'
 export { EXCLUSIVE_PLAYBACK_EVENT } from './player/engine'

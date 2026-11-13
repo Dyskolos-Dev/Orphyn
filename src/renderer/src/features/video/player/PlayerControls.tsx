@@ -121,6 +121,8 @@ export interface PlayerControlsProps {
   onSelectSubtitle(track: SubtitleTrack | null): void
   /** Called when a popover opens/closes so the controls do not auto-hide under it. */
   onHoldChange(held: boolean): void
+  /** Cast button (from the cast feature), shown beside the track menus. */
+  castButton?: ReactNode
 }
 
 /** Apple TV style overlay: top bar, centre transport, scrubber and bottom row. */
@@ -140,6 +142,7 @@ export function PlayerControls({
   onSelectAudio,
   onSelectSubtitle,
   onHoldChange,
+  castButton,
 }: PlayerControlsProps) {
   const { t } = useTranslation('video')
   const [scrub, setScrub] = useState<number | null>(null)
@@ -304,6 +307,7 @@ export function PlayerControls({
                 }
               </TrackPopover>
             )}
+            {castButton}
             <IconButton
               variant="glass"
               icon={isFullscreen ? <Minimize /> : <Maximize />}
