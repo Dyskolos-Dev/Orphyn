@@ -13,7 +13,8 @@ import {
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { formatDuration, IconButton, Slider } from '@renderer/design'
-import { musicPlayer, useMusicPlayer } from '../player/api'
+import { musicPlayer, useCurrentTrack, useMusicPlayer } from '../player/api'
+import { trackDuration } from '../player/track'
 
 interface TransportProps {
   /** Size of the play / skip buttons. */
@@ -77,11 +78,21 @@ export function TransportButtons({ size = 'medium', extras = true }: TransportPr
   )
 }
 
+/**
+ * Duration of the current track: the loaded one, or the metadata's RunTimeTicks while a restored
+ * (paused) track has not loaded yet, so the bar never shows "--:--" for a known track.
+ */
+export function useTrackDuration(): number {
+  const duration = useMusicPlayer((s) => s.duration)
+  const track = useCurrentTrack()
+  return duration > 0 ? duration : track ? trackDuration(track) : 0
+}
+
 /** Scrubber with elapsed / remaining time. Dragging does not fight the playback position. */
 export function SeekBar({ onMedia = false }: { onMedia?: boolean }) {
   const { t } = useTranslation('music')
   const position = useMusicPlayer((s) => s.position)
-  const duration = useMusicPlayer((s) => s.duration)
+  const duration = useTrackDuration()
   const [scrub, setScrub] = useState<number | null>(null)
   const shown = scrub ?? position
   return (

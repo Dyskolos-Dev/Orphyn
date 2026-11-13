@@ -178,7 +178,7 @@
   /* ---- Layout ---- */
   --sidebar-width: 248px;
   --toolbar-height: 52px;
-  --now-playing-height: 64px;
+  --now-playing-height: 72px;
   /* Space reserved for native window buttons (set per platform below). */
   --titlebar-inset-left: 0px;
   --titlebar-inset-right: 0px;

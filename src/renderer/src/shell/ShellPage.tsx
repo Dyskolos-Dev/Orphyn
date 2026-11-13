@@ -20,7 +20,8 @@ export interface ShellPageProps {
    * `large` (default): Apple large title that collapses into the toolbar on scroll.
    * `hero`: no large title; the toolbar is transparent over the first child (a HeroBanner)
    * and turns into a material once it scrolled away.
-   * `inline`: the title is always in the toolbar (detail pages).
+   * `inline`: the title is always in the toolbar (detail pages), unless the content has its own
+   *   large title marked `data-page-title`: the toolbar then shows it once that one scrolled away.
    */
   header?: 'large' | 'hero' | 'inline'
   /** Show a back button in the toolbar (default: when there is history to go back to). */
@@ -60,11 +61,11 @@ export function ShellPage({
   }, [title])
 
   useEffect(() => {
-    if (header === 'inline') {
+    const scroller = shell?.scrollRef.current
+    if (header === 'inline' && !scroller) {
       setCollapsed(true)
       return
     }
-    const scroller = shell?.scrollRef.current
     if (!scroller) return
     let frame = 0
     const update = () => {
@@ -73,6 +74,11 @@ export function ShellPage({
       const limit = scroller.getBoundingClientRect().top + (Number.isFinite(toolbar) ? toolbar : 52)
       // Large title: collapse once its bottom passes under the toolbar. Hero: once the first
       // child (the HeroBanner) has scrolled under the toolbar.
+      if (header === 'inline') {
+        const own = content.current?.querySelector('[data-page-title]')
+        setCollapsed(own ? own.getBoundingClientRect().bottom <= limit : true)
+        return
+      }
       const mark =
         header === 'hero' ? content.current?.firstElementChild : (sentinel.current ?? undefined)
       if (!mark) return
@@ -85,7 +91,14 @@ export function ShellPage({
     }
     update()
     scroller.addEventListener('scroll', onScroll, { passive: true })
+    // Detail pages load their header after the first render: re-evaluate when the content resizes.
+    const observer =
+      header === 'inline' && content.current && typeof ResizeObserver !== 'undefined'
+        ? new ResizeObserver(onScroll)
+        : null
+    if (observer && content.current) observer.observe(content.current)
     return () => {
+      observer?.disconnect()
       scroller.removeEventListener('scroll', onScroll)
       if (frame) cancelAnimationFrame(frame)
     }

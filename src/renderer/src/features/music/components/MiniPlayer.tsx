@@ -1,26 +1,64 @@
 import { ListMusic, MessageSquareQuote, Music } from 'lucide-react'
 import i18n from 'i18next'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Artwork, IconButton, Text } from '@renderer/design'
-import { useCurrentTrack, useMusicPlayer } from '../player/api'
+import { Artwork, formatDuration, IconButton, Slider, Text } from '@renderer/design'
+import { musicPlayer, useCurrentTrack, useMusicPlayer } from '../player/api'
 import { useMusicOutputName } from '../player/outputLabel'
 import { trackArt, trackArtist, trackTitle } from '../player/track'
 import { CastButtonSlot } from './CastButtonSlot'
-import { SeekBar, TransportButtons, VolumeControl } from './Transport'
+import { TransportButtons, useTrackDuration, VolumeControl } from './Transport'
 import { useNowPlayingUi } from './ui-state'
+
+/** Thin progress line at the bottom of the capsule; elapsed / remaining show on hover. */
+function CapsuleProgress() {
+  const { t } = useTranslation('music')
+  const position = useMusicPlayer((s) => s.position)
+  const duration = useTrackDuration()
+  const loading = useMusicPlayer((s) => s.status === 'loading')
+  const [scrub, setScrub] = useState<number | null>(null)
+  const shown = Math.min(scrub ?? position, duration || 0)
+  return (
+    <>
+      <div className="jrm-mini__times jr-tabular" aria-hidden="true">
+        <span>{formatDuration(shown)}</span>
+        <span>{duration ? `-${formatDuration(Math.max(0, duration - shown))}` : '--:--'}</span>
+      </div>
+      <div className="jrm-mini__progress" data-loading={loading || undefined}>
+        <Slider
+          aria-label={t('player.seek')}
+          value={shown}
+          max={duration || 1}
+          step={1}
+          disabled={!duration}
+          formatValue={formatDuration}
+          onChangeStart={() => setScrub(position)}
+          onChange={setScrub}
+          onChangeEnd={(v) => {
+            musicPlayer.seek(v)
+            setScrub(null)
+          }}
+        />
+      </div>
+    </>
+  )
+}
 
 /**
  * Apple Music style player bar, registered as the shell's persistent `nowPlaying` extension so it
- * survives navigation. Renders nothing (the bar stays hidden) while the queue is empty.
+ * survives navigation. Transport on the left, an "LCD" capsule in the centre, volume / cast /
+ * lyrics / queue on the right. Renders nothing while the queue is empty.
  */
 export function MiniPlayer() {
   const { t } = useTranslation('music')
   const track = useCurrentTrack()
   const hasLyricsView = useNowPlayingUi((s) => s.open && s.view === 'lyrics')
   const queueView = useNowPlayingUi((s) => s.open && s.view === 'queue')
-  const status = useMusicPlayer((s) => s.status)
   const outputName = useMusicOutputName((s) => s.name)
   if (!track) return null
+
+  const open = () => useNowPlayingUi.getState().show('player')
+  const subtitle = [trackArtist(track), track.Album].filter(Boolean).join(' — ')
 
   return (
     <div className="jrm-mini" role="region" aria-label={t('player.nowPlaying')}>
@@ -28,15 +66,15 @@ export function MiniPlayer() {
         <TransportButtons />
       </div>
 
-      <div className="jrm-mini__center jr-material-regular">
+      <div className="jrm-mini__capsule jr-material-regular">
         <button
           type="button"
           className="jrm-mini__info"
           aria-label={t('player.openNowPlaying')}
-          onClick={() => useNowPlayingUi.getState().show('player')}
+          onClick={open}
         >
           <Artwork
-            src={trackArt(track, 96)}
+            src={trackArt(track, 112)}
             ratio="1/1"
             shape="rounded"
             fallback={<Music />}
@@ -47,18 +85,11 @@ export function MiniPlayer() {
               {trackTitle(track)}
             </Text>
             <Text variant="footnote" color="secondary" truncate>
-              {[trackArtist(track), track.Album].filter(Boolean).join(' — ')}
+              {outputName ? i18n.t('cast:playingOn', { device: outputName }) : subtitle}
             </Text>
-            {outputName && (
-              <Text variant="caption" color="secondary" truncate>
-                {i18n.t('cast:playingOn', { device: outputName })}
-              </Text>
-            )}
           </span>
         </button>
-        <div className="jrm-mini__seek" data-loading={status === 'loading' || undefined}>
-          <SeekBar />
-        </div>
+        <CapsuleProgress />
       </div>
 
       <div className="jrm-mini__right">

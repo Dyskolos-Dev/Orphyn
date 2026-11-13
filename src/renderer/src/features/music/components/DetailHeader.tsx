@@ -41,7 +41,7 @@ export function DetailHeader({
         className="jrm-detail__art"
       />
       <div className="jrm-detail__info">
-        <Text variant="title-1" className="jrm-detail__title">
+        <Text variant="title-1" className="jrm-detail__title" data-page-title="">
           {item.Name}
         </Text>
         {subtitle && (

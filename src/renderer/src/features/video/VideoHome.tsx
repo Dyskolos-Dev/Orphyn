@@ -75,7 +75,7 @@ export function VideoHome() {
 
   if (views.isLoading) {
     return (
-      <ShellPage title={t('home.title')}>
+      <ShellPage title={t('home.title')} showBack={false}>
         <ShelfSkeleton landscape />
         <ShelfSkeleton />
       </ShellPage>
@@ -83,7 +83,7 @@ export function VideoHome() {
   }
   if (views.isError || !enabled) {
     return (
-      <ShellPage title={t('home.title')}>
+      <ShellPage title={t('home.title')} showBack={false}>
         <EmptyState
           icon={<Clapperboard />}
           title={views.isError ? t('home.loadError') : t('home.noLibrary.title')}
@@ -101,7 +101,11 @@ export function VideoHome() {
   const heroLoading = recent.isLoading
 
   return (
-    <ShellPage title={t('home.title')} header={featured.length > 0 ? 'hero' : 'large'}>
+    <ShellPage
+      title={t('home.title')}
+      header={featured.length > 0 ? 'hero' : 'large'}
+      showBack={false}
+    >
       {featured.length > 0 ? (
         <HeroCarousel items={featured} />
       ) : heroLoading ? (
