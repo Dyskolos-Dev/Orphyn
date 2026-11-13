@@ -5,8 +5,11 @@ episodes as **Watching Orphyn**, with the title, a progress bar and artwork.
 
 ## How it works
 
-- Main process: `src/main/discord/`. It talks to the local Discord client over IPC through
-  `@xhayper/discord-rpc`. The connection is lazy (first playback, or when Settings > Discord is
+- Native side: Electron keeps `src/main/discord/` (`@xhayper/discord-rpc`); the Tauri shell has the 1:1
+  Rust port in `src-tauri/src/discord/` (`discord-rich-presence` crate): `activity.rs` builds the activity,
+  `service.rs` is the testable state machine (lazy connect, rate limit, reconnect), `mod.rs` runs it on
+  one worker thread, stores the settings in `discord.json` (app data folder) and emits
+  `orphyn:discord:state-changed`. The connection is lazy (first playback, or when Settings > Discord is
   opened) and retried every 30 s while Discord is not running, without any log noise.
 - Renderer: `src/renderer/src/features/discord/` subscribes to the music player store and to the
   active video controller and sends a normalized presence over `window.orphyn.discord`.
@@ -39,10 +42,16 @@ Orphyn logo (asset `orphyn`) is used. The link points to your server; it never c
      `build/orphyn-logo-source.png` (2048 px) resized to 1024 px, or use `build/icon.png`, which is
      already 1024 px.
    - `pause`: a small pause glyph (white, on a transparent or dark background), 512 px.
-4. Asset keys must be exactly `orphyn` and `pause` (see `ASSET_LOGO` / `ASSET_PAUSE` in `config.ts`).
+4. Asset keys must be exactly `orphyn` and `pause` (see `ASSET_LOGO` / `ASSET_PAUSE` in `config.ts` and `activity.rs`).
    New assets can take a few minutes to appear in Discord.
 
 ## Testing it
 
-Run Discord on the same machine, start Orphyn with `npm run dev`, play a track, and check your
+Run Discord on the same machine, start Orphyn with `npm run dev` (Electron) or `npm run tauri:dev` (Tauri), play a track, and check your
 profile. In Discord, **Settings > Activity Privacy** must allow sharing the current activity.
+
+## Tests
+
+The Rust port keeps the Electron test cases: `cargo test discord` covers the activity rules (Listening /
+Watching, timestamps, paused, artwork only for public https hosts and never with an `api_key`, clipping)
+and the service (lazy connect, rate limit with last write wins, quiet reconnect, disable, artwork toggle).

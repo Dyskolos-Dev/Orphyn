@@ -1,0 +1,17 @@
+{
+  "openMusic": "Mini-lecteur (Image dans l'image)",
+  "openVideo": "Image dans l'image",
+  "close": "Fermer l'image dans l'image",
+  "moreActions": "Plus",
+  "backToOrphyn": "Retour à Orphyn",
+  "play": "Lecture",
+  "pause": "Pause",
+  "next": "Suivant",
+  "previous": "Précédent",
+  "seek": "Position",
+  "favorite": "Ajouter aux favoris",
+  "unfavorite": "Retirer des favoris",
+  "nothingPlaying": "Aucune lecture en cours",
+  "unavailable": "L'image dans l'image n'est pas disponible pour cette vidéo",
+  "loading": "Chargement…"
+}

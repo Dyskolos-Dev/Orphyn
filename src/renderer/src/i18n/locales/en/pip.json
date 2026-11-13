@@ -1,0 +1,17 @@
+{
+  "openMusic": "Mini player (Picture in Picture)",
+  "openVideo": "Picture in Picture",
+  "close": "Close Picture in Picture",
+  "moreActions": "More",
+  "backToOrphyn": "Back to Orphyn",
+  "play": "Play",
+  "pause": "Pause",
+  "next": "Next",
+  "previous": "Previous",
+  "seek": "Seek",
+  "favorite": "Add to Favorites",
+  "unfavorite": "Remove from Favorites",
+  "nothingPlaying": "Nothing is playing",
+  "unavailable": "Picture in Picture is not available for this video",
+  "loading": "Loading…"
+}

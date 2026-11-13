@@ -123,6 +123,8 @@ export interface PlayerControlsProps {
   onHoldChange(held: boolean): void
   /** Cast button (from the cast feature), shown beside the track menus. */
   castButton?: ReactNode
+  /** Picture in Picture toggle (hidden when the webview cannot do it). */
+  pipButton?: ReactNode
 }
 
 /** Overlay: top bar, centre transport, scrubber and bottom row. */
@@ -143,6 +145,7 @@ export function PlayerControls({
   onSelectSubtitle,
   onHoldChange,
   castButton,
+  pipButton,
 }: PlayerControlsProps) {
   const { t } = useTranslation('video')
   const [scrub, setScrub] = useState<number | null>(null)
@@ -308,6 +311,7 @@ export function PlayerControls({
               </TrackPopover>
             )}
             {castButton}
+            {pipButton}
             <IconButton
               variant="glass"
               icon={isFullscreen ? <Minimize /> : <Maximize />}

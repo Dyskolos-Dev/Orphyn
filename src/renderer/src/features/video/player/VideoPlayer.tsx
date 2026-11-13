@@ -1,5 +1,6 @@
 import { useQueryClient } from '@tanstack/react-query'
-import { Clapperboard } from 'lucide-react'
+import i18n from 'i18next'
+import { Clapperboard, PictureInPicture2 } from 'lucide-react'
 import {
   useCallback,
   useEffect,
@@ -11,7 +12,7 @@ import {
 } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router'
-import { Button, EmptyState, Spinner, Text, useWindowState } from '@renderer/design'
+import { Button, EmptyState, IconButton, Spinner, Text, useWindowState } from '@renderer/design'
 import { imageUrl, jfKeys, useEpisodes, useItem, useSession } from '@renderer/jellyfin'
 import { useShellImmersive } from '@renderer/shell'
 import { landscapeImage, playPath } from '../cards'
@@ -21,6 +22,8 @@ import { useVideoPlaybackPreferences } from '../preferences'
 import { pickInitialAudio, pickInitialSubtitle } from '../tracks'
 import { upNextState } from '../upNext'
 import { PlayerControls } from './PlayerControls'
+import { useVideoMediaControls } from './useVideoMediaControls'
+import { useVideoPip } from './useVideoPip'
 import { setActiveController } from '../active'
 import { VideoCastButtonSlot, VideoCastScreenSlot, type VideoCastProps } from '../castSlot'
 
@@ -225,8 +228,18 @@ export function VideoPlayer() {
 
   // --- media session (OS media keys / now playing)
   const data = item.data
+  const nativeControls = useVideoMediaControls({
+    controller,
+    title: data?.SeriesName ?? data?.Name ?? '',
+    artist: data?.SeriesName ? (data.Name ?? undefined) : undefined,
+    album: data?.SeasonName ?? undefined,
+    artworkUrl: data ? landscapeImage(data, 512) : undefined,
+    snapshot,
+    playNext: next ? playNext : undefined,
+  })
   useEffect(() => {
-    if (!('mediaSession' in navigator) || !data) return
+    // The native OS controls (Tauri shell) replace navigator.mediaSession: one entry in the OS panel.
+    if (nativeControls || !('mediaSession' in navigator) || !data) return
     const ms = navigator.mediaSession
     const art = landscapeImage(data, 512)
     ms.metadata = new MediaMetadata({
@@ -254,12 +267,12 @@ export function VideoPlayer() {
       )
       ms.metadata = null
     }
-  }, [data, controller, seekBy, next, playNext])
+  }, [nativeControls, data, controller, seekBy, next, playNext])
   useEffect(() => {
-    if ('mediaSession' in navigator) {
+    if (!nativeControls && 'mediaSession' in navigator) {
       navigator.mediaSession.playbackState = snapshot.status === 'playing' ? 'playing' : 'paused'
     }
-  }, [snapshot.status])
+  }, [nativeControls, snapshot.status])
 
   const subtitleTracks = (snapshot.tracks?.subtitles ?? []).filter((s) => s.vttUrl)
   const title = data?.SeriesName ?? data?.Name ?? ''
@@ -274,6 +287,7 @@ export function VideoPlayer() {
           .filter(Boolean)
           .join(' · ')
       : undefined
+  const pip = useVideoPip({ controller, videoRef, itemId, title, subtitle })
   const failed = snapshot.status === 'error'
   const loading = snapshot.status === 'loading'
   const showUpNext = up.visible || (ended && Boolean(next) && !prefs.autoPlayNext)
@@ -360,6 +374,17 @@ export function VideoPlayer() {
           onSelectSubtitle={(s) => void controller.selectSubtitle(s ? s.index : -1)}
           onHoldChange={setHeld}
           castButton={<VideoCastButtonSlot {...castProps} />}
+          pipButton={
+            pip.available ? (
+              <IconButton
+                variant="glass"
+                icon={<PictureInPicture2 />}
+                label={i18n.t('pip:openVideo')}
+                pressed={pip.active}
+                onClick={() => void pip.toggle()}
+              />
+            ) : undefined
+          }
         />
       )}
 

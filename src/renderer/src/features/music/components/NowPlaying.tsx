@@ -4,7 +4,10 @@ import { useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
-import { Artwork, IconButton, SegmentedControl, springs, Text } from '@renderer/design'
+import { Artwork, IconButton, MenuButton, SegmentedControl, springs, Text } from '@renderer/design'
+import { PipButton } from '@renderer/features/pip/PipButton'
+import { CurrentTrackHeart } from '../player/CurrentTrackHeart'
+import { useTrackMenuWithPlaylists } from '../playlists/menus'
 import { LyricsView } from '../lyrics/LyricsView'
 import { useCurrentTrack } from '../player/api'
 import { trackArt, trackArtist, trackArtistId, trackTitle } from '../player/track'
@@ -32,9 +35,11 @@ export function NowPlaying() {
 
 function Sheet() {
   const { t } = useTranslation('music')
+  const { t: tp } = useTranslation('pip')
   const view = useNowPlayingUi((s) => s.view)
   const track = useCurrentTrack()
   const closeRef = useRef<HTMLButtonElement>(null)
+  const buildMenu = useTrackMenuWithPlaylists()
   const art = trackArt(track, 640)
   const bg = trackArt(track, 160)
 
@@ -102,7 +107,12 @@ function Sheet() {
             { value: 'queue', label: t('player.queue') },
           ]}
         />
-        <div className="jrm-np__header-end">
+        <div className="jrm-np__header-end" style={{ alignItems: 'center', gap: 8 }}>
+          <CurrentTrackHeart variant="glass" />
+          {track && (
+            <MenuButton variant="glass" label={tp('moreActions')} items={buildMenu(track)} />
+          )}
+          <PipButton kind="music" variant="glass" />
           <CastButtonSlot />
         </div>
       </header>

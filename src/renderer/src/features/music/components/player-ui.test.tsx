@@ -14,6 +14,9 @@ const lyricsMock = vi.hoisted(() => ({
 vi.mock('@renderer/jellyfin', async (orig) => ({
   ...(await orig<typeof import('@renderer/jellyfin')>()),
   useLyrics: () => ({ data: lyricsMock.data, isLoading: false }),
+  // The heart and the track menu read the favourite state (react-query, not set up here).
+  useIsFavorite: () => false,
+  useToggleFavorite: () => ({ mutate: vi.fn() }),
 }))
 
 // The real engine would try to load tracks (no session in tests): keep it out.

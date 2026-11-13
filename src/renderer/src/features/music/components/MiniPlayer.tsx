@@ -9,6 +9,9 @@ import { trackArt, trackArtist, trackTitle } from '../player/track'
 import { CastButtonSlot } from './CastButtonSlot'
 import { TransportButtons, useTrackDuration, VolumeControl } from './Transport'
 import { useNowPlayingUi } from './ui-state'
+import { PipButton } from '@renderer/features/pip/PipButton'
+import { useMusicPipHost } from '@renderer/features/pip/useMusicPipHost'
+import { CurrentTrackHeart } from '../player/CurrentTrackHeart'
 
 /** Thin progress line at the bottom of the capsule; elapsed / remaining show on hover. */
 function CapsuleProgress() {
@@ -52,6 +55,7 @@ function CapsuleProgress() {
 export function MiniPlayer() {
   const { t } = useTranslation('music')
   const track = useCurrentTrack()
+  useMusicPipHost()
   const hasLyricsView = useNowPlayingUi((s) => s.open && s.view === 'lyrics')
   const queueView = useNowPlayingUi((s) => s.open && s.view === 'queue')
   const outputName = useMusicOutputName((s) => s.name)
@@ -89,6 +93,10 @@ export function MiniPlayer() {
                 </Text>
               </span>
             </button>
+            <CurrentTrackHeart
+              size="small"
+              style={{ flex: 'none', marginBottom: 8, marginRight: 4 }}
+            />
             <CapsuleProgress />
           </>
         ) : (
@@ -106,6 +114,7 @@ export function MiniPlayer() {
       <div className="jrm-mini__right">
         <VolumeControl />
         <CastButtonSlot />
+        <PipButton kind="music" />
         <IconButton
           icon={<MessageSquareQuote />}
           label={t('player.lyrics')}
