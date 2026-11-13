@@ -65,7 +65,6 @@ export class CastManager {
   }
 
   async load(deviceId: string, media: CastMedia): Promise<void> {
-    const session = this.sessionFor(deviceId, true)
     const device = this.deps.getDevice(deviceId)
     if (device && media.kind === 'video' && !device.capabilities.video) {
       throw new Error(`${device.name} cannot play video`)
@@ -73,7 +72,7 @@ export class CastManager {
     if (device && !device.capabilities.audio && !device.capabilities.video) {
       throw new Error(`${device.name} is not supported for playback`)
     }
-    await session.load(media)
+    await this.sessionFor(deviceId, true).load(media)
   }
 
   async play(deviceId: string): Promise<void> {

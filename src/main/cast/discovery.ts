@@ -1,5 +1,5 @@
 import http from 'node:http'
-import Bonjour, { type Browser, type Service } from 'bonjour-service'
+import Bonjour from 'bonjour-service'
 import { Client as SsdpClient } from 'node-ssdp'
 import type { CastDevice } from '@shared/cast'
 import { airplayDeviceFromService } from './airplay-txt'
@@ -48,10 +48,28 @@ export function fetchText(url: string, timeoutMs = 4000): Promise<string> {
   })
 }
 
+/** The slice of bonjour-service's Browser/Bonjour that Discovery uses (injectable for tests). */
+export interface MdnsBrowserLike {
+  on(event: 'up' | 'down', cb: (s: MdnsService) => void): unknown
+  stop(): void
+  update(): void
+  readonly services: MdnsService[]
+}
+export interface MdnsLike {
+  find(opts: { type: string }, onup: (s: MdnsService) => void): MdnsBrowserLike
+  destroy(): void
+}
+export interface DiscoveryOptions {
+  createMdns?: (onError: (err: Error) => void) => MdnsLike
+  enableSsdp?: boolean
+  rescanMs?: number
+  sweepMs?: number
+}
+
 /** Runs mDNS (Cast, AirPlay) and SSDP (UPnP MediaRenderer) discovery into a DeviceRegistry. */
 export class Discovery {
-  private bonjour: Bonjour | null = null
-  private browsers: Browser[] = []
+  private bonjour: MdnsLike | null = null
+  private watchers: Array<{ browser: MdnsBrowserLike; up: (s: MdnsService) => void }> = []
   private ssdp: SsdpClient | null = null
   private rescanTimer: ReturnType<typeof setInterval> | null = null
   private sweepTimer: ReturnType<typeof setInterval> | null = null
@@ -62,7 +80,10 @@ export class Discovery {
   private readonly inflight = new Set<string>()
   private readonly airplayIds = new Set<string>()
 
-  constructor(private readonly registry: DeviceRegistry) {}
+  constructor(
+    private readonly registry: DeviceRegistry,
+    private readonly opts: DiscoveryOptions = {},
+  ) {}
 
   isRunning(): boolean {
     return this.running
@@ -77,9 +98,9 @@ export class Discovery {
     this.running = true
     log.info('discovery started')
     this.startMdns()
-    this.startSsdp()
-    this.rescanTimer = setInterval(() => this.rescan(), RESCAN_MS)
-    this.sweepTimer = setInterval(() => this.registry.sweep(), SWEEP_MS)
+    if (this.opts.enableSsdp !== false) this.startSsdp()
+    this.rescanTimer = setInterval(() => this.rescan(), this.opts.rescanMs ?? RESCAN_MS)
+    this.sweepTimer = setInterval(() => this.registry.sweep(), this.opts.sweepMs ?? SWEEP_MS)
   }
 
   stop(): void {
@@ -89,14 +110,14 @@ export class Discovery {
     if (this.rescanTimer) clearInterval(this.rescanTimer)
     if (this.sweepTimer) clearInterval(this.sweepTimer)
     this.rescanTimer = this.sweepTimer = null
-    for (const b of this.browsers) {
+    for (const { browser: b } of this.watchers) {
       try {
         b.stop()
       } catch (e) {
         log.warn('mdns browser stop failed:', errorMessage(e))
       }
     }
-    this.browsers = []
+    this.watchers = []
     try {
       this.bonjour?.destroy()
     } catch (e) {
@@ -110,12 +131,19 @@ export class Discovery {
     }
     this.ssdp = null
     this.inflight.clear()
+    // Drop anything that expired while running; stale entries must not linger after stop.
+    this.registry.sweep()
   }
 
   private rescan(): void {
-    for (const b of this.browsers) {
+    for (const { browser, up } of this.watchers) {
+      // bonjour-service emits 'up' only for the first sighting of a service, so refresh the
+      // registry's last-seen time from the services the browser still knows about.
+      this.safe(() => {
+        for (const s of browser.services) up(s)
+      })
       try {
-        b.update()
+        browser.update()
       } catch (e) {
         log.warn('mdns update failed:', errorMessage(e))
       }
@@ -125,19 +153,19 @@ export class Discovery {
 
   private startMdns(): void {
     try {
-      const bonjour = new Bonjour(undefined, (err: Error) =>
-        log.warn('mdns error:', errorMessage(err)),
-      )
+      const onError = (err: Error): void => log.warn('mdns error:', errorMessage(err))
+      const bonjour: MdnsLike =
+        this.opts.createMdns?.(onError) ?? (new Bonjour(undefined, onError) as unknown as MdnsLike)
       this.bonjour = bonjour
       const watch = (
         type: string,
         up: (s: MdnsService) => void,
         down: (s: MdnsService) => void,
       ): void => {
-        const browser = bonjour.find({ type }, (s: Service) => this.safe(() => up(s)))
-        browser.on('up', (s: Service) => this.safe(() => up(s)))
-        browser.on('down', (s: Service) => this.safe(() => down(s)))
-        this.browsers.push(browser)
+        const browser = bonjour.find({ type }, (s) => this.safe(() => up(s)))
+        browser.on('up', (s) => this.safe(() => up(s)))
+        browser.on('down', (s) => this.safe(() => down(s)))
+        this.watchers.push({ browser, up })
       }
       watch(
         'googlecast',

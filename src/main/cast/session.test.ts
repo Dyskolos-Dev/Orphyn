@@ -423,6 +423,7 @@ describe('CastManager', () => {
       },
     })
     await expect(m.load(d.id, { ...media, kind: 'video' })).rejects.toThrow(/cannot play video/)
+    expect(m.getSession(d.id)).toBeNull() // a rejected load leaves no session behind
     await m.load(d.id, media)
     expect(m.getSession(d.id)?.status).toBe('buffering')
     await m.dispose()
