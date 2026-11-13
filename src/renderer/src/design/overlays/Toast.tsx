@@ -13,6 +13,8 @@ export interface ToastOptions {
   icon?: ReactNode
   /** One inline action, e.g. Undo. */
   action?: { label: string; onClick(): void }
+  /** Text button replacing the close icon (e.g. Later). */
+  dismissLabel?: string
   /** ms before it hides; `Infinity` keeps it until dismissed. Default 4000. */
   duration?: number
   /** `error` is announced assertively. */
@@ -139,14 +141,20 @@ function ToastItem({ toast: t }: { toast: ToastRecord }) {
           {t.action.label}
         </button>
       )}
-      <button
-        type="button"
-        className="jr-toast__close"
-        aria-label={tr('design.dismiss')}
-        onClick={() => dismissToast(t.id)}
-      >
-        <X size={14} strokeWidth={2.5} aria-hidden="true" />
-      </button>
+      {t.dismissLabel ? (
+        <button type="button" className="jr-toast__action" onClick={() => dismissToast(t.id)}>
+          {t.dismissLabel}
+        </button>
+      ) : (
+        <button
+          type="button"
+          className="jr-toast__close"
+          aria-label={tr('design.dismiss')}
+          onClick={() => dismissToast(t.id)}
+        >
+          <X size={14} strokeWidth={2.5} aria-hidden="true" />
+        </button>
+      )}
     </motion.div>
   )
 }

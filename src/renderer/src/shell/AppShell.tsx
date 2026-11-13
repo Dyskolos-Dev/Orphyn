@@ -1,12 +1,14 @@
 import clsx from 'clsx'
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Outlet, useLocation } from 'react-router'
+import { Outlet, useLocation, useNavigate } from 'react-router'
 import { ThemeProvider, ToastViewport, useWindowState } from '@renderer/design'
 import { applyWindowStateToDocument } from '@renderer/design/platform'
 import { ShellContext, useImmersiveState, type ShellContextValue } from './context'
 import { useShellExtensions, type ShellExtension } from './registry'
 import { ShellSidebar } from './ShellSidebar'
+import { UpdateNotice } from './UpdateNotice'
+import { useLibraryRefresh, useLibraryRefreshTriggers } from './useLibraryRefresh'
 import './shell.css'
 
 /**
@@ -40,6 +42,10 @@ function ShellLayout() {
   const [immersive, setImmersiveCount] = useImmersiveState()
 
   const { platform, isFullscreen, isMaximized, isFocused, material } = windowState
+  const { refresh, fetching } = useLibraryRefresh()
+  useLibraryRefreshTriggers(platform, refresh)
+  const navigate = useNavigate()
+  useEffect(() => window.lumen?.app?.onOpenSettings(() => void navigate('/settings')), [navigate])
   useEffect(() => {
     applyWindowStateToDocument(platform, { isFullscreen, isMaximized, isFocused, material })
   }, [platform, isFullscreen, isMaximized, isFocused, material])
@@ -72,7 +78,12 @@ function ShellLayout() {
     <ShellContext.Provider value={ctx}>
       <div className={clsx('jr-shell', immersive && 'jr-shell--immersive')}>
         <div className="jr-shell__sidebar" hidden={immersive}>
-          <ShellSidebar searchRef={searchRef} serverSwitcherRef={setServerSwitcherTarget} />
+          <ShellSidebar
+            searchRef={searchRef}
+            serverSwitcherRef={setServerSwitcherTarget}
+            onRefresh={refresh}
+            refreshing={fetching}
+          />
         </div>
         <div className="jr-shell__main">
           <main ref={scrollRef} className="jr-shell__scroll">
@@ -95,6 +106,7 @@ function ShellLayout() {
           return Background ? <Background key={e.id} /> : null
         })}
         <ToastViewport />
+        <UpdateNotice />
       </div>
     </ShellContext.Provider>
   )

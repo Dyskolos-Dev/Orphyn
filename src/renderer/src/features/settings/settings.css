@@ -103,3 +103,16 @@
   opacity: 0;
   cursor: default;
 }
+
+.jr-settings__credit {
+  display: block;
+  margin-top: var(--space-4);
+  text-align: center;
+}
+.jr-settings__credit a {
+  color: var(--link);
+  text-decoration: none;
+}
+.jr-settings__credit a:hover {
+  text-decoration: underline;
+}

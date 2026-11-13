@@ -128,3 +128,32 @@ body:has(.jr-shell__now-playing:not(:empty):not([hidden])) {
   padding-left: var(--page-gutter);
   padding-right: var(--page-gutter);
 }
+
+/* ---------------- Refresh button (next to the server switcher) ---------------- */
+.jr-shell__footer-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  margin-bottom: var(--space-1);
+}
+.jr-shell__footer-row .jr-shell__server-switcher {
+  flex: 1;
+  min-width: 0;
+  margin-bottom: 0;
+}
+.jr-shell__refresh {
+  flex-shrink: 0;
+}
+.jr-shell__refresh[data-spinning] svg {
+  animation: jr-refresh-spin 0.9s linear infinite;
+}
+@keyframes jr-refresh-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .jr-shell__refresh[data-spinning] svg {
+    animation-duration: 2.5s;
+  }
+}

@@ -73,3 +73,13 @@ export function useWindowState(): UseWindowStateResult {
 
   return { ...state, platform: getPlatform(), setFullscreen, toggleMaximize }
 }
+
+/** Modifier shown in shortcut hints: ⌘ on macOS, Ctrl elsewhere. */
+export function modifierLabel(platform: Platform = getPlatform()): string {
+  return platform === 'darwin' ? '⌘' : 'Ctrl+'
+}
+
+/** `formatShortcut('R')` -> "⌘R" on macOS, "Ctrl+R" elsewhere. */
+export function formatShortcut(key: string, platform: Platform = getPlatform()): string {
+  return `${modifierLabel(platform)}${key}`
+}

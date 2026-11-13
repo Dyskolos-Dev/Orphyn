@@ -10,6 +10,7 @@ export { normalizeServerUrl, urlCandidates } from './url'
 export { buildImageUrl, imageUrl } from './images'
 export type { ImageOptions } from './images'
 export { jfKeys } from './keys'
+export { refreshLibrary, shouldRefreshOnFocus, REFRESH_AFTER_BLUR_MS } from './refresh'
 export * from './hooks'
 export * from './playback'
 export type {

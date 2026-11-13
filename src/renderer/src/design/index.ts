@@ -17,7 +17,7 @@ export {
 } from './theme/theme'
 
 // Platform / window
-export { getPlatform, useWindowState } from './platform'
+export { formatShortcut, getPlatform, modifierLabel, useWindowState } from './platform'
 export type { Platform, UseWindowStateResult } from './platform'
 
 // Motion presets

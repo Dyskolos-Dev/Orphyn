@@ -39,5 +39,16 @@
     "explicit": "Explicit",
     "nowPlaying": "Now playing",
     "trackNumber": "Track {{number}}"
+  },
+  "refresh": {
+    "label": "Refresh library"
+  },
+  "update": {
+    "ready": "Lumen {{version}} is ready",
+    "readyHint": "Restart to update",
+    "restart": "Restart",
+    "later": "Later",
+    "available": "Lumen {{version}} is available",
+    "download": "Download"
   }
 }

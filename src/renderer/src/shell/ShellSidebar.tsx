@@ -6,13 +6,21 @@ import {
   ListMusic,
   MicVocal,
   Music,
+  RotateCw,
   Settings,
   Tv,
 } from 'lucide-react'
 import { useState, type ReactNode, type Ref } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLocation, useNavigate, useSearchParams } from 'react-router'
-import { SearchField, Sidebar, SidebarItem, SidebarSection } from '@renderer/design'
+import {
+  formatShortcut,
+  IconButton,
+  SearchField,
+  Sidebar,
+  SidebarItem,
+  SidebarSection,
+} from '@renderer/design'
 import { useShellExtensions, type ShellSidebarEntry, type ShellSidebarSection } from './registry'
 
 /**
@@ -92,6 +100,8 @@ export interface ShellSidebarProps {
   searchRef?: Ref<HTMLInputElement>
   /** Element the server-switcher slot portals into. */
   serverSwitcherRef: Ref<HTMLDivElement>
+  onRefresh?: () => void
+  refreshing?: boolean
 }
 
 interface Entry {
@@ -103,7 +113,12 @@ interface Entry {
 }
 
 /** The Apple Music-style sidebar of the app shell. */
-export function ShellSidebar({ searchRef, serverSwitcherRef }: ShellSidebarProps) {
+export function ShellSidebar({
+  searchRef,
+  serverSwitcherRef,
+  onRefresh,
+  refreshing,
+}: ShellSidebarProps) {
   const { t } = useTranslation('shell')
   const extensions = useShellExtensions()
   const location = useLocation()
@@ -158,11 +173,24 @@ export function ShellSidebar({ searchRef, serverSwitcherRef }: ShellSidebarProps
       }
       footer={
         <>
-          <div ref={serverSwitcherRef} className="jr-shell__server-switcher">
-            {switchers.map((e) => {
-              const Switcher = e.serverSwitcher!
-              return <Switcher key={e.id} />
-            })}
+          <div className="jr-shell__footer-row">
+            <div ref={serverSwitcherRef} className="jr-shell__server-switcher">
+              {switchers.map((e) => {
+                const Switcher = e.serverSwitcher!
+                return <Switcher key={e.id} />
+              })}
+            </div>
+            {onRefresh && (
+              <IconButton
+                className="jr-shell__refresh"
+                data-spinning={refreshing || undefined}
+                icon={<RotateCw />}
+                label={t('refresh.label')}
+                title={`${t('refresh.label')} (${formatShortcut('R')})`}
+                size="small"
+                onClick={onRefresh}
+              />
+            )}
           </div>
           <ul className="jr-sidebar-section__list">
             <SidebarItem icon={<Settings />} label={t('nav.settings')} to="/settings" />

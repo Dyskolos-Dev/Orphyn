@@ -117,6 +117,27 @@
     "docs": "Jellyfin documentation",
     "tokenStorage": "Sign-in storage",
     "encrypted": "Encrypted with your system keychain",
-    "notEncrypted": "Memory only (no secure storage available)"
+    "notEncrypted": "Memory only (no secure storage available)",
+    "notEncryptedLinux": "Memory only: no keyring found. Install and unlock GNOME Keyring or KWallet to keep your sign-in",
+    "updates": "Updates",
+    "checkForUpdates": "Check for updates",
+    "autoUpdate": "Automatic updates",
+    "autoUpdateDescription": "Check for a new version at launch and every few hours.",
+    "status": {
+      "idle": "Not checked yet",
+      "checking": "Checking…",
+      "up-to-date": "Lumen is up to date",
+      "available": "Lumen {{version}} is available",
+      "downloading": "Downloading {{version}}… {{percent}}%",
+      "ready": "Lumen {{version}} is ready. Restart to update",
+      "error": "Update failed: {{error}}",
+      "unsupported": "Updates are only checked in installed builds"
+    },
+    "download": "Download",
+    "restart": "Restart",
+    "credit": {
+      "before": "Made with ❤️ by ",
+      "author": "Dyskolos_"
+    }
   }
 }
