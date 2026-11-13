@@ -69,6 +69,8 @@ describe('buildActivity', () => {
     expect(a.largeImageKey).toBe(art)
     expect(a.largeImageText).toBe('Album')
     expect(a.smallImageKey).toBe('lumen')
+    expect(a.largeImageUrl).toBe('https://lumen.dyskolos.fr')
+    expect(a.smallImageUrl).toBe('https://lumen.dyskolos.fr')
   })
 
   it('falls back to the logo without artwork', () => {

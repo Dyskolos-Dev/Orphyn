@@ -15,3 +15,6 @@ export const ASSET_PAUSE = 'pause'
 /** Discord allows 5 updates / 20 s: stay well under it. */
 export const MIN_UPDATE_INTERVAL_MS = 2000
 export const RECONNECT_INTERVAL_MS = 30_000
+
+/** Where a click on the presence's large or small image leads. */
+export const LUMEN_WEBSITE_URL = 'https://lumen.dyskolos.fr'

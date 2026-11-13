@@ -1,5 +1,5 @@
 import type { DiscordPresence, DiscordSettings } from '@shared/ipc/discord'
-import { ASSET_LOGO, ASSET_PAUSE } from './config'
+import { ASSET_LOGO, ASSET_PAUSE, LUMEN_WEBSITE_URL } from './config'
 
 /** Discord activity types (discord-api-types `ActivityType`). */
 export const ACTIVITY_LISTENING = 2
@@ -16,6 +16,8 @@ export interface Activity {
   largeImageText?: string
   smallImageKey: string
   smallImageText?: string
+  largeImageUrl?: string
+  smallImageUrl?: string
 }
 
 const SECRET_PARAMS = ['api_key', 'apikey', 'x-emby-token', 'x-mediabrowser-token', 'token']
@@ -110,6 +112,8 @@ export function buildActivity(
     largeImageText: clip(largeText),
     smallImageKey: ASSET_LOGO,
     smallImageText: 'Lumen',
+    largeImageUrl: LUMEN_WEBSITE_URL,
+    smallImageUrl: LUMEN_WEBSITE_URL,
   }
 
   if (presence.paused) {

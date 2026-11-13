@@ -45,6 +45,8 @@ export interface TextProps {
   className?: string
   style?: CSSProperties
   children?: ReactNode
+  /** `data-*` attributes are forwarded (e.g. `data-page-title` for ShellPage). */
+  [data: `data-${string}`]: string | undefined
 }
 
 const WEIGHT = { regular: 400, medium: 500, semibold: 600, bold: 700 } as const
@@ -62,10 +64,12 @@ export function Text({
   style,
   children,
   id,
+  ...data
 }: TextProps) {
   const Tag = as ?? DEFAULT_TAG[variant]
   return (
     <Tag
+      {...data}
       id={id}
       className={clsx(
         `jr-text-${variant}`,
