@@ -1,0 +1,10 @@
+// Public API of the music feature. Other features (search, cast) import only from here.
+export { musicPlayer, useMusicPlayer, useCurrentTrack } from './player/api'
+export { CastButtonSlot, registerCastButton } from './components/CastButtonSlot'
+export { useNowPlayingUi } from './components/ui-state'
+export { EXCLUSIVE_PLAYBACK_EVENT } from './player/engine'
+export type { ExclusivePlaybackDetail } from './player/engine'
+export type { AudioOutput, LoadOptions, OutputEvent, OutputListener } from './player/output'
+export type { PlayerState } from './player/store'
+export type { PlayerStatus, QueueItem, RepeatMode, Track } from './player/types'
+export { musicRoutes } from './routes'

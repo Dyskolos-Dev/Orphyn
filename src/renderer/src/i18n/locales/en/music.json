@@ -1,0 +1,130 @@
+{
+  "nav": {
+    "albums": "Albums",
+    "artists": "Artists",
+    "playlists": "Playlists",
+    "songs": "Songs"
+  },
+  "home": {
+    "title": "Listen Now",
+    "empty": "Nothing to listen to yet",
+    "emptyHint": "Add a music library to your Jellyfin server and it will show up here.",
+    "recentlyPlayed": "Recently Played",
+    "recentlyAdded": "Recently Added",
+    "instantMix": "Instant Mix",
+    "instantMixFrom": "Based on {{name}}",
+    "favoriteAlbums": "Favorite Albums",
+    "favoriteArtists": "Favorite Artists",
+    "playlists": "Playlists"
+  },
+  "library": {
+    "count_one": "{{count}} item",
+    "count_other": "{{count}} items",
+    "songCount_one": "{{count}} song",
+    "songCount_other": "{{count}} songs",
+    "sort": "Sort",
+    "error": "Couldn't load your library",
+    "retry": "Try Again",
+    "loading": "Loading…"
+  },
+  "sort": {
+    "name": "Name",
+    "artist": "Artist",
+    "year": "Year",
+    "added": "Date Added"
+  },
+  "albums": {
+    "empty": "No Albums",
+    "emptyHint": "Albums from your music library will appear here."
+  },
+  "artists": {
+    "empty": "No Artists",
+    "emptyHint": "Artists from your music library will appear here."
+  },
+  "playlists": {
+    "empty": "No Playlists",
+    "emptyHint": "Playlists you create in Jellyfin will appear here."
+  },
+  "songs": {
+    "empty": "No Songs",
+    "emptyHint": "Songs from your music library will appear here.",
+    "title": "Song",
+    "artist": "Artist",
+    "album": "Album",
+    "time": "Time"
+  },
+  "album": {
+    "disc": "Disc {{n}}",
+    "notFound": "Album not found",
+    "footer_one": "{{count}} song",
+    "footer_other": "{{count}} songs",
+    "durationMinutes": "{{minutes}} min",
+    "durationHours": "{{hours}} h {{minutes}} min",
+    "moreBy": "More by {{artist}}"
+  },
+  "playlist": {
+    "notFound": "Playlist not found",
+    "kind": "Playlist",
+    "empty": "This playlist is empty"
+  },
+  "artist": {
+    "notFound": "Artist not found",
+    "eyebrow": "Artist",
+    "topSongs": "Top Songs",
+    "albums": "Albums",
+    "singles": "Singles & EPs",
+    "appearsOn": "Appears On",
+    "similar": "Similar Artists"
+  },
+  "actions": {
+    "play": "Play",
+    "shuffle": "Shuffle",
+    "playNext": "Play Next",
+    "addToQueue": "Add to Queue",
+    "favorite": "Favorite",
+    "unfavorite": "Remove from Favorites",
+    "goToAlbum": "Go to Album",
+    "goToArtist": "Go to Artist",
+    "more": "More"
+  },
+  "player": {
+    "controls": "Playback controls",
+    "shuffle": "Shuffle",
+    "previous": "Previous",
+    "play": "Play",
+    "pause": "Pause",
+    "next": "Next",
+    "repeat": {
+      "off": "Repeat: off",
+      "all": "Repeat: all",
+      "one": "Repeat: one"
+    },
+    "seek": "Seek",
+    "mute": "Mute",
+    "unmute": "Unmute",
+    "volume": "Volume",
+    "nowPlaying": "Now Playing",
+    "openNowPlaying": "Open Now Playing",
+    "lyrics": "Lyrics",
+    "queue": "Up Next",
+    "close": "Close",
+    "view": "View",
+    "unplayable": "Can't play “{{title}}”, skipped",
+    "loadFailed": "Couldn't start playback"
+  },
+  "queue": {
+    "title": "Up Next",
+    "empty": "The queue is empty",
+    "clear": "Clear",
+    "play": "Play {{title}}",
+    "remove": "Remove {{title}}",
+    "playing": "Playing",
+    "addedNext": "Playing next",
+    "addedLast": "Added to the queue"
+  },
+  "lyrics": {
+    "title": "Lyrics",
+    "none": "No lyrics",
+    "noneHint": "This song has no lyrics on your server."
+  }
+}

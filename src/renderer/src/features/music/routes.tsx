@@ -1,14 +1,23 @@
 import type { RouteObject } from 'react-router'
-import { StubPage } from '@renderer/shell/StubPage'
+import './music.css'
+import './register'
+import { AlbumPage } from './pages/AlbumPage'
+import { AlbumsPage } from './pages/AlbumsPage'
+import { ArtistPage } from './pages/ArtistPage'
+import { ArtistsPage } from './pages/ArtistsPage'
+import { HomePage } from './pages/HomePage'
+import { PlaylistPage } from './pages/PlaylistPage'
+import { PlaylistsPage } from './pages/PlaylistsPage'
+import { SongsPage } from './pages/SongsPage'
 
 /** Route table for the music feature. Owned by the music agent. */
 export const musicRoutes: RouteObject[] = [
-  { path: '/music', element: <StubPage name="Music home" /> },
-  { path: '/music/albums', element: <StubPage name="Albums" /> },
-  { path: '/music/artists', element: <StubPage name="Artists" /> },
-  { path: '/music/playlists', element: <StubPage name="Playlists" /> },
-  { path: '/music/songs', element: <StubPage name="Songs" /> },
-  { path: '/music/album/:id', element: <StubPage name="Album" /> },
-  { path: '/music/artist/:id', element: <StubPage name="Artist" /> },
-  { path: '/music/playlist/:id', element: <StubPage name="Playlist" /> },
+  { path: '/music', element: <HomePage /> },
+  { path: '/music/albums', element: <AlbumsPage /> },
+  { path: '/music/artists', element: <ArtistsPage /> },
+  { path: '/music/playlists', element: <PlaylistsPage /> },
+  { path: '/music/songs', element: <SongsPage /> },
+  { path: '/music/album/:id', element: <AlbumPage /> },
+  { path: '/music/artist/:id', element: <ArtistPage /> },
+  { path: '/music/playlist/:id', element: <PlaylistPage /> },
 ]
