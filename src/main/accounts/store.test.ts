@@ -1,0 +1,103 @@
+// @vitest-environment node
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
+import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { AccountStore, type SecureStorage } from './store'
+
+const fakeStorage = (available = true, backend?: string): SecureStorage => ({
+  isEncryptionAvailable: () => available,
+  encryptString: (s) => Buffer.from(`enc:${[...s].reverse().join('')}`),
+  decryptString: (b) => [...b.toString().slice(4)].reverse().join(''),
+  getSelectedStorageBackend: backend ? () => backend : undefined,
+})
+
+const input = (over = {}) => ({
+  name: 'Home',
+  url: 'http://nas:8096',
+  serverId: 's1',
+  serverName: 'NAS',
+  version: '10.10.3',
+  userId: 'u1',
+  userName: 'bob',
+  accessToken: 'SECRET-TOKEN',
+  ...over,
+})
+
+let dir: string
+let file: string
+beforeEach(() => {
+  dir = mkdtempSync(join(tmpdir(), 'jellyra-acc-'))
+  file = join(dir, 'accounts.json')
+})
+afterEach(() => rmSync(dir, { recursive: true, force: true }))
+
+describe('AccountStore', () => {
+  it('encrypts the token on disk and restores it', () => {
+    const s = new AccountStore({ filePath: file, storage: fakeStorage() })
+    const acc = s.add(input())
+    const raw = readFileSync(file, 'utf8')
+    expect(raw).not.toContain('SECRET-TOKEN')
+    expect(raw).not.toMatch(/password/i)
+    expect(JSON.parse(raw).accounts[0].accessToken).toBeTruthy()
+    const s2 = new AccountStore({ filePath: file, storage: fakeStorage() })
+    expect(s2.getToken(acc.id)).toBe('SECRET-TOKEN')
+    expect(s2.list()[0]).toMatchObject({ name: 'Home', hasToken: true })
+    expect(s2.list()[0]).not.toHaveProperty('accessToken')
+  })
+
+  it('keeps the token in memory only when encryption is unavailable', () => {
+    for (const storage of [fakeStorage(false), fakeStorage(true, 'basic_text')]) {
+      const s = new AccountStore({ filePath: file, storage })
+      const acc = s.add(input({ serverId: `s-${Math.random()}` }))
+      expect(s.getStatus().encrypted).toBe(false)
+      expect(s.getStatus().warning).toBeTruthy()
+      expect(s.getToken(acc.id)).toBe('SECRET-TOKEN')
+      expect(readFileSync(file, 'utf8')).not.toContain('SECRET-TOKEN')
+      const s2 = new AccountStore({ filePath: file, storage })
+      expect(s2.getToken(acc.id)).toBeNull()
+      expect(s2.list().find((a) => a.id === acc.id)?.hasToken).toBe(false)
+    }
+  })
+
+  it('keeps several servers, the first becomes active, setActive switches', () => {
+    const s = new AccountStore({ filePath: file, storage: fakeStorage() })
+    const a = s.add(input())
+    const b = s.add(input({ serverId: 's2', name: 'Work', accessToken: 'T2' }))
+    expect(s.list()).toHaveLength(2)
+    expect(s.getActive()?.id).toBe(a.id)
+    expect(s.setActive(b.id)?.id).toBe(b.id)
+    expect(new AccountStore({ filePath: file, storage: fakeStorage() }).getActive()?.id).toBe(b.id)
+    expect(s.setActive('nope')).toBeNull()
+  })
+
+  it('updates the same server+user in place', () => {
+    const s = new AccountStore({ filePath: file, storage: fakeStorage() })
+    const a = s.add(input())
+    const again = s.add(input({ accessToken: 'NEW' }))
+    expect(again.id).toBe(a.id)
+    expect(s.list()).toHaveLength(1)
+    expect(s.getToken(a.id)).toBe('NEW')
+  })
+
+  it('renames and removes (clearing active)', () => {
+    const s = new AccountStore({ filePath: file, storage: fakeStorage() })
+    const a = s.add(input())
+    expect(s.rename(a.id, ' Salon ')?.name).toBe('Salon')
+    expect(s.rename('x', 'y')).toBeNull()
+    s.remove(a.id)
+    expect(s.list()).toEqual([])
+    expect(s.getActive()).toBeNull()
+    expect(s.getToken(a.id)).toBeNull()
+  })
+
+  it('has a stable device id and survives a corrupt file', () => {
+    const s = new AccountStore({ filePath: file, storage: fakeStorage() })
+    const id = s.getDeviceId()
+    expect(new AccountStore({ filePath: file, storage: fakeStorage() }).getDeviceId()).toBe(id)
+    writeFileSync(file, '{not json')
+    const s3 = new AccountStore({ filePath: file, storage: fakeStorage() })
+    expect(s3.list()).toEqual([])
+    expect(s3.getDeviceId()).toBeTruthy()
+  })
+})
