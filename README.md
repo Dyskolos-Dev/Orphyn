@@ -4,7 +4,7 @@
 
 # Lumen
 
-**A beautiful desktop client for Jellyfin: your movies, shows and music, the Apple way.**
+**A beautiful desktop client for Jellyfin: your movies, shows and music, at its best.**
 
 [![Latest release](https://img.shields.io/github/v/release/Dyskolos-Dev/Lumen?style=for-the-badge&label=version&color=8b8cf8)](https://github.com/Dyskolos-Dev/Lumen/releases/latest)
 [![License: MIT](https://img.shields.io/badge/license-MIT-5ec8d8?style=for-the-badge)](LICENSE)
@@ -21,9 +21,9 @@
 
 | | |
 |---|---|
-| 🎬 **Movies & TV shows** | Apple TV-style home with a hero banner, Continue Watching, Next Up and Recently Added; rich detail pages, seasons and episodes. |
+| 🎬 **Movies & TV shows** | Cinematic home with a hero banner, Continue Watching, Next Up and Recently Added; rich detail pages, seasons and episodes. |
 | ▶️ **Built-in player** | Direct play or server transcoding (HLS), resume, audio and subtitle tracks, Up Next with auto-play, keyboard shortcuts. |
-| 🎵 **Music** | Apple Music-style library, albums, artists, playlists, queue, shuffle and repeat, full-screen Now Playing. |
+| 🎵 **Music** | Refined library: albums, artists, playlists, queue, shuffle and repeat, full-screen Now Playing. |
 | 🎤 **Synced lyrics** | Time-synced lyrics that scroll with the song; click a line to jump to it. |
 | 📡 **Casting** | Google Cast (music and video), UPnP/DLNA renderers including WiiM, AirPlay on Apple TV (best effort). |
 | 🗂️ **Multiple servers** | Add a server with its address, your account and a name; switch in one click. Only an encrypted token is stored, never your password. |
@@ -40,7 +40,7 @@ Download the installer for your system from the [latest release](https://github.
 | System | File |
 |---|---|
 | Windows 10/11 | `Lumen-Setup-x.y.z.exe` |
-| macOS Apple silicon (M1+) | `Lumen-x.y.z-arm64.dmg` |
+| macOS Apple silicon (M1 and later) | `Lumen-x.y.z-arm64.dmg` |
 | macOS Intel | `Lumen-x.y.z.dmg` |
 | Linux | `Lumen-x.y.z.AppImage` or `lumen_x.y.z_amd64.deb` |
 
@@ -73,7 +73,7 @@ Learn more in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md), [docs/DESIGN.md](doc
 
 Lumen is released under the [MIT License](LICENSE).
 
-Lumen is an independent project. It is not affiliated with or endorsed by Jellyfin or Apple.
+Lumen is an independent project. It is not affiliated with or endorsed by Jellyfin.
 
 <div align="center">
 

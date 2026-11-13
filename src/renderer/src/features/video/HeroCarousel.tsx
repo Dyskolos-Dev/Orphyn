@@ -22,7 +22,7 @@ function heroMeta(item: BaseItemDto): string {
 }
 
 /**
- * Apple TV "Watch Now" hero: a HeroBanner per featured item that advances by itself and
+ * "Watch Now" hero: a HeroBanner per featured item that advances by itself and
  * pauses while the pointer or keyboard focus is inside.
  */
 export function HeroCarousel({ items }: { items: BaseItemDto[] }) {

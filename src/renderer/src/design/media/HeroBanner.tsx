@@ -26,7 +26,7 @@ export interface HeroBannerProps {
 }
 
 /**
- * Apple TV "Up Next" hero: full-bleed backdrop, bottom + side gradients, logo or large title,
+ * "Up Next" hero: full-bleed backdrop, bottom + side gradients, logo or large title,
  * metadata, actions. Always rendered in the dark theme (white text over imagery).
  */
 export function HeroBanner({

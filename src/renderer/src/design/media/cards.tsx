@@ -159,7 +159,7 @@ function MediaCard({
 export interface PosterCardProps extends CardBaseProps {
   /** 0..1 watched progress, drawn as a thin bar at the bottom of the poster. */
   progress?: number
-  /** Hide the text under the poster (Apple TV style rows of posters). */
+  /** Hide the text under the poster (rows of posters). */
   hideText?: boolean
 }
 
@@ -218,7 +218,7 @@ export function LandscapeCard({ progress, caption, description, ...props }: Land
 
 export type SquareCardProps = CardBaseProps
 
-/** 1:1 album / playlist artwork with hover play (Apple Music). */
+/** 1:1 album / playlist artwork with hover play. */
 export function SquareCard(props: SquareCardProps) {
   return <MediaCard {...props} kind="square" ratio="1/1" shape="rounded" />
 }

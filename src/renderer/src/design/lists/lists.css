@@ -26,7 +26,7 @@
 .jr-list__item {
   position: relative;
 }
-/* Hairline separators, inset to the text like Apple lists. */
+/* Hairline separators, inset to the text like native lists. */
 .jr-list__item + .jr-list__item::before {
   content: '';
   position: absolute;
@@ -122,7 +122,7 @@
   color: var(--label);
   font: var(--text-subheadline);
 }
-/* Zebra striping like Apple Music lists. */
+/* Zebra striping on music lists. */
 .jr-track:nth-child(even) {
   background: var(--quaternary-system-fill);
 }

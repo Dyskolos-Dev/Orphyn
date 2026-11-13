@@ -1,7 +1,7 @@
 import clsx from 'clsx'
 import type { CSSProperties, ElementType, ReactNode } from 'react'
 
-/** Apple text styles (see the type scale in docs/DESIGN.md). */
+/** text styles (see the type scale in docs/DESIGN.md). */
 export type TextStyle =
   | 'large-title'
   | 'title-1'
@@ -51,7 +51,7 @@ export interface TextProps {
 
 const WEIGHT = { regular: 400, medium: 500, semibold: 600, bold: 700 } as const
 
-/** Text in one of the Apple text styles. */
+/** Text in one of the text styles. */
 export function Text({
   variant = 'body',
   as,
@@ -92,7 +92,7 @@ export type MaterialThickness = 'ultra-thin' | 'thin' | 'regular' | 'thick'
 
 export interface MaterialProps {
   thickness?: MaterialThickness
-  /** Hairline border like Apple's materials. */
+  /** Hairline border like the window materials. */
   bordered?: boolean
   as?: ElementType
   className?: string

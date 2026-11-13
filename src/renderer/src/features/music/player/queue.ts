@@ -162,7 +162,7 @@ export function nextIndex(m: QueueModel, reason: 'auto' | 'user'): number | null
 
 export type PreviousAction = { type: 'restart' } | { type: 'go'; index: number }
 
-/** Apple Music rule: restart when more than 3 s were played (or on the first entry), else go back. */
+/** Standard rule: restart when more than 3 s were played (or on the first entry), else go back. */
 export function previousAction(m: QueueModel, positionSeconds: number): PreviousAction {
   if (positionSeconds > PREVIOUS_RESTART_SECONDS || m.index <= 0) return { type: 'restart' }
   return { type: 'go', index: m.index - 1 }

@@ -27,7 +27,7 @@ export interface ButtonProps extends ComponentPropsWithRef<'button'> {
   fullWidth?: boolean
 }
 
-/** Text button with Apple's filled / tinted / gray / plain styles. */
+/** Text button with filled / tinted / gray / plain styles. */
 export function Button({
   variant = 'filled',
   size = 'medium',

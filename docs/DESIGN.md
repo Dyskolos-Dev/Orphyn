@@ -1,7 +1,7 @@
 # Lumen design system
 
-Lumen looks and behaves like **Apple TV** (movies, series) and **Apple Music** (music) on macOS, follows
-Apple's Human Interface Guidelines, and keeps the same look on Windows and Linux. Features build their
+Lumen is a modern, elegant, cinematic interface for movies, series and music, with native-feeling
+behaviour on macOS and the same look on Windows and Linux. Features build their
 pages **only** with the components below: import them from `@renderer/design`, and the page frame from
 `@renderer/shell`. Do not write raw colours, font sizes or shadows in feature code: use the tokens.
 
@@ -14,13 +14,13 @@ pages **only** with the components below: import them from `@renderer/design`, a
 
 ### Colour
 
-Colours follow Apple's system colours, with light values on `:root` and dark values on
+Colours follow a system palette, with light values on `:root` and dark values on
 `[data-theme='dark']`. Any element with `data-theme="dark"` re-scopes the tokens for its subtree (the
 HeroBanner does this, so everything placed on artwork is white-on-dark).
 
 | Token                                                                    | Use                                                        |
 | ------------------------------------------------------------------------ | ---------------------------------------------------------- |
-| `--system-background`, `--secondary-system-background`, `--tertiary-...` | Apple's backgrounds (iOS values)                           |
+| `--system-background`, `--secondary-system-background`, `--tertiary-...` | System backgrounds                           |
 | `--surface-window`                                                       | Content area background (`#fff` / `#1d1d1f`)               |
 | `--surface-sidebar`                                                      | Sidebar; `transparent` when the native material shows      |
 | `--surface-elevated`                                                     | Sheets, popovers' solid fallback                           |
@@ -28,9 +28,9 @@ HeroBanner does this, so everything placed on artwork is white-on-dark).
 | `--label`, `--secondary-label`, `--tertiary-label`, `--quaternary-label` | Text, from primary to disabled                             |
 | `--separator`, `--opaque-separator`                                      | Hairlines (always `0.5px`)                                 |
 | `--system-fill` … `--quaternary-system-fill`                             | Neutral fills (gray buttons, tracks, fields)               |
-| `--accent`, `--accent-contrast`, `--accent-tint`                         | Accent (default Apple Music red `#fa2d48`); text on accent |
+| `--accent`, `--accent-contrast`, `--accent-tint`                         | Accent (default red `#fa2d48`); text on accent |
 | `--link` (systemBlue), `--danger` (systemRed), `--success`               | Links, destructive, success                                |
-| `--system-red/pink/orange/yellow/green/teal/blue/indigo/purple/gray`     | Raw Apple colours (status dots, charts)                    |
+| `--system-red/pink/orange/yellow/green/teal/blue/indigo/purple/gray`     | Raw system colours (status dots, charts)                    |
 
 Accent: one of `ACCENT_PRESETS` (`red` default, `pink`, `orange`, `yellow`, `green`, `teal`, `blue`,
 `indigo`, `purple`, `graphite`) or a custom `#rrggbb` (text colour on it is computed). Use the accent for
@@ -39,7 +39,7 @@ Accent: one of `ACCENT_PRESETS` (`red` default, `pink`, `orange`, `yellow`, `gre
 ### Typography
 
 SF Pro (`-apple-system`) on macOS; **Inter Variable** everywhere else (bundled, no network); Segoe UI as a
-last resort. Sizes are tuned for a desktop window (between Apple's macOS and iOS scales).
+last resort. Sizes are tuned for a desktop window (between desktop and mobile scales).
 
 | Style       | Token / class                               | Size / line / weight | Use                                   |
 | ----------- | ------------------------------------------- | -------------------- | ------------------------------------- |
@@ -71,7 +71,7 @@ Use `<Text variant="title-2">` (or `font: var(--text-title-2)` in CSS). Large ti
 
 ### Materials
 
-Translucent surfaces blur what is **behind** them (`backdrop-filter: blur() saturate()`), like Apple's
+Translucent surfaces blur what is **behind** them (`backdrop-filter: blur() saturate()`), like native
 materials. Use them only over content (toolbars over scrolled pages, popovers, HUDs, controls on artwork),
 never over a flat colour.
 
@@ -301,7 +301,7 @@ artwork). `size`: `small` 28 / `medium` 34 / `large` 44. `shape`: `rounded` | `c
 
 ### Slider
 
-Thin Apple scrubber (`variant="scrubber"`, default) or `regular` with knob; `onMedia` for video.
+Thin scrubber (`variant="scrubber"`, default) or `regular` with knob; `onMedia` for video.
 
 ```tsx
 <Slider aria-label="Seek" value={position} max={duration} buffered={buffered}

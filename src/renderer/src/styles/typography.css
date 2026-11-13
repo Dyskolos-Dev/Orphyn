@@ -1,4 +1,4 @@
-/* Text-style utility classes, one per Apple text style. Prefer the <Text> component. */
+/* Text-style utility classes, one per text style. Prefer the <Text> component. */
 .jr-text-large-title {
   font: var(--text-large-title);
   letter-spacing: var(--tracking-large-title);

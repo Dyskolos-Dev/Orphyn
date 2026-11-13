@@ -96,7 +96,7 @@ a {
   text-decoration: none;
 }
 
-/* Focus: Apple-style accent ring, only for keyboard focus. */
+/* Focus: accent ring, only for keyboard focus. */
 :focus {
   outline: none;
 }

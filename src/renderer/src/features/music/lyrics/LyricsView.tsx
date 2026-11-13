@@ -10,7 +10,7 @@ import { findLineIndex } from './lines'
 const MANUAL_SCROLL_GRACE_MS = 3500
 
 /**
- * Lyrics like Apple Music: synced lines with the current one large and bright, the others dimmed,
+ * Lyrics: synced lines with the current one large and bright, the others dimmed,
  * smooth auto-scroll, click a line to seek. Unsynced lyrics are plain text.
  */
 export function LyricsView({

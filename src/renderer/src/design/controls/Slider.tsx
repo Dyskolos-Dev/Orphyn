@@ -27,7 +27,7 @@ export interface SliderProps {
   /** Spoken value, e.g. `(v) => formatTime(v)` for a seek bar. */
   formatValue?(value: number): string
   /**
-   * `scrubber`: Apple Music / TV thin bar that thickens on hover, knob hidden until hover.
+   * `scrubber`: thin bar that thickens on hover, knob hidden until hover.
    * `regular`: always shows a round knob (settings).
    */
   variant?: 'scrubber' | 'regular'

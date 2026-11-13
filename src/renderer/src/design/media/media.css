@@ -19,7 +19,7 @@
 .jr-artwork--shadow {
   box-shadow: var(--shadow-artwork);
 }
-/* Apple's hairline around artwork, so light images do not bleed into the background. */
+/* A hairline around artwork, so light images do not bleed into the background. */
 .jr-artwork:not(.jr-artwork--none)::after {
   content: '';
   position: absolute;

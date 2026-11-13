@@ -45,7 +45,7 @@ function CapsuleProgress() {
 }
 
 /**
- * Apple Music style player bar, registered as the shell's persistent `nowPlaying` extension so it
+ * Music player bar, registered as the shell's persistent `nowPlaying` extension so it
  * survives navigation. Transport on the left, an "LCD" capsule in the centre, volume / cast /
  * lyrics / queue on the right. With an empty queue the capsule shows "Not Playing".
  */

@@ -16,7 +16,7 @@ interface DetailHeaderProps {
   menu?: readonly MenuItem[]
 }
 
-/** Apple Music album / playlist header: big artwork with a soft shadow, title, buttons. */
+/** Album / playlist header: big artwork with a soft shadow, title, buttons. */
 export function DetailHeader({
   item,
   subtitle,

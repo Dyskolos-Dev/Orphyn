@@ -1,7 +1,7 @@
 /*
  * Lumen design tokens (owner: design agent). Documented in docs/DESIGN.md.
  *
- * Layer 1, Apple system colours (names follow UIKit/AppKit: systemBackground, label, ...).
+ * Layer 1, system colours (names follow UIKit/AppKit: systemBackground, label, ...).
  * Layer 2, semantic tokens the components use (--surface-*, --text-*, --accent, ...).
  * Light values live on :root, dark values on [data-theme='dark'] (set by ThemeProvider on <html>).
  */
@@ -9,7 +9,7 @@
 :root {
   color-scheme: light;
 
-  /* ---- Apple system colours, light ---- */
+  /* ---- System colours, light ---- */
   --system-background: #ffffff;
   --secondary-system-background: #f2f2f7;
   --tertiary-system-background: #ffffff;
@@ -39,7 +39,7 @@
   --system-indigo: #5856d6;
   --system-purple: #af52de;
   --system-gray: #8e8e93;
-  /* Apple Music's signature red-pink. */
+  /* Signature red-pink. */
   --music-red: #fa2d48;
 
   /* ---- Semantic surfaces ---- */
@@ -106,7 +106,7 @@
   --space-12: 48px;
   --space-16: 64px;
   --space-20: 80px;
-  /* Horizontal page margin, Apple TV / Music use ~40px on desktop. */
+  /* Horizontal page margin, use ~40px on desktop. */
   --page-gutter: 40px;
 
   /* ---- Motion ---- */

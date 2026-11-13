@@ -61,7 +61,7 @@ export interface TrackRowProps {
   className?: string
 }
 
-/** Apple Music track row: number / play, title + artist, album, duration, more. */
+/** Music track row: number / play, title + artist, album, duration, more. */
 export function TrackRow({
   index,
   title,

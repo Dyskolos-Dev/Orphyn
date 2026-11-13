@@ -4,7 +4,7 @@
 
 # Lumen
 
-**Un superbe client de bureau pour Jellyfin : tes films, séries et musiques, façon Apple.**
+**Un superbe client de bureau pour Jellyfin : tes films, séries et musiques, sous son meilleur jour.**
 
 [![Dernière version](https://img.shields.io/github/v/release/Dyskolos-Dev/Lumen?style=for-the-badge&label=version&color=8b8cf8)](https://github.com/Dyskolos-Dev/Lumen/releases/latest)
 [![Licence : MIT](https://img.shields.io/badge/licence-MIT-5ec8d8?style=for-the-badge)](LICENSE)
@@ -21,9 +21,9 @@
 
 | | |
 |---|---|
-| 🎬 **Films et séries** | Accueil façon Apple TV avec bannière, « Reprendre », « À suivre » et « Ajouts récents » ; pages détaillées, saisons et épisodes. |
+| 🎬 **Films et séries** | Accueil cinématographique avec bannière, « Reprendre », « À suivre » et « Ajouts récents » ; pages détaillées, saisons et épisodes. |
 | ▶️ **Lecteur intégré** | Lecture directe ou transcodage par le serveur (HLS), reprise, pistes audio et sous-titres, épisode suivant automatique, raccourcis clavier. |
-| 🎵 **Musique** | Bibliothèque façon Apple Music : albums, artistes, playlists, file d'attente, aléatoire et répétition, « À l'écoute » en plein écran. |
+| 🎵 **Musique** | Bibliothèque soignée : albums, artistes, playlists, file d'attente, aléatoire et répétition, « À l'écoute » en plein écran. |
 | 🎤 **Paroles synchronisées** | Les paroles défilent avec la chanson ; un clic sur une ligne y saute. |
 | 📡 **Cast** | Google Cast (musique et vidéo), lecteurs UPnP/DLNA dont WiiM, AirPlay vers Apple TV (au mieux). |
 | 🗂️ **Plusieurs serveurs** | Ajoute un serveur avec son adresse, ton compte et un nom ; change en un clic. Seul un jeton chiffré est conservé, jamais ton mot de passe. |
@@ -40,7 +40,7 @@ Télécharge l'installeur de ton système dans la [dernière release](https://gi
 | Système | Fichier |
 |---|---|
 | Windows 10/11 | `Lumen-Setup-x.y.z.exe` |
-| macOS Apple silicon (M1+) | `Lumen-x.y.z-arm64.dmg` |
+| macOS Apple silicon (M1 et plus récent) | `Lumen-x.y.z-arm64.dmg` |
 | macOS Intel | `Lumen-x.y.z.dmg` |
 | Linux | `Lumen-x.y.z.AppImage` ou `lumen_x.y.z_amd64.deb` |
 
@@ -73,7 +73,7 @@ Pour aller plus loin : [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md), [docs/DESIG
 
 Lumen est distribué sous [licence MIT](LICENSE).
 
-Lumen est un projet indépendant, sans lien avec Jellyfin ni Apple.
+Lumen est un projet indépendant, sans lien avec Jellyfin.
 
 <div align="center">
 

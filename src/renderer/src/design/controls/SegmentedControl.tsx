@@ -24,7 +24,7 @@ export interface SegmentedControlProps<T extends string> {
 }
 
 /**
- * Apple segmented control (radio group). Arrow keys move and select, Home / End jump; only the
+ * Segmented control (radio group). Arrow keys move and select, Home / End jump; only the
  * selected segment is in the tab order.
  */
 export function SegmentedControl<T extends string>({

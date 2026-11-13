@@ -24,7 +24,7 @@ const NOTE_ICONS: Record<string, LucideIcon> = {
   refresh: RefreshCw,
 }
 
-/** Apple-style "What's New" sheet: logo, title, one icon row per item, Continue. */
+/** "What's New" sheet: logo, title, one icon row per item, Continue. */
 export function WhatsNewSheet({
   open,
   notes,

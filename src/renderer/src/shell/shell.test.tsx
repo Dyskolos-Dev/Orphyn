@@ -64,7 +64,7 @@ function renderShell(path = '/video') {
 }
 
 describe('AppShell', () => {
-  it('renders the Apple Music-style sidebar with Watch and Music sections', () => {
+  it('renders the sidebar with Watch and Music sections', () => {
     renderShell('/music/albums')
     const nav = screen.getByRole('navigation', { name: 'Main' })
     const watch = within(nav).getByRole('region', { name: 'Watch' })

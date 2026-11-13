@@ -34,7 +34,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Changed
 
-- Mini player rebuilt after Apple Music: transport on the left, a 52 px "LCD" capsule with the artwork, title, artist and an inset progress line (times on hover), volume and actions on the right. It no longer overflows between 1000 and 2560 px.
+- Mini player rebuilt: transport on the left, a 52 px "LCD" capsule with the artwork, title, artist and an inset progress line (times on hover), volume and actions on the right. It no longer overflows between 1000 and 2560 px.
 - First-launch onboarding keeps its logo, title and fields on one centred axis, including during step transitions.
 
 ### Fixed

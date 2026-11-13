@@ -16,7 +16,7 @@ export interface SidebarProps {
 }
 
 /**
- * Apple Music-style source list. Translucent: it shows the native window material (macOS
+ * Source list. Translucent: it shows the native window material (macOS
  * vibrancy, Windows Mica) or the sidebar surface where there is none.
  */
 export function Sidebar({
@@ -95,7 +95,7 @@ export function SidebarSection({
 }
 
 export interface SidebarItemProps {
-  /** lucide icon, drawn in the accent colour like Apple Music. */
+  /** lucide icon, drawn in the accent colour . */
   icon?: ReactNode
   label: ReactNode
   /** Router path; the item is highlighted while it is the current route. */

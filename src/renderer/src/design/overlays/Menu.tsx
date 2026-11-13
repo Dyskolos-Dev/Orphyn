@@ -49,7 +49,7 @@ export interface MenuProps {
 const isAction = (i: MenuItem): i is MenuActionItem => i.type === undefined || i.type === 'item'
 
 /**
- * Apple-style menu (role="menu") on a popover. Arrow Up / Down, Home / End move, Enter / Space
+ * Menu (role="menu") on a popover. Arrow Up / Down, Home / End move, Enter / Space
  * select, Escape closes, typing a letter jumps to the next matching item.
  */
 export function Menu({

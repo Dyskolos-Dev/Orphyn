@@ -17,7 +17,7 @@ export interface ToggleProps {
   id?: string
 }
 
-/** Apple switch (role="switch"). Space / Enter toggle it. */
+/** Switch (role="switch"). Space / Enter toggle it. */
 export function Toggle({
   checked,
   onChange,

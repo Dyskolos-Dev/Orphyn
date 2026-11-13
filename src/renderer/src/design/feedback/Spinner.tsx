@@ -12,7 +12,7 @@ export interface SpinnerProps {
 
 const SPOKES = 8
 
-/** Apple activity indicator (fading spokes). */
+/** Activity indicator (fading spokes). */
 export function Spinner({ size = 'medium', label, className }: SpinnerProps) {
   const { t } = useTranslation('shell')
   const name = label === null ? undefined : (label ?? t('design.loading'))

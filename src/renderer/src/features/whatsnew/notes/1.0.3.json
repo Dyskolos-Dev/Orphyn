@@ -10,7 +10,7 @@
       {
         "icon": "music",
         "title": "Un nouveau mini-lecteur",
-        "text": "Refait comme dans Apple Music : une capsule centrale avec la pochette, le titre et la progression, les commandes à gauche, le volume et les actions à droite. Rien ne déborde, quelle que soit la taille de la fenêtre."
+        "text": "Entièrement repensé : une capsule centrale avec la pochette, le titre et la progression, les commandes à gauche, le volume et les actions à droite. Rien ne déborde, quelle que soit la taille de la fenêtre."
       },
       {
         "icon": "download",
@@ -35,7 +35,7 @@
       {
         "icon": "music",
         "title": "A new mini player",
-        "text": "Rebuilt after Apple Music: a central capsule with the artwork, title and progress, controls on the left, volume and actions on the right. Nothing overflows, whatever the window size."
+        "text": "Rebuilt: a central capsule with the artwork, title and progress, controls on the left, volume and actions on the right. Nothing overflows, whatever the window size."
       },
       {
         "icon": "download",

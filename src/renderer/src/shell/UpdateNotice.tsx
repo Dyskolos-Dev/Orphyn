@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { BrandLogo, dismissToast, toast } from '@renderer/design'
 import { useUpdater } from '@renderer/features/settings/useUpdater'
 
-/** Apple-style toast: "Lumen X is ready. Restart to update" or "Lumen X is available". */
+/** Toast: "Lumen X is ready. Restart to update" or "Lumen X is available". */
 export function UpdateNotice() {
   const { t } = useTranslation('shell')
   const state = useUpdater()

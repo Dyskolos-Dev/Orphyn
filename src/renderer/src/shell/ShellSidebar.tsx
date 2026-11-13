@@ -112,7 +112,7 @@ interface Entry {
   order: number
 }
 
-/** The Apple Music-style sidebar of the app shell. */
+/** The sidebar of the app shell. */
 export function ShellSidebar({
   searchRef,
   serverSwitcherRef,

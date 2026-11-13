@@ -17,7 +17,7 @@ export interface ShellPageProps {
   /** Toolbar buttons on the right (before global extension items). */
   actions?: ReactNode
   /**
-   * `large` (default): Apple large title that collapses into the toolbar on scroll.
+   * `large` (default): large title that collapses into the toolbar on scroll.
    * `hero`: no large title; the toolbar is transparent over the first child (a HeroBanner)
    * and turns into a material once it scrolled away.
    * `inline`: the title is always in the toolbar (detail pages), unless the content has its own

@@ -195,7 +195,7 @@ function SimilarShelf({ id }: { id: string }) {
   )
 }
 
-/** /video/item/:itemId: Apple TV style detail page for a movie, series or episode. */
+/** /video/item/:itemId: Detail page for a movie, series or episode. */
 export function VideoItem() {
   const { t } = useTranslation('video')
   const { itemId } = useParams()

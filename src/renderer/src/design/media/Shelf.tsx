@@ -16,7 +16,7 @@ import './media.css'
 
 /**
  * Item sizing. Each preset shows a fixed number of items per row, depending on the shelf width
- * (Apple TV / Music behaviour): poster 5-8, landscape 2-5, square 4-8, round 5-9.
+ * (shelf behaviour): poster 5-8, landscape 2-5, square 4-8, round 5-9.
  */
 export type ShelfItemKind = 'poster' | 'landscape' | 'square' | 'round'
 

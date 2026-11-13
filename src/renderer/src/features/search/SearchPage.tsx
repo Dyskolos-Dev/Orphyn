@@ -48,7 +48,7 @@ const KIND_ICON: Record<ResultKind, ReactNode> = {
   song: <Music />,
 }
 
-/** `/search?q=`: debounced search across the active server, grouped like Apple Music / TV. */
+/** `/search?q=`: debounced search across the active server, grouped by type. */
 export function SearchPage() {
   const { t } = useTranslation('search')
   const [params, setParams] = useSearchParams()

@@ -50,7 +50,7 @@ function LibraryLatest({ library }: { library: BaseItemDto }) {
 const hasBackdrop = (i: BaseItemDto) =>
   Boolean(i.BackdropImageTags?.length || i.ParentBackdropImageTags?.length)
 
-/** /video: Apple TV "Watch Now". */
+/** /video: "Watch Now". */
 export function VideoHome() {
   const { t } = useTranslation('video')
   const views = useUserViews()

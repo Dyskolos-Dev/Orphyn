@@ -32,7 +32,7 @@ describe('theme', () => {
   })
   afterEach(() => scheme.restore())
 
-  it('defaults to system mode and the Apple Music red accent', () => {
+  it('defaults to system mode and the red accent', () => {
     expect(themeStore.getState()).toEqual({ mode: 'system', resolvedTheme: 'light', accent: 'red' })
     expect(html().dataset['theme']).toBe('light')
     expect(html().dataset['accent']).toBe('red')

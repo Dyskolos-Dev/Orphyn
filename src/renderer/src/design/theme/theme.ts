@@ -7,7 +7,7 @@
 export type ThemeMode = 'system' | 'light' | 'dark'
 export type ResolvedTheme = 'light' | 'dark'
 
-/** Accent presets, mapped to Apple system colours in tokens.css. `red` is Apple Music's red. */
+/** Accent presets, mapped to system colours in tokens.css. `red` is the default. */
 export const ACCENT_PRESETS = [
   'red',
   'pink',

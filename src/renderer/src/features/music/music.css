@@ -187,7 +187,7 @@
 }
 
 /* ---------------- mini player (shell now-playing bar) ---------------- */
-/* Apple Music layout: transport | LCD capsule | volume + actions. The shell bar already provides
+/* Mini player layout: transport | LCD capsule | volume + actions. The shell bar already provides
    the 72 px height, the 16 px side padding, the material and the hairline separator. */
 .jrm-mini {
   /* Three flex children: overlap is impossible, only the capsule shrinks. */

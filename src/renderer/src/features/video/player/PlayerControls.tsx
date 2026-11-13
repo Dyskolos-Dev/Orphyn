@@ -125,7 +125,7 @@ export interface PlayerControlsProps {
   castButton?: ReactNode
 }
 
-/** Apple TV style overlay: top bar, centre transport, scrubber and bottom row. */
+/** Overlay: top bar, centre transport, scrubber and bottom row. */
 export function PlayerControls({
   snapshot,
   title,
