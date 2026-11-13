@@ -1,0 +1,75 @@
+# Release: on a v* tag, build installers on each operating system and attach them to a draft GitHub Release.
+# The draft is never published automatically: review it on GitHub, then click "Publish release".
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: build (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build installers
+        # `npm run dist` builds, then runs electron-builder; `-- --publish never` appends to electron-builder,
+        # so nothing is uploaded by electron-builder itself (the release job below does it).
+        # TODO signing: none yet. Once certificates exist, set these secrets and remove the
+        # CSC_IDENTITY_AUTO_DISCOVERY line:
+        #   Windows: CSC_LINK (base64 or URL of the .pfx) and CSC_KEY_PASSWORD
+        #   macOS:   CSC_LINK (Developer ID .p12), CSC_KEY_PASSWORD, APPLE_ID, APPLE_APP_SPECIFIC_PASSWORD, APPLE_TEAM_ID (notarization)
+        #   Linux:   no signing required for AppImage/deb
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+        run: npm run dist -- --publish never
+
+      - name: Upload installers as workflow artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: installers-${{ matrix.os }}
+          if-no-files-found: error
+          path: |
+            release/*.exe
+            release/*.dmg
+            release/*.AppImage
+            release/*.deb
+
+  release:
+    name: Draft GitHub Release
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download all installers
+        uses: actions/download-artifact@v4
+        with:
+          path: installers
+          merge-multiple: true
+
+      - name: Create or update the draft release
+        uses: softprops/action-gh-release@v2
+        with:
+          draft: true
+          generate_release_notes: true
+          fail_on_unmatched_files: true
+          files: installers/*
