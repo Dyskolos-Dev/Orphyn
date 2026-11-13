@@ -75,6 +75,16 @@ Lumen ships in French and English. **Every user-visible string must exist in bot
 
 A missing key in either language is a bug, and reviewers will ask for it to be fixed before merging.
 
+## Releasing
+
+1. Bump `version` in `package.json` (and `package-lock.json`, e.g. `npm version 1.1.0 --no-git-tag-version`) and add the entry to `CHANGELOG.md`.
+2. Commit, then tag and push the tag: `git tag v1.1.0 && git push origin main v1.1.0`.
+3. The **Release** workflow builds Windows, macOS and Linux and publishes **one** GitHub release holding every installer, the `latest.yml` / `latest-mac.yml` / `latest-linux.yml` update feeds and the blockmaps. The release is published (not a draft), otherwise installed apps cannot see it.
+
+Installed apps check for updates 10 seconds after launch and every 6 hours (Settings > About). Windows (NSIS) and Linux AppImage download and install in the background; unsigned macOS builds and the `.deb` only tell the user a new version exists and open the release page.
+
+Code signing is optional and out of scope for now. To enable it, add these repository secrets and drop `CSC_IDENTITY_AUTO_DISCOVERY` from the release workflow: `CSC_LINK` and `CSC_KEY_PASSWORD` (Windows `.pfx` / macOS Developer ID `.p12`), plus `APPLE_ID`, `APPLE_APP_SPECIFIC_PASSWORD` and `APPLE_TEAM_ID` for macOS notarization. Without a signed macOS build, in-app updates cannot be applied there.
+
 ## Reporting bugs and requesting features
 
 Open an issue using the bug report or feature request template. For bugs, include your operating system, Lumen version, Jellyfin server version and the steps to reproduce.

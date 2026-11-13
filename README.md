@@ -54,17 +54,17 @@ npm run dev
 
 `npm run dist` builds the app and packages it with electron-builder into the `release/` folder. Packaging only produces installers for the operating system you run it on:
 
-| Run on  | Installers produced                                       |
-| ------- | --------------------------------------------------------- |
-| Windows | NSIS installer (`.exe`)                                   |
-| macOS   | DMG disk image, for Intel (x64) and Apple Silicon (arm64) |
-| Linux   | AppImage and Debian package (`.deb`)                      |
+| Run on  | Installers produced                                           |
+| ------- | ------------------------------------------------------------- |
+| Windows | NSIS installer (`.exe`)                                       |
+| macOS   | DMG disk image and zip, Intel (x64) and Apple Silicon (arm64) |
+| Linux   | AppImage and Debian package (`.deb`)                          |
 
 ```bash
 npm run dist
 ```
 
-The installers are not code-signed yet. Signing for Windows and macOS (certificates, notarization) is a TODO; see the release workflow in `.github/workflows/release.yml`. Official builds for all three systems are produced by the GitHub Actions release workflow when a `v*` tag is pushed.
+The installers are not code-signed yet (see "Releasing" in CONTRIBUTING.md). A `v*` tag builds all three systems and publishes one GitHub release; installed apps update themselves from it (Windows, AppImage) or point to the download (macOS, `.deb`).
 
 ## Project layout
 

@@ -1,5 +1,7 @@
-# Release: on a v* tag, build installers on each operating system and attach them to a draft GitHub Release.
-# The draft is never published automatically: review it on GitHub, then click "Publish release".
+# Release: on a v* tag, build installers on each operating system and publish ONE GitHub release
+# holding every installer plus latest.yml / latest-mac.yml / latest-linux.yml and the blockmaps that
+# the in-app updater (electron-updater) reads. The release is published, not a draft: a draft is
+# invisible to installed clients.
 name: Release
 
 on:
@@ -7,11 +9,11 @@ on:
     tags: ['v*']
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
-  build:
-    name: build (${{ matrix.os }})
+  release:
+    name: release (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -30,46 +32,14 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Build installers
-        # `npm run dist` builds, then runs electron-builder; `-- --publish never` appends to electron-builder,
-        # so nothing is uploaded by electron-builder itself (the release job below does it).
-        # TODO signing: none yet. Once certificates exist, set these secrets and remove the
-        # CSC_IDENTITY_AUTO_DISCOVERY line:
+      - name: Build and publish
+        # Each OS job uploads its own files to the same release (electron-builder creates it once and
+        # reuses it), so one tag gives one release with everything attached.
+        # Signing is optional: set the secrets below and remove CSC_IDENTITY_AUTO_DISCOVERY.
         #   Windows: CSC_LINK (base64 or URL of the .pfx) and CSC_KEY_PASSWORD
-        #   macOS:   CSC_LINK (Developer ID .p12), CSC_KEY_PASSWORD, APPLE_ID, APPLE_APP_SPECIFIC_PASSWORD, APPLE_TEAM_ID (notarization)
-        #   Linux:   no signing required for AppImage/deb
+        #   macOS:   CSC_LINK (Developer ID .p12), CSC_KEY_PASSWORD, APPLE_ID,
+        #            APPLE_APP_SPECIFIC_PASSWORD, APPLE_TEAM_ID (notarization)
         env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CSC_IDENTITY_AUTO_DISCOVERY: 'false'
-        run: npm run dist -- --publish never
-
-      - name: Upload installers as workflow artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: installers-${{ matrix.os }}
-          if-no-files-found: error
-          path: |
-            release/*.exe
-            release/*.dmg
-            release/*.AppImage
-            release/*.deb
-
-  release:
-    name: Draft GitHub Release
-    needs: build
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    steps:
-      - name: Download all installers
-        uses: actions/download-artifact@v4
-        with:
-          path: installers
-          merge-multiple: true
-
-      - name: Create or update the draft release
-        uses: softprops/action-gh-release@v2
-        with:
-          draft: true
-          generate_release_notes: true
-          fail_on_unmatched_files: true
-          files: installers/*
+        run: npm run build && npx electron-builder --publish always

@@ -1,5 +1,6 @@
 appId: app.lumen.desktop
 productName: Lumen
+copyright: Copyright © Dyskolos_
 directories:
   buildResources: build
   output: release
@@ -8,6 +9,12 @@ files:
   - package.json
 asarUnpack:
   - resources/**
+# Auto-update feed: electron-updater reads latest*.yml from the GitHub release.
+publish:
+  provider: github
+  owner: Dyskolos-Dev
+  repo: Lumen
+  releaseType: release
 win:
   target:
     - nsis
@@ -15,9 +22,15 @@ win:
 nsis:
   oneClick: false
   allowToChangeInstallationDirectory: true
+  artifactName: ${productName} Setup ${version}.${ext}
 mac:
   target:
+    # zip is what latest-mac.yml points the updater at; dmg is the installer users download.
     - target: dmg
+      arch:
+        - x64
+        - arm64
+    - target: zip
       arch:
         - x64
         - arm64
@@ -29,3 +42,11 @@ linux:
     - deb
   category: AudioVideo
   icon: build/icon.png
+  maintainer: Dyskolos_ <noreply@dyskolos.fr>
+  synopsis: Desktop Jellyfin client for music, movies and series
+  desktop:
+    entry:
+      Name: Lumen
+      Comment: Desktop Jellyfin client
+      Categories: AudioVideo;Video;Audio;Player;
+      StartupWMClass: Lumen
