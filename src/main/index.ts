@@ -1,6 +1,7 @@
 import { app, BrowserWindow } from 'electron'
 import { registerAccountsIpc } from './accounts'
 import { registerCastIpc } from './cast'
+import { registerDiscord } from './discord'
 import { applyStartupSwitches } from './startup'
 import { installApplicationMenu } from './menu'
 import { registerUpdater } from './updater'
@@ -15,6 +16,7 @@ void app.whenReady().then(async () => {
   registerCastIpc()
   installApplicationMenu()
   registerUpdater()
+  registerDiscord()
   createMainWindow()
 
   app.on('activate', () => {
