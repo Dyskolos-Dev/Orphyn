@@ -27,7 +27,8 @@ imports from feature-owned folders.
 | `src/main/window/`                    | window agent                                          | `createMainWindow`, window IPC handlers                                         |
 | `src/main/accounts/`                  | servers agent                                         | `registerAccountsIpc`, secure account/token storage                             |
 | `src/main/cast/`                      | cast agent                                            | `registerCastIpc`, Chromecast/DLNA discovery                                    |
-| `src/preload/`                        | foundation (+ per-API files by the owner of that API) | `window.lumen` bridge                                                         |
+| `src/main/discord/`                   | -                                                     | `registerDiscord`, Discord Rich Presence (see `docs/DISCORD.md`)                |
+| `src/preload/`                        | foundation (+ per-API files by the owner of that API) | `window.lumen` bridge                                                           |
 | `src/shared/ipc/`                     | owner of each API file                                | IPC channel names + typed API contracts (`window.ts`, `accounts.ts`, `cast.ts`) |
 | `src/renderer/src/app/`               | foundation                                            | `App.tsx`, `routes.tsx` (composition)                                           |
 | `src/renderer/src/shell/`             | shell agent                                           | `AppShell.tsx` layout (sidebar + outlet)                                        |
@@ -41,6 +42,7 @@ imports from feature-owned folders.
 | `src/renderer/src/features/video/`    | video agent                                           | Movies/series browse, detail, player                                            |
 | `src/renderer/src/features/music/`    | music agent                                           | Albums, artists, playlists, songs, player                                       |
 | `src/renderer/src/features/cast/`     | cast agent                                            | Cast UI                                                                         |
+| `src/renderer/src/features/discord/`  | -                                                     | Mirrors the music and video players to Discord (sends a normalized presence)    |
 | `build/`, `resources/`                | foundation                                            | Icons / packaging resources                                                     |
 
 `features/*/StubPage` placeholders live in `shell/StubPage.tsx`; replace them with real pages.

@@ -40,6 +40,15 @@ describe('player UI', () => {
     expect(container).toBeEmptyDOMElement()
   })
 
+  it('mini player shows the track length before a restored track has loaded', () => {
+    usePlayerStore.getState().play(tracks, 0)
+    usePlayerStore.getState().pause()
+    usePlayerStore.getState().setProgress(0, 0)
+    renderWithRouter(<MiniPlayer />)
+    expect(screen.getByText('-3:20')).toBeInTheDocument()
+    expect(screen.queryByText('--:--')).not.toBeInTheDocument()
+  })
+
   it('mini player shows the track and drives the player', () => {
     usePlayerStore.getState().play(tracks, 0)
     renderWithRouter(<MiniPlayer />)

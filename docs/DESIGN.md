@@ -64,7 +64,7 @@ Use `<Text variant="title-2">` (or `font: var(--text-title-2)` in CSS). Large ti
 - **Page gutter** `--page-gutter` (40px): the left/right margin of titles, shelves and grids.
 - Vertical rhythm: 32px (`--space-8`) between shelves/sections (ShellPage content does it), 12px between a
   shelf title and its items, 8px between artwork and its title.
-- Toolbar height `--toolbar-height` 52px, sidebar `--sidebar-width` 248px, now-playing bar 64px.
+- Toolbar height `--toolbar-height` 52px, sidebar `--sidebar-width` 248px, now-playing bar 72px (transport left, "LCD" capsule with a thin progress line in the centre, volume / cast / lyrics / queue right).
 - Radii: `--radius-artwork` 8px (albums), `--radius-poster` 10px (posters, 16:9 cards), `--radius-md` 8px
   (buttons, fields), `--radius-lg` 12px (inset lists, popovers), `--radius-xl` 16px (sheets, toasts),
   `--radius-full` (capsules, artists).
