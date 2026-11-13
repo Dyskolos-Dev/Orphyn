@@ -158,3 +158,22 @@ describe('VideoPlaybackController', () => {
     expect(c.getSnapshot().itemId).toBe('m1')
   })
 })
+
+describe('VideoPlaybackController teardown (React StrictMode)', () => {
+  it('dispose followed by an immediate re-attach and play is not undone by the pending stop', async () => {
+    const { c, video } = setup()
+    await c.play('m1')
+    video.dispatchEvent(new Event('loadedmetadata'))
+    const disposing = c.dispose()
+    c.attach(video)
+    const playing = c.play('m1')
+    await Promise.all([disposing, playing])
+    expect(c.getSnapshot().itemId).toBe('m1')
+    expect(c.getSnapshot().status).not.toBe('idle')
+    expect(video.src).toContain('video.mp4')
+    video.dispatchEvent(new Event('timeupdate'))
+    video.currentTime = 12
+    video.dispatchEvent(new Event('timeupdate'))
+    expect(c.getSnapshot().positionSeconds).toBe(12)
+  })
+})

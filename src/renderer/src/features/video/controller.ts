@@ -140,6 +140,7 @@ export class VideoPlaybackController implements PlaybackController {
   private fellBack = false
   private hlsRetries = 0
   private detach: (() => void) | null = null
+  private beginListener: (() => void) | null = null
 
   constructor(private readonly deps: ControllerDeps = defaultControllerDeps) {}
 
@@ -224,7 +225,7 @@ export class VideoPlaybackController implements PlaybackController {
   async play(itemId: string, startTicks = 0, options: PlayOptions = {}): Promise<void> {
     const gen = ++this.generation
     this.deps.announceExclusive()
-    await this.closeReporter()
+    void this.closeReporter()
     this.fellBack = false
     this.hlsRetries = 0
     const startSeconds = ticksToSeconds(startTicks)
@@ -266,16 +267,20 @@ export class VideoPlaybackController implements PlaybackController {
     this.destroyHls()
     this.patch({ method: info.method })
 
+    if (this.beginListener) video.removeEventListener('loadedmetadata', this.beginListener)
+    const hlsPlayer = info.isHls ? this.deps.createHls(startSeconds) : null
     const begin = () => {
       if (gen !== this.generation) return
-      if (startSeconds > 0 && Math.abs(video.currentTime - startSeconds) > 1) {
+      // hls.js already starts at `startPosition`; only plain sources need the explicit seek.
+      if (!hlsPlayer && startSeconds > 0 && Math.abs(video.currentTime - startSeconds) > 1) {
         video.currentTime = startSeconds
       }
       void video.play()?.catch(() => this.patch({ status: 'paused' }))
     }
+    this.beginListener = begin
     video.addEventListener('loadedmetadata', begin, { once: true })
 
-    const hls = info.isHls ? this.deps.createHls(startSeconds) : null
+    const hls = hlsPlayer
     if (hls) {
       this.hls = hls
       hls.on('hlsError', (_e, data) => this.onHlsError(data))
@@ -355,9 +360,14 @@ export class VideoPlaybackController implements PlaybackController {
     await this.switchTracks({})
   }
 
+  /**
+   * Stops playback. Everything touching the element / state happens synchronously (so a
+   * re-mount that plays again right away is never undone); only the server report is awaited.
+   */
   async stop(): Promise<void> {
     this.generation++
-    await this.closeReporter()
+    // Starts the "stopped" report now, while the element still has its final position.
+    const reported = this.closeReporter()
     this.destroyHls()
     const v = this.video
     if (v) {
@@ -367,20 +377,23 @@ export class VideoPlaybackController implements PlaybackController {
     }
     this.info = null
     this.patch({ ...IDLE, volume: this.snapshot.volume, muted: this.snapshot.muted })
+    await reported
   }
 
   /** Stops, unbinds the element and drops every listener. Call on unmount. */
   async dispose(): Promise<void> {
-    await this.stop()
+    const stopped = this.stop()
     this.attach(null)
+    await stopped
   }
 
   // ----------------------------------------------------------------- errors
 
-  private async closeReporter(): Promise<void> {
+  /** Detaches the reporter and starts its stop request synchronously; resolves when it is sent. */
+  private closeReporter(): Promise<void> {
     const r = this.reporter
     this.reporter = null
-    if (r) await r.stop()
+    return r ? r.stop() : Promise.resolve()
   }
 
   private destroyHls(): void {
