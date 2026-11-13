@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test'
+import { expect, test, type Page } from '@playwright/test'
 import {
   SKIP_REASON,
   credentials,
@@ -9,6 +9,27 @@ import {
 import { connect, requireCredentials, sharedProfile } from './support/session'
 
 test.skip(!credentials(), SKIP_REASON)
+
+/** The logo, titles and fields share one vertical axis, centred in the window. */
+async function expectCentred(page: Page): Promise<void> {
+  await page.waitForTimeout(1500) // entrance animations
+  const axes = await page.evaluate(() => {
+    const mid = (el: Element | null) => {
+      const r = el?.getBoundingClientRect()
+      return r ? r.left + r.width / 2 : NaN
+    }
+    return {
+      window: window.innerWidth / 2,
+      logo: mid(document.querySelector('.jr-onboarding__logo')),
+      welcome: mid(document.querySelector('.jr-onboarding__welcome')),
+      field: mid(document.querySelector('.jr-connect input')),
+      button: mid(document.querySelector('.jr-connect__actions button')),
+    }
+  })
+  for (const key of ['logo', 'welcome', 'field', 'button'] as const) {
+    expect(Math.abs(axes[key] - axes.window), key).toBeLessThanOrEqual(2)
+  }
+}
 
 test('onboarding: bad address, wrong password, then success and naming the server', async () => {
   const c = requireCredentials()
@@ -28,6 +49,13 @@ test('onboarding: bad address, wrong password, then success and naming the serve
     }
     await page.emulateMedia({ colorScheme: 'light' })
     await screenshotBothThemes(page, 'onboarding-address-en')
+    await expectCentred(page)
+    for (const width of [1000, 1920]) {
+      await page.setViewportSize({ width, height: 900 })
+      await expectCentred(page)
+      await screenshotBothThemes(page, `onboarding-address-${width}-en`)
+    }
+    await page.setViewportSize({ width: 1440, height: 900 })
 
     // Unreachable address.
     const address = page.getByLabel('Server address')
@@ -45,7 +73,11 @@ test('onboarding: bad address, wrong password, then success and naming the serve
     await address.fill(`${c.url}/web/#/home.html`)
     await page.getByRole('button', { name: 'Connect' }).click()
     await expect(page.getByText('Server found')).toBeVisible()
+    await expectCentred(page)
+    await screenshotBothThemes(page, 'onboarding-found-en')
     await page.getByRole('button', { name: 'Continue' }).click()
+    await expect(page.getByLabel('Username')).toBeVisible()
+    await expectCentred(page)
     await page.getByLabel('Username').fill(c.user)
     await page.getByLabel('Password', { exact: true }).fill(`${c.password}-wrong`)
     await page.getByRole('button', { name: 'Sign In' }).click()

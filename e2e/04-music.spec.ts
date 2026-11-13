@@ -79,6 +79,26 @@ test('music: home, albums, album page, playback, queue, Now Playing and lyrics',
     await expect.poll(() => position(seek), { timeout: 15_000 }).toBeGreaterThan(p1 + 1)
     await screenshotBothThemes(page, 'music-album-playing-en')
 
+    // Mini player layout at several window widths: nothing may be pushed out of the window.
+    for (const width of [1000, 1440, 1920]) {
+      await page.setViewportSize({ width, height: 900 })
+      await expect.poll(() => page.evaluate(() => window.innerWidth)).toBe(width)
+      const lastButton = mini.getByRole('button', { name: 'Up Next' })
+      await expect(lastButton).toBeVisible()
+      const fits = await mini.evaluate((el) => {
+        const bar = el.getBoundingClientRect()
+        const queue = el.querySelector('[aria-label="Up Next"]')!.getBoundingClientRect()
+        return {
+          noScroll: el.scrollWidth <= el.clientWidth,
+          queueInside: queue.right <= window.innerWidth - 8 && queue.right <= bar.right,
+          capsule: el.querySelector('.jrm-mini__capsule')!.getBoundingClientRect().height,
+        }
+      })
+      expect(fits).toEqual({ noScroll: true, queueInside: true, capsule: 52 })
+      await screenshotBothThemes(page, `music-mini-player-${width}-en`)
+    }
+    await page.setViewportSize({ width: 1440, height: 900 })
+
     // Next / previous.
     const controls = mini.getByRole('group', { name: 'Playback controls' })
     await controls.getByRole('button', { name: 'Next' }).click()

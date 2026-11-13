@@ -8,5 +8,10 @@
     "servers": "Servers",
     "cast": "Cast"
   },
+  "whatsNew": {
+    "title": "What's new in Lumen {{version}}",
+    "continue": "Continue",
+    "versionHeading": "Lumen {{version}}: {{title}}"
+  },
   "stub": "Placeholder page for {{name}}"
 }

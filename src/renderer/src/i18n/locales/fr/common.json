@@ -8,5 +8,10 @@
     "servers": "Serveurs",
     "cast": "Diffuser"
   },
+  "whatsNew": {
+    "title": "Quoi de neuf dans Lumen {{version}}",
+    "continue": "Continuer",
+    "versionHeading": "Lumen {{version}} : {{title}}"
+  },
   "stub": "Page provisoire : {{name}}"
 }

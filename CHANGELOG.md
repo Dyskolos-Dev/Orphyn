@@ -6,6 +6,23 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [1.0.3] - 2026-11-13
+
+### Added
+
+- "What's new" sheet shown once after an update (every skipped version, newest first), reopenable from Settings > About. Release notes live in `src/renderer/src/features/whatsnew/notes/<version>.json`.
+- Styled installers: Windows NSIS wizard with a dark navy sidebar, header and icons, a macOS disk image background with an arrow to Applications. The Windows installer is now named `Lumen-Setup-<version>.exe`.
+- Mini player "Not Playing" state: the bar stays visible with the dimmed logo while the queue is empty.
+
+### Changed
+
+- Mini player rebuilt after Apple Music: transport on the left, a 52 px "LCD" capsule with the artwork, title, artist and an inset progress line (times on hover), volume and actions on the right. It no longer overflows between 1000 and 2560 px.
+- First-launch onboarding keeps its logo, title and fields on one centred axis, including during step transitions.
+
+### Fixed
+
+- Segmented controls (Now Playing tabs): equal-width segments, centred labels, a thumb that exactly covers the selected one, and no focus ring after a mouse click (keyboard focus still shows it).
+
 ## [1.0.2] - 2026-11-13
 
 ### Changed

@@ -1,8 +1,10 @@
 import type { TFunction } from 'i18next'
-import { ExternalLink } from 'lucide-react'
+import { ExternalLink, Sparkles } from 'lucide-react'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { BrandLogo, Button, List, ListRow, Text, Toggle } from '@renderer/design'
 import { useActiveAccount } from '@renderer/features/servers'
+import { bundledNotes, WhatsNewSheet } from '@renderer/features/whatsnew'
 import { version } from '../../../../../package.json'
 import type { UpdaterState } from '@shared/ipc/updater'
 import { getPlatform } from '@renderer/design/platform'
@@ -20,6 +22,8 @@ export function AboutPane() {
   const account = useActiveAccount()
   const status = useAccountsStatus()
   const updater = useUpdater()
+  const [showNotes, setShowNotes] = useState(false)
+  const currentNotes = bundledNotes().filter((n) => n.version === version)
 
   return (
     <>
@@ -30,6 +34,18 @@ export function AboutPane() {
           {t('about.version', { version })}
         </Text>
       </div>
+
+      {currentNotes.length > 0 && (
+        <List variant="inset">
+          <ListRow
+            title={t('about.whatsNew')}
+            subtitle={t('about.whatsNewDescription', { version })}
+            trailing={<Sparkles className="jr-settings__link-icon" aria-hidden="true" />}
+            onClick={() => setShowNotes(true)}
+          />
+        </List>
+      )}
+      <WhatsNewSheet open={showNotes} notes={currentNotes} onClose={() => setShowNotes(false)} />
 
       {updater && (
         <List variant="inset" header={t('about.updates')}>

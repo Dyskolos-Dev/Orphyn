@@ -6,6 +6,8 @@ import { searchRoutes } from '@renderer/features/search/routes'
 import { serversRoutes } from '@renderer/features/servers/routes'
 import { settingsRoutes } from '@renderer/features/settings/routes'
 import { videoRoutes } from '@renderer/features/video/routes'
+// After the servers feature: its guard must wrap the What's New provider.
+import '@renderer/features/whatsnew/register'
 import { AppShell } from '@renderer/shell/AppShell'
 
 /** Compose every feature's routes under the shared shell layout. */

@@ -106,6 +106,8 @@
   "about": {
     "app": "Lumen",
     "version": "Version {{version}}",
+    "whatsNew": "What's new",
+    "whatsNewDescription": "See what changed in Lumen {{version}}",
     "server": "Connected server",
     "serverName": "Name",
     "serverVersion": "Jellyfin version",

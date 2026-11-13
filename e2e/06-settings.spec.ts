@@ -94,6 +94,13 @@ test('settings: appearance, accent colour and playback preferences', async () =>
     await openPane(page, 'About')
     await screenshotBothThemes(page, 'settings-about-en')
 
+    // "What's new" reopens the notes of the running version.
+    await page.getByText("What's new", { exact: true }).click()
+    await expect(page.getByRole('dialog', { name: /What's new in Lumen/ })).toBeVisible()
+    await screenshotBothThemes(page, 'settings-whats-new-en')
+    await page.getByRole('button', { name: 'Continue' }).click()
+    await expect(page.getByRole('dialog')).toBeHidden()
+
     expectCleanLogs(logs)
   } finally {
     await close()

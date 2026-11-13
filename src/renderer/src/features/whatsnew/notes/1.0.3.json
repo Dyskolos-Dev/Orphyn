@@ -1,0 +1,52 @@
+{
+  "fr": {
+    "title": "Une lecture plus soignée",
+    "items": [
+      {
+        "icon": "layout",
+        "title": "Onglets En lecture centrés",
+        "text": "Les onglets En lecture, Paroles et À suivre sont enfin parfaitement centrés, sans cadre rouge après un clic."
+      },
+      {
+        "icon": "music",
+        "title": "Un nouveau mini-lecteur",
+        "text": "Refait comme dans Apple Music : une capsule centrale avec la pochette, le titre et la progression, les commandes à gauche, le volume et les actions à droite. Rien ne déborde, quelle que soit la taille de la fenêtre."
+      },
+      {
+        "icon": "download",
+        "title": "Installeur à l'image de Lumen",
+        "text": "L'installeur Windows et l'image disque macOS reprennent les couleurs et le logo de l'application."
+      },
+      {
+        "icon": "sparkles",
+        "title": "Cet écran « Nouveautés »",
+        "text": "Après chaque mise à jour, Lumen vous présente ce qui change. Vous pouvez le rouvrir à tout moment depuis Réglages > À propos."
+      }
+    ]
+  },
+  "en": {
+    "title": "A more polished player",
+    "items": [
+      {
+        "icon": "layout",
+        "title": "Centred Now Playing tabs",
+        "text": "The Now Playing, Lyrics and Up Next tabs are now perfectly centred, with no red ring after a click."
+      },
+      {
+        "icon": "music",
+        "title": "A new mini player",
+        "text": "Rebuilt after Apple Music: a central capsule with the artwork, title and progress, controls on the left, volume and actions on the right. Nothing overflows, whatever the window size."
+      },
+      {
+        "icon": "download",
+        "title": "An installer that looks like Lumen",
+        "text": "The Windows installer and the macOS disk image now use the app's colours and logo."
+      },
+      {
+        "icon": "sparkles",
+        "title": "This What's New screen",
+        "text": "After each update, Lumen tells you what changed. Reopen it any time from Settings > About."
+      }
+    ]
+  }
+}

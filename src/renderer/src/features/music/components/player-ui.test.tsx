@@ -35,9 +35,10 @@ describe('player UI', () => {
     lyricsMock.data = undefined
   })
 
-  it('shows nothing while the queue is empty', () => {
-    const { container } = renderWithRouter(<MiniPlayer />)
-    expect(container).toBeEmptyDOMElement()
+  it('shows "Not Playing" with disabled controls while the queue is empty', () => {
+    renderWithRouter(<MiniPlayer />)
+    expect(screen.getByText('Not Playing')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Next' })).toBeDisabled()
   })
 
   it('mini player shows the track length before a restored track has loaded', () => {

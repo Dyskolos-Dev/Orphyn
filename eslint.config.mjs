@@ -20,4 +20,9 @@ export default tseslint.config(
     files: ['src/main/**/*.ts', 'src/preload/**/*.ts', '*.config.{ts,mjs}'],
     languageOptions: { globals: globals.node },
   },
+  {
+    // Build scripts run in Node and evaluate snippets inside a browser page.
+    files: ['build/scripts/*.mjs'],
+    languageOptions: { globals: { ...globals.node, ...globals.browser } },
+  },
 )

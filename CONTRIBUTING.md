@@ -78,8 +78,11 @@ A missing key in either language is a bug, and reviewers will ask for it to be f
 ## Releasing
 
 1. Bump `version` in `package.json` (and `package-lock.json`, e.g. `npm version 1.1.0 --no-git-tag-version`) and add the entry to `CHANGELOG.md`.
+   **Also add `src/renderer/src/features/whatsnew/notes/<version>.json`** (`{ "fr": { "title", "items" }, "en": { ... } }`, each item `{ "icon", "title", "text" }`, in both languages): it is the "What's new" sheet users see once after updating. A unit test fails when the running version has no notes.
 2. Commit, then tag and push the tag: `git tag v1.1.0 && git push origin main v1.1.0`.
 3. The **Release** workflow builds Windows, macOS and Linux and publishes **one** GitHub release holding every installer, the `latest.yml` / `latest-mac.yml` / `latest-linux.yml` update feeds and the blockmaps. The release is published (not a draft), otherwise installed apps cannot see it.
+
+The installer artwork (`build/icon.ico`, the NSIS bitmaps, the DMG background) comes from the logo: regenerate it with `node build/scripts/generate-installer-assets.mjs` when the logo changes.
 
 Installed apps check for updates 10 seconds after launch and every 6 hours (Settings > About). Windows (NSIS) and Linux AppImage download and install in the background; unsigned macOS builds and the `.deb` only tell the user a new version exists and open the release page.
 

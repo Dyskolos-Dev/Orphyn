@@ -1,0 +1,62 @@
+{
+  "fr": {
+    "title": "Lumen 1.0, pour de bon",
+    "items": [
+      {
+        "icon": "film",
+        "title": "Films et séries",
+        "text": "Parcourez vos bibliothèques Jellyfin, reprenez la lecture là où vous l'aviez laissée, avec choix des pistes audio et des sous-titres."
+      },
+      {
+        "icon": "music",
+        "title": "Musique complète",
+        "text": "Albums, artistes, playlists, paroles synchronisées, file d'attente et un lecteur en bas de la fenêtre."
+      },
+      {
+        "icon": "users",
+        "title": "Plusieurs serveurs",
+        "text": "Connectez plusieurs serveurs et comptes, et passez de l'un à l'autre depuis la barre latérale."
+      },
+      {
+        "icon": "cast",
+        "title": "Diffusion et Discord",
+        "text": "Envoyez la lecture vers un appareil Chromecast et partagez ce que vous écoutez avec Discord."
+      },
+      {
+        "icon": "refresh",
+        "title": "Mises à jour automatiques",
+        "text": "Lumen se met à jour tout seul depuis GitHub, avec un thème clair et sombre et des couleurs d'accentuation au choix."
+      }
+    ]
+  },
+  "en": {
+    "title": "Lumen 1.0, for real",
+    "items": [
+      {
+        "icon": "film",
+        "title": "Movies and series",
+        "text": "Browse your Jellyfin libraries and resume where you left off, with audio and subtitle track choice."
+      },
+      {
+        "icon": "music",
+        "title": "Full music experience",
+        "text": "Albums, artists, playlists, synced lyrics, a queue and a player bar at the bottom of the window."
+      },
+      {
+        "icon": "users",
+        "title": "Several servers",
+        "text": "Connect several servers and accounts and switch between them from the sidebar."
+      },
+      {
+        "icon": "cast",
+        "title": "Cast and Discord",
+        "text": "Send playback to a Chromecast device and share what you listen to on Discord."
+      },
+      {
+        "icon": "refresh",
+        "title": "Automatic updates",
+        "text": "Lumen keeps itself up to date from GitHub, with light and dark themes and a choice of accent colours."
+      }
+    ]
+  }
+}
