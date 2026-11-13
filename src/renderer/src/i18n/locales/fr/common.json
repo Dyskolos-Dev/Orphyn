@@ -1,0 +1,12 @@
+{
+  "app": { "name": "Jellyra" },
+  "nav": {
+    "video": "Vidéo",
+    "music": "Musique",
+    "search": "Recherche",
+    "settings": "Réglages",
+    "servers": "Serveurs",
+    "cast": "Diffuser"
+  },
+  "stub": "Page provisoire : {{name}}"
+}

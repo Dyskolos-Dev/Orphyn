@@ -1,0 +1,12 @@
+{
+  "app": { "name": "Jellyra" },
+  "nav": {
+    "video": "Video",
+    "music": "Music",
+    "search": "Search",
+    "settings": "Settings",
+    "servers": "Servers",
+    "cast": "Cast"
+  },
+  "stub": "Placeholder page for {{name}}"
+}
