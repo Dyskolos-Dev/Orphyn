@@ -27,7 +27,7 @@ impl Accounts {
 /// Opens the store (importing the Electron servers on first start). Must run before the window
 /// loads: the renderer asks for the accounts as soon as it starts.
 pub fn init<R: Runtime>(app: &AppHandle<R>) -> Result<()> {
-    let path = app.path().app_data_dir()?.join("accounts.json");
+    let path = crate::profile::data_dir(app)?.join("accounts.json");
     let seed = if path.exists() {
         None
     } else {

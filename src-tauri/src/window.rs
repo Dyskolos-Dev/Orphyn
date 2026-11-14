@@ -143,17 +143,17 @@ fn build<R: Runtime>(app: &AppHandle<R>) -> Result<WebviewWindow<R>> {
     #[cfg(target_os = "windows")]
     let builder = builder.decorations(false).transparent(true);
 
-    // Debug builds only: `ORPHYN_CDP_PORT=<port>` opens the WebView2 DevTools protocol, so an
-    // end-to-end driver (Playwright `connectOverCDP`) can attach. wry passes its own browser
-    // arguments, which makes WebView2 ignore `WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS`.
-    #[cfg(all(target_os = "windows", debug_assertions))]
-    let builder = match std::env::var("ORPHYN_CDP_PORT")
-        .ok()
-        .and_then(|p| p.parse::<u16>().ok())
-    {
-        Some(port) => builder.additional_browser_args(&format!(
-            "--disable-features=msWebOOUI,msPdfOOUI,msSmartScreenProtection --remote-debugging-port={port}"
-        )),
+    // Debug builds only: the test profile, the DevTools protocol port (Playwright
+    // `connectOverCDP`) and the UI language of the end-to-end suite (see `profile.rs`). wry
+    // passes its own browser arguments, which makes WebView2 ignore
+    // `WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS`.
+    let builder = match crate::profile::webview_dir() {
+        Some(dir) => builder.data_directory(dir),
+        None => builder,
+    };
+    #[cfg(target_os = "windows")]
+    let builder = match crate::profile::webview2_args() {
+        Some(args) => builder.additional_browser_args(&args),
         None => builder,
     };
 

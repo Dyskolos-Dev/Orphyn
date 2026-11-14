@@ -84,6 +84,20 @@ export class JellyfinProbe {
     return this.get<Item>(`/Items/${id}`, { userId: this.userId, fields: 'MediaStreams' })
   }
 
+  /** A write request (cleanup of what a scenario created on the server). */
+  async send(method: 'POST' | 'DELETE', path: string): Promise<number> {
+    const res = await fetch(`${this.creds.url}${path}`, { method, headers: this.headers() })
+    return res.status
+  }
+
+  /** The user's favourite flag on an item. */
+  async isFavorite(id: string): Promise<boolean> {
+    const item = await this.get<{ UserData?: { IsFavorite?: boolean } }>(`/Items/${id}`, {
+      userId: this.userId,
+    })
+    return item.UserData?.IsFavorite === true
+  }
+
   /** Back to unwatched with no resume point (marking it played clears the position first). */
   async resetProgress(id: string): Promise<void> {
     for (const method of ['POST', 'DELETE']) {

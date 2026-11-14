@@ -1,6 +1,6 @@
 /**
- * OS media controls: Windows SMTC, macOS Now Playing, Linux MPRIS (Tauri shell only, filled by
- * the media-controls migration task; Electron gets them from Chromium's `navigator.mediaSession`).
+ * OS media controls: Windows SMTC, macOS Now Playing, Linux MPRIS (native shell; a plain
+ * browser uses `navigator.mediaSession`).
  * Optional in `OrphynApi`.
  */
 export const MEDIA_CONTROLS_CHANNELS = {

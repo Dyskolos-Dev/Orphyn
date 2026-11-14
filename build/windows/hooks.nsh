@@ -1,34 +1,51 @@
-﻿; Orphyn installer / uninstaller: every page is custom and drawn in the app's style.
+; Orphyn installer / uninstaller: every page is custom and drawn in the app's style.
 ;
-; The stock MUI chrome (header, grey button row) is hidden and the outer window is resized, painted
-; navy and faded in. Each page is a full-window bitmap rendered by
-; build/scripts/generate-installer-art.mjs (Segoe UI Variable text, glass logo, rounded pills), with
-; small overlays on top: hover pills, unchecked checkbox rows and a breathing logo. Clicks land on
-; the background bitmap and are dispatched on the zones generated next to the artwork.
-; electron-updater runs the installer with /S: NSIS never creates a page in silent mode, so
-; updates stay invisible.
+; Included by build/windows/installer.nsi (Tauri's NSIS template with Orphyn's pages) through
+; `bundle.windows.nsis.installerHooks`. The stock MUI chrome (header, grey button row) is hidden and
+; the outer window is resized, painted navy and faded in. Each page is a full-window bitmap rendered
+; by build/scripts/generate-installer-art.mjs (Segoe UI Variable text, glass logo, rounded pills),
+; with small overlays on top: hover pills, unchecked checkbox rows and a breathing logo. Clicks land
+; on the background bitmap and are dispatched on the zones generated next to the artwork.
+;
+; Silent (/S) and passive (/P, or `--updated` from the 1.0.x updater) installs never show these
+; pages: updates stay invisible, or show the progress page only.
+;
+; This file is included before the template's own defines: everything that needs them
+; (PRODUCTNAME, MAINBINARYNAME, PassiveMode...) is in macros, expanded where the template inserts them.
 
 !include "nsDialogs.nsh"
 !include "LogicLib.nsh"
 !include "WinMessages.nsh"
-!ifndef BUILD_UNINSTALLER
-  !include "StrContains.nsh"
-!endif
-!include "${BUILD_RESOURCES_DIR}\installer-art\installer-assets.nsh"
+!include "${__FILEDIR__}\..\installer-art\installer-assets.nsh"
 
 !define ORPHYN_BG "0B0F1C"
 !define ORPHYN_TEXT "F5F5F7"
 !define ORPHYN_WELL "161B2F"
+!define ORPHYN_UNINSTALL_ROOT "Software\Microsoft\Windows\CurrentVersion\Uninstall"
 
-!ifdef BUILD_UNINSTALLER
-  !define LP_WELCOME unwelcome
-  !define LP_PROGRESS unprogress
-  !define LP_FINISH unfinish
-!else
-  !define LP_WELCOME welcome
-  !define LP_PROGRESS progress
-  !define LP_FINISH finish
-!endif
+Var OrphynFr
+Var OrphynScale
+Var OrphynBucket
+Var OrphynKey
+Var OrphynDialog
+Var OrphynBg
+Var OrphynPage
+Var OrphynH1
+Var OrphynLogo
+Var OrphynFrameNo
+Var OrphynTicks
+Var OrphynFaded
+Var OrphynAlpha
+Var OrphynH2
+Var OrphynR0
+Var OrphynR1
+Var OrphynR2
+Var OrphynDirEdit
+Var OrphynWantOptions
+Var OrphynDesktop
+Var OrphynMenu
+Var OrphynLaunch
+Var OrphynRelaunch
 
 ; Static bitmap overlay at a zone of the artwork (px at scale 100, scaled to the bucket).
 ; style: 0x5000000E visible, 0x4000000E hidden. Clobbers $0-$5.
@@ -69,9 +86,10 @@
   ShowWindow $9 ${SW_HIDE}
 !macroend
 
-; Window, dialog and background of a page.
+; Window, dialog and background of a page. Never shown in silent or passive mode.
 !macro ORPHYN_BEGIN un page
   ${If} ${Silent}
+  ${OrIf} $PassiveMode = 1
     Abort
   ${EndIf}
   Call ${un}OrphynFrame
@@ -108,32 +126,9 @@
   nsDialogs::Show
 !macroend
 
-!macro ORPHYN_CODE un
-  Var /GLOBAL OrphynFr
-  Var /GLOBAL OrphynScale
-  Var /GLOBAL OrphynBucket
-  Var /GLOBAL OrphynKey
-  Var /GLOBAL OrphynDialog
-  Var /GLOBAL OrphynBg
-  Var /GLOBAL OrphynPage
-  Var /GLOBAL OrphynH1
-  Var /GLOBAL OrphynLogo
-  Var /GLOBAL OrphynFrameNo
-  Var /GLOBAL OrphynTicks
-  Var /GLOBAL OrphynFaded
-  Var /GLOBAL OrphynAlpha
-  !ifndef BUILD_UNINSTALLER
-    Var /GLOBAL OrphynH2
-    Var /GLOBAL OrphynR0
-    Var /GLOBAL OrphynR1
-    Var /GLOBAL OrphynR2
-    Var /GLOBAL OrphynDirEdit
-    Var /GLOBAL OrphynWantOptions
-    Var /GLOBAL OrphynDesktop
-    Var /GLOBAL OrphynMenu
-    Var /GLOBAL OrphynLaunch
-  !endif
-
+; Functions shared by the installer (un = "") and the uninstaller (un = "un."); the page names
+; select the artwork (welcome / progress / finish, or their "un" variants).
+!macro ORPHYN_FUNCTIONS un welcome progress finish
   ; Display scale -> artwork bucket (100 / 125 / 150 / 200), language.
   Function ${un}OrphynInit
     System::Call 'user32::GetDpiForSystem()i .r1'
@@ -162,12 +157,11 @@
     ${EndIf}
     StrCpy $OrphynFaded 0
     StrCpy $OrphynAlpha 255
-  !ifndef BUILD_UNINSTALLER
     StrCpy $OrphynWantOptions 0
     StrCpy $OrphynDesktop 1
     StrCpy $OrphynMenu 1
     StrCpy $OrphynLaunch 1
-  !endif
+    StrCpy $OrphynRelaunch 0
   FunctionEnd
 
   ; Sizes, centres and paints the outer window, hides the stock chrome, sizes the inner dialog.
@@ -251,7 +245,7 @@
     ${If} $OrphynPage == welcome
     ${OrIf} $OrphynPage == finish
       !insertmacro ORPHYN_HOVER PILL $OrphynH1
-  !ifndef BUILD_UNINSTALLER
+  !if "${un}" == ""
     ${ElseIf} $OrphynPage == options
       !insertmacro ORPHYN_HOVER BROWSE $OrphynH1
       !insertmacro ORPHYN_HOVER INSTALL $OrphynH2
@@ -272,14 +266,7 @@
     ${EndIf}
   FunctionEnd
 
-  !ifdef BUILD_UNINSTALLER
-    Function un.OrphynSkipPage
-      Abort
-    FunctionEnd
-    Function un.OrphynOnCancel
-      SendMessage $HWNDPARENT ${WM_CLOSE} 0 0
-    FunctionEnd
-  !else
+  !if "${un}" == ""
     Function OrphynOnBack
       SendMessage $HWNDPARENT 0x408 -1 0
     FunctionEnd
@@ -288,15 +275,19 @@
       SendMessage $HWNDPARENT 0x408 1 0
     FunctionEnd
     Function OrphynOnLaunch
-      ${StdUtils.ExecShellAsUser} $0 "$launchLink" "open" ""
+      Call RunMainBinary
       SendMessage $HWNDPARENT 0x408 1 0
     FunctionEnd
     Function OrphynOnBrowse
-      nsDialogs::SelectFolderDialog "Orphyn" "$INSTDIR"
+      nsDialogs::SelectFolderDialog "${PRODUCTNAME}" "$INSTDIR"
       Pop $0
       ${If} $0 != error
         System::Call 'user32::SetWindowText(p $OrphynDirEdit, t "$0")'
       ${EndIf}
+    FunctionEnd
+  !else
+    Function un.OrphynOnCancel
+      SendMessage $HWNDPARENT ${WM_CLOSE} 0 0
     FunctionEnd
   !endif
   Function ${un}OrphynOnNext
@@ -309,7 +300,7 @@
     ${If} $OrphynPage == welcome
     ${OrIf} $OrphynPage == finish
       !insertmacro ORPHYN_IF_IN PILL
-  !ifndef BUILD_UNINSTALLER
+  !if "${un}" == ""
         ${If} $OrphynPage == finish
         ${AndIf} $OrphynLaunch == 1
           Call OrphynOnLaunch
@@ -323,7 +314,7 @@
       ${EndIf}
       ${If} $OrphynPage == welcome
         !insertmacro ORPHYN_IF_IN LINK
-  !ifndef BUILD_UNINSTALLER
+  !if "${un}" == ""
           Call OrphynOnOptions
   !else
           Call un.OrphynOnCancel
@@ -331,7 +322,7 @@
           Return
         ${EndIf}
       ${EndIf}
-  !ifndef BUILD_UNINSTALLER
+  !if "${un}" == ""
     ${ElseIf} $OrphynPage == options
       !insertmacro ORPHYN_IF_IN BROWSE
         Call OrphynOnBrowse
@@ -382,10 +373,8 @@
   ; ---- welcome ----
   Function ${un}OrphynWelcomeShow
     StrCpy $OrphynPage welcome
-  !ifndef BUILD_UNINSTALLER
     StrCpy $OrphynWantOptions 0
-  !endif
-    !insertmacro ORPHYN_BEGIN "${un}" ${LP_WELCOME}
+    !insertmacro ORPHYN_BEGIN "${un}" ${welcome}
     !insertmacro ORPHYN_OVERLAY $OrphynDialog pillh GPILL 0x4000000E $OrphynH1
     !insertmacro ORPHYN_LOGO
     !insertmacro ORPHYN_END "${un}"
@@ -398,8 +387,8 @@
   ; ---- finish ----
   Function ${un}OrphynFinishShow
     StrCpy $OrphynPage finish
-    !insertmacro ORPHYN_BEGIN "${un}" ${LP_FINISH}
-  !ifndef BUILD_UNINSTALLER
+    !insertmacro ORPHYN_BEGIN "${un}" ${finish}
+  !if "${un}" == ""
     ; Launch pill when "launch at the end" is on, otherwise a plain Done pill.
     ${If} $OrphynLaunch == 1
       !insertmacro ORPHYN_OVERLAY $OrphynDialog launch GPILL 0x5000000E $0
@@ -420,6 +409,7 @@
   FunctionEnd
 
   ; ---- progress (the stock instfiles page, repainted: no log, thin bar, same background) ----
+  ; Also shown in passive mode (updates), so it does not go through ORPHYN_BEGIN.
   Function ${un}OrphynProgressShow
     SetAutoClose true
     StrCpy $OrphynPage progress
@@ -439,7 +429,7 @@
     GetDlgItem $R1 $R0 1027
     ShowWindow $R1 ${SW_HIDE}
     InitPluginsDir
-    !insertmacro ORPHYN_FILES_${LP_PROGRESS}
+    !insertmacro ORPHYN_FILES_${progress}
     System::Call 'user32::CreateWindowEx(i 0, t "STATIC", t "", i 0x5000000E, i 0, i 0, i $4, i $5, p $R0, p 0, p 0, p 0)p .r6'
     System::Call 'user32::LoadImage(p 0, t "$PLUGINSDIR\bg.bmp", i 0, i 0, i 0, i 0x10)p .r7'
     SendMessage $6 0x172 0 $7
@@ -464,129 +454,134 @@
   FunctionEnd
 !macroend
 
-!ifndef BUILD_UNINSTALLER
-  ; ---- options page: folder, shortcuts, launch at the end ----
-  !macro ORPHYN_OPTIONS
-    Function OrphynOptionsShow
-      ${If} $OrphynWantOptions != 1
-        Abort
-      ${EndIf}
-      StrCpy $OrphynPage options
-      !insertmacro ORPHYN_BEGIN "" options
-      !insertmacro ORPHYN_OVERLAY $OrphynDialog browseh GBROWSE 0x4000000E $OrphynH1
-      !insertmacro ORPHYN_OVERLAY $OrphynDialog installh GINSTALL 0x4000000E $OrphynH2
-      !insertmacro ORPHYN_OVERLAY $OrphynDialog off0 GROW0 0x4000000E $OrphynR0
-      !insertmacro ORPHYN_OVERLAY $OrphynDialog off1 GROW1 0x4000000E $OrphynR1
-      !insertmacro ORPHYN_OVERLAY $OrphynDialog off2 GROW2 0x4000000E $OrphynR2
-      ; Rows switched off earlier (coming back from the welcome page).
-      ${If} $OrphynDesktop == 0
-        ShowWindow $OrphynR0 ${SW_SHOW}
-      ${EndIf}
-      ${If} $OrphynMenu == 0
-        ShowWindow $OrphynR1 ${SW_SHOW}
-      ${EndIf}
-      ${If} $OrphynLaunch == 0
-        ShowWindow $OrphynR2 ${SW_SHOW}
-      ${EndIf}
-      ; Folder field: a borderless edit inside the well drawn in the artwork.
-      IntOp $0 ${LZ_WELL_X1} + 12
-      IntOp $0 $0 * $OrphynBucket
-      IntOp $0 $0 / 100
-      IntOp $1 ${LZ_WELL_Y1} + 8
-      IntOp $1 $1 * $OrphynBucket
-      IntOp $1 $1 / 100
-      IntOp $2 ${LZ_WELL_X2} - ${LZ_WELL_X1}
-      IntOp $2 $2 - 24
-      IntOp $2 $2 * $OrphynBucket
-      IntOp $2 $2 / 100
-      IntOp $3 ${LZ_WELL_Y2} - ${LZ_WELL_Y1}
-      IntOp $3 $3 - 16
-      IntOp $3 $3 * $OrphynBucket
-      IntOp $3 $3 / 100
-      System::Call 'user32::CreateWindowEx(i 0, t "EDIT", t "$INSTDIR", i 0x50010080, i r0, i r1, i r2, i r3, p $OrphynDialog, p 0, p 0, p 0)p .r4'
-      StrCpy $OrphynDirEdit $4
-      IntOp $5 17 * $OrphynBucket
-      IntOp $5 $5 / 100
-      StrCpy $6 "Segoe UI"
-      ${If} ${FileExists} "$WINDIR\Fonts\SegUIVar.ttf"
-        StrCpy $6 "Segoe UI Variable Text"
-      ${EndIf}
-      System::Call 'gdi32::CreateFont(i -r5, i 0, i 0, i 0, i 400, i 0, i 0, i 0, i 1, i 0, i 0, i 5, i 0, t "$6")p .r7'
-      SendMessage $OrphynDirEdit ${WM_SETFONT} $7 1
-      SetCtlColors $OrphynDirEdit "${ORPHYN_TEXT}" "${ORPHYN_WELL}"
-      !insertmacro ORPHYN_END ""
-    FunctionEnd
-    Function OrphynOptionsLeave
-      GetFunctionAddress $0 OrphynTick
-      nsDialogs::KillTimer $0
-      System::Call 'user32::GetWindowText(p $OrphynDirEdit, t .r0, i 1024)'
-      ; Like the stock directory page: the folder always ends in a "Orphyn" sub-folder.
-      ${StrContains} $1 "${APP_FILENAME}" "$0"
-      ${If} $1 == ""
-        StrCpy $0 "$0\${APP_FILENAME}"
-      ${EndIf}
-      StrCpy $INSTDIR $0
-    FunctionEnd
-  !macroend
-
-  !macro customHeader
-    ManifestDPIAware true
-    !insertmacro ORPHYN_CODE ""
-    !insertmacro ORPHYN_OPTIONS
-  !macroend
-  ; Orphyn is per-user only: never show the stock install-mode (all users / current user) page.
-  !macro customInstallMode
-    StrCpy $isForceCurrentInstall "1"
-  !macroend
-  !macro customInit
-    Call OrphynInit
-  !macroend
-  !macro customWelcomePage
-    Page custom OrphynWelcomeShow OrphynWelcomeLeave
-    Page custom OrphynOptionsShow OrphynOptionsLeave
-  !macroend
-  !macro customPageAfterChangeDir
-    !define MUI_PAGE_CUSTOMFUNCTION_SHOW OrphynProgressShow
-  !macroend
-  !macro customFinishPage
-    Page custom OrphynFinishShow OrphynFinishLeave
-  !macroend
-  ; The installer always creates both shortcuts: drop the ones the options page switched off.
-  !macro customInstall
-    ; Upgrading from Lumen (same appId): drop its old shortcuts, the Orphyn ones replace them.
-    Delete "$DESKTOP\Lumen.lnk"
-    Delete "$SMPROGRAMS\Lumen.lnk"
-    ${IfNot} ${Silent}
-      ${If} $OrphynDesktop == 0
-        Delete "$newDesktopLink"
-      ${EndIf}
-      ${If} $OrphynMenu == 0
-        Delete "$newStartMenuLink"
-        StrCpy $launchLink "$INSTDIR\${APP_EXECUTABLE_FILENAME}"
-      ${EndIf}
+; ---- options page: folder, shortcuts, launch at the end (installer only) ----
+!macro ORPHYN_OPTIONS
+  Function OrphynOptionsShow
+    ${If} $OrphynWantOptions != 1
+      Abort
     ${EndIf}
-  !macroend
-!else
-  !macro customHeader
-    ManifestDPIAware true
-    !insertmacro ORPHYN_CODE "un."
-  !macroend
-  !macro customInstallMode
-    StrCpy $isForceCurrentInstall "1"
-  !macroend
-  !macro customUnInstall
+    StrCpy $OrphynPage options
+    !insertmacro ORPHYN_BEGIN "" options
+    !insertmacro ORPHYN_OVERLAY $OrphynDialog browseh GBROWSE 0x4000000E $OrphynH1
+    !insertmacro ORPHYN_OVERLAY $OrphynDialog installh GINSTALL 0x4000000E $OrphynH2
+    !insertmacro ORPHYN_OVERLAY $OrphynDialog off0 GROW0 0x4000000E $OrphynR0
+    !insertmacro ORPHYN_OVERLAY $OrphynDialog off1 GROW1 0x4000000E $OrphynR1
+    !insertmacro ORPHYN_OVERLAY $OrphynDialog off2 GROW2 0x4000000E $OrphynR2
+    ; Rows switched off earlier (coming back from the welcome page).
+    ${If} $OrphynDesktop == 0
+      ShowWindow $OrphynR0 ${SW_SHOW}
+    ${EndIf}
+    ${If} $OrphynMenu == 0
+      ShowWindow $OrphynR1 ${SW_SHOW}
+    ${EndIf}
+    ${If} $OrphynLaunch == 0
+      ShowWindow $OrphynR2 ${SW_SHOW}
+    ${EndIf}
+    ; Folder field: a borderless edit inside the well drawn in the artwork.
+    IntOp $0 ${LZ_WELL_X1} + 12
+    IntOp $0 $0 * $OrphynBucket
+    IntOp $0 $0 / 100
+    IntOp $1 ${LZ_WELL_Y1} + 8
+    IntOp $1 $1 * $OrphynBucket
+    IntOp $1 $1 / 100
+    IntOp $2 ${LZ_WELL_X2} - ${LZ_WELL_X1}
+    IntOp $2 $2 - 24
+    IntOp $2 $2 * $OrphynBucket
+    IntOp $2 $2 / 100
+    IntOp $3 ${LZ_WELL_Y2} - ${LZ_WELL_Y1}
+    IntOp $3 $3 - 16
+    IntOp $3 $3 * $OrphynBucket
+    IntOp $3 $3 / 100
+    System::Call 'user32::CreateWindowEx(i 0, t "EDIT", t "$INSTDIR", i 0x50010080, i r0, i r1, i r2, i r3, p $OrphynDialog, p 0, p 0, p 0)p .r4'
+    StrCpy $OrphynDirEdit $4
+    IntOp $5 17 * $OrphynBucket
+    IntOp $5 $5 / 100
+    StrCpy $6 "Segoe UI"
+    ${If} ${FileExists} "$WINDIR\Fonts\SegUIVar.ttf"
+      StrCpy $6 "Segoe UI Variable Text"
+    ${EndIf}
+    System::Call 'gdi32::CreateFont(i -r5, i 0, i 0, i 0, i 400, i 0, i 0, i 0, i 1, i 0, i 0, i 5, i 0, t "$6")p .r7'
+    SendMessage $OrphynDirEdit ${WM_SETFONT} $7 1
+    SetCtlColors $OrphynDirEdit "${ORPHYN_TEXT}" "${ORPHYN_WELL}"
+    !insertmacro ORPHYN_END ""
+  FunctionEnd
+  Function OrphynOptionsLeave
+    GetFunctionAddress $0 OrphynTick
+    nsDialogs::KillTimer $0
+    System::Call 'user32::GetWindowText(p $OrphynDirEdit, t .r0, i 1024)'
+    ; Like the stock directory page: the folder always ends in an "Orphyn" sub-folder.
+    ${StrLoc} $1 "$0" "${PRODUCTNAME}" ">"
+    ${If} $1 == ""
+      StrCpy $0 "$0\${PRODUCTNAME}"
+    ${EndIf}
+    StrCpy $INSTDIR $0
+  FunctionEnd
+!macroend
+
+; ---- 1.0.x (Electron) -> 1.1 (Tauri) ----
+; The Electron builds (Orphyn, earlier Lumen and Jellyra) were per-user electron-builder installs
+; registered under a GUID key in HKCU Uninstall, with an "Uninstall <Name>.exe" uninstaller. Run
+; each one silently and in place (_?=, so ExecWait really waits), then remove what it leaves behind.
+; Their user data (%APPDATA%\Orphyn, accounts.json) is kept: the app imports the servers from it.
+!macro ORPHYN_REMOVE_ELECTRON_FUNCTION
+  Function OrphynRemoveElectron
+    StrCpy $R9 0 ; key index
+    StrCpy $R8 0 ; uninstalls run, bounds the loop
+    ${Do}
+      ClearErrors
+      EnumRegKey $R0 HKCU "${ORPHYN_UNINSTALL_ROOT}" $R9
+      ${If} ${Errors}
+      ${OrIf} $R0 == ""
+        ${Break}
+      ${EndIf}
+      IntOp $R9 $R9 + 1
+      ReadRegStr $R1 HKCU "${ORPHYN_UNINSTALL_ROOT}\$R0" "UninstallString"
+      StrCpy $R5 ""
+      ${StrLoc} $R2 "$R1" "\Uninstall Orphyn.exe" ">"
+      ${If} $R2 != ""
+        StrCpy $R5 "Uninstall Orphyn.exe"
+      ${Else}
+        ${StrLoc} $R2 "$R1" "\Uninstall Lumen.exe" ">"
+        ${If} $R2 != ""
+          StrCpy $R5 "Uninstall Lumen.exe"
+        ${Else}
+          ${StrLoc} $R2 "$R1" "\Uninstall Jellyra.exe" ">"
+          ${If} $R2 != ""
+            StrCpy $R5 "Uninstall Jellyra.exe"
+          ${EndIf}
+        ${EndIf}
+      ${EndIf}
+      ${If} $R5 == ""
+        ${Continue}
+      ${EndIf}
+      ; Install folder: the uninstall string up to "\Uninstall ...", without its opening quote.
+      StrCpy $R3 "$R1" $R2
+      StrCpy $R4 "$R3" 1
+      ${If} $R4 == '"'
+        StrCpy $R3 "$R3" "" 1
+      ${EndIf}
+      DetailPrint "Removing the previous version ($R3)"
+      ${If} ${FileExists} "$R3\$R5"
+        ExecWait '"$R3\$R5" /currentuser /S _?=$R3'
+        Delete "$R3\$R5"
+        RMDir "$R3"
+      ${EndIf}
+      DeleteRegKey HKCU "${ORPHYN_UNINSTALL_ROOT}\$R0"
+      ; Keys shifted: scan again from the start.
+      StrCpy $R9 0
+      IntOp $R8 $R8 + 1
+      ${If} $R8 >= 8
+        ${Break}
+      ${EndIf}
+    ${Loop}
+    ; Shortcuts of the earlier names; the Orphyn ones are (re)created by this installer.
     Delete "$DESKTOP\Lumen.lnk"
     Delete "$SMPROGRAMS\Lumen.lnk"
-  !macroend
-  !macro customuninit
-    Call un.OrphynInit
-  !macroend
-  !macro customUnWelcomePage
-    UninstPage custom un.OrphynWelcomeShow un.OrphynWelcomeLeave
-    !define MUI_PAGE_CUSTOMFUNCTION_SHOW un.OrphynProgressShow
-  !macroend
-  !macro customUninstallPage
-    !define MUI_PAGE_CUSTOMFUNCTION_PRE un.OrphynSkipPage
-    UninstPage custom un.OrphynFinishShow un.OrphynFinishLeave
-  !macroend
-!endif
+    Delete "$DESKTOP\Jellyra.lnk"
+    Delete "$SMPROGRAMS\Jellyra.lnk"
+  FunctionEnd
+!macroend
+
+!macro NSIS_HOOK_PREINSTALL
+  Call OrphynRemoveElectron
+!macroend

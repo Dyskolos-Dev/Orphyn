@@ -1,7 +1,10 @@
 # QA: end-to-end testing against a real Jellyfin server
 
-Orphyn has an end-to-end suite that drives the **built** Electron app (`out/main/index.js`) with
-Playwright's Electron driver against a real Jellyfin server. It is separate from `npm run check`
+Orphyn has an end-to-end suite that drives the **built** app (the Tauri debug build,
+`dist/tauri-target/debug/Orphyn.exe`) against a real Jellyfin server. Playwright attaches to the
+app's WebView2 over the DevTools protocol (`chromium.connectOverCDP`); the app opens that port only
+in debug builds (`ORPHYN_CDP_PORT`, see `src-tauri/src/profile.rs`). The suite runs on **Windows**:
+WKWebView (macOS) and WebKitGTK (Linux) have no DevTools protocol. It is separate from `npm run check`
 (which stays offline) and skips itself when no server is configured.
 
 ## Running it
@@ -17,13 +20,18 @@ npm run e2e
 ORPHYN_E2E_URL=https://jellyfin.example.com ORPHYN_E2E_USER=user ORPHYN_E2E_PASSWORD=password npm run e2e
 ```
 
-- `npm run e2e` builds the app, then runs `playwright test` (config: `playwright.config.ts`, specs
+- `npm run e2e` builds the app (`npm run build:e2e`: `tauri build --debug --no-bundle`, the
+  renderer embedded), then runs `playwright test` (config: `playwright.config.ts`, specs
   in `e2e/`). Without the three variables every scenario is reported as skipped and the run passes.
 - Never commit credentials: they are only read from the environment.
 - Each run uses a fresh temporary user data directory (created by `e2e/global-setup.ts`, passed to
-  the app through `ORPHYN_USER_DATA_DIR`), shared by the scenario files, which run in order on one
+  the app through `ORPHYN_USER_DATA_DIR`: data, settings, webview profile, keychain service
+  `Orphyn (test)`, no single-instance lock, so it runs beside an open Orphyn), shared by the scenario files, which run in order on one
   worker. Set `ORPHYN_E2E_PROFILE` to an absolute path to reuse a profile while working on one
   scenario (`npx playwright test e2e/04-music.spec.ts`).
+- The DevTools port is `HANGAR_PORT_BASE + 10` when that variable is set, else 9333; override it with
+  `ORPHYN_E2E_CDP_PORT`. `ORPHYN_E2E_BINARY` points the suite at another build.
+- The app's language comes from `ORPHYN_LANG` (WebView2 `--lang`), which the suite sets per launch.
 - Screenshots go to `e2e/screenshots/` (git-ignored), `<screen>-<lang>-light.png` and `-dark.png`.
   Light and dark are taken with the theme on "System" and the colour scheme emulated. A page capture
   cannot see the native Mica material, so the window surface colour is painted behind transparent
@@ -43,15 +51,15 @@ of them unless it is explicitly expected (bad address, wrong password, see "Know
 | File                 | What is tested                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
 | -------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `01-onboarding`      | Unreachable address, an address that answers but is not Jellyfin, a pasted `/web/#/…` address being cut back to the server root, wrong password (error shown, field cleared), then sign-in and naming the server. The onboarding title stays readable in light and dark mode.                                                                                                                                                                                                |
-| `02-servers`         | `accounts.json` holds an encrypted token (not the 32-hex Jellyfin token, no password) and the session survives a restart. Adding the same server again under another name; signing in again and closing the sheet at the naming step (the app must keep working); switcher menu; rename from Settings › Servers; Sign Out and Remove (back to onboarding); sign in again.                                                                                                    |
+| `02-servers`         | `accounts.json` holds no token (it is in the OS keychain) and no password, and the session survives a restart. Adding the same server again under another name; signing in again and closing the sheet at the naming step (the app must keep working); switcher menu; rename from Settings › Servers; Sign Out and Remove (back to onboarding); sign in again. |
 | `03-video`           | Watch Now, Movies grid, a movie detail, TV Shows grid, a series with seasons and episodes. Playing a movie: `currentTime` advances, +10 s, seek to 10 min, switch the audio track (playback resumes near the same position), turn a text subtitle on (a `<track>` shows), cast picker in the player, leave: the server's `UserData.PlaybackPositionTicks` matches, the detail page offers "Resume" and resuming starts there. The test movie's progress is reset afterwards. |
 | `04-music`           | Listen Now, Albums, Artists, Songs, an album page, Play: the position advances. Next / Previous, Shuffle on/off, Repeat off → all → one → off, Now Playing sheet, Up Next queue, lyrics view on a track without lyrics (empty state, no 404 request), pause and close.                                                                                                                                                                                                       |
 | `05-search`          | Ctrl+F focuses search; a movie, an artist and a song are found; the song plays from the results and its lyrics show (synced or plain); the "no results" state.                                                                                                                                                                                                                                                                                                               |
 | `06-settings`        | Appearance Dark / Light / System (the explicit choice wins over the OS, System follows it), accent colour, video quality, audio and subtitle languages, autoplay, reset, music quality, About. French: applied immediately, kept after a restart with an English OS, and the main screens captured in French.                                                                                                                                                                |
-| `07-cast-media-keys` | The Chromium features behind media keys and the Windows media flyout (SMTC) are enabled. `navigator.mediaSession` carries title, artist, album, artwork and playing/paused state. The handlers Chromium calls for media keys and flyout buttons (next, pause, play, previous) drive the player. The cast picker lists "This computer" as selected and stays inside the window once devices are discovered.                                                                   |
+| `07-cast-media-keys` | The app publishes through the native OS media controls (`window.orphyn.mediaControls`). The native core's `orphyn:media-controls:action` event, which media keys and the OS media panel produce, drives the player: next, pause, play, toggle, previous. The cast picker lists "This computer" as selected and stays inside the window once devices are discovered. |
+| `08-playlists-…`     | Playlists: create one from the Playlists page, add an album from its menu (the server holds its tracks), open it from the sidebar, delete it (test playlists are always removed). Favourites: mark an album, it shows in Favourites, unmark it. Interface styles: each of the five applies at once (`data-style`, layout intact) and the choice survives a restart. Picture-in-Picture: the music mini window shows the track, its Next and Pause drive the main player, closing it leaves the main window playing. |
 
-Unit tests were added where it made sense: `src/main/startup.test.ts`, `src/main/accounts/store.test.ts`
-(async storage, fallback on removal, name kept on re-sign-in), `features/servers/servers.test.tsx`
+Unit tests were added where it made sense (the Electron ones have since moved to the Rust core: `src-tauri/src/accounts/store.rs` tests cover storage, fallback on removal and the name kept on re-sign-in), `features/servers/servers.test.tsx`
 (token switch on re-sign-in), `design/overlays/overlays.test.tsx` (Escape kept from the page).
 
 ## Bugs found and fixed
@@ -123,9 +131,9 @@ No 10.9-only route is used.
   device's previous token on each sign-in. "Switch" between two entries therefore needs a second
   account or server. It is covered by the store's unit tests, and the switcher menu (checked item)
   is exercised end to end.
-- **Physical media keys and the Windows flyout cannot be pressed by Playwright.** The suite proves
-  the Chromium features are on, the metadata and state are published, and the handlers Chromium
-  calls drive the player. A last manual check on Windows: play a song, press the keyboard's
+- **Physical media keys and the Windows flyout cannot be pressed by Playwright.** The suite emits
+  the same event the native core sends for them and checks that it drives the player; the metadata
+  sent to the OS is covered by the Rust unit tests. A last manual check on Windows: play a song, press the keyboard's
   play/pause and next keys, and open the volume flyout (Win+A / media overlay) to see title,
   artist and artwork.
 - **Artwork loads slowly the first time** on this server: Jellyfin resizes images on demand. The

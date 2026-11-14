@@ -1,6 +1,6 @@
 /**
  * Picture-in-picture / mini player window (Tauri shell only, filled by the PiP migration task).
- * Optional in `OrphynApi`: the Electron shell does not provide it.
+ * Optional in `OrphynApi`: absent outside the native shell.
  */
 export const PIP_CHANNELS = {
   /** Main -> renderer event, payload: {@link PipState}. */

@@ -195,8 +195,8 @@ function installNativeMediaControls(): () => void {
 /**
  * Publishes the current track and transport controls to the OS: through the native controls of
  * the Tauri shell when there are any (a single entry in the OS panel, shared with the video
- * player), otherwise through `navigator.mediaSession` (Electron / Chromium maps it to Windows
- * SMTC, macOS Now Playing and Linux MPRIS). Returns an uninstall function.
+ * player), otherwise through `navigator.mediaSession` (a plain browser maps it to its own OS
+ * integration). Returns an uninstall function.
  */
 export function installMediaSession(
   ...args: Parameters<typeof installWebMediaSession>

@@ -26,12 +26,13 @@
 | 🎵 **Musique** | Bibliothèque soignée : albums, artistes, playlists, file d'attente, aléatoire et répétition, « À l'écoute » en plein écran. |
 | 🎤 **Paroles synchronisées** | Les paroles défilent avec la chanson ; un clic sur une ligne y saute. |
 | 📡 **Cast** | Google Cast (musique et vidéo), lecteurs UPnP/DLNA dont WiiM, AirPlay vers Apple TV (au mieux). |
-| 🗂️ **Plusieurs serveurs** | Ajoute un serveur avec son adresse, ton compte et un nom ; change en un clic. Seul un jeton chiffré est conservé, jamais ton mot de passe. |
+| 🗂️ **Plusieurs serveurs** | Ajoute un serveur avec son adresse, ton compte et un nom ; change en un clic. Seul un jeton est conservé, dans le trousseau du système, jamais ton mot de passe. |
 | 🔎 **Recherche globale** | Films, séries, épisodes, artistes, albums et titres au même endroit. |
 | 🌗 **Clair et sombre** | Suit ton système, avec la couleur d'accent de ton choix. Français et anglais. |
 | 🎮 **Discord Rich Presence** | « Écoute » / « Regarde » avec la pochette, activable dans les Réglages. |
-| ⌨️ **Comme une app native** | Touches multimédia et contrôles média du système, menu macOS, ⌘/Ctrl+R pour rafraîchir la bibliothèque. |
-| 🔄 **Mises à jour automatiques** | Les nouvelles versions s'installent seules sur Windows et Linux (AppImage) ; sur macOS, Orphyn te prévient et ouvre le téléchargement. |
+| ⌨️ **Comme une app native** | Touches multimédia et contrôles média du système, ⌘/Ctrl+, pour les Réglages, ⌘/Ctrl+R pour rafraîchir la bibliothèque. |
+| 🪟 **Picture-in-Picture** | Garde le mini lecteur musique ou une vidéo dans une petite fenêtre au-dessus de tout le reste. |
+| 🔄 **Mises à jour automatiques** | Les nouvelles versions se téléchargent et s'installent seules sur Windows, macOS et Linux (AppImage). |
 
 ## 📥 Installation
 
@@ -39,10 +40,10 @@ Télécharge l'installeur de ton système dans la [dernière release](https://gi
 
 | Système | Fichier |
 |---|---|
-| Windows 10/11 | `Orphyn-Setup-x.y.z.exe` |
-| macOS Apple silicon (M1 et plus récent) | `Orphyn-x.y.z-arm64.dmg` |
-| macOS Intel | `Orphyn-x.y.z.dmg` |
-| Linux | `Orphyn-x.y.z.AppImage` ou `orphyn_x.y.z_amd64.deb` |
+| Windows 10/11 | `Orphyn_x.y.z_x64-setup.exe` |
+| macOS Apple silicon (M1 et plus récent) | `Orphyn_x.y.z_aarch64.dmg` |
+| macOS Intel | `Orphyn_x.y.z_x64.dmg` |
+| Linux | `Orphyn_x.y.z_amd64.AppImage` ou `Orphyn_x.y.z_amd64.deb` |
 
 > [!NOTE]
 > Les builds ne sont pas encore signés. Sur Windows, clique sur **Informations complémentaires → Exécuter quand même** dans SmartScreen. Sur macOS, fais un clic droit sur l'app puis **Ouvrir** la première fois.
@@ -51,7 +52,7 @@ Il te faut un serveur [Jellyfin](https://jellyfin.org) en version 10.9 ou plus.
 
 ## 🛠️ Développement
 
-Node.js 22+ et npm sont nécessaires.
+Node.js 22+, npm et Rust stable (1.85+) sont nécessaires. Sous Linux, il faut aussi les paquets système de Tauri listés dans [docs/TAURI.md](docs/TAURI.md).
 
 ```bash
 npm install
@@ -61,9 +62,9 @@ npm run dev
 | Script | Rôle |
 |---|---|
 | `npm run dev` | Lance l'app avec rechargement à chaud |
-| `npm run check` | Types, lint, tests unitaires et build |
+| `npm run check` | Types, lint, tests unitaires, build du renderer, puis format, lint et tests Rust |
 | `npm run e2e` | Tests de bout en bout sur un vrai serveur (voir [docs/QA.md](docs/QA.md)) |
-| `npm run dist` | Construit l'installeur du système courant dans `release/` |
+| `npm run dist` | Construit les installeurs du système courant dans `dist/tauri-target/release/bundle/` |
 
 Les releases sont construites par GitHub Actions quand un tag `v*` est poussé (voir [CONTRIBUTING.md](CONTRIBUTING.md)).
 

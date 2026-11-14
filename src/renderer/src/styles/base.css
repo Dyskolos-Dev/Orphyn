@@ -127,16 +127,8 @@ html:not([data-platform='darwin']) ::-webkit-scrollbar-thumb:hover {
   background-color: var(--tertiary-label);
 }
 
-/* Window drag regions (Electron). Interactive children opt out automatically. */
-.jr-drag {
-  -webkit-app-region: drag;
-  app-region: drag;
-}
-.jr-drag :is(button, a, input, select, textarea, [role='button'], [tabindex], .jr-no-drag),
-.jr-no-drag {
-  -webkit-app-region: no-drag;
-  app-region: no-drag;
-}
+/* Window drag regions: `.jr-drag` areas drag the window, `.jr-no-drag` and interactive children
+   opt out. The native shell's bridge handles it (src/renderer/src/bridge/dragRegions.ts). */
 
 /* Screen-reader only text. */
 .jr-visually-hidden {

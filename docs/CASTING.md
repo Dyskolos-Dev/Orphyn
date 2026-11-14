@@ -1,13 +1,14 @@
 # Casting backend
 
-Main-process casting for Orphyn: Google Cast, UPnP/DLNA (including WiiM / LinkPlay) and AirPlay
-(best effort). The renderer only sees `window.orphyn.cast` (typed in `src/shared/ipc/cast.ts`).
-UI and player integration are a separate task.
+Casting for Orphyn, in the native core (`src-tauri/src/cast/`): Google Cast, UPnP/DLNA (including
+WiiM / LinkPlay) and AirPlay (best effort). The renderer only sees `window.orphyn.cast` (typed in
+`src/shared/ipc/cast.ts`). The design below was first written in TypeScript for 1.0.x (Electron);
+the Rust module keeps it, file for file (see "Rust implementation").
 
 ## Architecture
 
 ```
-renderer ── window.orphyn.cast ── preload/cast.ts ── ipcMain (main/cast/index.ts)
+renderer ── window.orphyn.cast ── bridge/cast.ts ── commands (src-tauri/src/cast/mod.rs)
                                                           │
                                                      CastManager ── Discovery ── DeviceRegistry
                                                           │            (mDNS + SSDP, expiry)
@@ -17,7 +18,7 @@ renderer ── window.orphyn.cast ── preload/cast.ts ── ipcMain (main/c
                                                      CastTransport
                                   ┌───────────────────────┼───────────────────────┐
                            ChromecastTransport      UpnpTransport           AirplayTransport
-                           (castv2-client DMR)      (SOAP AVTransport/      (legacy HTTP /play)
+                           (rust_cast DMR)           (SOAP AVTransport/      (legacy HTTP /play)
                                                      RenderingControl)
 ```
 
@@ -25,13 +26,11 @@ renderer ── window.orphyn.cast ── preload/cast.ts ── ipcMain (main/c
 | -------------------------- | ----------------------------------------------------------------------- |
 | `src/shared/cast/model.ts` | `CastDevice`, `CastMedia`, `CastSessionState`, `CastCommand`            |
 | `src/shared/ipc/cast.ts`   | channel names, `CastApi`, event payloads                                |
-| `main/cast/discovery.ts`   | mDNS `_googlecast`/`_airplay`/`_raop`, SSDP MediaRenderer + description |
-| `main/cast/registry.ts`    | live device set, 90 s expiry (swept every 10 s), explicit removal       |
-| `main/cast/session.ts`     | state machine; never emits `ended` after a user stop; reconnects        |
-| `main/cast/transports/*`   | one protocol each, behind the `CastTransport` interface                 |
-| `main/cast/didl.ts` etc.   | pure builders/parsers (DIDL-Lite, SOAP, descriptions, TXT, XML helper)  |
-
-No XML dependency was added: `xml.ts` has a small escaper and a tolerant parser.
+| `cast/discovery.rs`        | mDNS `_googlecast`/`_airplay`/`_raop`, SSDP MediaRenderer + description |
+| `cast/registry.rs`         | live device set, 90 s expiry (swept every 10 s), explicit removal       |
+| `cast/session.rs`          | state machine; never emits `ended` after a user stop; reconnects        |
+| `cast/{chromecast,upnp,airplay}.rs` | one protocol each, behind the `CastTransport` trait            |
+| `cast/didl.rs` etc.        | pure builders/parsers (DIDL-Lite, SOAP, descriptions, TXT, XML helper)  |
 
 ### Discovery lifecycle
 
@@ -49,12 +48,12 @@ list. Sessions survive discovery stopping.
 - The end of a track emits `onEnded` exactly once: Cast `idleReason FINISHED`; UPnP `STOPPED` after
   having seen `PLAYING`; AirPlay playback-info going empty after playing. A user `stop()` never
   produces `ended`.
-- App quit (`before-quit`) disposes discovery, polling timers and sockets. All logs are prefixed
+- App exit disposes discovery, polling timers and sockets. All logs are prefixed
   `[cast]`. No handler lets a rejection escape.
 
 ## Rust implementation (Tauri shell)
 
-`src-tauri/src/cast/` is a 1:1 port of the Electron backend above, exposed through the commands
+`src-tauri/src/cast/` is a 1:1 port of the 1.0.x TypeScript backend, exposed through the commands
 `cast_start_discovery`, `cast_stop_discovery`, `cast_list_devices`, `cast_get_session`,
 `cast_load`, `cast_play`, `cast_pause`, `cast_seek`, `cast_stop`, `cast_set_volume`,
 `cast_set_muted`, `cast_disconnect` and the events `cast:devices-changed`,
@@ -170,25 +169,10 @@ IPC channels (`CAST_CHANNELS`): `cast:start-discovery`, `cast:stop-discovery`, `
 `cast:set-volume`, `cast:set-muted`, `cast:disconnect`; events `cast:devices-changed`,
 `cast:session-changed`, `cast:ended`, `cast:error`.
 
-## Manual check (no Electron needed)
-
-`src/main/cast/cli.ts` bundles with the already-installed esbuild:
-
-```sh
-npx esbuild src/main/cast/cli.ts --bundle --platform=node --format=cjs --packages=external \
-  --alias:@shared=./src/shared --outfile=out/cast-cli.cjs
-
-node out/cast-cli.cjs list 6                       # list devices found in 6 s
-node out/cast-cli.cjs play "WiiM" http://host/song.mp3 audio/mpeg 20   # play 20 s, print state, stop
-```
-
-`play` matches the device by name or id fragment, sends a test URL with metadata, prints every
-state change (`state: playing 3/180s vol=0.4`), then stops and exits. Use a URL the device can
-reach (LAN address, not `localhost`).
-
 ## Tests
 
-`npx vitest run src/main/cast` covers DIDL-Lite, SOAP, device descriptions, Cast/AirPlay TXT,
-UPnP polling and ended logic (mocked SOAP), the session state machine and reconnection (mocked
-transports, fake timers), the registry expiry and the manager's discovery policy. Real-device
-behaviour (Cast/UPnP/AirPlay on hardware) is not covered by automated tests: use the manual check.
+`cargo test --manifest-path src-tauri/Cargo.toml cast` covers DIDL-Lite, SOAP, device descriptions,
+Cast/AirPlay TXT, UPnP polling and ended logic, the session state machine and reconnection, the
+registry expiry and the manager's discovery policy. Real-device behaviour (Cast/UPnP/AirPlay on
+hardware) is not covered by automated tests: check it by hand from the cast picker of the music or
+video player (`npm run dev`).

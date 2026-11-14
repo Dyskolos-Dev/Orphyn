@@ -1,7 +1,11 @@
-# Release: on a v* tag, build installers on each operating system and publish ONE GitHub release
-# holding every installer plus latest.yml / latest-mac.yml / latest-linux.yml and the blockmaps that
-# the in-app updater (electron-updater) reads. The release is published, not a draft: a draft is
-# invisible to installed clients.
+# Release: on a v* tag, build the installers on each operating system and publish ONE GitHub
+# release (not a draft) holding:
+#   - the installers: Windows NSIS setup, macOS .dmg (Apple silicon and Intel), Linux AppImage + .deb
+#   - latest.json and the .sig files the in-app updater (tauri-plugin-updater) reads
+#   - latest.yml / latest-linux.yml / latest-mac.yml for the 1.0.x clients (electron-updater),
+#     written by scripts/electron-update-bridge.mjs (see docs/TAURI.md, "Updating from 1.0.x")
+# The release stays a draft while the builds upload, and is published by the last job once every
+# file is there: installed clients never see a half-filled release.
 name: Release
 
 on:
@@ -12,13 +16,25 @@ permissions:
   contents: write
 
 jobs:
-  release:
-    name: release (${{ matrix.os }})
+  build:
+    name: build (${{ matrix.name }})
     runs-on: ${{ matrix.os }}
     strategy:
-      fail-fast: false
+      fail-fast: true
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
+        include:
+          - name: windows
+            os: windows-latest
+            args: ''
+          - name: macos-arm64
+            os: macos-latest
+            args: --target aarch64-apple-darwin
+          - name: macos-x64
+            os: macos-latest
+            args: --target x86_64-apple-darwin
+          - name: linux
+            os: ubuntu-22.04
+            args: ''
     steps:
       - name: Check out the repository
         uses: actions/checkout@v4
@@ -28,6 +44,25 @@ jobs:
         with:
           node-version: 22
           cache: npm
+
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ runner.os == 'macOS' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
+
+      - name: Cache cargo
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri -> ../dist/tauri-target
+          key: ${{ matrix.name }}
+
+      - name: Install Tauri system packages (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libayatana-appindicator3-dev \
+            librsvg2-dev libsoup-3.0-dev libjavascriptcoregtk-4.1-dev libdbus-1-dev patchelf \
+            gstreamer1.0-plugins-good gstreamer1.0-libav
 
       - name: Install dependencies
         run: npm ci
@@ -39,14 +74,49 @@ jobs:
           npx playwright install chromium
           npm run installer-art
 
-      - name: Build and publish
-        # Each OS job uploads its own files to the same release (electron-builder creates it once and
-        # reuses it), so one tag gives one release with everything attached.
-        # Signing is optional: set the secrets below and remove CSC_IDENTITY_AUTO_DISCOVERY.
-        #   Windows: CSC_LINK (base64 or URL of the .pfx) and CSC_KEY_PASSWORD
-        #   macOS:   CSC_LINK (Developer ID .p12), CSC_KEY_PASSWORD, APPLE_ID,
-        #            APPLE_APP_SPECIFIC_PASSWORD, APPLE_TEAM_ID (notarization)
+      - name: Build and upload
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Updater signing key (content of the private key file) and its password.
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+        with:
+          tagName: ${{ github.ref_name }}
+          releaseName: Orphyn ${{ github.ref_name }}
+          releaseBody: See CHANGELOG.md for what is new in this version.
+          releaseDraft: true
+          prerelease: false
+          includeUpdaterJson: true
+          args: ${{ matrix.args }}
+
+  publish:
+    name: publish
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Write the update files of the 1.0.x clients
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
-        run: npm run build && npx electron-builder --publish always
+          TAG: ${{ github.ref_name }}
+        run: |
+          mkdir assets
+          gh release download "$TAG" --dir assets \
+            --pattern '*-setup.exe' --pattern '*.AppImage' --pattern '*.dmg'
+          node scripts/electron-update-bridge.mjs assets "$TAG"
+          gh release upload "$TAG" --clobber \
+            assets/latest.yml assets/latest-linux.yml assets/latest-mac.yml
+
+      - name: Publish the release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ github.ref_name }}
+        run: gh release edit "$TAG" --draft=false --latest

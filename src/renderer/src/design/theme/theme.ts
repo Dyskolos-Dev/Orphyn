@@ -111,7 +111,7 @@ export function applyThemeToDocument(resolved: ResolvedTheme, accent: AccentColo
   }
 }
 
-/** Tells the native window (vibrancy, Mica, caption buttons) about the theme. Safe outside Electron. */
+/** Tells the native window (vibrancy, Mica, caption buttons) about the theme. Safe outside the app. */
 function syncNative(mode: ThemeMode, resolved: ResolvedTheme): void {
   const api = typeof window !== 'undefined' ? window.orphyn?.window : undefined
   if (!api) return

@@ -1,6 +1,6 @@
 # Orphyn architecture
 
-Electron + electron-vite + React 19 + TypeScript (strict), npm. Desktop Jellyfin client for music and
+Tauri v2 (Rust core) + Vite + React 19 + TypeScript (strict), npm. Desktop Jellyfin client for music and
 movies/series. The layout is built so several agents can work in separate folders without editing the
 same files: every cross-cutting concern has a **composition point** (a barrel/registry file) that only
 imports from feature-owned folders.
@@ -9,13 +9,13 @@ imports from feature-owned folders.
 
 | Script                            | What it does                                    |
 | --------------------------------- | ----------------------------------------------- |
-| `npm run dev`                     | electron-vite dev (HMR renderer, restarts main) |
-| `npm run build`                   | electron-vite build into `out/`                 |
-| `npm run typecheck`               | `tsc` for node (main/preload/shared) then web   |
+| `npm run dev`                     | `tauri dev` (Vite HMR renderer + Rust core)     |
+| `npm run build`                   | release build of the app, no installer          |
+| `npm run typecheck`               | `tsc` for node configs/shared, web, then e2e    |
 | `npm run lint` / `npm run format` | ESLint (flat config) / Prettier                 |
 | `npm test`                        | vitest run (jsdom, Testing Library)             |
-| `npm run check`                   | typecheck + lint + test + build                 |
-| `npm run dist`                    | build + electron-builder for the current OS     |
+| `npm run check`                   | typecheck + lint + test + Rust (fmt, clippy, test) |
+| `npm run dist`                    | installers for the current OS (see TAURI.md)    |
 
 `package.json` is owned by the foundation: all runtime dependencies are already installed.
 
@@ -23,12 +23,8 @@ imports from feature-owned folders.
 
 | Folder                                | Owner (agent)                                         | Contents                                                                        |
 | ------------------------------------- | ----------------------------------------------------- | ------------------------------------------------------------------------------- |
-| `src/main/index.ts`                   | foundation                                            | App bootstrap; only calls the register functions below                          |
-| `src/main/window/`                    | window agent                                          | `createMainWindow`, window IPC handlers                                         |
-| `src/main/accounts/`                  | servers agent                                         | `registerAccountsIpc`, secure account/token storage                             |
-| `src/main/cast/`                      | cast agent                                            | `registerCastIpc`, Chromecast/DLNA discovery                                    |
-| `src/main/discord/`                   | -                                                     | `registerDiscord`, Discord Rich Presence (see `docs/DISCORD.md`)                |
-| `src/preload/`                        | foundation (+ per-API files by the owner of that API) | `window.orphyn` bridge                                                           |
+| `src-tauri/`                          | foundation (+ one module per domain)                  | Rust core: window, accounts, cast, discord, media controls, PiP, updater (see `docs/TAURI.md`) |
+| `src/renderer/src/bridge/`            | foundation (+ per-API files by the owner of that API) | `window.orphyn` bridge to the Rust commands and events                          |
 | `src/shared/ipc/`                     | owner of each API file                                | IPC channel names + typed API contracts (`window.ts`, `accounts.ts`, `cast.ts`) |
 | `src/renderer/src/app/`               | foundation                                            | `App.tsx`, `routes.tsx` (composition)                                           |
 | `src/renderer/src/shell/`             | shell agent                                           | `AppShell.tsx` layout (sidebar + outlet)                                        |
@@ -43,32 +39,27 @@ imports from feature-owned folders.
 | `src/renderer/src/features/music/`    | music agent                                           | Albums, artists, playlists, songs, player                                       |
 | `src/renderer/src/features/cast/`     | cast agent                                            | Cast UI                                                                         |
 | `src/renderer/src/features/discord/`  | -                                                     | Mirrors the music and video players to Discord (sends a normalized presence)    |
-| `build/`, `resources/`                | foundation                                            | Icons / packaging resources                                                     |
+| `build/`, `scripts/`                  | foundation                                            | Icons, installer pages and art, build and release scripts                       |
 
 `features/*/StubPage` placeholders live in `shell/StubPage.tsx`; replace them with real pages.
 
 ## Composition points
 
-1. **Main process** (`src/main/index.ts`) calls, in order: `registerAccountsIpc()`
-   (`src/main/accounts/index.ts`), `registerCastIpc()` (`src/main/cast/index.ts`), then
-   `createMainWindow()` (`src/main/window/index.ts`). Each owner edits only its folder; the
-   function signatures stay the same.
-2. **Preload** (`src/preload/index.ts`) exposes
-   `window.orphyn = { window, accounts, cast, platform }` built from `src/preload/window.ts`,
-   `accounts.ts`, `cast.ts`. Types: `src/shared/ipc/*.ts` (`OrphynApi` in `shared/ipc/index.ts`) and
-   the global `Window` augmentation in `src/preload/index.d.ts`. Security: `contextIsolation: true`,
-   `nodeIntegration: false`, `sandbox: true` (preload may only import `electron` and `@shared/*`).
+1. **Native core** (`src-tauri/src/lib.rs`) registers the plugins, calls each module's `init`
+   and lists every command; each domain owns its module folder (see `docs/TAURI.md`).
+2. **Bridge** (`src/renderer/src/bridge/index.ts`, imported first by `main.tsx`) defines
+   `window.orphyn` from one file per API (`window.ts`, `accounts.ts`, `cast.ts`...). Types:
+   `src/shared/ipc/*.ts` (`OrphynApi` in `shared/ipc/index.ts`) and the global `Window` augmentation
+   in `src/renderer/src/orphyn.d.ts`.
 3. **Routes** (`src/renderer/src/app/routes.tsx`) spreads `xxxRoutes` arrays exported from
    `features/{servers,settings,search,video,music,cast}/routes.tsx` under the `AppShell` layout. A
-   feature adds/changes routes only in its own `routes.tsx`. The router is a hash router (works with
-   `file://` in production).
+   feature adds/changes routes only in its own `routes.tsx`. The router is a hash router.
 4. **i18n** (`src/renderer/src/i18n/index.ts`) globs `./locales/*/*.json` (see below).
 5. **Design / styles / data layer**: `design/index.ts`, `styles/index.ts`, `jellyfin/index.ts` are
    barrels owned by their agent; other agents import from `@renderer/design`, `@renderer/jellyfin`.
 
 Path aliases: `@renderer/*` -> `src/renderer/src/*`, `@shared/*` -> `src/shared/*` (configured in
-`electron.vite.config.ts`, `vitest.config.ts` and the tsconfigs; `@shared` works in main, preload and
-renderer).
+`vite.renderer.config.ts`, `vitest.config.ts` and the tsconfigs).
 
 ## Route table
 
@@ -96,13 +87,11 @@ by these literal paths; do not invent new top-level paths without updating this 
 
 ## IPC conventions
 
-- Channel names are `<domain>:<action>` (e.g. `window:minimize`) and live as constants in
-  `src/shared/ipc/<domain>.ts`, next to the `<Domain>Api` interface.
-- Renderer -> main uses `ipcRenderer.invoke` / `ipcMain.handle` (promises). Main -> renderer events
-  use `webContents.send` and are exposed as `onXxx(cb) => unsubscribe` functions in the preload API.
-- Preload files never expose `ipcRenderer` itself, only typed functions. Payloads must be
-  structured-cloneable and defined in `src/shared/ipc/<domain>.ts`.
-- Main handlers are registered inside the domain's `registerXxxIpc()`. Secrets (tokens) stay in main.
+- Commands are `<domain>_<action>` (snake_case) Rust functions; events keep the channel names of
+  `src/shared/ipc/<domain>.ts` (e.g. `window:state-changed`), next to the `<Domain>Api` interface.
+- The bridge wraps commands in typed functions (`invoke`) and events in `onXxx(cb) => unsubscribe`
+  functions (`listen`). Payloads are JSON, defined in `src/shared/ipc/<domain>.ts`.
+- Secrets (tokens) stay in the native core and the OS keychain.
 - The renderer reaches the API through `window.orphyn.<domain>`.
 
 ## i18n namespace convention
@@ -116,10 +105,8 @@ by these literal paths; do not invent new top-level paths without updating this 
 - Files are discovered automatically via `import.meta.glob('./locales/*/*.json', { eager: true })`;
   no registration step is needed. Use `useTranslation('<feature>')`.
 
-## Tauri shell (migration in progress)
+## Native shell
 
-A Tauri v2 shell (`src-tauri/`, Rust) runs the same renderer beside the Electron one; see
-`docs/TAURI.md`. `src/renderer/src/bridge/` (imported first by `main.tsx`) installs the same
-`window.orphyn` there, backed by Rust commands. `npm run tauri:dev` / `tauri:build` /
-`check:rust` (part of `npm run check`). Drag regions stay the `jr-drag` / `jr-no-drag` classes.
-`src/shared/webview/` tells which web engine renders the app and what it can play.
+Tauri v2 (`src-tauri/`, Rust): see `docs/TAURI.md`. Drag regions are the `jr-drag` / `jr-no-drag`
+classes. `src/shared/webview/` tells which web engine renders the app (WebView2, WKWebView,
+WebKitGTK) and what it can play.

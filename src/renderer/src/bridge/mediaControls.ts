@@ -37,7 +37,7 @@ export interface MediaControlsClaim {
   release(): void
 }
 
-/** The native controls of this shell, or undefined (Electron and the browser use `navigator.mediaSession`). */
+/** The native controls of this shell, or undefined (a plain browser uses `navigator.mediaSession`). */
 export const nativeMediaControls = (): MediaControlsApi | undefined =>
   typeof window === 'undefined' ? undefined : window.orphyn?.mediaControls
 

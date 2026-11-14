@@ -1,4 +1,4 @@
-/** Device-agnostic casting model shared by main, preload and renderer (owner: cast agent). */
+/** Device-agnostic casting model shared with the renderer (owner: cast agent). */
 
 export type CastKind = 'chromecast' | 'upnp' | 'airplay'
 

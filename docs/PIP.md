@@ -1,7 +1,7 @@
-# Picture in Picture and OS media controls (Tauri shell)
+# Picture in Picture and OS media controls
 
-Everything here is Tauri-only: Electron has neither the PiP windows nor the native media controls
-(it keeps Chromium's `navigator.mediaSession`).
+Both live in the native core (`src-tauri/src/pip/`, `src-tauri/src/media_controls/`); a plain
+browser (tests, `dev:renderer`) has neither and keeps `navigator.mediaSession`.
 
 ## Music mini player (PiP)
 
@@ -58,7 +58,7 @@ The OS has one media session per app, and there are two players. `claimMediaCont
 the video player claims the session while it is open and releases it on leave, which hands it back
 to the music player (which republishes). Whoever holds it receives the buttons. Where the shell has
 native controls neither player touches `navigator.mediaSession`, so the OS panel never shows two
-entries; Electron and the browser keep `navigator.mediaSession`.
+entries; a plain browser keeps `navigator.mediaSession`.
 
 ## Windows
 

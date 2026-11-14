@@ -1,11 +1,10 @@
 //! Access tokens in the OS keychain: Windows Credential Manager, macOS Keychain, Linux Secret
-//! Service. One entry per account, service `Orphyn`, user = the account id.
+//! Service. One entry per account, service `Orphyn` (`Orphyn (test)` on a debug test profile), user = the account id.
 
 use keyring::{Entry, Error as KeyringError};
 
 use super::store::SecretStore;
 
-const SERVICE: &str = "Orphyn";
 const PROBE_USER: &str = "__orphyn_probe__";
 
 pub struct Keychain {
@@ -15,7 +14,9 @@ pub struct Keychain {
 impl Keychain {
     /// Probes the keychain with a read (nothing is written): a missing entry means it works.
     pub fn detect() -> Self {
-        let available = match Entry::new(SERVICE, PROBE_USER).and_then(|e| e.get_password()) {
+        let available = match Entry::new(crate::profile::keychain_service(), PROBE_USER)
+            .and_then(|e| e.get_password())
+        {
             Ok(_) | Err(KeyringError::NoEntry) => true,
             Err(e) => {
                 log::warn!("[accounts] OS keychain unavailable: {e}");
@@ -26,7 +27,7 @@ impl Keychain {
     }
 
     fn entry(id: &str) -> Result<Entry, String> {
-        Entry::new(SERVICE, id).map_err(|e| e.to_string())
+        Entry::new(crate::profile::keychain_service(), id).map_err(|e| e.to_string())
     }
 }
 

@@ -1,4 +1,5 @@
-# Continuous integration: runs the full project check on every push and pull request to main.
+# Continuous integration: runs the full project check (TypeScript + Rust) on every push and pull
+# request to main, on the three operating systems.
 name: CI
 
 on:
@@ -32,10 +33,27 @@ jobs:
           node-version: 22
           cache: npm
 
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+
+      - name: Cache cargo
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+
+      - name: Install Tauri system packages (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libayatana-appindicator3-dev \
+            librsvg2-dev libsoup-3.0-dev libjavascriptcoregtk-4.1-dev libdbus-1-dev patchelf \
+            gstreamer1.0-plugins-good gstreamer1.0-libav
+
       - name: Install dependencies
         run: npm ci
 
-      # The check runs typecheck, lint, tests (vitest + jsdom, no display needed) and the build.
-      # No system libraries are required for it on Linux; add them here only if a test starts to need Electron.
+      # Typecheck, lint, unit tests, renderer build, cargo fmt --check, clippy -D warnings, cargo test.
       - name: Run npm run check
         run: npm run check

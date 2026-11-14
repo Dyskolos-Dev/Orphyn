@@ -92,8 +92,11 @@ export async function deletePlaylistOp(c: OpsCtx, playlistId: string): Promise<v
     restore(c, snap)
     throw e
   } finally {
-    c.qc.removeQueries({ queryKey: jfKeys.playlistItems(c.acc, playlistId) })
-    c.qc.removeQueries({ queryKey: jfKeys.item(c.acc, playlistId) })
+    // Only the unused copies: the playlist's page may still be on screen until the caller leaves
+    // it, and removing a query it observes makes it fetch the deleted playlist again (404). Its
+    // copies are garbage-collected once the page is gone.
+    c.qc.removeQueries({ queryKey: jfKeys.playlistItems(c.acc, playlistId), type: 'inactive' })
+    c.qc.removeQueries({ queryKey: jfKeys.item(c.acc, playlistId), type: 'inactive' })
     void refreshPlaylistLists(c)
   }
 }

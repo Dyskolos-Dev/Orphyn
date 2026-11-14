@@ -9,6 +9,7 @@ pub mod discord;
 pub mod error;
 pub mod media_controls;
 pub mod pip;
+pub mod profile;
 pub mod updater;
 pub mod window;
 
@@ -17,22 +18,30 @@ use tauri_plugin_window_state::StateFlags;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-    let app = tauri::Builder::default()
+    // A test profile (debug builds, see `profile.rs`) runs beside an open Orphyn and never
+    // reads or writes its saved window bounds.
+    let test_profile = profile::is_test();
+    let mut builder = tauri::Builder::default();
+    if !test_profile {
         // Must be the first plugin: a second launch only focuses the running window.
-        .plugin(tauri_plugin_single_instance::init(|app, _argv, _cwd| {
+        builder = builder.plugin(tauri_plugin_single_instance::init(|app, _argv, _cwd| {
             window::focus_main(app);
-        }))
-        .plugin(
-            tauri_plugin_log::Builder::new()
-                .level(log::LevelFilter::Info)
-                .build(),
-        )
-        .plugin(
+        }));
+    }
+    builder = builder.plugin(
+        tauri_plugin_log::Builder::new()
+            .level(log::LevelFilter::Info)
+            .build(),
+    );
+    if !test_profile {
+        builder = builder.plugin(
             tauri_plugin_window_state::Builder::default()
                 // Visibility is handled below, once the bounds are restored.
                 .with_state_flags(StateFlags::all() & !StateFlags::VISIBLE)
                 .build(),
-        )
+        );
+    }
+    let app = builder
         .plugin(tauri_plugin_updater::Builder::new().build())
         .plugin(tauri_plugin_process::init())
         .plugin(tauri_plugin_opener::init())

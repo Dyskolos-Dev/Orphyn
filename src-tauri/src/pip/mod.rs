@@ -93,8 +93,7 @@ pub fn is_visible(x: i32, y: i32, size: (u32, u32), monitors: &[(i32, i32, u32, 
 }
 
 fn positions_path<R: Runtime>(app: &AppHandle<R>) -> Option<PathBuf> {
-    app.path()
-        .app_data_dir()
+    crate::profile::data_dir(app)
         .ok()
         .map(|d| d.join(POSITIONS_FILE))
 }
@@ -252,16 +251,15 @@ fn open_window<R: Runtime>(app: &AppHandle<R>, kind: Kind) -> Result<()> {
     let builder = builder.maximizable(false).minimizable(false);
 
     // WebView2 shares one browser process (and so one set of arguments) per profile: a window
-    // created with other arguments than the main one fails with 0x8007139F. Debug builds give
-    // the main window the DevTools-protocol port (see `window.rs`): the PiP must match.
-    #[cfg(all(target_os = "windows", debug_assertions))]
-    let builder = match std::env::var("ORPHYN_CDP_PORT")
-        .ok()
-        .and_then(|p| p.parse::<u16>().ok())
-    {
-        Some(port) => builder.additional_browser_args(&format!(
-            "--disable-features=msWebOOUI,msPdfOOUI,msSmartScreenProtection --remote-debugging-port={port}"
-        )),
+    // created with other arguments than the main one fails with 0x8007139F. The PiP uses the same
+    // profile and arguments as the main window (see `profile.rs`).
+    let builder = match crate::profile::webview_dir() {
+        Some(dir) => builder.data_directory(dir),
+        None => builder,
+    };
+    #[cfg(target_os = "windows")]
+    let builder = match crate::profile::webview2_args() {
+        Some(args) => builder.additional_browser_args(&args),
         None => builder,
     };
     let window = builder.build()?;

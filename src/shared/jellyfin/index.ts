@@ -1,4 +1,4 @@
-/** Jellyfin types and constants shared by main, preload and renderer. */
+/** Jellyfin types and constants shared by the renderer. */
 
 export const CLIENT_NAME = 'Orphyn'
 /** Oldest Jellyfin server version the app supports (lyrics API, modern auth). */
@@ -41,7 +41,7 @@ export interface NewServerAccount {
 }
 
 export interface AccountsStatus {
-  /** True when tokens are encrypted on disk with the OS keychain (Electron safeStorage). */
+  /** True when tokens are encrypted on disk in the OS keychain. */
   encrypted: boolean
   /** Set when encryption is unavailable: tokens are kept in memory only. */
   warning?: string

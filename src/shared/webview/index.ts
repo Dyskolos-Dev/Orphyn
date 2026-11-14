@@ -1,6 +1,6 @@
 /**
- * Which web engine renders Orphyn, and what it can play. Electron and WebView2 (Tauri on
- * Windows) are Chromium; Tauri uses WKWebView on macOS and WebKitGTK (GStreamer) on Linux. The
+ * Which web engine renders Orphyn, and what it can play. WebView2 (Windows) is Chromium;
+ * the app uses WKWebView on macOS and WebKitGTK (GStreamer) on Linux. The
  * Jellyfin device profile (`src/renderer/src/jellyfin/playback/profile.ts`) must follow it.
  */
 
@@ -16,7 +16,7 @@ declare global {
   var __ORPHYN_SHELL__: ShellInfo | undefined
 }
 
-/** Shell info when running inside Tauri, null in Electron, a browser or tests. */
+/** Shell info when running inside the app, null in a plain browser or tests. */
 export function getShellInfo(): ShellInfo | null {
   return globalThis.__ORPHYN_SHELL__ ?? null
 }
@@ -86,7 +86,7 @@ export function mediaPolicyFor(engine: WebviewEngine): WebviewMediaPolicy {
     case 'chromium':
       return {
         engine,
-        profileName: engine === 'webview2' ? 'Orphyn (Windows)' : 'Orphyn (Electron)',
+        profileName: engine === 'webview2' ? 'Orphyn (Windows)' : 'Orphyn',
         allow: { ...ALL },
         mp4AudioCodecs: ['aac', 'mp3', 'opus', 'flac', 'vorbis'],
         webm: true,

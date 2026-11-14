@@ -1,5 +1,14 @@
-/** Jellyfin DeviceProfile describing what Electron's Chromium can play natively. */
+/**
+ * Jellyfin DeviceProfile describing what the app's webview can play natively: WebView2 (Windows),
+ * WKWebView (macOS) or WebKitGTK (Linux), each limited by its policy in `@shared/webview`.
+ */
 import type { DeviceProfile } from '@jellyfin/sdk/lib/generated-client/models'
+import {
+  currentWebviewEngine,
+  mediaPolicyFor,
+  restrictSupport,
+  type WebviewMediaPolicy,
+} from '@shared/webview'
 
 export interface CodecSupport {
   h264: boolean
@@ -45,13 +54,19 @@ export interface ProfileOptions {
   maxAudioChannels?: number
   /** Maximum streaming bitrate in bits/s the profile advertises. Default 120 Mbps. */
   maxStreamingBitrate?: number
+  /** What the webview may play. Default: the policy of the engine the app runs in. */
+  policy?: WebviewMediaPolicy
 }
 
-/** DeviceProfile for Orphyn. Direct play whenever Chromium can, else HLS fMP4 h264/aac. */
+/** DeviceProfile for Orphyn. Direct play whenever the webview can, else HLS fMP4 h264/aac. */
 export function buildDeviceProfile(opts: ProfileOptions = {}): DeviceProfile {
-  const s = opts.support ?? detectCodecSupport()
+  const policy = opts.policy ?? mediaPolicyFor(currentWebviewEngine())
+  const s = restrictSupport(opts.support ?? detectCodecSupport(), policy)
   const channels = String(opts.maxAudioChannels ?? 6)
-  const maxBitrate = opts.maxStreamingBitrate ?? 120_000_000
+  const requested = opts.maxStreamingBitrate ?? 120_000_000
+  const maxBitrate = policy.maxStreamingBitrate
+    ? Math.min(requested, policy.maxStreamingBitrate)
+    : requested
 
   const mp4Video = ['h264', s.hevc && 'hevc', s.av1 && 'av1', s.vp9 && 'vp9']
     .filter(Boolean)
@@ -63,18 +78,26 @@ export function buildDeviceProfile(opts: ProfileOptions = {}): DeviceProfile {
       Container: 'mp4,m4v',
       Type: 'Video',
       VideoCodec: mp4Video,
-      AudioCodec: 'aac,mp3,opus,flac,vorbis',
+      AudioCodec: policy.mp4AudioCodecs.join(','),
     },
-    { Container: 'webm', Type: 'Video', VideoCodec: webmVideo, AudioCodec: 'vorbis,opus' },
     { Container: 'mp3', Type: 'Audio' },
     { Container: 'aac', Type: 'Audio' },
-    { Container: 'm4a,m4b', AudioCodec: 'aac,mp3,flac,opus', Type: 'Audio' },
+    {
+      Container: 'm4a,m4b',
+      AudioCodec: policy.mp4AudioCodecs.filter((c) => c !== 'vorbis').join(','),
+      Type: 'Audio',
+    },
     { Container: 'flac', Type: 'Audio' },
     { Container: 'wav', Type: 'Audio' },
-    { Container: 'ogg,oga', AudioCodec: 'vorbis,opus,flac', Type: 'Audio' },
-    { Container: 'opus', Type: 'Audio' },
-    { Container: 'webm,webma', AudioCodec: 'vorbis,opus', Type: 'Audio' },
   ]
+  if (policy.webm) {
+    directPlay.push(
+      { Container: 'webm', Type: 'Video', VideoCodec: webmVideo, AudioCodec: 'vorbis,opus' },
+      { Container: 'ogg,oga', AudioCodec: 'vorbis,opus,flac', Type: 'Audio' },
+      { Container: 'opus', Type: 'Audio' },
+      { Container: 'webm,webma', AudioCodec: 'vorbis,opus', Type: 'Audio' },
+    )
+  }
 
   const transcoding: NonNullable<DeviceProfile['TranscodingProfiles']> = [
     {
@@ -111,7 +134,7 @@ export function buildDeviceProfile(opts: ProfileOptions = {}): DeviceProfile {
   }
 
   return {
-    Name: 'Orphyn (Electron)',
+    Name: policy.profileName,
     MaxStreamingBitrate: maxBitrate,
     MaxStaticBitrate: maxBitrate,
     MusicStreamingTranscodingBitrate: 192_000,

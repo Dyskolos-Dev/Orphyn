@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import type { WindowApi, WindowState } from '@shared/ipc/window'
 
-/** `darwin` | `win32` | `linux` in Electron, `web` in a browser or tests. */
+/** `darwin` | `win32` | `linux` in the app, `web` in a browser or tests. */
 export type Platform = 'darwin' | 'win32' | 'linux' | 'web'
 
 function windowApi(): WindowApi | undefined {
@@ -31,7 +31,7 @@ export function applyWindowStateToDocument(platform: Platform, s: WindowState): 
 
 export interface UseWindowStateResult extends WindowState {
   platform: Platform
-  /** Enter / leave native fullscreen (falls back to the DOM Fullscreen API outside Electron). */
+  /** Enter / leave native fullscreen (falls back to the DOM Fullscreen API outside the app). */
   setFullscreen(fullscreen: boolean): Promise<void>
   toggleMaximize(): Promise<void>
 }

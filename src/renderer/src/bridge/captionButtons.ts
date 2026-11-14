@@ -1,6 +1,6 @@
 /**
- * Windows caption buttons (minimize, maximize/restore, close). Electron drew them natively over
- * the page (`titleBarOverlay`); Tauri has no such overlay, so the bridge adds them in a fixed
+ * Windows caption buttons (minimize, maximize/restore, close). The window has no native frame,
+ * so the bridge adds them in a fixed
  * box at the top right. They fill the 140px the shell already reserves on Windows
  * (`--titlebar-inset-right`), are `TITLE_BAR_HEIGHT` tall, hide in fullscreen and dim when the
  * window loses focus, like the native ones.

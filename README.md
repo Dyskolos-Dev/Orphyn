@@ -26,12 +26,13 @@
 | 🎵 **Music** | Refined library: albums, artists, playlists, queue, shuffle and repeat, full-screen Now Playing. |
 | 🎤 **Synced lyrics** | Time-synced lyrics that scroll with the song; click a line to jump to it. |
 | 📡 **Casting** | Google Cast (music and video), UPnP/DLNA renderers including WiiM, AirPlay on Apple TV (best effort). |
-| 🗂️ **Multiple servers** | Add a server with its address, your account and a name; switch in one click. Only an encrypted token is stored, never your password. |
+| 🗂️ **Multiple servers** | Add a server with its address, your account and a name; switch in one click. Only a token is kept, in the system keychain, never your password. |
 | 🔎 **Global search** | Movies, shows, episodes, artists, albums and songs in one place. |
 | 🌗 **Light & dark** | Follows your system, with an accent color of your choice. FR and EN. |
 | 🎮 **Discord Rich Presence** | "Listening to" / "Watching" with artwork, toggle in Settings. |
-| ⌨️ **Native feel** | Media keys and OS media controls, macOS menu bar, ⌘/Ctrl+R to refresh the library. |
-| 🔄 **Automatic updates** | New versions download and install themselves on Windows and Linux (AppImage); on macOS, Orphyn tells you and opens the download. |
+| ⌨️ **Native feel** | Media keys and OS media controls, ⌘/Ctrl+, for Settings, ⌘/Ctrl+R to refresh the library. |
+| 🪟 **Picture-in-Picture** | Keep the music mini player or a video in a small window above everything else. |
+| 🔄 **Automatic updates** | New versions download and install themselves on Windows, macOS and Linux (AppImage). |
 
 ## 📥 Install
 
@@ -39,10 +40,10 @@ Download the installer for your system from the [latest release](https://github.
 
 | System | File |
 |---|---|
-| Windows 10/11 | `Orphyn-Setup-x.y.z.exe` |
-| macOS Apple silicon (M1 and later) | `Orphyn-x.y.z-arm64.dmg` |
-| macOS Intel | `Orphyn-x.y.z.dmg` |
-| Linux | `Orphyn-x.y.z.AppImage` or `orphyn_x.y.z_amd64.deb` |
+| Windows 10/11 | `Orphyn_x.y.z_x64-setup.exe` |
+| macOS Apple silicon (M1 and later) | `Orphyn_x.y.z_aarch64.dmg` |
+| macOS Intel | `Orphyn_x.y.z_x64.dmg` |
+| Linux | `Orphyn_x.y.z_amd64.AppImage` or `Orphyn_x.y.z_amd64.deb` |
 
 > [!NOTE]
 > The builds are not code-signed yet. On Windows, click **More info → Run anyway** in SmartScreen. On macOS, right-click the app and choose **Open** the first time.
@@ -51,7 +52,7 @@ You need a [Jellyfin](https://jellyfin.org) server, version 10.9 or later.
 
 ## 🛠️ Development
 
-Requires Node.js 22+ and npm.
+Requires Node.js 22+, npm and Rust stable (1.85+). On Linux, also the Tauri system packages listed in [docs/TAURI.md](docs/TAURI.md).
 
 ```bash
 npm install
@@ -61,13 +62,13 @@ npm run dev
 | Script | What it does |
 |---|---|
 | `npm run dev` | Starts the app with hot reload |
-| `npm run check` | Typecheck, lint, unit tests and build |
+| `npm run check` | Typecheck, lint, unit tests, renderer build, and the Rust format, lint and tests |
 | `npm run e2e` | End-to-end tests against a real server (see [docs/QA.md](docs/QA.md)) |
-| `npm run dist` | Builds the installer for the current system into `release/` |
+| `npm run dist` | Builds the installers for the current system into `dist/tauri-target/release/bundle/` |
 
 Releases are built by GitHub Actions when a `v*` tag is pushed (see [CONTRIBUTING.md](CONTRIBUTING.md)).
 
-Learn more in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md), [docs/DESIGN.md](docs/DESIGN.md), [docs/JELLYFIN.md](docs/JELLYFIN.md), [docs/CASTING.md](docs/CASTING.md) and [docs/DISCORD.md](docs/DISCORD.md).
+Learn more in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md), [docs/TAURI.md](docs/TAURI.md), [docs/DESIGN.md](docs/DESIGN.md), [docs/JELLYFIN.md](docs/JELLYFIN.md), [docs/CASTING.md](docs/CASTING.md) and [docs/DISCORD.md](docs/DISCORD.md).
 
 ## 📄 License
 

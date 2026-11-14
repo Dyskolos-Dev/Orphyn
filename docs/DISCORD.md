@@ -5,8 +5,7 @@ episodes as **Watching Orphyn**, with the title, a progress bar and artwork.
 
 ## How it works
 
-- Native side: Electron keeps `src/main/discord/` (`@xhayper/discord-rpc`); the Tauri shell has the 1:1
-  Rust port in `src-tauri/src/discord/` (`discord-rich-presence` crate): `activity.rs` builds the activity,
+- Native side: `src-tauri/src/discord/` (`discord-rich-presence` crate): `activity.rs` builds the activity,
   `service.rs` is the testable state machine (lazy connect, rate limit, reconnect), `mod.rs` runs it on
   one worker thread, stores the settings in `discord.json` (app data folder) and emits
   `orphyn:discord:state-changed`. The connection is lazy (first playback, or when Settings > Discord is
@@ -33,8 +32,8 @@ Orphyn logo (asset `orphyn`) is used. The link points to your server; it never c
 1. Create an application named **Orphyn** at <https://discord.com/developers/applications>. The
    name is what Discord displays after "Listening to" / "Watching".
    If the application already exists under its previous name, just rename it to **Orphyn** in the
-   portal: the Application ID, and so `DISCORD_CLIENT_ID`, stays the same.
-2. Copy its **Application ID** into `DISCORD_CLIENT_ID` in `src/main/discord/config.ts`. It is a
+   portal: the Application ID, and so `CLIENT_ID`, stays the same.
+2. Copy its **Application ID** into `CLIENT_ID` in `src-tauri/src/discord/service.rs`. It is a
    public identifier, not a secret. An empty value or `000000000000000000` keeps the feature inactive
    ("Not configured" in Settings).
 3. Under **Rich Presence > Art Assets**, upload:
@@ -47,11 +46,11 @@ Orphyn logo (asset `orphyn`) is used. The link points to your server; it never c
 
 ## Testing it
 
-Run Discord on the same machine, start Orphyn with `npm run dev` (Electron) or `npm run tauri:dev` (Tauri), play a track, and check your
+Run Discord on the same machine, start Orphyn with `npm run dev`, play a track, and check your
 profile. In Discord, **Settings > Activity Privacy** must allow sharing the current activity.
 
 ## Tests
 
-The Rust port keeps the Electron test cases: `cargo test discord` covers the activity rules (Listening /
+The Rust module keeps the 1.0.x test cases: `cargo test discord` covers the activity rules (Listening /
 Watching, timestamps, paused, artwork only for public https hosts and never with an `api_key`, clipping)
 and the service (lazy connect, rate limit with last write wins, quiet reconnect, disable, artwork toggle).

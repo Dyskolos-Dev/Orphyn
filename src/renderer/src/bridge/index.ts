@@ -1,8 +1,7 @@
 /**
- * Tauri bridge. Imported first by `main.tsx`: when the page runs inside the Tauri shell it
- * installs `window.orphyn` with the same `OrphynApi` as the Electron preload, backed by Rust
- * commands (`invoke`) and events (`listen`). In Electron (the preload already set it), in a
- * browser and in tests it does nothing. See `docs/TAURI.md`.
+ * Native bridge. Imported first by `main.tsx`: when the page runs inside the Tauri shell it
+ * installs `window.orphyn` (`OrphynApi`), backed by Rust commands (`invoke`) and events
+ * (`listen`). In a plain browser and in tests it does nothing. See `docs/TAURI.md`.
  */
 import type { OrphynApi } from '@shared/ipc'
 import type { WindowState } from '@shared/ipc/window'

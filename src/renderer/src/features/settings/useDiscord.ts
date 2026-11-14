@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import type { DiscordState } from '@shared/ipc/discord'
 
-/** Live Discord Rich Presence state from the main process; null outside Electron. */
+/** Live Discord Rich Presence state from the native core; null outside the app. */
 export function useDiscord(): DiscordState | null {
   const [state, setState] = useState<DiscordState | null>(null)
   useEffect(() => {

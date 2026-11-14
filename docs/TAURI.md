@@ -1,16 +1,17 @@
 # Orphyn on Tauri v2
 
-Orphyn is moving from Electron to Tauri v2: a Rust core (`src-tauri/`) and the same React
-renderer. During the migration both shells live side by side: `npm run dev` / `npm run dist`
-still build the Electron app, and `npm run tauri:dev` / `npm run tauri:build` build the Tauri one.
-The renderer does not know which shell it runs in: both install the same `window.orphyn`.
+Since 1.1.0 Orphyn runs on Tauri v2: a Rust core (`src-tauri/`) and the React renderer
+(`src/renderer/`), which reaches the core through `window.orphyn` (the bridge below). Electron
+(1.0.x) is gone; what 1.0.x users go through when they update is described in "Updating from 1.0.x".
 
 ## How to run
 
 | Script                   | What it does                                                                 |
 | ------------------------ | ---------------------------------------------------------------------------- |
-| `npm run tauri:dev`      | Vite dev server for the renderer + `cargo run` of the shell, with HMR         |
-| `npm run tauri:build`    | Release build + installers (`dist/tauri-target/release/bundle/`)            |
+| `npm run dev`            | Vite dev server for the renderer + `cargo run` of the shell, with HMR         |
+| `npm run build`          | Release build of the app, no installer (`dist/tauri-target/release/`)        |
+| `npm run dist`           | Installer art, release build + installers (`dist/tauri-target/release/bundle/`) |
+| `npm run build:e2e`      | Debug build with the renderer embedded, for the e2e suite                    |
 | `npm run dev:renderer`   | Renderer alone with Vite (`vite.renderer.config.ts`), port `ORPHYN_DEV_PORT` |
 | `npm run build:renderer` | Renderer into `dist/renderer/` (the Tauri `frontendDist`)                    |
 | `npm run check:rust`     | Renderer build, `cargo fmt --check`, `clippy -D warnings`, `cargo test`      |
@@ -22,14 +23,19 @@ and the GStreamer plugins (`gstreamer1.0-plugins-good gstreamer1.0-libav`) for p
 
 - The dev server port defaults to 1420 (`devUrl` in `src-tauri/tauri.conf.json`). To use another
   one: `ORPHYN_DEV_PORT=21000 npx tauri dev --config '{"build":{"devUrl":"http://localhost:21000"}}'`.
-- Debug builds on Windows accept `ORPHYN_CDP_PORT=<port>`: WebView2 then opens the DevTools
-  protocol, so Playwright can attach with `chromium.connectOverCDP('http://127.0.0.1:<port>')`.
-  (`WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS` is ignored because wry passes its own arguments.)
+- Debug builds accept a test profile (`src-tauri/src/profile.rs`), used by the e2e suite:
+  `ORPHYN_USER_DATA_DIR=<dir>` puts the data, settings and webview profile in `<dir>`, reads the
+  Electron import from `<dir>/electron/`, uses the keychain service `Orphyn (test)`, and skips the
+  single-instance lock and the saved window bounds (so it runs beside an open Orphyn). On Windows,
+  `ORPHYN_CDP_PORT=<port>` opens the WebView2 DevTools protocol (Playwright
+  `chromium.connectOverCDP('http://127.0.0.1:<port>')`) and `ORPHYN_LANG=<bcp47>` sets the webview
+  language. (`WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS` is ignored because wry passes its own
+  arguments.) Release builds ignore all of them.
 - The renderer is built into `dist/renderer/` rather than a new top-level folder, because `dist/`
   is already ignored by git and ESLint.
-- `tauri:build` signs the updater artifacts (`createUpdaterArtifacts`): set
-  `TAURI_SIGNING_PRIVATE_KEY` (the key or its path) and `TAURI_SIGNING_PRIVATE_KEY_PASSWORD`
-  (empty for the current key) before running it. The public key is in `tauri.conf.json`; the
+- `npm run dist` (`scripts/tauri-build.mjs`) signs the updater artifacts
+  (`createUpdaterArtifacts`) with `TAURI_SIGNING_PRIVATE_KEY` (+ `_PASSWORD`, empty for the
+  current key), or with `~/.orphyn/updater.key` when the variable is not set. The public key is in `tauri.conf.json`; the
   private key is never committed.
 
 ## Layout
@@ -45,17 +51,27 @@ src-tauri/
     lib.rs             plugins, setup (each module's init), every command registered
     error.rs           Error (serializes as a string), Result
     window.rs          main window, material, window commands and events
+    profile.rs         data / config / webview dirs, keychain service, debug test profile
     accounts/          store.rs (model, logic), keychain.rs, migrate.rs (Electron import)
     updater/           state.rs (state machine), mod.rs (plugin-updater, timers, commands)
-    cast/ discord/ media_controls/ pip/   stubs: commands return "<command>: not implemented"
+    cast/              Google Cast, UPnP/DLNA/WiiM, AirPlay (discovery + sessions)
+    discord/           Rich Presence
+    media_controls/    OS media controls (souvlaki: SMTC, Now Playing, MPRIS)
+    pip/               Picture-in-Picture windows (music, video)
+build/
+  windows/installer.nsi  Tauri's NSIS template with Orphyn's pages (bundle.windows.nsis.template)
+  windows/hooks.nsh      the pages, the 1.0.x removal (bundle.windows.nsis.installerHooks)
+  installer-art/         generated by `npm run installer-art` (git-ignored), included by hooks.nsh
+  linux/orphyn.desktop   .desktop template (categories AudioVideo;Video;Audio;Player;)
+  dmg-background.png     macOS disk image background (660x400, @2x beside it)
+scripts/
+  tauri-build.mjs            `npm run dist`
+  electron-update-bridge.mjs latest*.yml for the 1.0.x clients (release workflow)
 src/renderer/src/bridge/   window.orphyn for the Tauri shell (imported first by main.tsx)
 src/shared/webview/        webview engine detection + media policy per engine
 ```
 
 Every module exposes `pub fn init(app: &AppHandle) -> Result<()>` and its `#[tauri::command]`s.
-All crates the next migration tasks need are already in `Cargo.toml` (mdns-sd, rust_cast,
-quick-xml, discord-rich-presence, souvlaki, reqwest with rustls, tokio...), so filling a stub only
-touches its own folder: no edit to `Cargo.toml` or `lib.rs` is needed unless a command is added.
 
 Plugins: single-instance (a second launch focuses the window), log, window-state (bounds,
 maximized, fullscreen; restored before the window is shown), updater, process, opener, os.
@@ -70,14 +86,13 @@ Naming: command `<domain>_<action>` (snake_case), arguments in camelCase on the 
 | window         | `window_minimize`, `window_toggle_maximize`, `window_close`, `window_get_state`, `window_set_fullscreen {fullscreen}`, `window_set_appearance {appearance}`                                                   | `window:state-changed` (`WindowState`)                                       |
 | accounts       | `accounts_list`, `accounts_add {input}`, `accounts_rename {id,name}`, `accounts_remove {id}`, `accounts_set_active {id}`, `accounts_get_active`, `accounts_get_token {id}`, `accounts_get_device_id`, `accounts_get_status` | -                                                                            |
 | updater        | `updater_get_state`, `updater_check`, `updater_install`, `updater_open_release`, `updater_set_auto_update {enabled}`                                                                                         | `orphyn:updater:state-changed` (`UpdaterState`)                              |
-| cast (stub)    | `cast_start_discovery`, `cast_stop_discovery`, `cast_list_devices`, `cast_get_session {deviceId}`, `cast_load {deviceId,media}`, `cast_play/pause/stop/disconnect {deviceId}`, `cast_seek {deviceId,positionSec}`, `cast_set_volume {deviceId,volume}`, `cast_set_muted {deviceId,muted}` | `cast:devices-changed`, `cast:session-changed`, `cast:ended`, `cast:error` |
-| discord (stub) | `discord_get_state`, `discord_set_presence {presence}`, `discord_set_settings {settings}`                                                                                                                    | `orphyn:discord:state-changed`                                               |
-| media controls (stub) | `media_controls_set_metadata {metadata}`, `media_controls_set_playback {playback}`, `media_controls_clear`                                                                                            | `orphyn:media-controls:action` (`MediaControlAction`)                        |
-| pip (stub)     | `pip_get_state`, `pip_open {kind}`, `pip_close`                                                                                                                                                              | `orphyn:pip:state-changed` (`PipState`)                                      |
+| cast           | `cast_start_discovery`, `cast_stop_discovery`, `cast_list_devices`, `cast_get_session {deviceId}`, `cast_load {deviceId,media}`, `cast_play/pause/stop/disconnect {deviceId}`, `cast_seek {deviceId,positionSec}`, `cast_set_volume {deviceId,volume}`, `cast_set_muted {deviceId,muted}` | `cast:devices-changed`, `cast:session-changed`, `cast:ended`, `cast:error` |
+| discord        | `discord_get_state`, `discord_set_presence {presence}`, `discord_set_settings {settings}`                                                                                                                    | `orphyn:discord:state-changed`                                               |
+| media controls | `media_controls_set_metadata {metadata}`, `media_controls_set_playback {playback}`, `media_controls_clear`                                                                                            | `orphyn:media-controls:action` (`MediaControlAction`)                        |
+| pip            | `pip_get_state`, `pip_open {kind}`, `pip_close`                                                                                                                                                              | `orphyn:pip:state-changed` (`PipState`)                                      |
 
-The contracts for media controls and PiP are new (`src/shared/ipc/mediaControls.ts`, `pip.ts`) and
-are optional members of `OrphynApi` (`pip?`, `mediaControls?`): Electron does not provide them.
-The tasks that fill these modules may refine those contracts.
+Media controls and PiP (`src/shared/ipc/mediaControls.ts`, `pip.ts`) are optional members of
+`OrphynApi` (`pip?`, `mediaControls?`): a plain browser (tests, `dev:renderer`) has neither.
 
 ## The bridge (`src/renderer/src/bridge/`)
 
@@ -92,8 +107,7 @@ first; when that global exists, the bridge defines `window.orphyn` (frozen) with
   calls `onOpenSettings`.
 - `platform`: from `__ORPHYN_SHELL__`.
 
-In Electron the preload already defined `window.orphyn`, so the bridge does nothing; in a browser
-or in tests (no `__ORPHYN_SHELL__`) it does nothing either.
+In a browser or in tests (no `__ORPHYN_SHELL__`) the bridge does nothing.
 
 ### Window chrome and drag regions
 
@@ -161,10 +175,53 @@ engine allows. The data layer applies it in `src/renderer/src/jellyfin/playback/
 (`buildDeviceProfile`: support, MP4 audio list, WebM entries, profile name, bitrate cap) and the
 HLS choice in the video player; that file belongs to the data-layer owner.
 
-Known difference seen on WebView2 in dev: external `.vtt` subtitle tracks from the server are
-refused as cross-origin ("Unsafe attempt to load URL ... Domains, protocols and ports must
-match"). `<track>` needs CORS: set `crossOrigin="anonymous"` on the `<video>`, or fetch the VTT
-and pass a `blob:` URL (video player owner).
+External `.vtt` subtitle tracks come from the server, another origin than the app page: the video
+player sets `crossOrigin="anonymous"` on its `<video>`, so the tracks load in CORS mode (Jellyfin
+answers `Access-Control-Allow-Origin`); without it WebView2 refuses them.
+
+## Installers
+
+| OS      | Files | Notes |
+| ------- | ----- | ----- |
+| Windows | `Orphyn_<v>_x64-setup.exe` (NSIS, per user, `%LOCALAPPDATA%\Orphyn`) | dark custom pages, uninstaller; the setup and its `.sig` serve the updater too |
+| macOS   | `Orphyn_<v>_aarch64.dmg`, `Orphyn_<v>_x64.dmg` | background `build/dmg-background.png`, app at (180, 200), Applications at (480, 200); `.app.tar.gz` + `.sig` for the updater |
+| Linux   | `Orphyn_<v>_amd64.AppImage`, `Orphyn_<v>_amd64.deb` | icon from `src-tauri/icons`, categories `AudioVideo;Video;Audio;Player;`; the .deb depends on the GStreamer plugins |
+
+The Windows installer is Tauri's NSIS template (`build/windows/installer.nsi`, from tauri-cli
+2.12.4: search for "Orphyn" to see the differences) with the pages of 1.0.x, moved into
+`build/windows/hooks.nsh`: Welcome (Install / Options), Options (folder, desktop and start-menu
+shortcuts, launch at the end), a repainted progress page and Finish, in French or English after the
+system language, on the bitmaps of `npm run installer-art`. The uninstaller has Welcome, progress
+and Finish; it keeps the user data. Stock pages that are gone: reinstall/uninstall choice (a new
+version installs over the old one), directory, start-menu folder.
+
+- `/S` (silent): no page at all. `/P` (passive, what the Tauri updater uses): the progress page
+  only; with `/R` the app starts again afterwards.
+- `--updated` (the 1.0.x updater): passive, then the app starts again (`--force-run` too; a silent
+  run applied as the app quits does not restart it).
+- Every install first removes the Electron builds (below). When moving to a newer tauri-cli, copy
+  its `installer.nsi` and apply the "Orphyn" changes again.
+
+## Updating from 1.0.x
+
+1.0.x (Electron) clients update with electron-updater, which reads `latest.yml`,
+`latest-linux.yml` or `latest-mac.yml` from the latest GitHub release. The release workflow writes
+them with `scripts/electron-update-bridge.mjs` (name, sha512 and size of the new installers), next
+to Tauri's `latest.json`, so a 1.0.x install finds 1.1+ like any other update:
+
+- **Windows**: electron-updater downloads `Orphyn_<v>_x64-setup.exe` (no blockmap: full download),
+  checks its sha512, and runs it with `--updated` (and `/S` when the update is applied as the app
+  quits). The installer (`OrphynRemoveElectron` in `hooks.nsh`) finds the Electron entries in
+  `HKCU\Software\Microsoft\Windows\CurrentVersion\Uninstall` whose uninstaller is
+  `Uninstall Orphyn.exe`, `Uninstall Lumen.exe` or `Uninstall Jellyra.exe`, runs it with
+  `/currentuser /S` in place (`_?=`), removes its folder and key, and deletes the old shortcuts.
+  The Electron user data (`%APPDATA%\Orphyn`) is kept for the import below.
+- **Linux AppImage**: electron-updater downloads `Orphyn_<v>_amd64.AppImage`, checks it and puts it
+  in place of the old file; the next start is the Tauri app. **.deb**: 1.0.x shows "update
+  available" and opens the release page: install the new .deb once by hand.
+- **macOS**: 1.0.x never installed updates in the app (unsigned builds); `latest-mac.yml` makes it
+  show "update available", and the button opens the release page: download the .dmg once. From
+  then on the Tauri updater installs updates itself.
 
 ## Migration from Electron
 
@@ -180,31 +237,15 @@ and pass a `blob:` URL (video player owner).
 - Window size and position: reset once (the window-state plugin keeps its own file).
 - Identifier `app.lumen.desktop` is kept for continuity of OS-level registrations.
 
-## CI (to apply in `.github/workflows/ci.yml`, by the last migration task)
+## CI and release
 
-The `check` job already runs `npm run check`, which now includes `check:rust`: each runner needs
-Rust and, on Linux, the system packages. Add before "Run npm run check":
-
-```yaml
-      - name: Set up Rust
-        uses: dtolnay/rust-toolchain@stable
-        with:
-          components: rustfmt, clippy
-
-      - name: Cache cargo
-        uses: Swatinem/rust-cache@v2
-        with:
-          workspaces: src-tauri
-
-      - name: Install Tauri system packages (Linux)
-        if: runner.os == 'Linux'
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y libwebkit2gtk-4.1-dev libayatana-appindicator3-dev \
-            librsvg2-dev libsoup-3.0-dev libjavascriptcoregtk-4.1-dev libdbus-1-dev patchelf
-```
-
-Release workflow (Tauri builds): `tauri-apps/tauri-action@v0` on the same matrix, with
-`TAURI_SIGNING_PRIVATE_KEY` (repository secret, the content of the private key file) and
-`TAURI_SIGNING_PRIVATE_KEY_PASSWORD` (empty) in `env`, `includeUpdaterJson: true` so the release
-carries `latest.json`, and macOS built for both `aarch64-apple-darwin` and `x86_64-apple-darwin`.
+- `.github/workflows/ci.yml`: `npm run check` (TypeScript and Rust) on Ubuntu, Windows and macOS,
+  with Rust (rustfmt, clippy), a cargo cache and, on Linux, the Tauri system packages and the
+  GStreamer plugins.
+- `.github/workflows/release.yml`, on a `v*` tag: `tauri-apps/tauri-action` builds Windows,
+  macOS (`aarch64-apple-darwin` and `x86_64-apple-darwin`) and Linux into one draft release with
+  `includeUpdaterJson: true` (`latest.json`), signed with the repository secrets
+  `TAURI_SIGNING_PRIVATE_KEY` (content of the private key file) and
+  `TAURI_SIGNING_PRIVATE_KEY_PASSWORD` (empty). A last job downloads the installers, writes the
+  1.0.x update files with `scripts/electron-update-bridge.mjs`, uploads them and publishes the
+  release (not a draft, marked latest).

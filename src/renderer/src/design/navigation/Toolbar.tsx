@@ -20,7 +20,7 @@ export interface ToolbarProps {
 }
 
 /**
- * Window toolbar, 52px. The empty area drags the window (Electron app-region); buttons, inputs and
+ * Window toolbar, 52px. The empty area drags the window (`jr-drag`); buttons, inputs and
  * links inside stay clickable. Leaves room for the Windows caption buttons.
  */
 export function Toolbar({

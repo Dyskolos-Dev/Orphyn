@@ -313,6 +313,9 @@ export function VideoPlayer() {
       <video
         ref={videoRef}
         className="jr-video-player__video"
+        // The page is served from the app's own origin: external <track> files (the server's
+        // .vtt) only load in CORS mode, which Jellyfin answers with Access-Control-Allow-Origin.
+        crossOrigin="anonymous"
         playsInline
         poster={data ? imageUrl(data, 'Backdrop', { maxWidth: 1280 }) : undefined}
         onClick={togglePlay}

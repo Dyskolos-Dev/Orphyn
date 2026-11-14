@@ -24,8 +24,8 @@ export interface OrphynApi {
   discord: DiscordApi
   updater: UpdaterApi
   platform: string
-  /** Tauri shell only (see `docs/TAURI.md`): absent in the Electron shell. */
+  /** Optional: absent outside the native shell (see `docs/TAURI.md`). */
   pip?: PipApi
-  /** Tauri shell only (see `docs/TAURI.md`): absent in the Electron shell. */
+  /** Optional: absent outside the native shell (see `docs/TAURI.md`). */
   mediaControls?: MediaControlsApi
 }

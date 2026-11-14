@@ -1,7 +1,6 @@
 /**
- * Window dragging from the areas the renderer marks with the `jr-drag` class (the same areas
- * Electron reads through `app-region: drag` in `styles/base.css`). Interactive children and
- * `.jr-no-drag` stay clickable, with the same selector as the CSS. A double click maximizes or
+ * Window dragging from the areas the renderer marks with the `jr-drag` class. Interactive
+ * children and `.jr-no-drag` stay clickable. A double click maximizes or
  * restores, like a native title bar. Tauri's own `data-tauri-drag-region` only reacts on the
  * marked element itself, not on its children, hence this listener.
  */

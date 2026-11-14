@@ -95,8 +95,7 @@ struct Handle {
 }
 
 fn settings_path<R: Runtime>(app: &AppHandle<R>) -> Option<std::path::PathBuf> {
-    app.path()
-        .app_data_dir()
+    crate::profile::data_dir(app)
         .ok()
         .map(|d| d.join(SETTINGS_FILE))
 }

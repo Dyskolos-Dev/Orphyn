@@ -35,8 +35,7 @@ struct Settings {
 }
 
 fn settings_path<R: Runtime>(app: &AppHandle<R>) -> Option<std::path::PathBuf> {
-    app.path()
-        .app_config_dir()
+    crate::profile::config_dir(app)
         .ok()
         .map(|d| d.join(SETTINGS_FILE))
 }

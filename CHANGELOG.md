@@ -6,16 +6,32 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
-## [1.1.0] - 2026-11-13
+## [1.1.0] - 2026-11-14
 
 ### Changed
 
 - Lumen is now **Orphyn**: new name, window titles, installer, artifact names, website (orphyn.dyskolos.fr) and repository (Dyskolos-Dev/Orphyn). The window bridge is `window.orphyn` and the end-to-end variables are `ORPHYN_*`.
+- Rebuilt on a native core (Tauri v2, Rust) in place of Electron: a much smaller download and install, faster start and less memory. The interface is the same React app, rendered by the system webview (WebView2 on Windows, WKWebView on macOS, WebKitGTK on Linux); the Jellyfin device profile follows what each webview can play.
+- Access tokens are kept in the OS keychain (Windows Credential Manager, macOS Keychain, Linux Secret Service); `accounts.json` no longer holds them.
+- Casting (Google Cast, UPnP/DLNA/WiiM, AirPlay), Discord Rich Presence, the OS media controls (Windows SMTC, macOS Now Playing, Linux MPRIS) and the updater run in the native core.
+- Updates install themselves on macOS too (Windows, macOS and Linux AppImage), verified with the release signing key.
+- Installer files are now `Orphyn_<version>_x64-setup.exe`, `Orphyn_<version>_aarch64.dmg` / `_x64.dmg`, `Orphyn_<version>_amd64.AppImage` and `.deb`. The Windows installer keeps its dark custom pages (Welcome, Options, progress, Finish) and its uninstaller.
+
+### Added
+
+- Picture-in-Picture for music (mini player window) and video.
+- Playlists (create, add songs and albums, remove, delete) and favourites, with hearts in the players.
+- Five interface styles: Classic, Glass, Cinema, Minimal and Compact, in Settings > General.
+- End-to-end suite on the native app (Playwright over the WebView2 DevTools protocol), with new scenarios for playlists, favourites, interface styles and Picture-in-Picture.
+
+### Removed
+
+- The Electron shell, its build (electron-vite, electron-builder) and the native application menu (its shortcuts remain: Ctrl/Cmd+R refreshes, Ctrl/Cmd+, opens Settings).
 
 ### Migration
 
-- Saved servers, window state, settings and the renderer storage (preferences, queue, theme, last seen version) are copied from the old "Lumen" data folder on first start; the `lumen.*` storage keys become `orphyn.*`.
-- The installer upgrades an existing Lumen install in place (the application id is unchanged, so updates keep working) and replaces the old "Lumen" shortcuts.
+- Updating from 1.0.x happens in the app as usual: the release also carries the `latest.yml` / `latest-linux.yml` / `latest-mac.yml` files the 1.0.x updater reads. On Windows the new installer removes the previous install and its shortcuts; the Linux AppImage is replaced in place; on macOS the update opens the download page once.
+- Saved servers, users, names, the active server and the device id are imported from the previous version; each server asks to sign in again once (its token could not be carried over). Preferences (theme, accent, language, player settings) and the window size start from their defaults.
 
 ## [1.0.5] - 2026-11-13
 

@@ -1,21 +1,61 @@
 {
   "fr": {
-    "title": "Un nouveau nom",
+    "title": "Bienvenue dans Orphyn",
     "items": [
       {
         "icon": "sparkles",
         "title": "Lumen devient Orphyn",
-        "text": "Le client change de nom. Vos serveurs, réglages et mises à jour sont conservés."
+        "text": "Le client change de nom. Vos serveurs sont conservés : reconnectez-vous une fois à chacun."
+      },
+      {
+        "icon": "refresh",
+        "title": "Un cœur natif, rapide et léger",
+        "text": "Orphyn est reconstruit sur un cœur natif : une app plus petite, qui démarre plus vite et utilise moins de mémoire."
+      },
+      {
+        "icon": "film",
+        "title": "Picture-in-Picture",
+        "text": "Gardez le mini lecteur musique ou une vidéo dans une petite fenêtre au-dessus de vos autres apps."
+      },
+      {
+        "icon": "music",
+        "title": "Playlists et favoris",
+        "text": "Créez vos playlists, ajoutez-y titres et albums, et retrouvez vos favoris en un clic, jusque dans les lecteurs."
+      },
+      {
+        "icon": "layout",
+        "title": "Cinq styles d'interface",
+        "text": "Classique, Verre, Cinéma, Minimal ou Compact : choisissez le vôtre dans Réglages > Général."
       }
     ]
   },
   "en": {
-    "title": "A new name",
+    "title": "Welcome to Orphyn",
     "items": [
       {
         "icon": "sparkles",
         "title": "Lumen is now Orphyn",
-        "text": "The client has a new name. Your servers, settings and updates carry over."
+        "text": "The client has a new name. Your servers carry over: sign in to each one again, once."
+      },
+      {
+        "icon": "refresh",
+        "title": "A fast, light native core",
+        "text": "Orphyn is rebuilt on a native core: a smaller app that starts faster and uses less memory."
+      },
+      {
+        "icon": "film",
+        "title": "Picture-in-Picture",
+        "text": "Keep the music mini player or a video in a small window above your other apps."
+      },
+      {
+        "icon": "music",
+        "title": "Playlists and favourites",
+        "text": "Create playlists, add songs and albums to them, and find your favourites in one click, right from the players."
+      },
+      {
+        "icon": "layout",
+        "title": "Five interface styles",
+        "text": "Classic, Glass, Cinema, Minimal or Compact: pick yours in Settings > General."
       }
     ]
   }

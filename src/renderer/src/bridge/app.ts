@@ -1,6 +1,5 @@
 /**
- * Actions of the Electron application menu, as keyboard shortcuts: there is no native menu in
- * the Tauri shell. Ctrl+R / Cmd+R refreshes the library (instead of reloading the page),
+ * Application actions as keyboard shortcuts (there is no native menu). Ctrl+R / Cmd+R refreshes the library (instead of reloading the page),
  * Ctrl+, / Cmd+, opens the settings.
  */
 import type { AppApi } from '@shared/ipc/app'

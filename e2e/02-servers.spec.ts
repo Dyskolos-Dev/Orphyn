@@ -19,15 +19,15 @@ async function openServersPane(page: Page): Promise<void> {
   await expect(page.getByRole('list', { name: 'Your servers' })).toBeVisible()
 }
 
-test('servers: the session persists across restarts, with an encrypted token on disk', async () => {
+test('servers: the session persists across restarts, with no token or password on disk', async () => {
   const c = requireCredentials()
   const stored = readAccounts()
   expect(stored.accounts).toHaveLength(1)
   const [account] = stored.accounts
-  // Token present but not in clear text: a Jellyfin token is 32 hex characters.
-  expect(account!.accessToken).toBeTruthy()
-  expect(account!.accessToken).not.toMatch(/^[0-9a-f]{32}$/i)
+  // The token lives in the OS keychain: accounts.json never holds it, in any form.
+  expect(account!.accessToken).toBeNull()
   const raw = readFileSync(join(sharedProfile(), 'accounts.json'), 'utf8')
+  expect(raw).not.toMatch(/"accessToken"\s*:\s*"/)
   expect(raw).not.toMatch(/"(password|pw)"/i)
   // (Only meaningful when the password differs from the user name, which is stored.)
   if (c.password !== c.user) expect(raw).not.toContain(c.password)

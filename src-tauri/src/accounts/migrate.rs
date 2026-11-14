@@ -16,7 +16,7 @@ pub const LEGACY_DIR_NAMES: [&str; 4] = ["Orphyn", "orphyn", "Lumen", "lumen"];
 
 /// `accounts.json` files the Electron app may have left, in the order they are tried.
 pub fn legacy_account_files() -> Vec<PathBuf> {
-    let Some(config) = dirs::config_dir() else {
+    let Some(config) = crate::profile::legacy_config_dir() else {
         return Vec::new();
     };
     LEGACY_DIR_NAMES

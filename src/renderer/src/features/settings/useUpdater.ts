@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import type { UpdaterState } from '@shared/ipc/updater'
 
-/** Live updater state from the main process; null outside Electron. */
+/** Live updater state from the native core; null outside the app. */
 export function useUpdater(): UpdaterState | null {
   const [state, setState] = useState<UpdaterState | null>(null)
   useEffect(() => {

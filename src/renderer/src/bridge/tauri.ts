@@ -8,8 +8,8 @@ export function call<T = void>(command: string, args?: Record<string, unknown>):
 }
 
 /**
- * Subscribes to an event emitted by the Rust side and returns a synchronous unsubscribe, like
- * the Electron preload (`listen` itself resolves asynchronously).
+ * Subscribes to an event emitted by the Rust side and returns a synchronous unsubscribe
+ * (`listen` itself resolves asynchronously).
  */
 export function subscribe<T>(event: string, cb: (payload: T) => void): () => void {
   let unlisten: (() => void) | null = null

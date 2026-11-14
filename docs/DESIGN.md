@@ -229,7 +229,7 @@ import { useWindowState } from '@renderer/design'
 
 const { platform, isFullscreen, isMaximized, isFocused, material, setFullscreen, toggleMaximize } =
   useWindowState()
-await setFullscreen(true) // native fullscreen (video player); DOM fullscreen outside Electron
+await setFullscreen(true) // native fullscreen (video player); DOM fullscreen outside the app
 ```
 
 Raw API (`src/shared/ipc/window.ts`): `minimize`, `toggleMaximize`, `close`, `getState`, `isFullscreen`,
