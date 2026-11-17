@@ -25,7 +25,15 @@ export interface PlaybackPreferences {
   preferredSubtitleLanguage: string | null
   autoPlayNext: boolean
   audioQuality: 'original' | number
+  /** Music crossfade: on/off (off by default), length in seconds (1-12), and whether to leave
+   *  consecutive tracks of the same album gapless. */
+  crossfade: boolean
+  crossfadeSeconds: number
+  crossfadeSkipAlbum: boolean
 }
+
+export const CROSSFADE_SECONDS_MIN = 1
+export const CROSSFADE_SECONDS_MAX = 12
 
 export const DEFAULT_PLAYBACK_PREFERENCES: PlaybackPreferences = {
   maxVideoBitrate: null,
@@ -33,6 +41,9 @@ export const DEFAULT_PLAYBACK_PREFERENCES: PlaybackPreferences = {
   preferredSubtitleLanguage: null,
   autoPlayNext: true,
   audioQuality: 'original',
+  crossfade: false,
+  crossfadeSeconds: 6,
+  crossfadeSkipAlbum: true,
 }
 
 /** Video streaming ceilings offered in Settings (bits per second). */
@@ -98,6 +109,16 @@ function sanitize(raw: unknown): PlaybackPreferences {
     preferredSubtitleLanguage: lang(o['preferredSubtitleLanguage']),
     autoPlayNext: typeof o['autoPlayNext'] === 'boolean' ? o['autoPlayNext'] : d.autoPlayNext,
     audioQuality: quality === 'original' ? 'original' : (posNumber(quality) ?? d.audioQuality),
+    crossfade: typeof o['crossfade'] === 'boolean' ? o['crossfade'] : d.crossfade,
+    crossfadeSeconds:
+      typeof o['crossfadeSeconds'] === 'number' && Number.isFinite(o['crossfadeSeconds'])
+        ? Math.min(
+            CROSSFADE_SECONDS_MAX,
+            Math.max(CROSSFADE_SECONDS_MIN, Math.round(o['crossfadeSeconds'])),
+          )
+        : d.crossfadeSeconds,
+    crossfadeSkipAlbum:
+      typeof o['crossfadeSkipAlbum'] === 'boolean' ? o['crossfadeSkipAlbum'] : d.crossfadeSkipAlbum,
   }
 }
 

@@ -6,9 +6,11 @@ import { interfaceStyleStore, themeStore } from '@renderer/design'
 import {
   DEFAULT_PLAYBACK_PREFERENCES,
   PLAYBACK_PREFERENCES_KEY,
+  getPlaybackPreferences,
   languageMatches,
   usePlaybackPreferences,
 } from './index'
+import { MusicPane } from './MusicPane'
 import { reloadPlaybackPreferences } from './preferences'
 import { AppearancePane } from './AppearancePane'
 import { GeneralPane } from './GeneralPane'
@@ -79,6 +81,44 @@ describe('usePlaybackPreferences', () => {
     act(() => result.current.update({ autoPlayNext: false }))
     act(() => result.current.reset())
     expect(result.current).toMatchObject(DEFAULT_PLAYBACK_PREFERENCES)
+  })
+})
+
+describe('MusicPane crossfade', () => {
+  it('is off by default, reveals the length and album options, and applies live', async () => {
+    const user = userEvent.setup()
+    await act(() => i18n.changeLanguage('en'))
+    expect(DEFAULT_PLAYBACK_PREFERENCES).toMatchObject({
+      crossfade: false,
+      crossfadeSkipAlbum: true,
+    })
+    render(<MusicPane />)
+    expect(screen.queryByRole('slider')).toBeNull()
+
+    await user.click(screen.getByRole('switch', { name: /^Crossfade/ }))
+    expect(getPlaybackPreferences().crossfade).toBe(true)
+    const slider = screen.getByRole('slider', { name: 'Crossfade length' })
+    expect(slider).toHaveAttribute('aria-valuemin', '1')
+    expect(slider).toHaveAttribute('aria-valuemax', '12')
+    expect(slider).toHaveAttribute('aria-valuetext', '6 s')
+
+    slider.focus()
+    await user.keyboard('{ArrowRight}')
+    expect(getPlaybackPreferences().crossfadeSeconds).toBe(7)
+    expect(screen.getByText('7 s')).toBeInTheDocument()
+
+    await user.click(screen.getByRole('switch', { name: /Don't crossfade within an album/ }))
+    expect(getPlaybackPreferences().crossfadeSkipAlbum).toBe(false)
+    expect(screen.getByText('Streaming quality')).toBeInTheDocument()
+  })
+
+  it('keeps the length within 1-12 s when reading storage', () => {
+    localStorage.setItem(
+      PLAYBACK_PREFERENCES_KEY,
+      JSON.stringify({ crossfade: true, crossfadeSeconds: 99 }),
+    )
+    reloadPlaybackPreferences()
+    expect(getPlaybackPreferences()).toMatchObject({ crossfade: true, crossfadeSeconds: 12 })
   })
 })
 

@@ -200,8 +200,11 @@
   "music": {
     "header": "Music",
     "crossfade": "Crossfade",
-    "crossfadeDescription": "Blend the end of a song into the next one. Coming soon.",
-    "crossfadeOff": "Off",
+    "crossfadeDescription": "Blend the end of a song into the next one. Not used when casting.",
+    "crossfadeDuration": "Crossfade length",
+    "crossfadeSkipAlbum": "Don't crossfade within an album",
+    "crossfadeSkipAlbumDescription": "Songs that follow each other on an album play gapless.",
+    "seconds": "{{value}} s",
     "quality": "Streaming quality",
     "qualityFooter": "Original plays the file as stored. A bitrate asks the server to transcode, which saves data.",
     "original": "Original",

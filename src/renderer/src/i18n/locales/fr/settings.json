@@ -200,8 +200,11 @@
   "music": {
     "header": "Musique",
     "crossfade": "Fondu enchaîné",
-    "crossfadeDescription": "Fond la fin d’un morceau dans le suivant. Bientôt disponible.",
-    "crossfadeOff": "Désactivé",
+    "crossfadeDescription": "Fond la fin d’un morceau dans le suivant. Inactif pendant la diffusion.",
+    "crossfadeDuration": "Durée du fondu",
+    "crossfadeSkipAlbum": "Pas de fondu au sein d’un album",
+    "crossfadeSkipAlbumDescription": "Les morceaux qui s’enchaînent sur un album restent sans coupure.",
+    "seconds": "{{value}} s",
     "quality": "Qualité de streaming",
     "qualityFooter": "Original lit le fichier tel quel. Un débit demande au serveur de transcoder, ce qui économise des données.",
     "original": "Original",

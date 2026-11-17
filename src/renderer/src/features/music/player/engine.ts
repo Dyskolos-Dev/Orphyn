@@ -1,4 +1,5 @@
 import { PlaybackReporter, secondsToTicks, type ReportTarget } from '@renderer/jellyfin'
+import { CROSSFADE_OFF, planFade, type CrossfadeSettings } from './crossfade'
 import { savePlayer, loadPlayer } from './persistence'
 import { currentItem, nextIndex } from './queue'
 import { usePlayerStore, type PlayerState } from './store'
@@ -37,6 +38,8 @@ export interface EngineDeps {
   storage?: Storage
   /** Seconds of playback after which the next track is preloaded. */
   preloadAfter?: number
+  /** Crossfade preferences, read live (default: no crossfade). */
+  getCrossfade?(): CrossfadeSettings
 }
 
 /** Default reporter: Jellyfin "now playing" + progress every 10 s through PlaybackReporter. */
@@ -254,6 +257,7 @@ export class PlayerEngine {
   /** Preloads (or cancels the preload of) the track that follows the current one. */
   private refreshPreload(): void {
     const s = usePlayerStore.getState()
+    this.syncCrossfade()
     if (this.loadedId !== s.loadId || s.position < this.preloadAfter) return
     const i = nextIndex(s, 'auto')
     const entry = i === null ? undefined : s.queue[i]
@@ -269,6 +273,31 @@ export class PlayerEngine {
     this.output.preload(url)
   }
 
+  /**
+   * Tells the output how long to crossfade into the next track (0 = plain switch), from the live
+   * preferences and the rules in `planFade`. A remote output has no `setCrossfade`: it never fades.
+   */
+  private syncCrossfade(duration?: number): void {
+    const set = this.output.setCrossfade
+    if (!set) return
+    const s = usePlayerStore.getState()
+    const entry = currentItem(s)
+    const i = nextIndex(s, 'auto')
+    const next = i === null ? undefined : s.queue[i]
+    const seconds =
+      entry && next
+        ? planFade({
+            settings: this.deps.getCrossfade?.() ?? CROSSFADE_OFF,
+            current: entry.track,
+            next: next.track,
+            repeat: s.repeat,
+            casting: false,
+            currentDuration: duration || s.duration,
+          })
+        : 0
+    set.call(this.output, seconds)
+  }
+
   // ------------------------------------------------------------------ output -> store
 
   private bindOutput(): void {
@@ -282,6 +311,7 @@ export class PlayerEngine {
         const entry = currentItem(store)
         const duration = e.duration || (entry ? trackDuration(entry.track) : 0)
         store.setProgress(e.position, duration)
+        this.syncCrossfade(duration)
         if (e.position >= this.preloadAfter && this.preloadedUid === null) this.refreshPreload()
         break
       }
@@ -316,6 +346,11 @@ export class PlayerEngine {
       }
       case 'ended':
         void this.finishReport()
+        store.handleEnded()
+        break
+      case 'crossfade':
+        // The next track is already audible and current: advance the queue (reporting, media
+        // session and Discord follow the store). The output keeps the fade going on load().
         store.handleEnded()
         break
       case 'error':

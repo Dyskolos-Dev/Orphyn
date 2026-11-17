@@ -110,6 +110,13 @@
   gap: var(--space-3);
   width: 220px;
 }
+.jr-music__value {
+  flex: none;
+  width: 4ch;
+  font: var(--text-subheadline);
+  color: var(--secondary-label);
+  text-align: end;
+}
 .jr-appearance__value {
   flex: none;
   width: 3ch;

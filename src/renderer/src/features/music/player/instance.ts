@@ -1,6 +1,7 @@
 import i18n from 'i18next'
 import { toast } from '@renderer/design'
 import { universalAudioUrl, useSession } from '@renderer/jellyfin'
+import { getPlaybackPreferences } from '@renderer/features/settings'
 import { createJellyfinReporter, PlayerEngine } from './engine'
 import { LocalAudioOutput } from './output'
 import { getAudioMaxBitrate } from './quality'
@@ -17,6 +18,14 @@ export function startPlayerEngine(): PlayerEngine {
       const { api, account } = useSession.getState()
       if (!api || !account || !track.Id) return null
       return universalAudioUrl(api, account.userId, track.Id, { maxBitrate: getAudioMaxBitrate() })
+    },
+    getCrossfade() {
+      const p = getPlaybackPreferences()
+      return {
+        enabled: p.crossfade,
+        seconds: p.crossfadeSeconds,
+        skipSameAlbum: p.crossfadeSkipAlbum,
+      }
     },
     createReporter: createJellyfinReporter,
     onUnplayable(track) {
