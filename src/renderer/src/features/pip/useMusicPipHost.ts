@@ -6,6 +6,7 @@ import { currentItem } from '@renderer/features/music/player/queue'
 import { trackArt, trackArtist, trackTitle } from '@renderer/features/music/player/track'
 import { onPip, sendPip, togglePip, usePipState } from './events'
 import {
+  ARTWORK_MAX,
   EMPTY_MUSIC_PIP,
   PIP_EVENTS,
   musicPipChanged,
@@ -26,7 +27,7 @@ export function buildMusicPipState(s: PlayerState, favorite: boolean, now: numbe
     title: trackTitle(track),
     artist: trackArtist(track),
     album: track.Album ?? undefined,
-    artworkUrl: trackArt(track, 640),
+    artworkUrl: trackArt(track, ARTWORK_MAX),
     playing: s.wantPlaying && s.status !== 'paused' && s.status !== 'error',
     position: s.position,
     duration: s.duration,

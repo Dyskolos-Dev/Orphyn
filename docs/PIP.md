@@ -18,7 +18,11 @@ Handling (`features/pip/windowHandling.tsx`, `src-tauri/src/pip/mod.rs`):
 - **Resize**: invisible 7 px hit areas on every edge and 14 px on the corners
   (`startResizeDragging`), plus a grip in the bottom-right corner on hover. The width / height
   ratio is enforced in Rust (whichever side is dragged drives the other, clamped to min / max). The
-  card is drawn at 320 px and scaled with CSS (`--pip-scale`), so resizing never re-lays it out.
+  card is laid out natively at every size (no CSS transform): the window is a CSS size container and
+  every length is a multiple of `--u` (window width / 320, via `cqw`), so text and icons stay sharp.
+  The artwork is requested at window width x devicePixelRatio rounded up to 320 / 480 / 640 / 960
+  (`maxWidth`, quality 90), raised when the window grows and never upscaled; only the background
+  layer is blurred.
 - **Snap**: 300 ms after the window stops moving it is kept inside the screen's work area and sticks
   to an edge or corner within 16 px, with a short ease.
 - **Remember**: size and position are saved per monitor (`music@<monitor>` next to the last one

@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import {
   EMPTY_MUSIC_PIP,
+  artworkAtWidth,
+  artworkStep,
   extrapolatePosition,
   musicPipChanged,
   musicPipReducer,
@@ -64,5 +66,26 @@ describe('musicPipChanged', () => {
     expect(musicPipChanged(snap(), snap({ trackId: 't2' }))).toBe(true)
     expect(musicPipChanged(snap(), snap({ favorite: true }))).toBe(true)
     expect(musicPipChanged(snap({ duration: 0 }), snap({ duration: 100 }))).toBe(true)
+  })
+})
+
+describe('artwork sizing', () => {
+  it('rounds device pixels up to a step and caps at the largest', () => {
+    expect(artworkStep(260)).toBe(320)
+    expect(artworkStep(321)).toBe(480)
+    expect(artworkStep(630)).toBe(640)
+    expect(artworkStep(5000)).toBe(960)
+  })
+
+  it('rewrites maxWidth and quality and drops maxHeight', () => {
+    const url = artworkAtWidth(
+      'http://s/Items/1/Images/Primary?maxWidth=960&maxHeight=960&quality=85&tag=x',
+      480,
+    )
+    const q = new URL(url).searchParams
+    expect(q.get('maxWidth')).toBe('480')
+    expect(q.get('maxHeight')).toBeNull()
+    expect(q.get('quality')).toBe('90')
+    expect(q.get('tag')).toBe('x')
   })
 })

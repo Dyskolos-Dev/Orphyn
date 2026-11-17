@@ -1,7 +1,7 @@
 /**
  * Native-feeling handling of a frameless PiP window: drag from anywhere that is not a control,
  * resize from every edge and corner, double-click to switch between a compact and a large size,
- * and a content scale that follows the window so resizing never re-lays the design out.
+ * and a scale variable for the corner radius (the content itself is sized in CSS container units).
  */
 import { useEffect, type PointerEvent as ReactPointerEvent } from 'react'
 import { PhysicalSize } from '@tauri-apps/api/dpi'
@@ -112,10 +112,10 @@ export function ResizeHandles() {
   )
 }
 
-/** Width (px) the design is drawn at; the window scales it as a whole. */
+/** Width (px) the design is drawn at; lengths follow the window as multiples of width / this. */
 export const DESIGN_WIDTH = 320
 
-/** Publishes `--pip-scale` (window width / design width) so the card scales instead of re-laying out. */
+/** Publishes `--pip-scale` (window width / design width), used only for the window corner radius. */
 export function usePipScale(): void {
   useEffect(() => {
     const apply = () =>

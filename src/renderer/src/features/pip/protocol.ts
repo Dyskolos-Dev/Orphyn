@@ -97,3 +97,25 @@ export interface VideoPipProgress {
   playing: boolean
   ended: boolean
 }
+
+/** Artwork widths (px) the PiP asks the server for. */
+export const ARTWORK_STEPS = [320, 480, 640, 960] as const
+export const ARTWORK_MAX = 960
+
+/** Smallest step that covers the given device pixels, so a bitmap is never upscaled (capped at the largest). */
+export function artworkStep(pixels: number): number {
+  return ARTWORK_STEPS.find((s) => s >= pixels) ?? ARTWORK_STEPS[ARTWORK_STEPS.length - 1]!
+}
+
+/** The same artwork URL requested at the given width in px (maxWidth, no maxHeight cap) and quality 90. */
+export function artworkAtWidth(url: string, width: number): string {
+  try {
+    const u = new URL(url)
+    u.searchParams.set('maxWidth', String(width))
+    u.searchParams.delete('maxHeight')
+    u.searchParams.set('quality', '90')
+    return u.toString()
+  } catch {
+    return url
+  }
+}

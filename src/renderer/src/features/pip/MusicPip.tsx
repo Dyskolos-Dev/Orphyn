@@ -1,18 +1,14 @@
 import { Heart, Maximize2, Music, Pause, Play, SkipBack, SkipForward, X } from 'lucide-react'
-import { useEffect, useReducer, useState, type PointerEvent } from 'react'
+import { useEffect, useReducer, useRef, useState, type PointerEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Window } from '@tauri-apps/api/window'
 import { onPip, sendPip } from './events'
-import {
-  DESIGN_WIDTH,
-  ResizeHandles,
-  dragOnMove,
-  toggleCompactSize,
-  usePipScale,
-} from './windowHandling'
+import { ResizeHandles, dragOnMove, toggleCompactSize, usePipScale } from './windowHandling'
 import {
   EMPTY_MUSIC_PIP,
   PIP_EVENTS,
+  artworkAtWidth,
+  artworkStep,
   extrapolatePosition,
   musicPipReducer,
   type MusicPipCommand,
@@ -59,6 +55,27 @@ function Progress({ state, position }: { state: MusicPipState; position: number 
       <div className="pip__progress-fill" style={{ width: `${fraction * 100}%` }} />
     </div>
   )
+}
+
+/**
+ * Artwork URL sized for the window: width x devicePixelRatio rounded up to a step, raised when the
+ * window grows and kept while it shrinks (a bitmap is never upscaled, and shrinking does not reload).
+ */
+function useArtworkUrl(url: string | undefined): string | undefined {
+  const [width, setWidth] = useState(0)
+  const best = useRef({ url, step: 0 })
+  useEffect(() => {
+    const measure = () => {
+      const step = artworkStep(window.innerWidth * window.devicePixelRatio)
+      if (best.current.url !== url) best.current = { url, step }
+      else if (step > best.current.step) best.current.step = step
+      setWidth(best.current.step)
+    }
+    measure()
+    window.addEventListener('resize', measure)
+    return () => window.removeEventListener('resize', measure)
+  }, [url])
+  return url && width ? artworkAtWidth(url, width) : undefined
 }
 
 /** Music Picture in Picture: artwork full-bleed over a blurred copy, controls on hover. */
@@ -114,7 +131,7 @@ export function MusicPip() {
   }, [])
 
   const position = extrapolatePosition(state, now)
-  const art = state.artworkUrl
+  const art = useArtworkUrl(state.artworkUrl)
   return (
     <div
       className="pip pip--music"
@@ -125,7 +142,7 @@ export function MusicPip() {
           void toggleCompactSize(MUSIC_RATIO)
       }}
     >
-      <div className="pip__stage" style={{ width: DESIGN_WIDTH }}>
+      <div className="pip__stage">
         {art && <div className="pip__bg" style={{ backgroundImage: `url("${art}")` }} />}
         {art ? (
           <img className="pip__art" src={art} alt="" draggable={false} />
