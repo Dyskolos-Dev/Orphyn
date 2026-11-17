@@ -91,19 +91,26 @@ export interface FadeGraph {
   setGain(el: HTMLAudioElement, gain: number): void
   /** Ramps both gains with equal-power curves from progress `from` to 1 over `seconds`. */
   ramp(outEl: HTMLAudioElement, inEl: HTMLAudioElement, from: number, seconds: number): void
+  /** Points the whole graph at an output device ('' = system default); kept until the context exists. */
+  setSinkId?(id: string): Promise<void>
 }
 
 /** Web Audio graph: each element → its GainNode → one shared destination. Null if unsupported. */
 export function createWebAudioGraph(): FadeGraph | null {
   if (typeof AudioContext === 'undefined') return null
   let ctx: AudioContext | null = null
+  let sink = ''
+  type Sinkable = { setSinkId?: (id: string) => Promise<void> }
   const gains = new Map<HTMLAudioElement, GainNode>()
   const gainOf = (el: HTMLAudioElement) => gains.get(el)
   return {
     attach(el) {
       if (gains.has(el)) return true
       try {
-        ctx ??= new AudioContext()
+        if (!ctx) {
+          ctx = new AudioContext()
+          if (sink) void (ctx as Sinkable).setSinkId?.(sink)?.catch(() => {})
+        }
         // Cross-origin streams only produce sound through a media element source with CORS.
         el.crossOrigin = 'anonymous'
         const gain = ctx.createGain()
@@ -116,6 +123,10 @@ export function createWebAudioGraph(): FadeGraph | null {
       }
     },
     isAttached: (el) => gains.has(el),
+    async setSinkId(id) {
+      sink = id
+      await (ctx as Sinkable | null)?.setSinkId?.(id)
+    },
     now: () => ctx?.currentTime ?? 0,
     resume: async () => {
       if (ctx && ctx.state === 'suspended') await ctx.resume().catch(() => {})
