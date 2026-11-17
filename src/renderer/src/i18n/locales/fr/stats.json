@@ -1,0 +1,48 @@
+{
+  "title": "Ton année",
+  "subtitle": "Ta musique, tes films et tes séries",
+  "nav": "Ton année",
+  "year": "Année",
+  "plays_one": "{{count}} écoute",
+  "plays_other": "{{count}} écoutes",
+  "approx": "Estimé d’après la dernière lecture de chaque titre dans l’année : les écoutes répétées des mois précédents peuvent être sous-estimées.",
+  "hero": {
+    "eyebrow": "Ton {{year}}",
+    "minutes": "minutes",
+    "line": "Environ {{hours}} heures de musique, de films et de séries."
+  },
+  "music": {
+    "title": "Musique",
+    "topArtist": "Ton artiste n°1",
+    "topArtistLine_one": "{{count}} écoute cette année",
+    "topArtistLine_other": "{{count}} écoutes cette année",
+    "artists": "Top artistes",
+    "songs": "Top titres",
+    "albums": "Top albums",
+    "genres": "Top genres"
+  },
+  "video": {
+    "title": "Films et séries",
+    "movies_one": "film vu",
+    "movies_other": "films vus",
+    "episodes_one": "épisode vu",
+    "episodes_other": "épisodes vus",
+    "topMovies": "Top films",
+    "topSeries": "Top séries"
+  },
+  "facts": {
+    "title": "Le saviez-tu ?",
+    "busiestMonth": "a été ton mois le plus actif",
+    "artistShare": "de tes écoutes pour {{artist}}",
+    "perDay": "minutes par jour en moyenne",
+    "distinctSongs": "titres différents écoutés"
+  },
+  "empty": {
+    "title": "Rien à montrer pour {{year}} pour l’instant",
+    "message": "Écoute de la musique, regarde des films ou des séries et ton année prendra forme ici."
+  },
+  "error": {
+    "title": "Impossible de charger ton année",
+    "message": "Vérifie ta connexion au serveur puis réessaie."
+  }
+}

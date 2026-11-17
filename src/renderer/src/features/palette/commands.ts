@@ -1,4 +1,5 @@
 import {
+  BarChart3,
   Disc3,
   Download,
   Film,
@@ -142,6 +143,15 @@ const navigation: Command[] = [
   page('songs', Music, '/music/songs', ['titres', 'tracks', 'morceaux', 'chansons']),
   page('favorites', Star, '/music/favorites', ['favoris', 'likes', 'liked']),
   page('search', Search, '/search', ['recherche', 'find', 'chercher']),
+  page('stats', BarChart3, '/stats', [
+    'stats',
+    'statistiques',
+    'wrapped',
+    'year',
+    'annee',
+    'bilan',
+    'recap',
+  ]),
   {
     id: 'customise-home',
     group: 'navigate',

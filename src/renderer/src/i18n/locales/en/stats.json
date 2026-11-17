@@ -1,0 +1,48 @@
+{
+  "title": "Your year",
+  "subtitle": "Your music, films and series",
+  "nav": "Your year",
+  "year": "Year",
+  "plays_one": "{{count}} play",
+  "plays_other": "{{count}} plays",
+  "approx": "Based on what you last played during the year, so repeat listens from earlier months may be undercounted.",
+  "hero": {
+    "eyebrow": "Your {{year}}",
+    "minutes": "minutes",
+    "line": "About {{hours}} hours of music, films and series."
+  },
+  "music": {
+    "title": "Music",
+    "topArtist": "Your top artist",
+    "topArtistLine_one": "{{count}} play this year",
+    "topArtistLine_other": "{{count}} plays this year",
+    "artists": "Top artists",
+    "songs": "Top songs",
+    "albums": "Top albums",
+    "genres": "Top genres"
+  },
+  "video": {
+    "title": "Films and series",
+    "movies_one": "film watched",
+    "movies_other": "films watched",
+    "episodes_one": "episode watched",
+    "episodes_other": "episodes watched",
+    "topMovies": "Top films",
+    "topSeries": "Top series"
+  },
+  "facts": {
+    "title": "Fun facts",
+    "busiestMonth": "was your busiest month",
+    "artistShare": "of your listening went to {{artist}}",
+    "perDay": "minutes a day on average",
+    "distinctSongs": "different songs played"
+  },
+  "empty": {
+    "title": "Nothing to show for {{year}} yet",
+    "message": "Play some music, films or series and your year will take shape here."
+  },
+  "error": {
+    "title": "Couldn't load your year",
+    "message": "Check your connection to the server and try again."
+  }
+}
