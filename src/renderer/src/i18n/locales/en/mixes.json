@@ -1,0 +1,44 @@
+{
+  "title": "Mixes",
+  "notFound": "This mix is no longer available.",
+  "saveAsPlaylist": "Save as Playlist",
+  "with": "With {{artists}} and more",
+  "names": {
+    "forYou": "Mix {{n}}",
+    "discovery": "Discovery",
+    "onRepeat": "On Repeat",
+    "rediscover": "Rediscover",
+    "genre": "{{genre}} Mix"
+  },
+  "hints": {
+    "forYou": "Made from what you play most",
+    "discovery": "New to you, close to your favourites",
+    "onRepeat": "What you played most this month",
+    "rediscover": "Songs you love, not heard in a while",
+    "genre": "A mix of your favourite genre"
+  },
+  "rows": {
+    "mixForYou": {
+      "name": "Made for You",
+      "title": "Made for You",
+      "description": "Mixes built from what you listen to most, refreshed every day."
+    },
+    "mixDaily": {
+      "name": "Discovery, On Repeat and Rediscover",
+      "title": "Your Mixes",
+      "description": "New songs close to your favourites, your most played of the month, and loved songs you have not heard in a while."
+    },
+    "mixGenres": {
+      "name": "Genre mixes",
+      "title": "Genre Mixes",
+      "description": "One mix for each of your top genres."
+    }
+  },
+  "radio": {
+    "start": "Start Radio",
+    "started": "Radio started from {{name}}",
+    "failed": "Could not start the radio.",
+    "indicator": "Radio · {{name}}",
+    "stop": "Stop the radio"
+  }
+}

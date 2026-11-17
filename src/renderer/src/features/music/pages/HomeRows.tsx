@@ -13,6 +13,7 @@ import {
   useSongs,
   type BaseItemDto,
 } from '@renderer/jellyfin'
+import { MixRow } from '@renderer/features/mixes'
 import { AlbumCard, ArtistCard, PlaylistCard } from '../components/Cards'
 import { art } from '../components/hooks'
 import { musicPlayer } from '../player/api'
@@ -262,6 +263,10 @@ export function MusicRow(props: RowProps) {
       return <ArtistRow {...props} />
     case 'randomAlbums':
       return <RandomAlbumsRow {...props} />
+    case 'mixForYou':
+    case 'mixDaily':
+    case 'mixGenres':
+      return <MixRow {...props} />
     default:
       return null
   }

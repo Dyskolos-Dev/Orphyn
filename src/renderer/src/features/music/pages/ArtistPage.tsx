@@ -1,4 +1,4 @@
-import { Heart, Play, Shuffle, User } from 'lucide-react'
+import { Heart, Play, Radio, Shuffle, User } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router'
 import { Button, EmptyState, HeroBanner, IconButton, Shelf, Spinner, Text } from '@renderer/design'
@@ -10,6 +10,7 @@ import {
   useToggleFavorite,
   type BaseItemDto,
 } from '@renderer/jellyfin'
+import { startRadio } from '@renderer/features/mixes'
 import { ShellPage } from '@renderer/shell'
 import { AlbumCard, ArtistCard } from '../components/Cards'
 import { SongRows } from '../components/TrackRows'
@@ -32,6 +33,7 @@ function isSingle(album: BaseItemDto): boolean {
 
 export function ArtistPage() {
   const { t } = useTranslation('music')
+  const { t: tr } = useTranslation('mixes')
   const { id } = useParams()
   const artist = useItem(id)
   const top = useItems({
@@ -108,6 +110,14 @@ export function ArtistPage() {
               onClick={() => void musicPlayer.playArtist(id, { shuffle: true })}
             >
               {t('actions.shuffle')}
+            </Button>
+            <Button
+              variant="contrast"
+              size="large"
+              icon={<Radio />}
+              onClick={() => void startRadio(id)}
+            >
+              {tr('radio.start')}
             </Button>
             <IconButton
               icon={<Heart fill={item.UserData?.IsFavorite ? 'currentColor' : 'none'} />}

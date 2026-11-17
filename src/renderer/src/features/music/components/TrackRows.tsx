@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import { Menu, Text, TrackRow } from '@renderer/design'
 import { useToggleFavorite, type BaseItemDto } from '@renderer/jellyfin'
+import { useRadioMenuItem } from '@renderer/features/mixes'
 import { musicPlayer, useMusicPlayer } from '../player/api'
 import { trackArt, trackArtist, trackArtistId, trackDuration, trackTitle } from '../player/track'
 import { useTrackListInteractions } from '../playlists/interactions'
@@ -20,7 +21,14 @@ export function useRowPlayback() {
 
 /** One "more" / right-click menu shared by all rows of a list. */
 export function useTrackMenuHost(opts?: { onRemove?: (track: BaseItemDto) => void }) {
-  const buildItems = useTrackMenuWithPlaylists(opts)
+  const buildBase = useTrackMenuWithPlaylists(opts)
+  const radioItem = useRadioMenuItem()
+  const buildItems = (track: BaseItemDto) => {
+    const items = buildBase(track)
+    // After "Add to Queue" and the playlist entry: the radio is an action on the song itself.
+    items.splice(3, 0, radioItem(track.Id ?? ''))
+    return items
+  }
   const [open, setOpen] = useState<{ track: BaseItemDto; x: number; y: number } | null>(null)
   const show = (track: BaseItemDto) => (e: MouseEvent) => {
     e.preventDefault()

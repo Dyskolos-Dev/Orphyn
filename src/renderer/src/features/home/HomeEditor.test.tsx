@@ -80,15 +80,18 @@ describe('home editing (Settings > Home)', () => {
 
     await waitFor(() =>
       expect(saved()).toEqual([
-        'playlists',
         'recentlyPlayed',
+        'mixForYou',
+        'mixDaily',
+        'playlists',
         'instantMix',
+        'mixGenres',
         'favAlbums',
         'favArtists',
         expect.stringMatching(/^randomAlbums-/),
       ]),
     )
-    expect(JSON.parse(localStorage.getItem(KEY) ?? '{}').rows).toHaveLength(7)
+    expect(JSON.parse(localStorage.getItem(KEY) ?? '{}').rows).toHaveLength(10)
   })
 
   it('the "…" menu removes a row and sets its options; Reset restores the defaults', async () => {

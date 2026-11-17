@@ -1,0 +1,44 @@
+{
+  "title": "Mix",
+  "notFound": "Ce mix n’est plus disponible.",
+  "saveAsPlaylist": "Enregistrer en playlist",
+  "with": "Avec {{artists}} et plus",
+  "names": {
+    "forYou": "Mix {{n}}",
+    "discovery": "Découverte",
+    "onRepeat": "En boucle",
+    "rediscover": "Redécouverte",
+    "genre": "Mix {{genre}}"
+  },
+  "hints": {
+    "forYou": "Fait de ce que vous écoutez le plus",
+    "discovery": "Nouveau pour vous, proche de vos favoris",
+    "onRepeat": "Ce que vous avez le plus écouté ce mois-ci",
+    "rediscover": "Des titres aimés, pas écoutés depuis un moment",
+    "genre": "Un mix de votre genre favori"
+  },
+  "rows": {
+    "mixForYou": {
+      "name": "Fait pour vous",
+      "title": "Fait pour vous",
+      "description": "Des mix construits à partir de ce que vous écoutez le plus, renouvelés chaque jour."
+    },
+    "mixDaily": {
+      "name": "Découverte, En boucle et Redécouverte",
+      "title": "Vos mix",
+      "description": "Des titres nouveaux proches de vos favoris, vos plus écoutés du mois et des titres aimés que vous n’avez pas entendus depuis longtemps."
+    },
+    "mixGenres": {
+      "name": "Mix par genre",
+      "title": "Mix par genre",
+      "description": "Un mix pour chacun de vos genres préférés."
+    }
+  },
+  "radio": {
+    "start": "Lancer la radio",
+    "started": "Radio lancée à partir de {{name}}",
+    "failed": "Impossible de lancer la radio.",
+    "indicator": "Radio · {{name}}",
+    "stop": "Arrêter la radio"
+  }
+}

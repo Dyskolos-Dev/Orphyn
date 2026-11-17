@@ -1,0 +1,115 @@
+/* Generated mix covers. Tokens only (docs/DESIGN.md); classes are prefixed `jrx-`. */
+
+.jrx-cover {
+  position: absolute;
+  inset: 0;
+  container-type: inline-size;
+  overflow: hidden;
+  isolation: isolate;
+  color: #fff;
+  background: linear-gradient(
+    150deg,
+    hsl(var(--mix-hue) 70% 52%),
+    hsl(calc(var(--mix-hue) + 40) 68% 30%)
+  );
+}
+.jrx-cover__mosaic {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  opacity: 0.55;
+  mix-blend-mode: luminosity;
+  filter: saturate(1.2);
+}
+.jrx-cover__mosaic[data-count='1'],
+.jrx-cover__mosaic[data-count='2'],
+.jrx-cover__mosaic[data-count='3'] {
+  grid-template-columns: 1fr;
+  grid-template-rows: 1fr;
+}
+.jrx-cover__mosaic img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+/* The tint keeps the lettering readable over any cover and carries the mix colour. */
+.jrx-cover__tint {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background:
+    linear-gradient(
+      to top,
+      hsl(var(--mix-hue) 70% 12% / 0.82),
+      hsl(var(--mix-hue) 70% 20% / 0.1) 62%
+    ),
+    linear-gradient(150deg, hsl(var(--mix-hue) 80% 55% / 0.35), transparent 60%);
+}
+.jrx-cover__text {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  align-items: flex-end;
+  padding: 8cqw;
+}
+.jrx-cover__name {
+  font-weight: 800;
+  font-size: 13cqw;
+  line-height: 1.02;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+  overflow-wrap: break-word;
+  text-shadow: 0 1px 12px hsl(var(--mix-hue) 80% 10% / 0.5);
+}
+
+/* Mix page */
+.jrx-detail {
+  display: flex;
+  gap: var(--space-6);
+  align-items: flex-end;
+  padding-inline: var(--space-2);
+  margin-bottom: var(--space-6);
+}
+.jrx-detail__art {
+  position: relative;
+  flex: none;
+  width: 232px;
+  aspect-ratio: 1;
+  border-radius: var(--radius-artwork);
+  overflow: hidden;
+  box-shadow: var(--shadow-artwork, 0 8px 28px rgb(0 0 0 / 0.3));
+}
+.jrx-detail__info {
+  min-width: 0;
+  display: grid;
+  gap: var(--space-2);
+}
+.jrx-detail__actions {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  margin-top: var(--space-2);
+}
+@media (max-width: 720px) {
+  .jrx-detail {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+/* Radio indicator (queue, now playing). */
+.jrx-radio {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 2px var(--space-2);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--accent) 16%, transparent);
+  color: var(--accent);
+  font-size: 0.75rem;
+  font-weight: 600;
+}

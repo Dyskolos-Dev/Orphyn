@@ -3,6 +3,7 @@ import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Artwork, Button, IconButton, MenuButton, Text, type MenuItem } from '@renderer/design'
 import { useToggleFavorite, type BaseItemDto } from '@renderer/jellyfin'
+import { useRadioMenuItem } from '@renderer/features/mixes'
 import { art, isFavorite } from './hooks'
 
 interface DetailHeaderProps {
@@ -35,6 +36,12 @@ export function DetailHeader({
   const { t } = useTranslation('music')
   const fav = useToggleFavorite()
   const favorite = isFavorite(item)
+  const radioItem = useRadioMenuItem()
+  // Albums get "Start Radio" in their "…" menu, right after Play / Shuffle.
+  const items =
+    menu && item.Type === 'MusicAlbum'
+      ? [...menu.slice(0, 3), radioItem(item.Id ?? ''), ...menu.slice(3)]
+      : menu
   return (
     <header className="jrm-detail">
       <Artwork
@@ -79,7 +86,7 @@ export function DetailHeader({
             pressed={favorite}
             onClick={() => fav.mutate({ id: item.Id ?? '', value: !favorite })}
           />
-          {menu && <MenuButton label={t('actions.more')} variant="gray" items={menu} />}
+          {items && <MenuButton label={t('actions.more')} variant="gray" items={items} />}
         </div>
       </div>
     </header>

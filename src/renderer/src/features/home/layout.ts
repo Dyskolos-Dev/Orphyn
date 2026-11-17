@@ -28,6 +28,9 @@ export type MusicRowType =
   | 'genre'
   | 'artist'
   | 'randomAlbums'
+  | 'mixForYou'
+  | 'mixDaily'
+  | 'mixGenres'
 
 export type RowType = VideoRowType | MusicRowType
 
@@ -69,6 +72,9 @@ export const ROW_DEFS: Record<HomeScope, readonly RowDef[]> = {
     { type: 'genre', param: 'genre', count: 20, sized: true },
     { type: 'artist', param: 'artist', count: 20, sized: true },
     { type: 'randomAlbums', unique: true, count: 20, sized: true },
+    { type: 'mixForYou', unique: true, count: 10, sized: true },
+    { type: 'mixDaily', unique: true, count: 10, sized: true },
+    { type: 'mixGenres', unique: true, count: 10, sized: true },
   ],
 }
 
@@ -104,7 +110,7 @@ export interface HomeLayout {
 }
 
 /** Bump when a release brings new default rows, and describe them in `INTRODUCTIONS`. */
-export const LAYOUT_VERSION = 1
+export const LAYOUT_VERSION = 2
 
 export const defOf = (scope: HomeScope, type: string): RowDef | undefined =>
   ROW_DEFS[scope].find((d) => d.type === type)
@@ -119,8 +125,17 @@ export interface RowIntroduction {
   after?: RowType
 }
 
-/** New default rows per version. Version 1 is the first one: nothing to add yet. */
-export const INTRODUCTIONS: readonly RowIntroduction[] = []
+/** New default rows per version. Version 2 brings the music mixes. */
+export const INTRODUCTIONS: readonly RowIntroduction[] = [
+  {
+    version: 2,
+    scope: 'music',
+    row: { type: 'mixForYou', hidden: false },
+    after: 'recentlyPlayed',
+  },
+  { version: 2, scope: 'music', row: { type: 'mixDaily', hidden: false }, after: 'mixForYou' },
+  { version: 2, scope: 'music', row: { type: 'mixGenres', hidden: false }, after: 'instantMix' },
+]
 
 const defaultRow = (type: RowType): HomeRow => ({ id: type, type, hidden: false })
 
@@ -128,7 +143,17 @@ export function defaultLayout(scope: HomeScope): HomeLayout {
   const types: RowType[] =
     scope === 'video'
       ? ['hero', 'continue', 'nextUp', 'favourites']
-      : ['recentlyPlayed', 'recentlyAdded', 'instantMix', 'favAlbums', 'favArtists', 'playlists']
+      : [
+          'recentlyPlayed',
+          'mixForYou',
+          'mixDaily',
+          'recentlyAdded',
+          'instantMix',
+          'mixGenres',
+          'favAlbums',
+          'favArtists',
+          'playlists',
+        ]
   return { version: LAYOUT_VERSION, rows: types.map(defaultRow), knownLibraries: [] }
 }
 
