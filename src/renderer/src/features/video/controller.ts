@@ -7,6 +7,7 @@ import {
   streamUrlForCast,
   targetFromInfo,
   ticksToSeconds,
+  type MediaSegment,
   type PlaybackInfo,
   type PlaybackOptions,
   type PlaybackState,
@@ -29,6 +30,10 @@ export interface PlaybackSnapshot {
   rate: number
   method?: PlayMethod
   tracks?: PlaybackTracks
+  /** Intro / credits / recap ranges of the item; empty when the server has none. */
+  segments?: MediaSegment[]
+  /** Trailer playback: nothing is reported to the server, nothing is resumed. */
+  trailer?: boolean
   audioIndex?: number
   /** Selected subtitle stream index; -1 / undefined = off. */
   subtitleIndex?: number
@@ -38,6 +43,8 @@ export interface PlaybackSnapshot {
 export interface PlayOptions {
   audioIndex?: number
   subtitleIndex?: number
+  /** Play as a trailer: no progress reporting (start / stop / ticks). */
+  trailer?: boolean
 }
 
 /**
@@ -142,6 +149,7 @@ export class VideoPlaybackController implements PlaybackController {
   private hlsRetries = 0
   private detach: (() => void) | null = null
   private beginListener: (() => void) | null = null
+  private trailer = false
 
   constructor(private readonly deps: ControllerDeps = defaultControllerDeps) {}
 
@@ -229,10 +237,13 @@ export class VideoPlaybackController implements PlaybackController {
     void this.closeReporter()
     this.fellBack = false
     this.hlsRetries = 0
-    const startSeconds = ticksToSeconds(startTicks)
+    this.trailer = options.trailer === true
+    const startSeconds = this.trailer ? 0 : ticksToSeconds(startTicks)
     this.patch({
       itemId,
       status: 'loading',
+      trailer: this.trailer,
+      segments: undefined,
       error: undefined,
       positionSeconds: startSeconds,
       durationSeconds: 0,
@@ -248,6 +259,7 @@ export class VideoPlaybackController implements PlaybackController {
       if (gen !== this.generation) return
       this.patch({
         tracks: info.tracks,
+        segments: this.trailer ? [] : (info.segments ?? []),
         audioIndex: options.audioIndex ?? info.tracks.defaultAudioIndex,
         subtitleIndex: options.subtitleIndex,
       })
@@ -292,7 +304,7 @@ export class VideoPlaybackController implements PlaybackController {
       video.load()
     }
 
-    if (!this.reporter) {
+    if (!this.reporter && !this.trailer) {
       this.reporter = this.deps.createReporter(info, () => this.reportState())
       void this.reporter.start()
     }
@@ -335,6 +347,7 @@ export class VideoPlaybackController implements PlaybackController {
     await this.play(id, secondsToTicks(this.video?.currentTime ?? this.snapshot.positionSeconds), {
       audioIndex: options.audioIndex ?? this.snapshot.audioIndex,
       subtitleIndex: options.subtitleIndex ?? this.snapshot.subtitleIndex,
+      trailer: this.trailer,
     })
   }
 

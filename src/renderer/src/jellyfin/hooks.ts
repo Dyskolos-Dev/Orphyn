@@ -153,6 +153,14 @@ export const useSimilar = (id: string | undefined, limit = 12) =>
     },
   )
 
+/** Trailer files of a movie / series. Pass `LocalTrailerCount` so items without any cost no request. */
+export const useLocalTrailers = (id: string | undefined, count?: number | null) =>
+  useScoped(
+    (a) => jfKeys.localTrailers(a, id ?? ''),
+    (c) => ep.fetchLocalTrailers(c.api, c.userId, id as string),
+    { staleTime: STALE.catalog, enabled: !!id && count !== 0 },
+  )
+
 // ---------------------------------------------------------------- music
 
 const useList = (kind: ListKind, params: ListParams) =>

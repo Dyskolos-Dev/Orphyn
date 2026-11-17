@@ -18,6 +18,7 @@ export const jfKeys = {
   episodes: (acc: string, seriesId: string, seasonId?: string) =>
     ['jf', acc, 'episodes', seriesId, seasonId ?? null] as const,
   similar: (acc: string, id: string) => ['jf', acc, 'similar', id] as const,
+  localTrailers: (acc: string, id: string) => ['jf', acc, 'localTrailers', id] as const,
   artistAlbums: (acc: string, artistId: string) => ['jf', acc, 'artistAlbums', artistId] as const,
   albumTracks: (acc: string, albumId: string) => ['jf', acc, 'albumTracks', albumId] as const,
   playlistItems: (acc: string, playlistId: string) =>

@@ -124,6 +124,11 @@ const info = await getPlaybackInfo(itemId, {
 - URLs carry `ApiKey` because media elements cannot send headers. Do not log or persist them.
 - Throws `PlaybackError` when the server offers no stream.
 
+### Media segments and trailers
+
+- `getPlaybackInfo()` (video) also returns `segments`: `MediaSegment[]` (`Intro`, `Outro`, `Recap`, `Preview`, `Commercial`; in seconds, sorted) read from `GET /MediaSegments/{id}` (Jellyfin 10.10+). A server without the endpoint, or any error, gives `[]`: nothing throws. `segmentAt(segments, seconds, types, tail?)` finds the segment at a given time.
+- `useLocalTrailers(id, item.LocalTrailerCount)`: trailer files of a movie or series (`GET /Items/{id}/LocalTrailers`); no request when the count is 0. They play in the video player as `/video/play/{trailerId}?trailer=1` (no resume, nothing reported). `item.RemoteTrailers` holds the web links (usually YouTube).
+
 ### Reporting
 
 ```ts

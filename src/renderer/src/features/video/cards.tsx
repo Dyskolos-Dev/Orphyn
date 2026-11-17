@@ -10,6 +10,9 @@ export const itemPath = (item: BaseItemDto): string => `/video/item/${item.Id ??
 export const playPath = (id: string, startTicks = 0): string =>
   `/video/play/${id}${startTicks > 0 ? `?start=${Math.round(startTicks)}` : ''}`
 
+/** A trailer file of the server in Orphyn's player (no resume, nothing reported). */
+export const trailerPath = (id: string): string => `/video/play/${id}?trailer=1`
+
 const typeIcon = (item: BaseItemDto) => (item.Type === 'Series' ? <Tv /> : <Film />)
 
 /** 16:9 artwork: episode still, else thumb, else backdrop, else the poster. */

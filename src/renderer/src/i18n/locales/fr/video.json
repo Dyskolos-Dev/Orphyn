@@ -88,6 +88,19 @@
     "errorTitle": "Échec de la lecture",
     "errorMessage": "Cette vidéo n’a pas pu être lue.",
     "retry": "Réessayer",
-    "transcoding": "Conversion pour la lecture"
+    "transcoding": "Conversion pour la lecture",
+    "trailerBadge": "Bande-annonce"
+  },
+  "skip": {
+    "intro": "Passer l’intro",
+    "recap": "Passer le résumé",
+    "credits": "Passer le générique",
+    "nextEpisode": "Épisode suivant",
+    "auto": "Passer les intros automatiquement"
+  },
+  "trailer": {
+    "dialog": "Bande-annonce : {{title}}",
+    "close": "Fermer",
+    "openInBrowser": "Ouvrir dans le navigateur"
   }
 }

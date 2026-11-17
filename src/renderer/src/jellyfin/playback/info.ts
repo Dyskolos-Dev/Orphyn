@@ -7,6 +7,7 @@ import type {
 } from '@jellyfin/sdk/lib/generated-client/models'
 import { authedUrl, jfRequest } from '../client'
 import { requireApi, useSession } from '../session'
+import { fetchMediaSegments, type MediaSegment } from '../segments'
 import { buildDeviceProfile, type ProfileOptions } from './profile'
 
 export type PlayMethod = 'DirectPlay' | 'DirectStream' | 'Transcode'
@@ -50,6 +51,8 @@ export interface PlaybackInfo {
   mediaSource: MediaSourceInfo
   mediaSourceId: string
   tracks: PlaybackTracks
+  /** Intro / credits / recap ranges (Jellyfin 10.10+); empty when the server has none. */
+  segments?: MediaSegment[]
   /** Start position that was requested (ticks), to seed the player and the reporter. */
   startTimeTicks: number
   kind: 'video' | 'audio'
@@ -215,25 +218,34 @@ export async function getPlaybackInfo(
   const profile = buildDeviceProfile(opts.profile)
   const maxStreamingBitrate = opts.maxBitrate ?? profile.MaxStreamingBitrate ?? undefined
 
-  const res = await jfRequest<PlaybackInfoResponse>(api, 'POST', `/Items/${itemId}/PlaybackInfo`, {
-    params: {
-      userId,
-      startTimeTicks: startTimeTicks || undefined,
-      audioStreamIndex: opts.audioStreamIndex,
-      subtitleStreamIndex: opts.subtitleStreamIndex,
-      maxStreamingBitrate,
-      mediaSourceId: opts.mediaSourceId,
-      autoOpenLiveStream: true,
+  // Segments ride along with the playback info (video only); no segments is a valid answer.
+  const infoRequest = jfRequest<PlaybackInfoResponse>(
+    api,
+    'POST',
+    `/Items/${itemId}/PlaybackInfo`,
+    {
+      params: {
+        userId,
+        startTimeTicks: startTimeTicks || undefined,
+        audioStreamIndex: opts.audioStreamIndex,
+        subtitleStreamIndex: opts.subtitleStreamIndex,
+        maxStreamingBitrate,
+        mediaSourceId: opts.mediaSourceId,
+        autoOpenLiveStream: true,
+      },
+      data: {
+        DeviceProfile: profile,
+        UserId: userId,
+        StartTimeTicks: startTimeTicks || undefined,
+        AudioStreamIndex: opts.audioStreamIndex,
+        SubtitleStreamIndex: opts.subtitleStreamIndex,
+        MaxStreamingBitrate: maxStreamingBitrate,
+      },
     },
-    data: {
-      DeviceProfile: profile,
-      UserId: userId,
-      StartTimeTicks: startTimeTicks || undefined,
-      AudioStreamIndex: opts.audioStreamIndex,
-      SubtitleStreamIndex: opts.subtitleStreamIndex,
-      MaxStreamingBitrate: maxStreamingBitrate,
-    },
-  })
+  )
+  const segmentsRequest =
+    kind === 'video' ? fetchMediaSegments(api, itemId) : Promise.resolve<MediaSegment[]>([])
+  const res = await infoRequest
 
   if (res.ErrorCode)
     throw new PlaybackError(`Playback refused by the server: ${res.ErrorCode}`, res.ErrorCode)
@@ -262,6 +274,7 @@ export async function getPlaybackInfo(
     mediaSource: source,
     mediaSourceId,
     tracks: buildTracks(api, itemId, source),
+    segments: await segmentsRequest,
     startTimeTicks,
     kind,
   }

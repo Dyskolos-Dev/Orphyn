@@ -15,6 +15,8 @@ export * from './hooks'
 export * from './playlistLogic'
 export type { RemovedEntry } from './playlistOps'
 export * from './playback'
+export { fetchMediaSegments, normalizeSegments, segmentAt } from './segments'
+export type { MediaSegment, MediaSegmentType } from './segments'
 export type {
   BaseItemDto,
   ImageKind,

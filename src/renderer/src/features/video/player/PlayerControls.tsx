@@ -1,5 +1,6 @@
 import {
   ChevronLeft,
+  FastForward,
   Languages,
   Maximize,
   Minimize,
@@ -121,6 +122,11 @@ export interface PlayerControlsProps {
   onSelectSubtitle(track: SubtitleTrack | null): void
   /** Called when a popover opens/closes so the controls do not auto-hide under it. */
   onHoldChange(held: boolean): void
+  /** Playing a trailer: shows a "Trailer" badge. */
+  trailer?: boolean
+  /** "Skip intros automatically" state; undefined hides the toggle (nothing to skip here). */
+  skipIntroAuto?: boolean
+  onToggleSkipIntroAuto?(): void
   /** Cast button (from the cast feature), shown beside the track menus. */
   castButton?: ReactNode
   /** Picture in Picture toggle (hidden when the webview cannot do it). */
@@ -144,6 +150,9 @@ export function PlayerControls({
   onSelectAudio,
   onSelectSubtitle,
   onHoldChange,
+  trailer,
+  skipIntroAuto,
+  onToggleSkipIntroAuto,
   castButton,
   pipButton,
 }: PlayerControlsProps) {
@@ -181,6 +190,7 @@ export function PlayerControls({
             </Text>
           )}
         </div>
+        {trailer && <span className="jr-video-trailer-badge">{t('player.trailerBadge')}</span>}
       </div>
 
       <div className="jr-video-controls__center">
@@ -257,6 +267,15 @@ export function PlayerControls({
               items={rateItems}
               placement="top-end"
             />
+            {skipIntroAuto !== undefined && (
+              <IconButton
+                variant="glass"
+                icon={<FastForward />}
+                label={t('skip.auto')}
+                pressed={skipIntroAuto}
+                onClick={onToggleSkipIntroAuto}
+              />
+            )}
             {tracks && tracks.subtitles.length > 0 && (
               <TrackPopover
                 label={t('player.subtitles')}

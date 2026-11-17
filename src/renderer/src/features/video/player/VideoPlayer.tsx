@@ -20,8 +20,11 @@ import { VideoPlaybackController } from '../controller'
 import { nextEpisode } from '../format'
 import { useVideoPlaybackPreferences } from '../preferences'
 import { pickInitialAudio, pickInitialSubtitle } from '../tracks'
+import { isAutoSkippable, segmentKey, skipPill, skipTarget } from '../skip'
+import { useSkipPreferences } from '../skipPreferences'
 import { upNextState } from '../upNext'
 import { PlayerControls } from './PlayerControls'
+import { SkipPillButton } from './SkipPill'
 import { useVideoMediaControls } from './useVideoMediaControls'
 import { useVideoPip } from './useVideoPip'
 import { setActiveController } from '../active'
@@ -40,6 +43,8 @@ export function VideoPlayer() {
   const queryClient = useQueryClient()
   const accountId = useSession((s) => s.account?.id)
   const prefs = useVideoPlaybackPreferences()
+  const skipPrefs = useSkipPreferences()
+  const isTrailer = search.get('trailer') === '1'
   const { isFullscreen, setFullscreen } = useWindowState()
   useShellImmersive()
 
@@ -70,10 +75,11 @@ export function VideoPlayer() {
 
   useEffect(() => {
     if (!itemId) return
-    void controller.play(itemId, startRef.current)
+    // A trailer never resumes and never reports progress.
+    void controller.play(itemId, isTrailer ? 0 : startRef.current, { trailer: isTrailer })
     startRef.current = 0
     setDismissedFor(null)
-  }, [controller, itemId])
+  }, [controller, itemId, isTrailer])
 
   // --- preferred audio / subtitle language, once the tracks of a stream are known
   const appliedFor = useRef<string | null>(null)
@@ -148,13 +154,47 @@ export function VideoPlayer() {
   )
   const leave = useCallback(() => {
     if (location.key !== 'default') navigate(-1)
-    else navigate(itemId ? `/video/item/${itemId}` : '/video', { replace: true })
-  }, [location.key, navigate, itemId])
+    else navigate(itemId && !isTrailer ? `/video/item/${itemId}` : '/video', { replace: true })
+  }, [location.key, navigate, itemId, isTrailer])
   const playNext = useCallback(() => {
     if (next?.Id) navigate(playPath(next.Id), { replace: true })
   }, [next, navigate])
 
-  // --- keyboard: space, arrows, F, M, Esc
+  // --- up next card (last seconds) and skip pill (intro / recap / credits / next episode)
+  const dismissed = dismissedFor === itemId
+  const up = upNextState({
+    positionSeconds: snapshot.positionSeconds,
+    durationSeconds: snapshot.durationSeconds,
+    hasNext: Boolean(next) && !isTrailer,
+    dismissed,
+  })
+  const ended = snapshot.status === 'ended'
+  const showUpNext = up.visible || (ended && Boolean(next) && !prefs.autoPlayNext)
+  const pill = skipPill({
+    segments: snapshot.segments,
+    positionSeconds: snapshot.positionSeconds,
+    hasNext: Boolean(next),
+    upNextVisible: showUpNext,
+    trailer: isTrailer,
+  })
+  const doSkip = useCallback(() => {
+    if (!pill) return
+    if (pill.kind === 'nextEpisode') playNext()
+    else controller.seek(skipTarget(pill.segment, snapshot.durationSeconds))
+  }, [pill, playNext, controller, snapshot.durationSeconds])
+
+  // "Skip intros automatically": each intro / recap is skipped once, so seeking back stays possible.
+  const autoSkipped = useRef(new Set<string>())
+  useEffect(() => {
+    if (!pill || !skipPrefs.skipIntroAuto || !isAutoSkippable(pill)) return
+    if (snapshot.status !== 'playing') return
+    const key = segmentKey(itemId, pill.segment)
+    if (autoSkipped.current.has(key)) return
+    autoSkipped.current.add(key)
+    controller.seek(skipTarget(pill.segment, snapshot.durationSeconds))
+  }, [pill, skipPrefs.skipIntroAuto, snapshot.status, snapshot.durationSeconds, itemId, controller])
+
+  // --- keyboard: space, arrows, F, M, S / Enter (skip), Esc
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const target = e.target as HTMLElement | null
@@ -188,6 +228,14 @@ export function VideoPlayer() {
         case 'm':
         case 'M':
           return handled(toggleMute)
+        case 's':
+        case 'S':
+          if (!pill) return
+          return handled(doSkip)
+        case 'Enter':
+          // A focused button (the pill itself included) keeps its own Enter.
+          if (!pill || target?.tagName === 'BUTTON') return
+          return handled(doSkip)
         case 'Escape':
           return handled(() => {
             if (isFullscreen) {
@@ -209,17 +257,11 @@ export function VideoPlayer() {
     setFullscreen,
     leave,
     showControls,
+    pill,
+    doSkip,
   ])
 
-  // --- up next
-  const dismissed = dismissedFor === itemId
-  const up = upNextState({
-    positionSeconds: snapshot.positionSeconds,
-    durationSeconds: snapshot.durationSeconds,
-    hasNext: Boolean(next),
-    dismissed,
-  })
-  const ended = snapshot.status === 'ended'
+  // --- end of the item: auto-play the next episode, or leave
   useEffect(() => {
     if (!ended) return
     if (next && prefs.autoPlayNext && !dismissed) playNext()
@@ -290,7 +332,9 @@ export function VideoPlayer() {
   const pip = useVideoPip({ controller, videoRef, itemId, title, subtitle })
   const failed = snapshot.status === 'error'
   const loading = snapshot.status === 'loading'
-  const showUpNext = up.visible || (ended && Boolean(next) && !prefs.autoPlayNext)
+  const hasSkippable = (snapshot.segments ?? []).some(
+    (s) => s.type === 'Intro' || s.type === 'Recap',
+  )
 
   const castProps: VideoCastProps = {
     controller,
@@ -376,6 +420,11 @@ export function VideoPlayer() {
           onSelectAudio={(a) => void controller.switchTracks({ audioIndex: a.index })}
           onSelectSubtitle={(s) => void controller.selectSubtitle(s ? s.index : -1)}
           onHoldChange={setHeld}
+          trailer={isTrailer}
+          skipIntroAuto={hasSkippable ? skipPrefs.skipIntroAuto : undefined}
+          onToggleSkipIntroAuto={() =>
+            skipPrefs.update({ skipIntroAuto: !skipPrefs.skipIntroAuto })
+          }
           castButton={<VideoCastButtonSlot {...castProps} />}
           pipButton={
             pip.available ? (
@@ -392,6 +441,8 @@ export function VideoPlayer() {
       )}
 
       <VideoCastScreenSlot {...castProps} />
+
+      <SkipPillButton kind={pill?.kind} onSkip={doSkip} />
 
       {showUpNext && next && (
         <div className="jr-video-upnext" data-theme="dark">

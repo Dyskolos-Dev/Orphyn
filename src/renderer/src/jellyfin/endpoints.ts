@@ -186,6 +186,19 @@ export async function fetchSimilar(api: Api, userId: string, id: string, limit =
   return r.Items ?? []
 }
 
+/** GET /Items/{id}/LocalTrailers: trailer files stored next to the item on the server. */
+export async function fetchLocalTrailers(
+  api: Api,
+  userId: string,
+  id: string,
+): Promise<BaseItemDto[]> {
+  const r = await jfRequest<BaseItemDto[] | undefined>(api, 'GET', `/Items/${id}/LocalTrailers`, {
+    params: { userId },
+    allowStatus: [404],
+  })
+  return Array.isArray(r) ? r : []
+}
+
 export async function fetchArtistAlbums(api: Api, userId: string, artistId: string) {
   const page = await fetchItemsPage(
     api,

@@ -28,6 +28,7 @@ import {
 } from '@renderer/jellyfin'
 import { ShellPage } from '@renderer/shell'
 import { ItemPoster, itemPath, landscapeImage, playPath } from './cards'
+import { TrailerButton } from './TrailerButton'
 import {
   badgeList,
   formatRuntime,
@@ -250,7 +251,6 @@ export function VideoItem() {
             episode: action.episode,
           })
         : t('item.play')
-  const trailer = data.RemoteTrailers?.[0]?.Url
   const episodeTag =
     data.Type === 'Episode' && data.ParentIndexNumber != null && data.IndexNumber != null
       ? t('item.episodeLabel', { season: data.ParentIndexNumber, episode: data.IndexNumber })
@@ -303,15 +303,7 @@ export function VideoItem() {
                 onClick={() => navigate(playPath(playId, 0))}
               />
             )}
-            {trailer && (
-              <IconButton
-                variant="glass"
-                size="large"
-                icon={<Clapperboard />}
-                label={t('item.trailer')}
-                onClick={() => window.open(trailer, '_blank', 'noopener,noreferrer')}
-              />
-            )}
+            {(data.Type === 'Movie' || isSeries) && <TrailerButton item={data} />}
             <IconButton
               variant="glass"
               size="large"

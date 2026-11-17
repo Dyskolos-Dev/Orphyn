@@ -88,6 +88,19 @@
     "errorTitle": "Playback Failed",
     "errorMessage": "This video could not be played.",
     "retry": "Try Again",
-    "transcoding": "Converting for playback"
+    "transcoding": "Converting for playback",
+    "trailerBadge": "Trailer"
+  },
+  "skip": {
+    "intro": "Skip Intro",
+    "recap": "Skip Recap",
+    "credits": "Skip Credits",
+    "nextEpisode": "Next Episode",
+    "auto": "Skip intros automatically"
+  },
+  "trailer": {
+    "dialog": "Trailer: {{title}}",
+    "close": "Close",
+    "openInBrowser": "Open in Browser"
   }
 }
