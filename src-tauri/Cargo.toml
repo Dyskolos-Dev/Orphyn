@@ -1,6 +1,6 @@
 [package]
 name = "orphyn"
-version = "1.1.0"
+version = "1.2.0"
 description = "Orphyn - a desktop Jellyfin client for music, movies and series"
 authors = ["Dyskolos_"]
 license = "UNLICENSED"

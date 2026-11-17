@@ -6,6 +6,21 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-11-17
+
+### Added
+
+- Appearance personalisation: accent (custom or from the artwork), transparency, corners, density, text size, sidebar mode, page backdrop, motion, card shape; live preview.
+- Skip Intro / Recap / Credits and Next Episode, with optional automatic intro skipping (Jellyfin media segments).
+- Command palette (Cmd/Ctrl+K).
+- Customisable video and music home screens.
+
+### Fixed
+
+- Trailers: server trailers play in the player, YouTube trailers in a built-in window.
+- Music Picture-in-Picture window: drag from anywhere, resize from every edge, edge snapping.
+- The five interface styles refined on every screen, light and dark.
+
 ## [1.1.0] - 2026-11-14
 
 ### Changed

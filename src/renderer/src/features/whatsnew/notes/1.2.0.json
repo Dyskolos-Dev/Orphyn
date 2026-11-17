@@ -1,0 +1,24 @@
+{
+  "fr": {
+    "title": "Tout, à votre façon",
+    "items": [
+      { "icon": "layout", "title": "Une apparence à votre image", "text": "Les cinq styles ont été peaufinés écran par écran. Dans Réglages › Apparence, réglez la couleur d'accent (ou laissez-la suivre la pochette), la transparence, les arrondis, la densité, la taille du texte et la barre latérale, avec un aperçu en direct." },
+      { "icon": "film", "title": "Passer l'intro, en un clic", "text": "Passez l'intro, le récap ou le générique, et enchaînez sur l'épisode suivant. L'intro peut même être passée automatiquement." },
+      { "icon": "open", "title": "Les bandes-annonces fonctionnent", "text": "Celles de votre serveur se lisent dans le lecteur, celles de YouTube s'ouvrent dans une fenêtre intégrée." },
+      { "icon": "sparkles", "title": "Palette de commandes", "text": "⌘K ou Ctrl+K, de n'importe où : cherchez dans votre bibliothèque et faites tout au clavier." },
+      { "icon": "notes", "title": "Des accueils sur mesure", "text": "Touchez « Modifier » pour réordonner, masquer ou ajouter des rangées : genres, collections, choix aléatoires, et plus encore." },
+      { "icon": "music", "title": "Mini-lecteur flottant plus agréable", "text": "Attrapez-le de partout, redimensionnez-le depuis n'importe quel bord : il se colle aux bords de l'écran et retient sa place." }
+    ]
+  },
+  "en": {
+    "title": "Everything, your way",
+    "items": [
+      { "icon": "layout", "title": "Make it yours", "text": "All five styles have been refined screen by screen. In Settings › Appearance, tune the accent colour (or let it follow the artwork), transparency, corners, density, text size and sidebar, with a live preview." },
+      { "icon": "film", "title": "Skip the intro, in one click", "text": "Skip intros, recaps and credits, and roll straight into the next episode. Intros can even be skipped automatically." },
+      { "icon": "open", "title": "Trailers just work", "text": "Trailers from your server play in the player; YouTube trailers open in a built-in window." },
+      { "icon": "sparkles", "title": "Command palette", "text": "Cmd+K or Ctrl+K, from anywhere: search your library and do everything from the keyboard." },
+      { "icon": "notes", "title": "Home screens, tailored", "text": "Tap Edit to reorder, hide or add rows: genres, collections, random picks and more." },
+      { "icon": "music", "title": "A friendlier floating player", "text": "Grab it anywhere and resize it from any edge: it snaps to the screen edges and remembers where it was." }
+    ]
+  }
+}
