@@ -115,6 +115,18 @@ jobs:
           gh release upload "$TAG" --clobber \
             assets/latest.yml assets/latest-linux.yml assets/latest-mac.yml
 
+      - name: Complete latest.json with every platform
+        # A relaunched build job rewrites latest.json with its own entry only: rebuild it from
+        # the .sig files so the in-app updater sees every platform.
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          mkdir updater
+          gh release download "$TAG" --dir updater --pattern 'latest.json' --pattern '*.sig'
+          node scripts/complete-updater-json.mjs updater "$TAG"
+          gh release upload "$TAG" --clobber updater/latest.json
+
       - name: Publish the release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
