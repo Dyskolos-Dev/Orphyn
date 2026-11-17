@@ -1,0 +1,22 @@
+{
+  "fr": {
+    "title": "Votre année, votre son",
+    "items": [
+      { "icon": "sparkles", "title": "Votre année", "text": "Vos artistes, titres, albums, genres, films et séries préférés, réunis dans une page animée. Choisissez l'année à revivre." },
+      { "icon": "notes", "title": "Paroles en ligne", "text": "Quand votre serveur n'a pas les paroles, Orphyn les trouve en ligne, synchronisées si possible. Désactivable dans Réglages › Musique." },
+      { "icon": "users", "title": "Artistes regroupés", "text": "Les « feat. », « & » et variantes d'écriture ne dispersent plus un artiste : une seule fiche avec tous ses albums et titres. Désactivable dans Réglages › Musique." },
+      { "icon": "music", "title": "Sortie audio", "text": "Choisissez le casque, les enceintes ou le DAC utilisé pour la musique et les vidéos, dans les Réglages." },
+      { "icon": "open", "title": "Corrections", "text": "Le menu « … » du lecteur plein écran et le bouton plein écran du lecteur flottant fonctionnent de nouveau." }
+    ]
+  },
+  "en": {
+    "title": "Your year, your sound",
+    "items": [
+      { "icon": "sparkles", "title": "Your year", "text": "Your favourite artists, songs, albums, genres, films and series, gathered in an animated page. Pick the year to look back on." },
+      { "icon": "notes", "title": "Online lyrics", "text": "When your server has no lyrics, Orphyn finds them online, synced when possible. Can be turned off in Settings › Music." },
+      { "icon": "users", "title": "Grouped artists", "text": "\"feat.\", \"&\" and spelling variants no longer scatter an artist: one page with all their albums and songs. Can be turned off in Settings › Music." },
+      { "icon": "music", "title": "Audio output", "text": "Choose the headphones, speakers or DAC used for music and videos, in Settings." },
+      { "icon": "open", "title": "Fixes", "text": "The \"…\" menu of the full-screen player and the full-screen button of the floating player work again." }
+    ]
+  }
+}

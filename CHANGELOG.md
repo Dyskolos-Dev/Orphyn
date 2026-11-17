@@ -6,6 +6,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [1.4.0] - 2026-11-17
+
+### Added
+
+- Year in review: an animated page with your top artists, songs, albums, genres, films and series, per year.
+- Online lyrics from LRCLIB when the server has none (synced when available), can be turned off in Settings > Music.
+- Artist grouping: "feat.", "&" and spelling variants are merged into one artist, can be turned off in Settings > Music.
+- Audio output device choice for music and video in Settings (where the platform supports it).
+
+### Fixed
+
+- The "…" menu of the full-screen Now Playing opened behind it.
+- The full-screen button of the music Picture-in-Picture window did nothing.
+
 ## [1.3.0] - 2026-11-17
 
 ### Added
