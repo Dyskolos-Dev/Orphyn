@@ -49,6 +49,22 @@ const listParams = (p: ListParams, startIndex: number): QueryParams => ({
   fields: DEFAULT_FIELDS,
 })
 
+/** Genres of the video (`Movie` + `Series`) or music library, by name. */
+export async function fetchGenres(
+  api: Api,
+  userId: string,
+  kind: 'video' | 'music',
+): Promise<BaseItemDto[]> {
+  const r = await jfGet<QueryResult>(api, kind === 'music' ? '/MusicGenres' : '/Genres', {
+    userId,
+    ...(kind === 'video' ? { includeItemTypes: ['Movie', 'Series'] } : {}),
+    sortBy: ['SortName'],
+    sortOrder: 'Ascending',
+    enableTotalRecordCount: false,
+  })
+  return r.Items ?? []
+}
+
 export async function fetchUserViews(api: Api, userId: string): Promise<BaseItemDto[]> {
   const r = await jfGet<QueryResult>(api, '/UserViews', { userId })
   return r.Items ?? []
@@ -74,6 +90,7 @@ export async function fetchItemsPage(
       albumArtistIds: p.albumArtistIds,
       years: p.years,
       mediaTypes: p.mediaTypes,
+      ...(p.releasedOnly ? { maxPremiereDate: new Date().toISOString() } : {}),
       ...(p.fields ? { fields: p.fields } : {}),
     },
     signal,

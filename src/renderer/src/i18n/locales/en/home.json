@@ -1,0 +1,147 @@
+{
+  "edit": "Edit",
+  "done": "Done",
+  "cancel": "Cancel",
+  "reset": "Reset",
+  "addRow": "Add a row",
+  "addRowHint": "Choose what to show on your home screen.",
+  "back": "Back",
+  "hint": "Drag the handle to reorder rows (or focus it and use the up and down arrow keys). Hide a row to keep it for later.",
+  "empty": "Your home screen has no rows. Add one to get started.",
+  "dragHandle": "Move {{title}}",
+  "dragHandleHint": "Drag to reorder",
+  "options": "Row options",
+  "hide": "Hide {{title}}",
+  "show": "Show {{title}}",
+  "remove": "Remove {{title}}",
+  "hiddenRow": "Hidden",
+  "alreadyAdded": "Already on your home screen",
+  "search": "Search",
+  "loading": "Loading…",
+  "nothingToPick": "Nothing to choose from.",
+  "cardSize": "Card size",
+  "sizeAutoNote": "Follows Settings > Appearance",
+  "itemCount": "Items",
+  "instantMixFrom": "Based on {{name}}",
+  "size": {
+    "auto": "Auto",
+    "small": "Small",
+    "large": "Large"
+  },
+  "summary": {
+    "items_one": "{{count}} item",
+    "items_other": "{{count}} items"
+  },
+  "pick": {
+    "library": "Choose a library.",
+    "genre": "Choose a genre.",
+    "collection": "Choose a collection.",
+    "artist": "Search for an artist."
+  },
+  "rows": {
+    "video": {
+      "hero": {
+        "name": "Hero",
+        "title": "Featured",
+        "description": "The large banner of featured titles."
+      },
+      "continue": {
+        "name": "Continue Watching",
+        "title": "Continue Watching",
+        "description": "Pick up where you left off."
+      },
+      "nextUp": {
+        "name": "Next Up",
+        "title": "Next Up",
+        "description": "The next episode of the series you follow."
+      },
+      "latest": {
+        "name": "Recently Added in a library",
+        "title": "Recently Added in {{name}}",
+        "description": "The newest titles of one library."
+      },
+      "favourites": {
+        "name": "Favourites",
+        "title": "Favourites",
+        "description": "Movies and series you marked as favourites."
+      },
+      "genre": {
+        "name": "A genre",
+        "title": "{{name}}",
+        "description": "Titles of one genre, newest first."
+      },
+      "collection": {
+        "name": "A collection",
+        "title": "{{name}}",
+        "description": "The titles of one collection."
+      },
+      "because": {
+        "name": "Because you watched…",
+        "title": "Because you watched {{name}}",
+        "description": "Titles similar to the last one you watched."
+      },
+      "released": {
+        "name": "Recently Released",
+        "title": "Recently Released",
+        "description": "The latest releases, by premiere date."
+      },
+      "random": {
+        "name": "Random picks",
+        "title": "Random Picks",
+        "description": "A different selection each time."
+      }
+    },
+    "music": {
+      "recentlyPlayed": {
+        "name": "Recently Played",
+        "title": "Recently Played",
+        "description": "Albums you listened to lately."
+      },
+      "recentlyAdded": {
+        "name": "Recently Added",
+        "title": "Recently Added",
+        "description": "The newest albums of your library."
+      },
+      "favAlbums": {
+        "name": "Favourite Albums",
+        "title": "Favourite Albums",
+        "description": "Albums you marked as favourites."
+      },
+      "favArtists": {
+        "name": "Favourite Artists",
+        "title": "Favourite Artists",
+        "description": "Artists you marked as favourites."
+      },
+      "favSongs": {
+        "name": "Favourite Songs",
+        "title": "Favourite Songs",
+        "description": "Songs you marked as favourites."
+      },
+      "playlists": {
+        "name": "Playlists",
+        "title": "Playlists",
+        "description": "Your playlists."
+      },
+      "instantMix": {
+        "name": "Instant Mix",
+        "title": "Instant Mix",
+        "description": "A mix based on what you played last."
+      },
+      "genre": {
+        "name": "A genre",
+        "title": "{{name}}",
+        "description": "Albums of one genre, newest first."
+      },
+      "artist": {
+        "name": "An artist's albums",
+        "title": "{{name}}",
+        "description": "The albums of one artist."
+      },
+      "randomAlbums": {
+        "name": "Random albums",
+        "title": "Random Albums",
+        "description": "A different selection each time."
+      }
+    }
+  }
+}

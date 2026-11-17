@@ -88,6 +88,33 @@ export const useItems = (params: ItemsParams = {}) =>
     params.enabled,
   )
 
+/** Genre names of the video or music libraries (for the home "Add a row" picker). */
+export const useGenres = (kind: 'video' | 'music', enabled = true) =>
+  useScoped(
+    (a) => jfKeys.genres(a, kind),
+    (c) => ep.fetchGenres(c.api, c.userId, kind),
+    { staleTime: STALE.views, enabled },
+  )
+
+/** Collections (box sets) of the user, by name. */
+export const useCollections = (enabled = true) =>
+  useItems({ includeItemTypes: ['BoxSet'], sortBy: ['SortName'], pageSize: 200, enabled })
+
+/** Movies and series already released, newest premiere first. */
+export const useRecentlyReleased = (pageSize = 20, enabled = true) =>
+  useItems({
+    includeItemTypes: ['Movie', 'Series'],
+    sortBy: ['PremiereDate'],
+    sortOrder: 'Descending',
+    releasedOnly: true,
+    pageSize,
+    enabled,
+  })
+
+/** A random pick of items; reshuffled whenever the data is refetched. */
+export const useRandomItems = (params: Omit<ItemsParams, 'sortBy' | 'sortOrder'> = {}) =>
+  useItems({ ...params, sortBy: ['Random'] })
+
 export const useItem = (id: string | undefined) =>
   useScoped(
     (a) => jfKeys.item(a, id ?? ''),

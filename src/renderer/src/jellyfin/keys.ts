@@ -28,6 +28,7 @@ export const jfKeys = {
     ['jf', acc, 'favorites', kind] as const,
   instantMix: (acc: string, id: string) => ['jf', acc, 'instantMix', id] as const,
   lyrics: (acc: string, id: string) => ['jf', acc, 'lyrics', id] as const,
+  genres: (acc: string, kind: 'video' | 'music') => ['jf', acc, 'genres', kind] as const,
   search: (acc: string, term: string) => ['jf', acc, 'search', term] as const,
 }
 

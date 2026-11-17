@@ -32,6 +32,8 @@ export interface ItemsParams extends ListParams {
   years?: number[]
   fields?: string[]
   mediaTypes?: string[]
+  /** Only items already released (premiere date up to the moment of the request). */
+  releasedOnly?: boolean
 }
 
 export interface ItemsPage {

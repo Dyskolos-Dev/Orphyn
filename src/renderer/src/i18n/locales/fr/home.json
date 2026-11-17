@@ -1,0 +1,147 @@
+{
+  "edit": "Modifier",
+  "done": "Terminé",
+  "cancel": "Annuler",
+  "reset": "Réinitialiser",
+  "addRow": "Ajouter une rangée",
+  "addRowHint": "Choisissez ce qui s'affiche sur votre accueil.",
+  "back": "Retour",
+  "hint": "Faites glisser la poignée pour réordonner les rangées (ou ciblez-la et utilisez les flèches haut et bas). Masquez une rangée pour la garder de côté.",
+  "empty": "Votre accueil n'a aucune rangée. Ajoutez-en une pour commencer.",
+  "dragHandle": "Déplacer {{title}}",
+  "dragHandleHint": "Glisser pour réordonner",
+  "options": "Options de la rangée",
+  "hide": "Masquer {{title}}",
+  "show": "Afficher {{title}}",
+  "remove": "Retirer {{title}}",
+  "hiddenRow": "Masquée",
+  "alreadyAdded": "Déjà sur votre accueil",
+  "search": "Rechercher",
+  "loading": "Chargement…",
+  "nothingToPick": "Rien à choisir.",
+  "cardSize": "Taille des cartes",
+  "sizeAutoNote": "Suit Réglages > Apparence",
+  "itemCount": "Éléments",
+  "instantMixFrom": "D'après {{name}}",
+  "size": {
+    "auto": "Auto",
+    "small": "Petites",
+    "large": "Grandes"
+  },
+  "summary": {
+    "items_one": "{{count}} élément",
+    "items_other": "{{count}} éléments"
+  },
+  "pick": {
+    "library": "Choisissez une médiathèque.",
+    "genre": "Choisissez un genre.",
+    "collection": "Choisissez une collection.",
+    "artist": "Recherchez un artiste."
+  },
+  "rows": {
+    "video": {
+      "hero": {
+        "name": "Bandeau",
+        "title": "À la une",
+        "description": "Le grand bandeau des titres mis en avant."
+      },
+      "continue": {
+        "name": "Reprendre la lecture",
+        "title": "Reprendre la lecture",
+        "description": "Reprenez là où vous vous êtes arrêté."
+      },
+      "nextUp": {
+        "name": "À suivre",
+        "title": "À suivre",
+        "description": "Le prochain épisode des séries que vous suivez."
+      },
+      "latest": {
+        "name": "Ajouts récents d'une médiathèque",
+        "title": "Ajouts récents : {{name}}",
+        "description": "Les derniers titres d'une médiathèque."
+      },
+      "favourites": {
+        "name": "Favoris",
+        "title": "Favoris",
+        "description": "Les films et séries que vous avez mis en favoris."
+      },
+      "genre": {
+        "name": "Un genre",
+        "title": "{{name}}",
+        "description": "Les titres d'un genre, les plus récents d'abord."
+      },
+      "collection": {
+        "name": "Une collection",
+        "title": "{{name}}",
+        "description": "Les titres d'une collection."
+      },
+      "because": {
+        "name": "Parce que vous avez regardé…",
+        "title": "Parce que vous avez regardé {{name}}",
+        "description": "Des titres proches du dernier que vous avez regardé."
+      },
+      "released": {
+        "name": "Sorties récentes",
+        "title": "Sorties récentes",
+        "description": "Les dernières sorties, par date de première diffusion."
+      },
+      "random": {
+        "name": "Sélection aléatoire",
+        "title": "Sélection aléatoire",
+        "description": "Une sélection différente à chaque fois."
+      }
+    },
+    "music": {
+      "recentlyPlayed": {
+        "name": "Écoutés récemment",
+        "title": "Écoutés récemment",
+        "description": "Les albums que vous avez écoutés dernièrement."
+      },
+      "recentlyAdded": {
+        "name": "Ajouts récents",
+        "title": "Ajouts récents",
+        "description": "Les derniers albums de votre médiathèque."
+      },
+      "favAlbums": {
+        "name": "Albums favoris",
+        "title": "Albums favoris",
+        "description": "Les albums que vous avez mis en favoris."
+      },
+      "favArtists": {
+        "name": "Artistes favoris",
+        "title": "Artistes favoris",
+        "description": "Les artistes que vous avez mis en favoris."
+      },
+      "favSongs": {
+        "name": "Titres favoris",
+        "title": "Titres favoris",
+        "description": "Les titres que vous avez mis en favoris."
+      },
+      "playlists": {
+        "name": "Playlists",
+        "title": "Playlists",
+        "description": "Vos playlists."
+      },
+      "instantMix": {
+        "name": "Mix instantané",
+        "title": "Mix instantané",
+        "description": "Un mix d'après ce que vous avez écouté en dernier."
+      },
+      "genre": {
+        "name": "Un genre",
+        "title": "{{name}}",
+        "description": "Les albums d'un genre, les plus récents d'abord."
+      },
+      "artist": {
+        "name": "Les albums d'un artiste",
+        "title": "{{name}}",
+        "description": "Les albums d'un artiste."
+      },
+      "randomAlbums": {
+        "name": "Albums au hasard",
+        "title": "Albums au hasard",
+        "description": "Une sélection différente à chaque fois."
+      }
+    }
+  }
+}

@@ -1,76 +1,43 @@
 import { Clapperboard } from 'lucide-react'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { EmptyState, Shelf, Skeleton } from '@renderer/design'
+import { EmptyState, Skeleton } from '@renderer/design'
 import {
-  flattenPages,
-  useItems,
-  useLatest,
-  useNextUp,
-  useResumeItems,
-  useUserViews,
-  type BaseItemDto,
-} from '@renderer/jellyfin'
+  AddRowSheet,
+  HomeEditActions,
+  HomeEditList,
+  countOf,
+  useHomeEditor,
+} from '@renderer/features/home'
+import { flattenPages, useItems, useUserViews, type BaseItemDto } from '@renderer/jellyfin'
 import { ShellPage } from '@renderer/shell'
 import { HeroCarousel } from './HeroCarousel'
-import { ItemLandscape, ItemPoster } from './cards'
+import { ShelfSkeleton, VideoRow } from './homeRows'
 
 const VIDEO_VIEWS = new Set(['movies', 'tvshows'])
-
-function ShelfSkeleton({ landscape = false }: { landscape?: boolean }) {
-  return (
-    <Shelf title={<Skeleton shape="text" />} kind={landscape ? 'landscape' : 'poster'}>
-      {Array.from({ length: 8 }, (_, i) => (
-        <Skeleton
-          key={i}
-          aspectRatio={landscape ? '16 / 9' : '2 / 3'}
-          radius="var(--radius-poster)"
-        />
-      ))}
-    </Shelf>
-  )
-}
-
-function LibraryLatest({ library }: { library: BaseItemDto }) {
-  const { t } = useTranslation('video')
-  const latest = useLatest(library.Id, 20)
-  if (!latest.data?.length) return null
-  return (
-    <Shelf
-      title={t('home.recentlyAdded', { library: library.Name })}
-      kind="poster"
-      seeAllTo={`/video/library/${library.Id}`}
-    >
-      {latest.data.map((item) => (
-        <ItemPoster key={item.Id} item={item} />
-      ))}
-    </Shelf>
-  )
-}
 
 const hasBackdrop = (i: BaseItemDto) =>
   Boolean(i.BackdropImageTags?.length || i.ParentBackdropImageTags?.length)
 
-/** /video: "Watch Now". */
+/** /video: "Watch Now", arranged by the user (see features/home). */
 export function VideoHome() {
   const { t } = useTranslation('video')
   const views = useUserViews()
-  const libraries = (views.data ?? []).filter((v) => VIDEO_VIEWS.has(v.CollectionType ?? ''))
+  const libraries = (views.data ?? [])
+    .filter((v) => VIDEO_VIEWS.has(v.CollectionType ?? ''))
+    .flatMap((v) => (v.Id ? [{ id: v.Id, name: v.Name ?? '' }] : []))
   const enabled = libraries.length > 0
-  const resume = useResumeItems('video', 20)
-  const nextUp = useNextUp(undefined, 20)
+  const editor = useHomeEditor('video', libraries)
+  const [adding, setAdding] = useState(false)
+
+  const visible = editor.layout.rows.filter((r) => !r.hidden)
+  const heroRow = visible.find((r) => r.type === 'hero')
   const recent = useItems({
     includeItemTypes: ['Movie', 'Series'],
     sortBy: ['DateCreated'],
     sortOrder: 'Descending',
     pageSize: 24,
-    enabled,
-  })
-  const favourites = useItems({
-    includeItemTypes: ['Movie', 'Series'],
-    isFavorite: true,
-    sortBy: ['SortName'],
-    pageSize: 30,
-    enabled,
+    enabled: enabled && !!heroRow && !editor.editing,
   })
 
   if (views.isLoading) {
@@ -93,49 +60,47 @@ export function VideoHome() {
     )
   }
 
-  const featured = flattenPages(recent.data).filter(hasBackdrop).slice(0, 8)
-  const resumeItems = resume.data ?? []
-  const resumeIds = new Set(resumeItems.map((i) => i.Id))
-  const nextUpItems = (nextUp.data ?? []).filter((i) => !resumeIds.has(i.Id))
-  const favouriteItems = flattenPages(favourites.data)
-  const heroLoading = recent.isLoading
+  const actions = <HomeEditActions editor={editor} onAdd={() => setAdding(true)} />
+
+  if (editor.editing) {
+    return (
+      <ShellPage title={t('home.title')} showBack={false} actions={actions}>
+        <HomeEditList scope="video" editor={editor} />
+        <AddRowSheet
+          open={adding}
+          onClose={() => setAdding(false)}
+          scope="video"
+          layout={editor.layout}
+          libraries={libraries}
+          onAdd={editor.add}
+        />
+      </ShellPage>
+    )
+  }
+
+  const featured = heroRow
+    ? flattenPages(recent.data).filter(hasBackdrop).slice(0, countOf(heroRow, 'video'))
+    : []
+  // The toolbar floats over the hero only when the hero is the first thing on the page.
+  const heroFirst = visible[0]?.type === 'hero' && featured.length > 0
 
   return (
     <ShellPage
       title={t('home.title')}
-      header={featured.length > 0 ? 'hero' : 'large'}
+      header={heroFirst ? 'hero' : 'large'}
       showBack={false}
+      actions={actions}
     >
-      {featured.length > 0 ? (
-        <HeroCarousel items={featured} />
-      ) : heroLoading ? (
-        <Skeleton aspectRatio="21 / 9" radius="0" />
-      ) : null}
-      {resumeItems.length > 0 ? (
-        <Shelf title={t('home.continueWatching')} kind="landscape">
-          {resumeItems.map((item) => (
-            <ItemLandscape key={item.Id} item={item} />
-          ))}
-        </Shelf>
-      ) : resume.isLoading ? (
-        <ShelfSkeleton landscape />
-      ) : null}
-      {nextUpItems.length > 0 && (
-        <Shelf title={t('home.nextUp')} kind="landscape">
-          {nextUpItems.map((item) => (
-            <ItemLandscape key={item.Id} item={item} showProgress={false} />
-          ))}
-        </Shelf>
-      )}
-      {libraries.map((library) => (
-        <LibraryLatest key={library.Id} library={library} />
-      ))}
-      {favouriteItems.length > 0 && (
-        <Shelf title={t('home.favourites')} kind="poster">
-          {favouriteItems.map((item) => (
-            <ItemPoster key={item.Id} item={item} />
-          ))}
-        </Shelf>
+      {visible.map((row) =>
+        row.type === 'hero' ? (
+          featured.length > 0 ? (
+            <HeroCarousel key={row.id} items={featured} />
+          ) : recent.isLoading ? (
+            <Skeleton key={row.id} aspectRatio="21 / 9" radius="0" />
+          ) : null
+        ) : (
+          <VideoRow key={row.id} row={row} libraries={libraries} />
+        ),
       )}
     </ShellPage>
   )
