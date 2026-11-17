@@ -1,0 +1,20 @@
+{
+  "fr": {
+    "title": "Ensemble, et en musique",
+    "items": [
+      { "icon": "users", "title": "Regarder et écouter ensemble", "text": "Créez un salon et regardez un film ou écoutez un album avec vos proches, chacun chez soi, parfaitement synchronisés. Lecture, pause et avance se font pour tout le monde." },
+      { "icon": "sparkles", "title": "Des mix rien que pour vous", "text": "« Pour vous », « Découvertes », « En boucle », « Redécouvrir » et des mix par genre, renouvelés chaque jour à partir de vos écoutes." },
+      { "icon": "music", "title": "Radios", "text": "Lancez une radio depuis un titre, un album ou un artiste : la musique ne s'arrête plus." },
+      { "icon": "refresh", "title": "Fondu enchaîné", "text": "Des transitions douces entre les morceaux, réglables de 1 à 12 secondes dans Réglages › Musique, ou désactivées." }
+    ]
+  },
+  "en": {
+    "title": "Together, with music",
+    "items": [
+      { "icon": "users", "title": "Watch and listen together", "text": "Create a room and watch a film or listen to an album with friends, each at home, perfectly in sync. Play, pause and seek for everyone." },
+      { "icon": "sparkles", "title": "Mixes made for you", "text": "For You, Discovery, On Repeat, Rediscover and genre mixes, refreshed every day from what you listen to." },
+      { "icon": "music", "title": "Radio", "text": "Start a radio from a song, an album or an artist: the music never stops." },
+      { "icon": "refresh", "title": "Crossfade", "text": "Smooth transitions between songs, from 1 to 12 seconds in Settings › Music, or off." }
+    ]
+  }
+}

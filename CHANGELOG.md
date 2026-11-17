@@ -6,6 +6,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [1.3.0] - 2026-11-17
+
+### Added
+
+- Watch and listen together with Jellyfin SyncPlay (rooms, synchronised playback, members and their state).
+- Smart mixes: For You, Discovery, On Repeat, Rediscover and genre mixes, refreshed daily.
+- Radio from a song, an album or an artist, with an endless queue.
+- Crossfade between songs, adjustable (1-12 s) or off, optionally not within an album.
+
 ## [1.2.1] - 2026-11-17
 
 ### Changed
