@@ -2,6 +2,7 @@ import { GripVertical, ListMusic, Repeat, Repeat1, Shuffle, X } from 'lucide-rea
 import { useEffect, useRef, useState, type DragEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Artwork, Button, EmptyState, formatDuration, IconButton, Text } from '@renderer/design'
+import { RadioIndicator } from '@renderer/features/mixes'
 import { useMusicPlayer } from '../player/api'
 import { trackArt, trackArtist, trackDuration, trackTitle } from '../player/track'
 
@@ -46,6 +47,7 @@ export function QueueView() {
     <div className="jrm-queue">
       <div className="jrm-queue__header">
         <Text variant="title-3">{t('queue.title')}</Text>
+        <RadioIndicator />
         <span className="jrm-queue__tools">
           <IconButton
             icon={<Shuffle />}
