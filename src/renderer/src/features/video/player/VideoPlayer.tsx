@@ -29,6 +29,13 @@ import { useVideoMediaControls } from './useVideoMediaControls'
 import { useVideoPip } from './useVideoPip'
 import { setActiveController } from '../active'
 import { VideoCastButtonSlot, VideoCastScreenSlot, type VideoCastProps } from '../castSlot'
+import {
+  SyncPlayBadge,
+  SyncPlayButton,
+  syncPlayManager,
+  useSyncPlay,
+  useSyncPlayVideo,
+} from '@renderer/features/syncplay'
 
 const HIDE_AFTER_MS = 3000
 const SEEK_STEP = 10
@@ -51,7 +58,10 @@ export function VideoPlayer() {
   const controller = useMemo(() => new VideoPlaybackController(), [])
   const snapshot = useSyncExternalStore(controller.subscribe, controller.getSnapshot)
   const videoRef = useRef<HTMLVideoElement>(null)
-  const startRef = useRef(Number(search.get('start')) || 0)
+  // Read on every item change: a watch-together room can switch the open player to another item
+  // at a given position (same route, new params).
+  const startRef = useRef(0)
+  startRef.current = Number(search.get('start')) || 0
   const [controlsVisible, setControlsVisible] = useState(true)
   const [held, setHeld] = useState(false)
   const [dismissedFor, setDismissedFor] = useState<string | null>(null)
@@ -77,9 +87,13 @@ export function VideoPlayer() {
     if (!itemId) return
     // A trailer never resumes and never reports progress.
     void controller.play(itemId, isTrailer ? 0 : startRef.current, { trailer: isTrailer })
-    startRef.current = 0
     setDismissedFor(null)
   }, [controller, itemId, isTrailer])
+
+  // --- watch together: in a group, the person's play / pause / seek go to the group
+  const sync = useSyncPlayVideo(controller, itemId, isTrailer)
+  const group = sync.controller
+  const groupReady = useSyncPlay((s) => s.selfReady)
 
   // --- preferred audio / subtitle language, once the tracks of a stream are known
   const appliedFor = useRef<string | null>(null)
@@ -124,13 +138,10 @@ export function VideoPlayer() {
   }, [snapshot.status, held, showControls])
 
   // --- actions
-  const togglePlay = useCallback(() => {
-    if (snapshot.status === 'playing' || snapshot.status === 'loading') controller.pause()
-    else controller.resume()
-  }, [controller, snapshot.status])
+  const togglePlay = useCallback(() => sync.togglePlay(), [sync])
   const seekBy = useCallback(
-    (delta: number) => controller.seek((videoRef.current?.currentTime ?? 0) + delta),
-    [controller],
+    (delta: number) => group.seek((videoRef.current?.currentTime ?? 0) + delta),
+    [group],
   )
   const setVolume = useCallback((v: number) => {
     const el = videoRef.current
@@ -180,19 +191,28 @@ export function VideoPlayer() {
   const doSkip = useCallback(() => {
     if (!pill) return
     if (pill.kind === 'nextEpisode') playNext()
-    else controller.seek(skipTarget(pill.segment, snapshot.durationSeconds))
-  }, [pill, playNext, controller, snapshot.durationSeconds])
+    else group.seek(skipTarget(pill.segment, snapshot.durationSeconds))
+  }, [pill, playNext, group, snapshot.durationSeconds])
 
   // "Skip intros automatically": each intro / recap is skipped once, so seeking back stays possible.
   const autoSkipped = useRef(new Set<string>())
   useEffect(() => {
-    if (!pill || !skipPrefs.skipIntroAuto || !isAutoSkippable(pill)) return
+    // In a group, everyone skipping on their own would fight: the intro is skipped by hand there.
+    if (!pill || !skipPrefs.skipIntroAuto || !isAutoSkippable(pill) || sync.inGroup) return
     if (snapshot.status !== 'playing') return
     const key = segmentKey(itemId, pill.segment)
     if (autoSkipped.current.has(key)) return
     autoSkipped.current.add(key)
     controller.seek(skipTarget(pill.segment, snapshot.durationSeconds))
-  }, [pill, skipPrefs.skipIntroAuto, snapshot.status, snapshot.durationSeconds, itemId, controller])
+  }, [
+    pill,
+    skipPrefs.skipIntroAuto,
+    snapshot.status,
+    snapshot.durationSeconds,
+    itemId,
+    controller,
+    sync.inGroup,
+  ])
 
   // --- keyboard: space, arrows, F, M, S / Enter (skip), Esc
   useEffect(() => {
@@ -264,14 +284,19 @@ export function VideoPlayer() {
   // --- end of the item: auto-play the next episode, or leave
   useEffect(() => {
     if (!ended) return
+    if (sync.inGroup) {
+      // The group moves on together (one request for everyone); the player stays open.
+      if (next?.Id && prefs.autoPlayNext && !dismissed) syncPlayManager.advanceAtEnd(next.Id)
+      return
+    }
     if (next && prefs.autoPlayNext && !dismissed) playNext()
     else if (!next) leave()
-  }, [ended, next, prefs.autoPlayNext, dismissed, playNext, leave])
+  }, [ended, next, prefs.autoPlayNext, dismissed, playNext, leave, sync.inGroup])
 
   // --- media session (OS media keys / now playing)
   const data = item.data
   const nativeControls = useVideoMediaControls({
-    controller,
+    controller: group,
     title: data?.SeriesName ?? data?.Name ?? '',
     artist: data?.SeriesName ? (data.Name ?? undefined) : undefined,
     album: data?.SeasonName ?? undefined,
@@ -297,11 +322,11 @@ export function VideoPlayer() {
         /* unsupported action */
       }
     }
-    set('play', () => controller.resume())
-    set('pause', () => controller.pause())
+    set('play', () => group.resume())
+    set('pause', () => group.pause())
     set('seekbackward', () => seekBy(-SEEK_STEP))
     set('seekforward', () => seekBy(SEEK_STEP))
-    set('seekto', (d) => d.seekTime != null && controller.seek(d.seekTime))
+    set('seekto', (d) => d.seekTime != null && group.seek(d.seekTime))
     set('nexttrack', next ? playNext : null)
     return () => {
       ;(['play', 'pause', 'seekbackward', 'seekforward', 'seekto', 'nexttrack'] as const).forEach(
@@ -309,7 +334,7 @@ export function VideoPlayer() {
       )
       ms.metadata = null
     }
-  }, [nativeControls, data, controller, seekBy, next, playNext])
+  }, [nativeControls, data, group, seekBy, next, playNext])
   useEffect(() => {
     if (!nativeControls && 'mediaSession' in navigator) {
       navigator.mediaSession.playbackState = snapshot.status === 'playing' ? 'playing' : 'paused'
@@ -331,7 +356,8 @@ export function VideoPlayer() {
       : undefined
   const pip = useVideoPip({ controller, videoRef, itemId, title, subtitle })
   const failed = snapshot.status === 'error'
-  const loading = snapshot.status === 'loading'
+  // Held on the group's frame, loaded and waiting for the others: no spinner.
+  const loading = snapshot.status === 'loading' && !(sync.inGroup && groupReady)
   const hasSkippable = (snapshot.segments ?? []).some(
     (s) => s.type === 'Intro' || s.type === 'Recap',
   )
@@ -410,7 +436,7 @@ export function VideoPlayer() {
           onBack={leave}
           onTogglePlay={togglePlay}
           onSeekBy={seekBy}
-          onSeek={(s) => controller.seek(s)}
+          onSeek={(s) => group.seek(s)}
           onVolume={setVolume}
           onToggleMute={toggleMute}
           onRate={(r) => {
@@ -421,13 +447,18 @@ export function VideoPlayer() {
           onSelectSubtitle={(s) => void controller.selectSubtitle(s ? s.index : -1)}
           onHoldChange={setHeld}
           trailer={isTrailer}
+          playing={sync.inGroup ? videoRef.current?.paused === false : undefined}
+          hideSpeed={sync.inGroup}
+          syncPlayBadge={<SyncPlayBadge kind="video" />}
+          syncPlayButton={isTrailer ? undefined : <SyncPlayButton kind="video" variant="glass" />}
           skipIntroAuto={hasSkippable ? skipPrefs.skipIntroAuto : undefined}
           onToggleSkipIntroAuto={() =>
             skipPrefs.update({ skipIntroAuto: !skipPrefs.skipIntroAuto })
           }
           castButton={<VideoCastButtonSlot {...castProps} />}
           pipButton={
-            pip.available ? (
+            // The PiP window plays on its own: not while watching together.
+            pip.available && !sync.inGroup ? (
               <IconButton
                 variant="glass"
                 icon={<PictureInPicture2 />}

@@ -1,0 +1,230 @@
+/* SyncPlay: watch / listen together. Tokens only (docs/DESIGN.md). */
+
+/* ---------- avatars ---------- */
+
+.jr-sp-avatar {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-radius: var(--radius-full);
+  color: #fff;
+  font: var(--text-caption);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  box-shadow: 0 0 0 0.5px var(--separator);
+}
+
+.jr-sp-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.jr-sp-stack {
+  display: inline-flex;
+  align-items: center;
+}
+
+.jr-sp-stack > .jr-sp-avatar + .jr-sp-avatar {
+  margin-inline-start: calc(var(--space-2) * -1);
+  box-shadow: 0 0 0 2px var(--surface-elevated);
+}
+
+.jr-sp-stack__more {
+  margin-inline-start: var(--space-1);
+  color: var(--secondary-label);
+  font: var(--text-caption);
+}
+
+/* ---------- button (count bubble) ---------- */
+
+.jr-sp-button {
+  position: relative;
+  display: inline-flex;
+}
+
+.jr-sp-button__count {
+  position: absolute;
+  inset-block-start: calc(var(--space-0-5) * -1);
+  inset-inline-end: calc(var(--space-0-5) * -1);
+  min-width: 16px;
+  height: 16px;
+  padding: 0 var(--space-1);
+  border-radius: var(--radius-full);
+  background: var(--accent-fill);
+  color: var(--accent-fill-contrast);
+  font: var(--text-caption);
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 16px;
+  text-align: center;
+  pointer-events: none;
+}
+
+/* ---------- badge on the players ---------- */
+
+.jr-sp-badge {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: var(--space-1-5);
+  height: 28px;
+  padding: 0 var(--space-2-5) 0 var(--space-2);
+  border: 0;
+  border-radius: var(--radius-full);
+  background: var(--system-fill);
+  color: var(--label);
+  font: var(--text-footnote);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background var(--duration-fast) var(--ease-standard);
+}
+
+.jr-sp-badge:hover {
+  background: var(--surface-hover);
+}
+
+.jr-sp-badge:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.jr-sp-badge svg {
+  width: 14px;
+  height: 14px;
+}
+
+.jr-sp-badge__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: var(--radius-full);
+  background: var(--system-green);
+}
+
+.jr-sp-badge[data-state='reconnecting'] .jr-sp-badge__dot {
+  background: var(--system-orange);
+  animation: jr-sp-pulse 1.2s var(--ease-standard) infinite;
+}
+
+@keyframes jr-sp-pulse {
+  50% {
+    opacity: 0.3;
+  }
+}
+
+/* On the video (dark, over the picture). */
+.jr-video-controls .jr-sp-badge {
+  margin-inline-start: auto;
+  background: rgb(255 255 255 / 0.16);
+  backdrop-filter: blur(20px);
+}
+
+.jr-video-controls .jr-sp-badge:hover {
+  background: rgb(255 255 255 / 0.26);
+}
+
+/* ---------- sheet ---------- */
+
+.jr-sp-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.jr-sp-create {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.jr-sp-create__row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.jr-sp-create__row > :first-child {
+  flex: 1;
+  min-width: 0;
+}
+
+.jr-sp-rooms {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.jr-sp-rooms__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.jr-sp-group-head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.jr-sp-group-head__icon {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-full);
+  background: var(--accent-tint);
+  color: var(--accent);
+}
+
+.jr-sp-group-head__icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+.jr-sp-group-head__text {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+}
+
+.jr-sp-now {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-0-5);
+  padding: var(--space-3);
+  border-radius: var(--radius-lg);
+  background: var(--quaternary-system-fill);
+}
+
+.jr-sp-state {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1-5);
+  color: var(--secondary-label);
+  font: var(--text-footnote);
+}
+
+.jr-sp-state__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-full);
+  background: var(--system-green);
+}
+
+.jr-sp-state[data-state='buffering'] .jr-sp-state__dot {
+  background: var(--system-orange);
+  animation: jr-sp-pulse 1.2s var(--ease-standard) infinite;
+}
+
+.jr-sp-state[data-state='waiting'] .jr-sp-state__dot {
+  background: var(--system-gray);
+}
+
+html[data-motion='reduced'] .jr-sp-badge__dot,
+html[data-motion='reduced'] .jr-sp-state__dot {
+  animation: none;
+}

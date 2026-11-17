@@ -131,6 +131,14 @@ export interface PlayerControlsProps {
   castButton?: ReactNode
   /** Picture in Picture toggle (hidden when the webview cannot do it). */
   pipButton?: ReactNode
+  /** "Watch together" button (SyncPlay). */
+  syncPlayButton?: ReactNode
+  /** Badge shown in the top bar while in a SyncPlay group. */
+  syncPlayBadge?: ReactNode
+  /** Overrides the play / pause icon (in a group the element state is what counts). */
+  playing?: boolean
+  /** Hides the speed menu (a group plays at normal speed). */
+  hideSpeed?: boolean
 }
 
 /** Overlay: top bar, centre transport, scrubber and bottom row. */
@@ -155,10 +163,15 @@ export function PlayerControls({
   onToggleSkipIntroAuto,
   castButton,
   pipButton,
+  syncPlayButton,
+  syncPlayBadge,
+  playing: playingOverride,
+  hideSpeed,
 }: PlayerControlsProps) {
   const { t } = useTranslation('video')
   const [scrub, setScrub] = useState<number | null>(null)
-  const playing = snapshot.status === 'playing' || snapshot.status === 'loading'
+  const playing =
+    playingOverride ?? (snapshot.status === 'playing' || snapshot.status === 'loading')
   const duration = snapshot.durationSeconds
   const position = scrub ?? snapshot.positionSeconds
   const tracks = snapshot.tracks
@@ -191,6 +204,7 @@ export function PlayerControls({
           )}
         </div>
         {trailer && <span className="jr-video-trailer-badge">{t('player.trailerBadge')}</span>}
+        {syncPlayBadge}
       </div>
 
       <div className="jr-video-controls__center">
@@ -260,13 +274,15 @@ export function PlayerControls({
             />
           </div>
           <div className="jr-video-controls__right">
-            <MenuButton
-              variant="glass"
-              label={t('player.speed')}
-              icon={<Text variant="callout">{snapshot.rate}×</Text>}
-              items={rateItems}
-              placement="top-end"
-            />
+            {!hideSpeed && (
+              <MenuButton
+                variant="glass"
+                label={t('player.speed')}
+                icon={<Text variant="callout">{snapshot.rate}×</Text>}
+                items={rateItems}
+                placement="top-end"
+              />
+            )}
             {skipIntroAuto !== undefined && (
               <IconButton
                 variant="glass"
@@ -329,6 +345,7 @@ export function PlayerControls({
                 }
               </TrackPopover>
             )}
+            {syncPlayButton}
             {castButton}
             {pipButton}
             <IconButton

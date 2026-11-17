@@ -1,6 +1,7 @@
 // Jellyfin data layer barrel (owner: data-layer agent). Screens import only from here.
 // See docs/JELLYFIN.md.
 export { JellyfinProvider, queryClient, requireApi, useSession } from './session'
+export { JellyfinHttpError } from './client'
 export type { SessionState, SessionStatus } from './session'
 export { connectServer, login, logoutAccount } from './auth'
 export type { ConnectParams, ConnectResult, LoginError, LoginResult } from './auth'
@@ -28,3 +29,15 @@ export type {
   SearchResults,
   TimedLyricLine,
 } from './types'
+export * as syncPlay from './syncplay'
+export type {
+  GroupState,
+  PlayQueue,
+  QueueEntry,
+  SocketStatus,
+  SyncPlayCommand,
+  SyncPlayCommandKind,
+  SyncPlayErrorKind,
+  SyncPlayEvent,
+  SyncPlayGroup,
+} from './syncplay'

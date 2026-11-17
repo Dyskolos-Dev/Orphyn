@@ -1,12 +1,12 @@
 import { useEffect, useRef } from 'react'
 import { claimMediaControls, nativeMediaControls } from '@renderer/bridge/mediaControls'
 import type { MediaControlAction } from '@shared/ipc/mediaControls'
-import type { PlaybackSnapshot, VideoPlaybackController } from '../controller'
+import type { PlaybackSnapshot, PlaybackController } from '../controller'
 
 const SKIP_SECONDS = 10
 
 interface Options {
-  controller: VideoPlaybackController
+  controller: PlaybackController
   title: string
   artist?: string
   album?: string
@@ -19,7 +19,7 @@ interface Options {
 /** What an OS media button asks of the video player. */
 export function runVideoAction(
   action: MediaControlAction,
-  controller: VideoPlaybackController,
+  controller: PlaybackController,
   playNext?: () => void,
 ): void {
   const snap = controller.getSnapshot()

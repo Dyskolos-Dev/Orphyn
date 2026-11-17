@@ -12,6 +12,7 @@ import { LyricsView } from '../lyrics/LyricsView'
 import { useCurrentTrack } from '../player/api'
 import { trackArt, trackArtist, trackArtistId, trackTitle } from '../player/track'
 import { CastButtonSlot } from './CastButtonSlot'
+import { SyncPlayBadge, SyncPlayButton } from '@renderer/features/syncplay'
 import { QueueView } from './QueueView'
 import { SeekBar, TransportButtons, VolumeControl } from './Transport'
 import { useNowPlayingUi, type NowPlayingView } from './ui-state'
@@ -108,11 +109,13 @@ function Sheet() {
           ]}
         />
         <div className="jrm-np__header-end" style={{ alignItems: 'center', gap: 8 }}>
+          <SyncPlayBadge kind="audio" />
           <CurrentTrackHeart variant="glass" />
           {track && (
             <MenuButton variant="glass" label={tp('moreActions')} items={buildMenu(track)} />
           )}
           <PipButton kind="music" variant="glass" />
+          <SyncPlayButton kind="audio" variant="glass" />
           <CastButtonSlot />
         </div>
       </header>

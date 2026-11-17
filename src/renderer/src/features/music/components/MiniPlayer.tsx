@@ -12,6 +12,7 @@ import { useNowPlayingUi } from './ui-state'
 import { PipButton } from '@renderer/features/pip/PipButton'
 import { useMusicPipHost } from '@renderer/features/pip/useMusicPipHost'
 import { CurrentTrackHeart } from '../player/CurrentTrackHeart'
+import { SyncPlayButton } from '@renderer/features/syncplay'
 
 /** Thin progress line at the bottom of the capsule; elapsed / remaining show on hover. */
 function CapsuleProgress() {
@@ -113,6 +114,7 @@ export function MiniPlayer() {
 
       <div className="jrm-mini__right">
         <VolumeControl />
+        <SyncPlayButton kind="audio" />
         <CastButtonSlot />
         <PipButton kind="music" />
         <IconButton
