@@ -1,0 +1,12 @@
+.jrm-lyrics-source {
+  margin: 2rem 0 0.5rem;
+  font-size: 0.75rem;
+  letter-spacing: 0.02em;
+  opacity: 0.45;
+  text-align: center;
+  user-select: none;
+}
+
+.jrm-lyrics-pending {
+  display: none;
+}

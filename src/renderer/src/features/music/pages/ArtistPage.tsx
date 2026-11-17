@@ -1,9 +1,11 @@
+import { useMemo } from 'react'
 import { Heart, Play, Radio, Shuffle, User } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router'
 import { Button, EmptyState, HeroBanner, IconButton, Shelf, Spinner, Text } from '@renderer/design'
 import {
   imageUrl,
+  useArtistLists,
   useItem,
   useItems,
   useSimilar,
@@ -11,9 +13,11 @@ import {
   type BaseItemDto,
 } from '@renderer/jellyfin'
 import { startRadio } from '@renderer/features/mixes'
+import { usePlaybackPreferences } from '@renderer/features/settings/preferences'
 import { ShellPage } from '@renderer/shell'
 import { AlbumCard, ArtistCard } from '../components/Cards'
 import { SongRows } from '../components/TrackRows'
+import { groupArtists, groupIdsOf } from '../library/artistGroups'
 import { musicPlayer } from '../player/api'
 
 /** Albums with this many tracks or fewer are shown under "Singles & EPs". */
@@ -36,9 +40,17 @@ export function ArtistPage() {
   const { t: tr } = useTranslation('mixes')
   const { id } = useParams()
   const artist = useItem(id)
+  const { groupArtists: grouping } = usePlaybackPreferences()
+  const lists = useArtistLists(grouping)
+  // Every Jellyfin artist merged with this one (just this id when grouping is off).
+  const ids = useMemo(() => {
+    if (!id) return []
+    if (!grouping || !lists.albumArtists) return [id]
+    return groupIdsOf(groupArtists(lists.albumArtists, lists.everyone), id)
+  }, [id, grouping, lists.albumArtists, lists.everyone])
   const top = useItems({
     includeItemTypes: ['Audio'],
-    artistIds: id ? [id] : undefined,
+    artistIds: ids.length > 0 ? ids : undefined,
     sortBy: ['PlayCount', 'SortName'],
     sortOrder: 'Descending',
     pageSize: 10,
@@ -46,15 +58,29 @@ export function ArtistPage() {
   })
   const albums = useItems({
     includeItemTypes: ['MusicAlbum'],
-    artistIds: id ? [id] : undefined,
+    artistIds: ids.length > 0 ? ids : undefined,
     sortBy: ['ProductionYear', 'SortName'],
     sortOrder: 'Descending',
     fields: ALBUM_FIELDS,
     pageSize: 200,
     enabled: !!id,
   })
+  const allSongs = useItems({
+    includeItemTypes: ['Audio'],
+    artistIds: ids,
+    sortBy: ['Album', 'ParentIndexNumber', 'IndexNumber', 'SortName'],
+    pageSize: 1000,
+    enabled: ids.length > 1,
+  })
   const similar = useSimilar(id, 12)
   const fav = useToggleFavorite()
+
+  const playAll = (shuffle: boolean) => {
+    const songs = allSongs.data?.pages.flatMap((p) => p.items) ?? []
+    if (ids.length > 1 && songs.length > 0)
+      musicPlayer.play(songs, shuffle ? undefined : 0, { shuffle })
+    else if (id) void musicPlayer.playArtist(id, shuffle ? { shuffle: true } : undefined)
+  }
 
   if (artist.isLoading) {
     return (
@@ -76,8 +102,8 @@ export function ArtistPage() {
 
   const topSongs = top.data?.pages.flatMap((p) => p.items) ?? []
   const all = albums.data?.pages.flatMap((p) => p.items) ?? []
-  const own = all.filter((a) => a.AlbumArtists?.some((x) => x.Id === id))
-  const appearsOn = all.filter((a) => !a.AlbumArtists?.some((x) => x.Id === id))
+  const own = all.filter((a) => a.AlbumArtists?.some((x) => !!x.Id && ids.includes(x.Id)))
+  const appearsOn = all.filter((a) => !a.AlbumArtists?.some((x) => !!x.Id && ids.includes(x.Id)))
   const singles = own.filter(isSingle)
   const fullAlbums = own.filter((a) => !isSingle(a))
   const similarArtists = (similar.data ?? []).filter((a) => a.Type === 'MusicArtist' || !a.Type)
@@ -99,7 +125,7 @@ export function ArtistPage() {
               variant="contrast"
               size="large"
               icon={<Play fill="currentColor" />}
-              onClick={() => void musicPlayer.playArtist(id)}
+              onClick={() => playAll(false)}
             >
               {t('actions.play')}
             </Button>
@@ -107,7 +133,7 @@ export function ArtistPage() {
               variant="contrast"
               size="large"
               icon={<Shuffle />}
-              onClick={() => void musicPlayer.playArtist(id, { shuffle: true })}
+              onClick={() => playAll(true)}
             >
               {t('actions.shuffle')}
             </Button>

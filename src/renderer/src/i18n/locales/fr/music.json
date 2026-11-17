@@ -129,7 +129,8 @@
   "lyrics": {
     "title": "Paroles",
     "none": "Pas de paroles",
-    "noneHint": "Ce titre n’a pas de paroles sur votre serveur."
+    "noneHint": "Ce titre n’a pas de paroles sur votre serveur.",
+    "source": "Paroles : {{source}}"
   },
   "favorites": {
     "title": "Coups de cœur",

@@ -7,9 +7,10 @@ import {
   type InfiniteData,
 } from '@tanstack/react-query'
 import type { Api } from '@jellyfin/sdk'
-import { useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import * as ep from './endpoints'
 import * as ops from './playlistOps'
+import { fetchLrclib, readCache, type OnlineLyrics, type TrackQuery } from './lyrics/lrclib'
 import { STALE, jfKeys } from './keys'
 import { useSession } from './session'
 import type { BaseItemDto, ItemsPage, ItemsParams, ListKind, ListParams } from './types'
@@ -248,6 +249,72 @@ export const useLyrics = (itemId: string | undefined, hasLyrics?: boolean | null
       enabled: !!itemId && hasLyrics !== false,
     },
   )
+
+export type { OnlineLyrics, TrackQuery } from './lyrics/lrclib'
+
+/**
+ * Lyrics from LRCLIB for a track the server has none for. `enabled` must be false when the
+ * person turned online lyrics off or the server already has lyrics: nothing is requested then.
+ * Results (and misses) are cached by the lrclib module, so reopening a track costs nothing.
+ */
+export function useOnlineLyrics(
+  track: TrackQuery | undefined,
+  enabled: boolean,
+): { data: OnlineLyrics | null | undefined; isLoading: boolean } {
+  const usable = enabled && !!track?.title.trim() && !!track.artist.trim()
+  const title = track?.title ?? ''
+  const artist = track?.artist ?? ''
+  const album = track?.album
+  const duration = track?.duration
+  const [result, setResult] = useState<{ key: string; data: OnlineLyrics | null } | null>(null)
+  const key = usable ? [artist, title, album, Math.round(duration ?? 0)].join('|') : ''
+
+  useEffect(() => {
+    if (!usable) return
+    const q: TrackQuery = { title, artist, album, duration }
+    if (readCache(q) !== undefined) return // answered synchronously below
+    const ctrl = new AbortController()
+    fetchLrclib(q, ctrl.signal)
+      .then((data) => setResult({ key, data }))
+      // Offline or LRCLIB down: behave as "no lyrics" without caching the failure.
+      .catch(() => !ctrl.signal.aborted && setResult({ key, data: null }))
+    return () => ctrl.abort()
+  }, [usable, key, title, artist, album, duration])
+
+  if (!usable) return { data: undefined, isLoading: false }
+  const cached = readCache({ title, artist, album, duration })
+  if (cached !== undefined) return { data: cached, isLoading: false }
+  if (result?.key === key) return { data: result.data, isLoading: false }
+  return { data: undefined, isLoading: true }
+}
+
+/**
+ * Every album artist and every artist of the library (whole lists, for client-side grouping).
+ * Only fetched while `enabled`.
+ */
+export function useArtistLists(enabled = true) {
+  const get = (kind: 'albumArtists' | 'artists') => (c: Ctx, signal: AbortSignal) =>
+    ep.fetchListPage(c.api, c.userId, kind, { sortBy: ['SortName'], pageSize: 20000 }, 0, signal)
+  const albumArtists = useScoped(
+    (a) => jfKeys.list(a, 'albumArtists', 'all'),
+    get('albumArtists'),
+    { staleTime: STALE.catalog, enabled },
+  )
+  const everyone = useScoped((a) => jfKeys.list(a, 'artists', 'all'), get('artists'), {
+    staleTime: STALE.catalog,
+    enabled,
+  })
+  return {
+    albumArtists: albumArtists.data?.items,
+    everyone: everyone.data?.items,
+    isLoading: albumArtists.isLoading || everyone.isLoading,
+    isError: albumArtists.isError,
+    refetch: () => {
+      void albumArtists.refetch()
+      void everyone.refetch()
+    },
+  }
+}
 
 // ---------------------------------------------------------------- search
 

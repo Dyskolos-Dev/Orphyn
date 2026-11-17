@@ -208,7 +208,11 @@
     "quality": "Streaming quality",
     "qualityFooter": "Original plays the file as stored. A bitrate asks the server to transcode, which saves data.",
     "original": "Original",
-    "kbps": "{{value}} kbps"
+    "kbps": "{{value}} kbps",
+    "groupArtists": "Group artists",
+    "groupArtistsDescription": "One entry per artist: “feat.”, “&”, case and accent variants are merged. Only changes how your library is shown.",
+    "onlineLyrics": "Online lyrics",
+    "onlineLyricsDescription": "When your server has no lyrics for a song, look them up on LRCLIB (sends the title, artist and album)."
   },
   "about": {
     "app": "Orphyn",

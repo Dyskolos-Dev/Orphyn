@@ -122,6 +122,25 @@ describe('MusicPane crossfade', () => {
   })
 })
 
+describe('MusicPane artist grouping and online lyrics', () => {
+  it('are on by default, persisted when switched off, and labelled in both languages', async () => {
+    const user = userEvent.setup()
+    await act(() => i18n.changeLanguage('en'))
+    expect(DEFAULT_PLAYBACK_PREFERENCES).toMatchObject({ groupArtists: true, onlineLyrics: true })
+    const { unmount } = render(<MusicPane />)
+    await user.click(screen.getByRole('switch', { name: /^Group artists/ }))
+    await user.click(screen.getByRole('switch', { name: /^Online lyrics/ }))
+    expect(getPlaybackPreferences()).toMatchObject({ groupArtists: false, onlineLyrics: false })
+    expect(localStorage.getItem(PLAYBACK_PREFERENCES_KEY)).toContain('"onlineLyrics":false')
+    unmount()
+    await act(() => i18n.changeLanguage('fr'))
+    render(<MusicPane />)
+    expect(screen.getByRole('switch', { name: /^Regrouper les artistes/ })).toBeInTheDocument()
+    expect(screen.getByRole('switch', { name: /^Paroles en ligne/ })).toBeInTheDocument()
+    await act(() => i18n.changeLanguage('en'))
+  })
+})
+
 describe('languageMatches', () => {
   it('treats ISO 639-2 aliases as the same language', () => {
     expect(languageMatches('fre', 'fra')).toBe(true)

@@ -2,9 +2,11 @@ import { MicOff } from 'lucide-react'
 import { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { EmptyState, Spinner } from '@renderer/design'
-import { useLyrics } from '@renderer/jellyfin'
-import { musicPlayer, useMusicPlayer } from '../player/api'
+import { useLyrics, useOnlineLyrics, type OnlineLyrics, type TrackQuery } from '@renderer/jellyfin'
+import { usePlaybackPreferences } from '@renderer/features/settings/preferences'
+import { musicPlayer, useCurrentTrack, useMusicPlayer } from '../player/api'
 import { findLineIndex } from './lines'
+import './lyrics.css'
 
 /** Pause auto-scroll this long after the user scrolls by hand. */
 const MANUAL_SCROLL_GRACE_MS = 3500
@@ -22,8 +24,24 @@ export function LyricsView({
   hasLyrics?: boolean | null
 }) {
   const { t } = useTranslation('music')
-  const query = useLyrics(trackId, hasLyrics)
-  const lyrics = query.data
+  const server = useLyrics(trackId, hasLyrics)
+  const { onlineLyrics } = usePlaybackPreferences()
+  const current = useCurrentTrack()
+  // The track being played, read from the player so callers only pass its id.
+  const query: TrackQuery | undefined =
+    current && current.Id === trackId
+      ? {
+          title: current.Name ?? '',
+          artist: current.Artists?.[0] ?? current.AlbumArtist ?? '',
+          album: current.Album ?? undefined,
+          duration: current.RunTimeTicks ? current.RunTimeTicks / 10_000_000 : undefined,
+        }
+      : undefined
+  const serverEmpty = !server.isLoading && !(server.data && server.data.lines.length > 0)
+  const online = useOnlineLyrics(query, onlineLyrics && serverEmpty)
+  const lyrics = server.data && server.data.lines.length > 0 ? server.data : online.data
+  const searching = serverEmpty && online.isLoading
+  const source = lyrics && 'source' in lyrics ? (lyrics as OnlineLyrics).source : null
   const synced = !!lyrics?.synced
   const active = useMusicPlayer((s) =>
     lyrics?.synced ? findLineIndex(lyrics.lines, s.position * 1000) : -1,
@@ -50,7 +68,7 @@ export function LyricsView({
     scroller.current?.scrollTo({ top: 0 })
   }, [trackId])
 
-  if (query.isLoading) {
+  if (server.isLoading) {
     return (
       <div className="jrm-lyrics jrm-lyrics--empty">
         <Spinner />
@@ -60,13 +78,17 @@ export function LyricsView({
 
   if (!lyrics || lyrics.lines.length === 0) {
     return (
-      <div className="jrm-lyrics jrm-lyrics--empty">
-        <EmptyState
-          size="inline"
-          icon={<MicOff />}
-          title={t('lyrics.none')}
-          message={t('lyrics.noneHint')}
-        />
+      <div className="jrm-lyrics jrm-lyrics--empty" aria-busy={searching || undefined}>
+        {searching && <Spinner />}
+        {/* While LRCLIB is asked, the empty state waits out of sight instead of flashing. */}
+        <div className={searching ? 'jrm-lyrics-pending' : undefined}>
+          <EmptyState
+            size="inline"
+            icon={<MicOff />}
+            title={t('lyrics.none')}
+            message={t('lyrics.noneHint')}
+          />
+        </div>
       </div>
     )
   }
@@ -111,6 +133,7 @@ export function LyricsView({
           ))}
         </>
       )}
+      {source && <p className="jrm-lyrics-source">{t('lyrics.source', { source })}</p>}
     </div>
   )
 }

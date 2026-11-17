@@ -30,6 +30,10 @@ export interface PlaybackPreferences {
   crossfade: boolean
   crossfadeSeconds: number
   crossfadeSkipAlbum: boolean
+  /** Music: merge artist variants (feat., &, case, accents...) into one entry. Client-side only. */
+  groupArtists: boolean
+  /** Music: fall back to LRCLIB for lyrics the server does not have. */
+  onlineLyrics: boolean
 }
 
 export const CROSSFADE_SECONDS_MIN = 1
@@ -44,6 +48,8 @@ export const DEFAULT_PLAYBACK_PREFERENCES: PlaybackPreferences = {
   crossfade: false,
   crossfadeSeconds: 6,
   crossfadeSkipAlbum: true,
+  groupArtists: true,
+  onlineLyrics: true,
 }
 
 /** Video streaming ceilings offered in Settings (bits per second). */
@@ -119,6 +125,8 @@ function sanitize(raw: unknown): PlaybackPreferences {
         : d.crossfadeSeconds,
     crossfadeSkipAlbum:
       typeof o['crossfadeSkipAlbum'] === 'boolean' ? o['crossfadeSkipAlbum'] : d.crossfadeSkipAlbum,
+    groupArtists: typeof o['groupArtists'] === 'boolean' ? o['groupArtists'] : d.groupArtists,
+    onlineLyrics: typeof o['onlineLyrics'] === 'boolean' ? o['onlineLyrics'] : d.onlineLyrics,
   }
 }
 

@@ -129,7 +129,8 @@
   "lyrics": {
     "title": "Lyrics",
     "none": "No lyrics",
-    "noneHint": "This song has no lyrics on your server."
+    "noneHint": "This song has no lyrics on your server.",
+    "source": "Lyrics: {{source}}"
   },
   "favorites": {
     "title": "Favourites",

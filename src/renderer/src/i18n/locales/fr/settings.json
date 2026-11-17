@@ -208,7 +208,11 @@
     "quality": "Qualité de streaming",
     "qualityFooter": "Original lit le fichier tel quel. Un débit demande au serveur de transcoder, ce qui économise des données.",
     "original": "Original",
-    "kbps": "{{value}} kbit/s"
+    "kbps": "{{value}} kbit/s",
+    "groupArtists": "Regrouper les artistes",
+    "groupArtistsDescription": "Une seule fiche par artiste : les variantes « feat. », « & », majuscules et accents sont fusionnées. Ne modifie que l’affichage de votre bibliothèque.",
+    "onlineLyrics": "Paroles en ligne",
+    "onlineLyricsDescription": "Si votre serveur n’a pas les paroles d’un titre, les chercher sur LRCLIB (envoie le titre, l’artiste et l’album)."
   },
   "about": {
     "app": "Orphyn",

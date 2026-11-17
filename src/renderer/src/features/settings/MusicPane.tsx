@@ -59,6 +59,26 @@ export function MusicPane() {
         </>
       )}
       <ListRow
+        title={
+          <Toggle
+            label={t('music.groupArtists')}
+            description={t('music.groupArtistsDescription')}
+            checked={prefs.groupArtists}
+            onChange={(v) => prefs.update({ groupArtists: v })}
+          />
+        }
+      />
+      <ListRow
+        title={
+          <Toggle
+            label={t('music.onlineLyrics')}
+            description={t('music.onlineLyricsDescription')}
+            checked={prefs.onlineLyrics}
+            onChange={(v) => prefs.update({ onlineLyrics: v })}
+          />
+        }
+      />
+      <ListRow
         title={t('music.quality')}
         trailing={
           <ValueMenu<string | number>
