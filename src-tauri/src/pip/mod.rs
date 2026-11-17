@@ -413,8 +413,8 @@ fn open_window<R: Runtime>(app: &AppHandle<R>, kind: Kind) -> Result<()> {
     let saved = app.try_state::<Store>().and_then(|s| {
         let g = s.0.lock().unwrap_or_else(|p| p.into_inner());
         let last = g.placements.get(&placement_key(kind, None)).copied();
-        let last_visible = last
-            .filter(|p| is_visible(p.x, p.y, (p.width, height_for(p.width, ratio)), &screens));
+        let last_visible =
+            last.filter(|p| is_visible(p.x, p.y, (p.width, height_for(p.width, ratio)), &screens));
         last_visible.or_else(|| {
             primary
                 .as_deref()
@@ -556,9 +556,15 @@ mod tests {
         // Within 16 px of the left and bottom edges.
         assert_eq!(settle_position((10, 650), (320, 380), area, 16), (0, 660));
         // Far from every edge: untouched.
-        assert_eq!(settle_position((600, 300), (320, 380), area, 16), (600, 300));
+        assert_eq!(
+            settle_position((600, 300), (320, 380), area, 16),
+            (600, 300)
+        );
         // Half off the right edge: pulled back in.
-        assert_eq!(settle_position((1800, 300), (320, 380), area, 0), (1600, 300));
+        assert_eq!(
+            settle_position((1800, 300), (320, 380), area, 0),
+            (1600, 300)
+        );
         // Offset work area (task bar at the top).
         assert_eq!(
             settle_position((5, 40), (320, 380), (0, 48, 1920, 1032), 16),
