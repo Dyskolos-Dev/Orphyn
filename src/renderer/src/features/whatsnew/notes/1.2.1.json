@@ -1,0 +1,16 @@
+{
+  "fr": {
+    "title": "Petites retouches",
+    "items": [
+      { "icon": "music", "title": "Mini-lecteur flottant net à toutes les tailles", "text": "La pochette, le texte et les boutons restent parfaitement nets, même en grand et sur les écrans haute définition." },
+      { "icon": "layout", "title": "Des accueils épurés", "text": "La personnalisation des accueils se trouve désormais dans Réglages › Accueil, pour laisser l'écran d'accueil intact." }
+    ]
+  },
+  "en": {
+    "title": "A few touch-ups",
+    "items": [
+      { "icon": "music", "title": "A sharp floating player at every size", "text": "Artwork, text and buttons stay crisp, even when large and on high-resolution displays." },
+      { "icon": "layout", "title": "Cleaner home screens", "text": "Home customisation now lives in Settings › Home, leaving the home screens untouched." }
+    ]
+  }
+}

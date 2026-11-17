@@ -6,6 +6,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [1.2.1] - 2026-11-17
+
+### Changed
+
+- Home customisation moved to Settings > Home; the home screens no longer show an Edit button.
+
+### Fixed
+
+- Music Picture-in-Picture window is sharp at every size and display scale.
+
 ## [1.2.0] - 2026-11-17
 
 ### Added
