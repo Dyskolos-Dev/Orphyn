@@ -4,6 +4,13 @@ import { useTranslation } from 'react-i18next'
 import { Window } from '@tauri-apps/api/window'
 import { onPip, sendPip } from './events'
 import {
+  DESIGN_WIDTH,
+  ResizeHandles,
+  dragOnMove,
+  toggleCompactSize,
+  usePipScale,
+} from './windowHandling'
+import {
   EMPTY_MUSIC_PIP,
   PIP_EVENTS,
   extrapolatePosition,
@@ -11,6 +18,8 @@ import {
   type MusicPipCommand,
   type MusicPipState,
 } from './protocol'
+
+const MUSIC_RATIO = 320 / 380
 
 const command = (cmd: MusicPipCommand): void => sendPip(PIP_EVENTS.musicCommand, cmd)
 
@@ -57,6 +66,7 @@ export function MusicPip() {
   const { t } = useTranslation('pip')
   const [state, dispatch] = useReducer(musicPipReducer, EMPTY_MUSIC_PIP)
   const [now, setNow] = useState(() => Date.now())
+  usePipScale()
 
   useEffect(() => {
     const off = onPip<MusicPipState>(PIP_EVENTS.musicState, (s) =>
@@ -74,107 +84,128 @@ export function MusicPip() {
     return () => window.clearInterval(id)
   }, [state.playing])
 
-  // Esc closes, space toggles: the window is focused when the viewer interacts with it.
+  // Space play / pause, arrows previous / next, Esc and Ctrl/Cmd+W close.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') closePip()
-      else if (e.key === ' ') {
+      if (e.key === 'Escape' || ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'w')) {
         e.preventDefault()
-        command({ type: 'toggle' })
+        closePip()
+      } else if (e.key === ' ') {
+        // A focused button would also click on space: keep one toggle.
+        e.preventDefault()
+        if (!e.repeat) command({ type: 'toggle' })
+      } else if (e.key === 'ArrowRight') {
+        e.preventDefault()
+        command({ type: 'next' })
+      } else if (e.key === 'ArrowLeft') {
+        e.preventDefault()
+        command({ type: 'previous' })
       }
     }
+    const swallowSpaceClick = (e: KeyboardEvent) => {
+      if (e.key === ' ') e.preventDefault()
+    }
     window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
+    window.addEventListener('keyup', swallowSpaceClick)
+    return () => {
+      window.removeEventListener('keydown', onKey)
+      window.removeEventListener('keyup', swallowSpaceClick)
+    }
   }, [])
 
   const position = extrapolatePosition(state, now)
   const art = state.artworkUrl
   return (
-    <div className="pip pip--music" data-theme="dark" data-tauri-drag-region>
-      {art && <div className="pip__bg" style={{ backgroundImage: `url("${art}")` }} />}
-      {art ? (
-        <img className="pip__art" src={art} alt="" draggable={false} data-tauri-drag-region />
-      ) : (
-        <div className="pip__art pip__art--empty" data-tauri-drag-region>
-          <Music />
-        </div>
-      )}
-      <div className="pip__shade" data-tauri-drag-region />
-
-      <div className="pip__top">
-        <button
-          type="button"
-          className="pip__btn"
-          aria-label={t('backToOrphyn')}
-          title={t('backToOrphyn')}
-          onClick={() => void backToMain()}
-        >
-          <Maximize2 />
-        </button>
-        <button
-          type="button"
-          className="pip__btn"
-          aria-label={t('close')}
-          title={t('close')}
-          onClick={closePip}
-        >
-          <X />
-        </button>
-      </div>
-
-      <div className="pip__bottom" data-tauri-drag-region>
-        <div className="pip__meta" data-tauri-drag-region>
-          <div className="pip__title" data-tauri-drag-region>
-            {state.hasTrack ? state.title : t('nothingPlaying')}
+    <div
+      className="pip pip--music"
+      data-theme="dark"
+      onPointerDown={dragOnMove}
+      onDoubleClick={(e) => {
+        if (!(e.target instanceof Element && e.target.closest('button, [role="progressbar"]')))
+          void toggleCompactSize(MUSIC_RATIO)
+      }}
+    >
+      <div className="pip__stage" style={{ width: DESIGN_WIDTH }}>
+        {art && <div className="pip__bg" style={{ backgroundImage: `url("${art}")` }} />}
+        {art ? (
+          <img className="pip__art" src={art} alt="" draggable={false} />
+        ) : (
+          <div className="pip__art pip__art--empty">
+            <Music />
           </div>
-          {state.hasTrack && (
-            <div className="pip__artist" data-tauri-drag-region>
-              {state.artist}
-            </div>
-          )}
-        </div>
-        <div className="pip__controls">
+        )}
+        <div className="pip__shade" />
+
+        <div className="pip__top">
           <button
             type="button"
             className="pip__btn"
-            aria-label={state.favorite ? t('unfavorite') : t('favorite')}
-            aria-pressed={state.favorite}
-            disabled={!state.hasTrack}
-            data-on={state.favorite || undefined}
-            onClick={() => command({ type: 'favorite' })}
+            aria-label={t('backToOrphyn')}
+            title={t('backToOrphyn')}
+            onClick={() => void backToMain()}
           >
-            <Heart fill={state.favorite ? 'currentColor' : 'none'} />
+            <Maximize2 />
           </button>
           <button
             type="button"
             className="pip__btn"
-            aria-label={t('previous')}
-            disabled={!state.hasTrack}
-            onClick={() => command({ type: 'previous' })}
+            aria-label={t('close')}
+            title={t('close')}
+            onClick={closePip}
           >
-            <SkipBack fill="currentColor" />
-          </button>
-          <button
-            type="button"
-            className="pip__btn pip__btn--main"
-            aria-label={state.playing ? t('pause') : t('play')}
-            disabled={!state.hasTrack}
-            onClick={() => command({ type: 'toggle' })}
-          >
-            {state.playing ? <Pause fill="currentColor" /> : <Play fill="currentColor" />}
-          </button>
-          <button
-            type="button"
-            className="pip__btn"
-            aria-label={t('next')}
-            disabled={!state.hasTrack}
-            onClick={() => command({ type: 'next' })}
-          >
-            <SkipForward fill="currentColor" />
+            <X />
           </button>
         </div>
-        <Progress state={state} position={position} />
+
+        <div className="pip__bottom">
+          <div className="pip__meta">
+            <div className="pip__title">{state.hasTrack ? state.title : t('nothingPlaying')}</div>
+            {state.hasTrack && <div className="pip__artist">{state.artist}</div>}
+          </div>
+          <div className="pip__controls">
+            <button
+              type="button"
+              className="pip__btn"
+              aria-label={state.favorite ? t('unfavorite') : t('favorite')}
+              aria-pressed={state.favorite}
+              disabled={!state.hasTrack}
+              data-on={state.favorite || undefined}
+              onClick={() => command({ type: 'favorite' })}
+            >
+              <Heart fill={state.favorite ? 'currentColor' : 'none'} />
+            </button>
+            <button
+              type="button"
+              className="pip__btn"
+              aria-label={t('previous')}
+              disabled={!state.hasTrack}
+              onClick={() => command({ type: 'previous' })}
+            >
+              <SkipBack fill="currentColor" />
+            </button>
+            <button
+              type="button"
+              className="pip__btn pip__btn--main"
+              aria-label={state.playing ? t('pause') : t('play')}
+              disabled={!state.hasTrack}
+              onClick={() => command({ type: 'toggle' })}
+            >
+              {state.playing ? <Pause fill="currentColor" /> : <Play fill="currentColor" />}
+            </button>
+            <button
+              type="button"
+              className="pip__btn"
+              aria-label={t('next')}
+              disabled={!state.hasTrack}
+              onClick={() => command({ type: 'next' })}
+            >
+              <SkipForward fill="currentColor" />
+            </button>
+          </div>
+          <Progress state={state} position={position} />
+        </div>
       </div>
+      <ResizeHandles />
     </div>
   )
 }

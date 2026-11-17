@@ -5,11 +5,26 @@ browser (tests, `dev:renderer`) has neither and keeps `navigator.mediaSession`.
 
 ## Music mini player (PiP)
 
-A small always-on-top, frameless, rounded window (320 x 380, resizable down to 240 x 285, the
-aspect ratio is kept) showing the artwork full-bleed over a blurred copy of it, the title and
+A small always-on-top, frameless, rounded window (320 x 380, resizable from 240 x 285 up to 640 x 760,
+the aspect ratio is kept) showing the artwork full-bleed over a blurred copy of it, the title and
 artist, a thin progress bar (click to seek) and, on hover, favourite, previous, play / pause, next,
-"Back to Orphyn" and close. Drag it anywhere; its position and size are remembered
-(`pip.json` in the app data folder) and reset to the bottom-right corner if that screen is gone.
+"Back to Orphyn" and close.
+
+Handling (`features/pip/windowHandling.tsx`, `src-tauri/src/pip/mod.rs`):
+
+- **Move**: press and drag anywhere that is not a control; the OS drag (`startDragging`) starts
+  after 4 px of movement, so a click on the artwork stays a click. Double-click switches between a
+  compact (260 px wide) and a large (420 px) size.
+- **Resize**: invisible 7 px hit areas on every edge and 14 px on the corners
+  (`startResizeDragging`), plus a grip in the bottom-right corner on hover. The width / height
+  ratio is enforced in Rust (whichever side is dragged drives the other, clamped to min / max). The
+  card is drawn at 320 px and scaled with CSS (`--pip-scale`), so resizing never re-lays it out.
+- **Snap**: 300 ms after the window stops moving it is kept inside the screen's work area and sticks
+  to an edge or corner within 16 px, with a short ease.
+- **Remember**: size and position are saved per monitor (`music@<monitor>` next to the last one
+  in `pip.json`); a position whose screen is gone falls back to the primary screen's, else
+  bottom-right, and is always pulled back inside the work area.
+- **Keyboard**: Space play / pause, left / right arrows previous / next, Esc and Ctrl/Cmd + W close.
 
 - Open it with the PiP button in the mini player, in Now Playing, or **Ctrl/Cmd + Shift + M**
   (the same shortcut closes it).

@@ -8,7 +8,8 @@
 
 use std::collections::HashMap;
 use std::path::PathBuf;
-use std::sync::Mutex;
+use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
+use std::sync::{Arc, Mutex};
 use std::time::{Duration, Instant};
 
 use serde::{Deserialize, Serialize};
@@ -22,6 +23,10 @@ use crate::error::{Error, Result};
 pub const STATE_CHANGED: &str = "orphyn:pip:state-changed";
 const POSITIONS_FILE: &str = "pip.json";
 const MARGIN: i32 = 24;
+/// Distance (logical px) under which a released window sticks to a screen edge.
+const SNAP: f64 = 16.0;
+/// The window has to stay still this long before it snaps (a drag is not over while it moves).
+const SETTLE_DELAY: Duration = Duration::from_millis(300);
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
@@ -51,6 +56,13 @@ impl Kind {
             Kind::Video => (480.0, 320.0, 16.0 / 9.0),
         }
     }
+    /// Largest width a user can resize the window to.
+    fn max_width(self) -> f64 {
+        match self {
+            Kind::Music => 640.0,
+            Kind::Video => 960.0,
+        }
+    }
 }
 
 /// `PipState` of the TypeScript contract.
@@ -68,9 +80,19 @@ pub struct Placement {
     pub width: u32,
 }
 
+/// Placements are stored under `music` (the last one, whatever the screen) and under
+/// `music@<monitor name>` (the last one on that screen).
+fn placement_key(kind: Kind, monitor: Option<&str>) -> String {
+    let base = kind.label().trim_start_matches("pip-");
+    match monitor {
+        Some(name) => format!("{base}@{name}"),
+        None => base.to_string(),
+    }
+}
+
 #[derive(Default)]
 struct Shared {
-    placements: HashMap<Kind, Placement>,
+    placements: HashMap<String, Placement>,
     last_write: Option<Instant>,
 }
 
@@ -98,7 +120,7 @@ fn positions_path<R: Runtime>(app: &AppHandle<R>) -> Option<PathBuf> {
         .map(|d| d.join(POSITIONS_FILE))
 }
 
-fn load_positions<R: Runtime>(app: &AppHandle<R>) -> HashMap<Kind, Placement> {
+fn load_positions<R: Runtime>(app: &AppHandle<R>) -> HashMap<String, Placement> {
     positions_path(app)
         .and_then(|p| std::fs::read_to_string(p).ok())
         .and_then(|s| serde_json::from_str(&s).ok())
@@ -125,11 +147,15 @@ pub fn init<R: Runtime>(app: &AppHandle<R>) -> Result<()> {
     app.add_capability(
         r#"{
           "identifier": "pip",
-          "description": "Picture-in-picture windows: state events, dragging, back to the main window.",
+          "description": "Picture-in-picture windows: state events, dragging, resizing, back to the main window.",
           "windows": ["pip-music", "pip-video"],
           "permissions": [
             "core:default",
             "core:window:allow-start-dragging",
+            "core:window:allow-start-resize-dragging",
+            "core:window:allow-set-size",
+            "core:window:allow-inner-size",
+            "core:window:allow-scale-factor",
             "core:window:allow-close",
             "core:window:allow-show",
             "core:window:allow-unminimize",
@@ -167,15 +193,25 @@ fn remember<R: Runtime>(window: &WebviewWindow<R>, kind: Kind, force: bool) {
     let Some(store) = app.try_state::<Store>() else {
         return;
     };
+    let placement = Placement {
+        x: pos.x,
+        y: pos.y,
+        width: size.width,
+    };
+    let monitor = window
+        .current_monitor()
+        .ok()
+        .flatten()
+        .and_then(|m| m.name().cloned());
     let mut shared = store.0.lock().unwrap_or_else(|p| p.into_inner());
-    shared.placements.insert(
-        kind,
-        Placement {
-            x: pos.x,
-            y: pos.y,
-            width: size.width,
-        },
-    );
+    shared
+        .placements
+        .insert(placement_key(kind, None), placement);
+    if let Some(name) = monitor {
+        shared
+            .placements
+            .insert(placement_key(kind, Some(&name)), placement);
+    }
     let due = shared
         .last_write
         .is_none_or(|t| t.elapsed() > Duration::from_millis(500));
@@ -211,6 +247,100 @@ fn default_position<R: Runtime>(app: &AppHandle<R>, size: (u32, u32)) -> Option<
     ))
 }
 
+/// Keeps a `size` window inside `area` (`(x, y, width, height)`), then sticks it to the screen
+/// edges it is within `snap` pixels of. Returns the position to use.
+pub fn settle_position(
+    (x, y): (i32, i32),
+    (w, h): (u32, u32),
+    area: (i32, i32, u32, u32),
+    snap: i32,
+) -> (i32, i32) {
+    let (ax, ay, aw, ah) = area;
+    let axis = |pos: i32, len: i32, start: i32, span: i32| -> i32 {
+        let end = start + span;
+        // Larger than the screen: pin to the start.
+        if len >= span {
+            return start;
+        }
+        let pos = pos.clamp(start, end - len);
+        if pos - start <= snap {
+            start
+        } else if end - (pos + len) <= snap {
+            end - len
+        } else {
+            pos
+        }
+    };
+    (
+        axis(x, w as i32, ax, aw as i32),
+        axis(y, h as i32, ay, ah as i32),
+    )
+}
+
+/// The usable area (task bar excluded) of the monitor the window is mostly on.
+fn work_area<R: Runtime>(window: &WebviewWindow<R>) -> Option<(i32, i32, u32, u32)> {
+    let m = window.current_monitor().ok().flatten()?;
+    let a = m.work_area();
+    Some((a.position.x, a.position.y, a.size.width, a.size.height))
+}
+
+/// Moves the window to `target` with a short ease-out.
+fn glide<R: Runtime>(window: &WebviewWindow<R>, from: (i32, i32), target: (i32, i32)) {
+    const STEPS: i32 = 8;
+    for i in 1..=STEPS {
+        let t = f64::from(i) / f64::from(STEPS);
+        let e = 1.0 - (1.0 - t).powi(3);
+        let x = from.0 + (f64::from(target.0 - from.0) * e).round() as i32;
+        let y = from.1 + (f64::from(target.1 - from.1) * e).round() as i32;
+        let _ = window.set_position(PhysicalPosition::new(x, y));
+        std::thread::sleep(Duration::from_millis(12));
+    }
+}
+
+/// Shared by the window event handler: what to do once the window has stopped moving.
+struct Settler {
+    generation: AtomicU64,
+    busy: AtomicBool,
+}
+
+impl Settler {
+    /// Called on every move / resize; snaps `SETTLE_DELAY` after the last one.
+    fn poke<R: Runtime>(self: &Arc<Self>, window: &WebviewWindow<R>, kind: Kind) {
+        if self.busy.load(Ordering::Relaxed) {
+            return;
+        }
+        let ticket = self.generation.fetch_add(1, Ordering::Relaxed) + 1;
+        let this = Arc::clone(self);
+        let window = window.clone();
+        std::thread::spawn(move || {
+            std::thread::sleep(SETTLE_DELAY);
+            if this.generation.load(Ordering::Relaxed) != ticket {
+                return;
+            }
+            let (Ok(pos), Ok(size)) = (window.outer_position(), window.outer_size()) else {
+                return;
+            };
+            if window.is_minimized().unwrap_or(false) {
+                return;
+            }
+            let Some(area) = work_area(&window) else {
+                return;
+            };
+            let snap = (SNAP * window.scale_factor().unwrap_or(1.0)).round() as i32;
+            let target = settle_position((pos.x, pos.y), (size.width, size.height), area, snap);
+            if target == (pos.x, pos.y) {
+                return;
+            }
+            this.busy.store(true, Ordering::Relaxed);
+            glide(&window, (pos.x, pos.y), target);
+            // Let the move events of the glide pass before listening again.
+            std::thread::sleep(Duration::from_millis(80));
+            this.busy.store(false, Ordering::Relaxed);
+            remember(&window, kind, true);
+        });
+    }
+}
+
 fn open_window<R: Runtime>(app: &AppHandle<R>, kind: Kind) -> Result<()> {
     // One PiP at a time: opening the other kind replaces it.
     for other in [Kind::Music, Kind::Video] {
@@ -239,6 +369,7 @@ fn open_window<R: Runtime>(app: &AppHandle<R>, kind: Kind) -> Result<()> {
     .title("Orphyn")
     .inner_size(width, (width / ratio).round())
     .min_inner_size(min_width, min_height)
+    .max_inner_size(kind.max_width(), (kind.max_width() / ratio).round())
     .decorations(false)
     .transparent(true)
     .shadow(true)
@@ -270,41 +401,90 @@ fn open_window<R: Runtime>(app: &AppHandle<R>, kind: Kind) -> Result<()> {
         let _ = apply_vibrancy(&window, NSVisualEffectMaterial::HudWindow, None, Some(16.0));
     }
 
-    // Placement: the remembered one when it is still on a screen, else bottom-right.
+    // Placement: the remembered one when it is still on a screen, else the last one used on the
+    // primary screen, else bottom-right.
     let scale = window.scale_factor().unwrap_or(1.0);
+    let screens = monitors(app);
+    let primary = app
+        .primary_monitor()
+        .ok()
+        .flatten()
+        .and_then(|m| m.name().cloned());
     let saved = app.try_state::<Store>().and_then(|s| {
-        s.0.lock()
-            .ok()
-            .and_then(|g| g.placements.get(&kind).copied())
+        let g = s.0.lock().unwrap_or_else(|p| p.into_inner());
+        let last = g.placements.get(&placement_key(kind, None)).copied();
+        let last_visible = last
+            .filter(|p| is_visible(p.x, p.y, (p.width, height_for(p.width, ratio)), &screens));
+        last_visible.or_else(|| {
+            primary
+                .as_deref()
+                .and_then(|n| g.placements.get(&placement_key(kind, Some(n))).copied())
+        })
     });
     let mut size = (
         (width * scale) as u32,
         height_for((width * scale) as u32, ratio),
     );
+    let mut place = None;
     if let Some(p) = saved.filter(|p| p.width >= (min_width * scale) as u32) {
-        size = (p.width, height_for(p.width, ratio));
+        let w = p.width.min((kind.max_width() * scale) as u32);
+        size = (w, height_for(w, ratio));
         let _ = window.set_size(PhysicalSize::new(size.0, size.1));
-        if is_visible(p.x, p.y, size, &monitors(app)) {
-            let _ = window.set_position(PhysicalPosition::new(p.x, p.y));
-        } else if let Some((x, y)) = default_position(app, size) {
+        if is_visible(p.x, p.y, size, &screens) {
+            place = Some((p.x, p.y));
+        }
+    }
+    if place.is_none() {
+        place = default_position(app, size);
+    }
+    if let Some((x, y)) = place {
+        let _ = window.set_position(PhysicalPosition::new(x, y));
+        // Never leave it half off-screen (task bar, a screen that changed size).
+        if let Some(area) = work_area(&window) {
+            let (x, y) = settle_position((x, y), size, area, 0);
             let _ = window.set_position(PhysicalPosition::new(x, y));
         }
-    } else if let Some((x, y)) = default_position(app, size) {
-        let _ = window.set_position(PhysicalPosition::new(x, y));
     }
     let _ = window.show();
 
     let watched = window.clone();
+    let settler = Arc::new(Settler {
+        generation: AtomicU64::new(0),
+        busy: AtomicBool::new(false),
+    });
+    let last_size = Arc::new(Mutex::new((size.0, size.1)));
     window.on_window_event(move |event| match event {
-        WindowEvent::Resized(s) if s.width > 0 => {
-            // Keep the aspect ratio: the height follows the width.
-            let want = height_for(s.width, ratio);
-            if s.height.abs_diff(want) > 1 && !watched.is_minimized().unwrap_or(false) {
-                let _ = watched.set_size(PhysicalSize::new(s.width, want));
+        WindowEvent::Resized(s) if s.width > 0 && s.height > 0 => {
+            if watched.is_minimized().unwrap_or(false) {
+                return;
             }
+            let scale = watched.scale_factor().unwrap_or(1.0);
+            let (min_w, max_w) = (
+                (min_width * scale).round() as u32,
+                (kind.max_width() * scale).round() as u32,
+            );
+            let mut last = last_size.lock().unwrap_or_else(|p| p.into_inner());
+            // Whichever side the user is dragging drives the other: an edge on the top or bottom
+            // changes only the height, so the width has to follow it.
+            let driven = if s.width == last.0 && s.height != last.1 {
+                (f64::from(s.height) * ratio).round() as u32
+            } else {
+                s.width
+            };
+            let width = driven.clamp(min_w, max_w);
+            let want = height_for(width, ratio);
+            if s.width != width || s.height.abs_diff(want) > 1 {
+                let _ = watched.set_size(PhysicalSize::new(width, want));
+            }
+            *last = (width, want);
+            drop(last);
             remember(&watched, kind, false);
+            settler.poke(&watched, kind);
         }
-        WindowEvent::Moved(_) => remember(&watched, kind, false),
+        WindowEvent::Moved(_) => {
+            remember(&watched, kind, false);
+            settler.poke(&watched, kind);
+        }
         WindowEvent::Destroyed => {
             // `inner_size` is gone by now: the last `remember` already holds the placement.
             let app = watched.app_handle();
@@ -368,6 +548,31 @@ mod tests {
             (320, 380),
             &[(-1920, 0, 1920, 1080), (0, 0, 1920, 1080)]
         ));
+    }
+
+    #[test]
+    fn a_window_sticks_to_nearby_edges_and_stays_on_screen() {
+        let area = (0, 0, 1920, 1040);
+        // Within 16 px of the left and bottom edges.
+        assert_eq!(settle_position((10, 650), (320, 380), area, 16), (0, 660));
+        // Far from every edge: untouched.
+        assert_eq!(settle_position((600, 300), (320, 380), area, 16), (600, 300));
+        // Half off the right edge: pulled back in.
+        assert_eq!(settle_position((1800, 300), (320, 380), area, 0), (1600, 300));
+        // Offset work area (task bar at the top).
+        assert_eq!(
+            settle_position((5, 40), (320, 380), (0, 48, 1920, 1032), 16),
+            (0, 48)
+        );
+    }
+
+    #[test]
+    fn placements_are_kept_per_monitor() {
+        assert_eq!(placement_key(Kind::Music, None), "music");
+        assert_eq!(
+            placement_key(Kind::Music, Some("DISPLAY2")),
+            "music@DISPLAY2"
+        );
     }
 
     #[test]
