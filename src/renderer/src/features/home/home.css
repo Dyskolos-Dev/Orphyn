@@ -1,12 +1,10 @@
-/* Home edit mode: row cards, options and the "Add a row" list. Tokens only. */
+/* Settings > Home: row list, miniature and the "Add a row" list. Tokens only. */
 
 .jr-home-frame {
   display: contents;
 }
 
 .jr-home-edit {
-  padding: var(--space-2) var(--page-gutter) var(--space-10);
-  max-width: 760px;
 }
 .jr-home-edit__hint {
   margin: 0 0 var(--space-4);
@@ -124,32 +122,6 @@
   gap: var(--space-1);
   flex: none;
 }
-.jr-home-row__options {
-  overflow: hidden;
-}
-.jr-home-row__options-inner {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
-  padding: var(--space-3) var(--space-4) var(--space-4) calc(var(--space-3) + 28px + var(--space-3));
-  border-top: 0.5px solid var(--separator);
-}
-.jr-home-row__option {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: var(--space-3);
-}
-.jr-home-row__option-label {
-  min-width: 96px;
-  font: var(--text-subheadline);
-  color: var(--label);
-}
-.jr-home-row__option-note {
-  font: var(--text-footnote);
-  color: var(--secondary-label);
-}
-
 /* "Add a row" */
 .jr-home-add {
   list-style: none;

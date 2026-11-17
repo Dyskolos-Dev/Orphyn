@@ -1,14 +1,7 @@
 import { Clapperboard } from 'lucide-react'
-import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { EmptyState, Skeleton } from '@renderer/design'
-import {
-  AddRowSheet,
-  HomeEditActions,
-  HomeEditList,
-  countOf,
-  useHomeEditor,
-} from '@renderer/features/home'
+import { countOf, useHomeEditor } from '@renderer/features/home'
 import { flattenPages, useItems, useUserViews, type BaseItemDto } from '@renderer/jellyfin'
 import { ShellPage } from '@renderer/shell'
 import { HeroCarousel } from './HeroCarousel'
@@ -28,7 +21,6 @@ export function VideoHome() {
     .flatMap((v) => (v.Id ? [{ id: v.Id, name: v.Name ?? '' }] : []))
   const enabled = libraries.length > 0
   const editor = useHomeEditor('video', libraries)
-  const [adding, setAdding] = useState(false)
 
   const visible = editor.layout.rows.filter((r) => !r.hidden)
   const heroRow = visible.find((r) => r.type === 'hero')
@@ -37,7 +29,7 @@ export function VideoHome() {
     sortBy: ['DateCreated'],
     sortOrder: 'Descending',
     pageSize: 24,
-    enabled: enabled && !!heroRow && !editor.editing,
+    enabled: enabled && !!heroRow,
   })
 
   if (views.isLoading) {
@@ -60,24 +52,6 @@ export function VideoHome() {
     )
   }
 
-  const actions = <HomeEditActions editor={editor} onAdd={() => setAdding(true)} />
-
-  if (editor.editing) {
-    return (
-      <ShellPage title={t('home.title')} showBack={false} actions={actions}>
-        <HomeEditList scope="video" editor={editor} />
-        <AddRowSheet
-          open={adding}
-          onClose={() => setAdding(false)}
-          scope="video"
-          layout={editor.layout}
-          libraries={libraries}
-          onAdd={editor.add}
-        />
-      </ShellPage>
-    )
-  }
-
   const featured = heroRow
     ? flattenPages(recent.data).filter(hasBackdrop).slice(0, countOf(heroRow, 'video'))
     : []
@@ -89,7 +63,6 @@ export function VideoHome() {
       title={t('home.title')}
       header={heroFirst ? 'hero' : 'large'}
       showBack={false}
-      actions={actions}
     >
       {visible.map((row) =>
         row.type === 'hero' ? (

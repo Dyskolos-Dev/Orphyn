@@ -4,6 +4,7 @@
   "panes": {
     "general": "General",
     "appearance": "Appearance",
+    "home": "Home",
     "servers": "Servers",
     "playback": "Playback",
     "music": "Music",
@@ -263,5 +264,17 @@
       "idle": "Waiting for playback",
       "unavailable": "Discord not running"
     }
+  },
+  "home": {
+    "scope": "Home screen",
+    "video": "Movies & TV",
+    "music": "Music",
+    "addRow": "Add a row",
+    "reset": "Reset to default",
+    "preview": "Home preview",
+    "previewCaption": "Live preview of your home screen"
+  },
+  "paletteCommands": {
+    "customise-home": "Customise home screens"
   }
 }

@@ -1,5 +1,6 @@
 import {
   Info,
+  LayoutDashboard,
   MessageCircle,
   Music,
   Palette,
@@ -16,6 +17,7 @@ import { AboutPane } from './AboutPane'
 import { AppearancePane } from './AppearancePane'
 import { DiscordPane } from './DiscordPane'
 import { GeneralPane } from './GeneralPane'
+import { HomePane } from './HomePane'
 import { MusicPane } from './MusicPane'
 import { PlaybackPane } from './PlaybackPane'
 import { ServersPane } from './ServersPane'
@@ -24,6 +26,7 @@ import './settings.css'
 const PANES = [
   { id: 'general', icon: <SettingsIcon />, view: <GeneralPane /> },
   { id: 'appearance', icon: <Palette />, view: <AppearancePane /> },
+  { id: 'home', icon: <LayoutDashboard />, view: <HomePane /> },
   { id: 'servers', icon: <Server />, view: <ServersPane /> },
   { id: 'playback', icon: <Play />, view: <PlaybackPane /> },
   { id: 'music', icon: <Music />, view: <MusicPane /> },

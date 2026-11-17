@@ -4,6 +4,7 @@ import {
   Film,
   Heart,
   Home,
+  LayoutDashboard,
   ListMusic,
   ListPlus,
   LogOut,
@@ -141,6 +142,13 @@ const navigation: Command[] = [
   page('songs', Music, '/music/songs', ['titres', 'tracks', 'morceaux', 'chansons']),
   page('favorites', Star, '/music/favorites', ['favoris', 'likes', 'liked']),
   page('search', Search, '/search', ['recherche', 'find', 'chercher']),
+  {
+    id: 'customise-home',
+    group: 'navigate',
+    icon: LayoutDashboard,
+    keywords: ['home screen', 'personnaliser accueil', 'rows', 'rangees', 'layout', 'edit home'],
+    run: (ctx) => ctx.navigate('/settings?pane=home'),
+  },
   page('settings', Settings, '/settings', ['preferences', 'reglages', 'options', 'parametres']),
 ]
 

@@ -146,7 +146,11 @@ export function PalettePanel() {
 
   const translate = useMemo(
     () => (lng: Lang, key: string) =>
-      i18n.getFixedT(lng, 'palette')(key, { defaultValue: '' }) as string,
+      (i18n.getFixedT(lng, 'palette')(key, { defaultValue: '' }) as string) ||
+      // Commands owned by a feature (e.g. Settings > Home) keep their names in that feature's file.
+      (i18n.getFixedT(lng, 'settings')(key.replace(/^commands./, 'paletteCommands.'), {
+        defaultValue: '',
+      }) as string),
     [i18n],
   )
   const commands = useMemo(() => paletteRegistry.list(ctx), [ctx])

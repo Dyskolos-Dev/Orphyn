@@ -4,6 +4,7 @@
   "panes": {
     "general": "Général",
     "appearance": "Apparence",
+    "home": "Accueil",
     "servers": "Serveurs",
     "playback": "Lecture",
     "music": "Musique",
@@ -263,5 +264,17 @@
       "idle": "En attente de lecture",
       "unavailable": "Discord n’est pas lancé"
     }
+  },
+  "home": {
+    "scope": "Écran d’accueil",
+    "video": "Films & séries",
+    "music": "Musique",
+    "addRow": "Ajouter une rangée",
+    "reset": "Rétablir par défaut",
+    "preview": "Aperçu de l’accueil",
+    "previewCaption": "Aperçu en direct de votre accueil"
+  },
+  "paletteCommands": {
+    "customise-home": "Personnaliser les écrans d’accueil"
   }
 }

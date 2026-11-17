@@ -63,12 +63,14 @@ const NAMES: Record<string, Record<string, string>> = {
   en: {
     'commands.go-settings': 'Open Settings',
     'commands.go-home': 'Go to Home',
+    'commands.customise-home': 'Customise home screens',
     'commands.play': 'Play',
     'commands.pause': 'Pause',
   },
   fr: {
     'commands.go-settings': 'Ouvrir les réglages',
     'commands.go-home': 'Aller à l’accueil',
+    'commands.customise-home': 'Personnaliser les écrans d’accueil',
     'commands.play': 'Lecture',
     'commands.pause': 'Pause',
   },
@@ -167,6 +169,11 @@ describe('command registry', () => {
     expect(idle).not.toContain('play-pause')
     expect(idle).not.toContain('favorite')
     expect(idle).toContain('go-settings')
+    expect(idle).toContain('customise-home')
+    const customise = registry.list(makeCtx()).find((c) => c.id === 'customise-home') as Command
+    const ctx = makeCtx()
+    customise.run(ctx)
+    expect(ctx.navigate).toHaveBeenCalledWith('/settings?pane=home')
   })
 
   it('names follow the state and carry both languages', () => {
@@ -193,6 +200,8 @@ describe('command registry', () => {
     expect(ids('settings', 'fr')[0]).toBe('go-settings')
     expect(ids('réglages', 'en')[0]).toBe('go-settings')
     expect(ids('accueil', 'en')).toContain('go-home')
+    expect(ids('personnaliser', 'fr')[0]).toBe('customise-home')
+    expect(ids('customise home', 'en')[0]).toBe('customise-home')
   })
 
   it('lists recently used commands first on an empty query', () => {

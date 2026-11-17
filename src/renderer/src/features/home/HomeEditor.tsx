@@ -1,19 +1,17 @@
 import clsx from 'clsx'
-import { AnimatePresence, Reorder, motion, useDragControls } from 'framer-motion'
-import {
-  ChevronLeft,
-  Eye,
-  EyeOff,
-  GripVertical,
-  Pencil,
-  Plus,
-  RotateCcw,
-  SlidersHorizontal,
-  Trash2,
-} from 'lucide-react'
+import { Reorder, useDragControls } from 'framer-motion'
+import { ChevronLeft, Eye, EyeOff, GripVertical } from 'lucide-react'
 import { useState, type KeyboardEvent } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Button, IconButton, SearchField, SegmentedControl, Sheet, springs } from '@renderer/design'
+import {
+  Button,
+  IconButton,
+  MenuButton,
+  SearchField,
+  Sheet,
+  springs,
+  type MenuItem,
+} from '@renderer/design'
 import { flattenPages, useAlbumArtists, useCollections, useGenres } from '@renderer/jellyfin'
 import {
   ROW_DEFS,
@@ -26,46 +24,15 @@ import {
   type HomeRow,
   type HomeScope,
   type RowDef,
-  type RowSize,
   type RowSpec,
 } from './layout'
 import { rowDescription, rowIcon, rowName, rowTitle } from './rowMeta'
 import type { HomeEditor } from './useHomeLayout'
 import './home.css'
 
-// ---------------------------------------------------------------- toolbar
-
-/** Toolbar buttons of a home: "Edit", or "Add a row / Reset / Cancel / Done" while editing. */
-export function HomeEditActions({ editor, onAdd }: { editor: HomeEditor; onAdd(): void }) {
-  const { t } = useTranslation('home')
-  if (!editor.editing) {
-    return (
-      <Button variant="plain" size="small" icon={<Pencil />} onClick={editor.start}>
-        {t('edit')}
-      </Button>
-    )
-  }
-  return (
-    <>
-      <Button variant="plain" size="small" icon={<Plus />} onClick={onAdd}>
-        {t('addRow')}
-      </Button>
-      <Button variant="plain" size="small" icon={<RotateCcw />} onClick={editor.reset}>
-        {t('reset')}
-      </Button>
-      <Button variant="plain" size="small" onClick={editor.cancel}>
-        {t('cancel')}
-      </Button>
-      <Button variant="filled" size="small" onClick={editor.done}>
-        {t('done')}
-      </Button>
-    </>
-  )
-}
-
 // ---------------------------------------------------------------- the list
 
-/** The rows as draggable cards: handle, name, options, hide / show, remove. */
+/** The rows as a draggable list: handle, icon and name, hide / show, and a "…" menu (options, remove). */
 export function HomeEditList({ scope, editor }: { scope: HomeScope; editor: HomeEditor }) {
   const { t } = useTranslation('home')
   const rows = editor.layout.rows
@@ -113,12 +80,11 @@ function EditRow({
 }) {
   const { t } = useTranslation('home')
   const controls = useDragControls()
-  const [open, setOpen] = useState(false)
   const [dragging, setDragging] = useState(false)
   const def = defOf(scope, row.type)
   const Icon = rowIcon(scope, row.type)
   const title = rowTitle(t, scope, row)
-  const configurable = def?.sized || def?.count !== undefined
+  const menu = rowMenu(t, scope, row, def, editor)
 
   const onHandleKey = (e: KeyboardEvent<HTMLButtonElement>) => {
     if (e.key === 'ArrowUp' && index > 0) {
@@ -167,44 +133,15 @@ function EditRow({
           </span>
         </span>
         <div className="jr-home-row__actions">
-          {configurable && (
-            <IconButton
-              size="small"
-              variant={open ? 'tinted' : 'plain'}
-              icon={<SlidersHorizontal />}
-              label={t('options')}
-              pressed={open}
-              aria-expanded={open}
-              onClick={() => setOpen((o) => !o)}
-            />
-          )}
           <IconButton
             size="small"
             icon={row.hidden ? <EyeOff /> : <Eye />}
             label={row.hidden ? t('show', { title }) : t('hide', { title })}
             onClick={() => editor.setHidden(row.id, !row.hidden)}
           />
-          <IconButton
-            size="small"
-            icon={<Trash2 />}
-            label={t('remove', { title })}
-            onClick={() => editor.remove(row.id)}
-          />
+          <MenuButton size="small" label={t('options')} items={menu} />
         </div>
       </div>
-      <AnimatePresence initial={false}>
-        {open && configurable && (
-          <motion.div
-            className="jr-home-row__options"
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.2 }}
-          >
-            <RowOptions scope={scope} row={row} def={def} editor={editor} />
-          </motion.div>
-        )}
-      </AnimatePresence>
     </Reorder.Item>
   )
 }
@@ -220,49 +157,46 @@ function rowSummary(
   return parts.join(' · ')
 }
 
-function RowOptions({
-  scope,
-  row,
-  def,
-  editor,
-}: {
-  scope: HomeScope
-  row: HomeRow
-  def: RowDef | undefined
-  editor: HomeEditor
-}) {
-  const { t } = useTranslation('home')
-  const choices = countChoices(row.type)
-  const count = countOf(row, scope)
-  return (
-    <div className="jr-home-row__options-inner">
-      {def?.sized && (
-        <div className="jr-home-row__option">
-          <span className="jr-home-row__option-label">{t('cardSize')}</span>
-          <SegmentedControl<RowSize>
-            size="small"
-            aria-label={t('cardSize')}
-            value={row.size ?? 'auto'}
-            onChange={(size) => editor.setOptions(row.id, { size })}
-            options={SIZE_OPTIONS.map((s) => ({ value: s, label: t(`size.${s}`) }))}
-          />
-          {(row.size ?? 'auto') === 'auto' && (
-            <span className="jr-home-row__option-note">{t('sizeAutoNote')}</span>
-          )}
-        </div>
-      )}
-      <div className="jr-home-row__option">
-        <span className="jr-home-row__option-label">{t('itemCount')}</span>
-        <SegmentedControl<string>
-          size="small"
-          aria-label={t('itemCount')}
-          value={String(count)}
-          onChange={(v) => editor.setOptions(row.id, { count: Number(v) })}
-          options={choices.map((n) => ({ value: String(n), label: String(n) }))}
-        />
-      </div>
-    </div>
-  )
+/** The "…" menu of a row: card size and item count (when the row has them), then remove. */
+function rowMenu(
+  t: ReturnType<typeof useTranslation>['t'],
+  scope: HomeScope,
+  row: HomeRow,
+  def: RowDef | undefined,
+  editor: HomeEditor,
+): MenuItem[] {
+  const items: MenuItem[] = []
+  if (def?.sized) {
+    const size = row.size ?? 'auto'
+    items.push({ type: 'header', id: 'h-size', label: t('cardSize') })
+    for (const s of SIZE_OPTIONS)
+      items.push({
+        id: `size-${s}`,
+        label: t(`size.${s}`),
+        checked: size === s,
+        onSelect: () => editor.setOptions(row.id, { size: s }),
+      })
+  }
+  if (def?.count !== undefined) {
+    const count = countOf(row, scope)
+    if (items.length) items.push({ type: 'separator', id: 's-count' })
+    items.push({ type: 'header', id: 'h-count', label: t('itemCount') })
+    for (const n of countChoices(row.type))
+      items.push({
+        id: `count-${n}`,
+        label: String(n),
+        checked: count === n,
+        onSelect: () => editor.setOptions(row.id, { count: n }),
+      })
+  }
+  if (items.length) items.push({ type: 'separator', id: 's-remove' })
+  items.push({
+    id: 'remove',
+    label: t('remove', { title: rowTitle(t, scope, row) }),
+    destructive: true,
+    onSelect: () => editor.remove(row.id),
+  })
+  return items
 }
 
 // ---------------------------------------------------------------- "Add a row"

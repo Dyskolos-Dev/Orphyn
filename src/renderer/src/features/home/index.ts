@@ -1,5 +1,5 @@
-// Customisable home screens: layout store, edit mode, "Add a row" sheet. Used by the video and music homes.
-export { AddRowSheet, HomeEditActions, HomeEditList } from './HomeEditor'
+// Customisable home screens: layout store and the editing UI (Settings > Home); the homes only read the layout.
+export { AddRowSheet, HomeEditList } from './HomeEditor'
 export { RowFrame } from './RowFrame'
 export { useHomeEditor } from './useHomeLayout'
 export type { HomeEditor } from './useHomeLayout'

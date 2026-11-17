@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState, useSyncExternalStore } from 'react'
+import { useMemo, useSyncExternalStore } from 'react'
 import { useSession } from '@renderer/jellyfin'
 import {
   addRow,
@@ -38,15 +38,9 @@ function readRaw(key: string | null): string | null {
 }
 
 export interface HomeEditor {
-  /** Layout to display: the draft while editing, the saved one otherwise. */
+  /** The saved layout of the home. */
   layout: HomeLayout
-  editing: boolean
-  start(): void
-  /** Saves the draft and leaves edit mode. */
-  done(): void
-  /** Leaves edit mode without saving. */
-  cancel(): void
-  /** Puts the default layout in the draft (saved by Done). */
+  /** Puts the default layout back. */
   reset(): void
   add(spec: RowSpec): void
   remove(id: string): void
@@ -58,9 +52,9 @@ export interface HomeEditor {
 }
 
 /**
- * The layout of a home for the active server and user, and its edit mode. Edits go to a draft;
- * "Done" writes it to localStorage, "Cancel" drops it. `libraries` (video) are the libraries the
- * home may show: each gets its "Recently Added" row once.
+ * The layout of a home for the active server and user. The homes only read `layout`; Settings >
+ * Home uses the other methods, each of which saves to localStorage at once. `libraries` (video)
+ * are the libraries the home may show: each gets its "Recently Added" row once.
  */
 export function useHomeEditor(
   scope: HomeScope,
@@ -80,30 +74,20 @@ export function useHomeEditor(
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [scope, raw, libKey],
   )
-  const [draft, setDraft] = useState<HomeLayout | null>(null)
-  const edit = useCallback(
-    (fn: (l: HomeLayout) => HomeLayout) => setDraft((d) => (d ? fn(d) : d)),
-    [],
-  )
+  const commit = (next: HomeLayout) => {
+    if (!key) return
+    saveLayout(key, next, window.localStorage)
+    listeners.forEach((fn) => fn())
+  }
 
   return {
-    layout: draft ?? saved,
-    editing: draft !== null,
-    start: () => setDraft(saved),
-    done: () => {
-      if (draft && key) {
-        saveLayout(key, draft, window.localStorage)
-        listeners.forEach((fn) => fn())
-      }
-      setDraft(null)
-    },
-    cancel: () => setDraft(null),
-    reset: () => edit(() => syncLibraries(defaultLayout(scope), libraries)),
-    add: (spec) => edit((l) => addRow(l, scope, spec)),
-    remove: (id) => edit((l) => removeRow(l, id)),
-    move: (id, to) => edit((l) => moveRow(l, id, to)),
-    reorder: (ids) => edit((l) => reorderRows(l, ids)),
-    setHidden: (id, hidden) => edit((l) => setRowHidden(l, id, hidden)),
-    setOptions: (id, o) => edit((l) => setRowOptions(l, id, o)),
+    layout: saved,
+    reset: () => commit(syncLibraries(defaultLayout(scope), libraries)),
+    add: (spec) => commit(addRow(saved, scope, spec)),
+    remove: (id) => commit(removeRow(saved, id)),
+    move: (id, to) => commit(moveRow(saved, id, to)),
+    reorder: (ids) => commit(reorderRows(saved, ids)),
+    setHidden: (id, hidden) => commit(setRowHidden(saved, id, hidden)),
+    setOptions: (id, o) => commit(setRowOptions(saved, id, o)),
   }
 }
