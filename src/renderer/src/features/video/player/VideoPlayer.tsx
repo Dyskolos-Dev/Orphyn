@@ -28,6 +28,7 @@ import { SkipPillButton } from './SkipPill'
 import { useVideoMediaControls } from './useVideoMediaControls'
 import { useVideoPip } from './useVideoPip'
 import { setActiveController } from '../active'
+import { registerSinkTarget, type SinkTarget } from '@renderer/features/music/player/audioDevice'
 import { VideoCastButtonSlot, VideoCastScreenSlot, type VideoCastProps } from '../castSlot'
 import {
   SyncPlayBadge,
@@ -73,6 +74,12 @@ export function VideoPlayer() {
   const next = item.data?.Type === 'Episode' ? nextEpisode(episodes.data ?? [], itemId) : undefined
 
   // --- lifecycle: bind the element, start playback, stop + report on leave
+  // The audio output chosen in Settings (follows changes without interrupting playback).
+  useEffect(() => {
+    const el = videoRef.current
+    return el ? registerSinkTarget(el as SinkTarget) : undefined
+  }, [])
+
   useEffect(() => {
     controller.attach(videoRef.current)
     const release = setActiveController(controller)

@@ -5,6 +5,7 @@
  */
 
 import { createWebAudioGraph, fadeGains, type FadeGraph } from './crossfade'
+import { registerSinkTarget, type SinkTarget } from './audioDevice'
 
 export type OutputEvent =
   | { type: 'time'; position: number; duration: number }
@@ -89,12 +90,14 @@ export class LocalAudioOutput implements AudioOutput {
   ) {
     this.graph = graph ?? null
     this.graphInjected = graph !== undefined
+    this.routeGraph()
     this.active = this.setup(factory())
     this.idle = this.setup(factory())
   }
 
   private setup(el: HTMLAudioElement): HTMLAudioElement {
     el.preload = 'auto'
+    this.cleanups.push(registerSinkTarget(el as SinkTarget))
     const on = (name: string, fn: () => void) => {
       const handler = () => {
         if (el === this.active) fn()
@@ -234,9 +237,19 @@ export class LocalAudioOutput implements AudioOutput {
     this.fadeSeconds = Number.isFinite(seconds) ? Math.max(0, seconds) : 0
     if (this.fadeSeconds > 0 && !this.graphInjected && !this.graph) {
       this.graph = createWebAudioGraph()
+      this.routeGraph()
     }
     // Wire the idle element now (it has no source yet), so the next preload can be mixed.
     if (!this.fade) this.wire(this.idle)
+  }
+
+  /**
+   * Elements routed through the Web Audio graph play out of its AudioContext, which then needs the
+   * chosen device too. The graph exposes it as an optional `setSinkId`.
+   */
+  private routeGraph(): void {
+    const g = this.graph as (FadeGraph & SinkTarget) | null
+    if (g?.setSinkId) this.cleanups.push(registerSinkTarget(g))
   }
 
   /** Routes an element through the shared graph. Only done while it has no source. */

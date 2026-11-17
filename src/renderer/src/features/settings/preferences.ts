@@ -34,6 +34,8 @@ export interface PlaybackPreferences {
   groupArtists: boolean
   /** Music: fall back to LRCLIB for lyrics the server does not have. */
   onlineLyrics: boolean
+  /** Audio output device (`deviceId`) for music and video; `null` = the system default. */
+  audioOutputId: string | null
 }
 
 export const CROSSFADE_SECONDS_MIN = 1
@@ -50,6 +52,7 @@ export const DEFAULT_PLAYBACK_PREFERENCES: PlaybackPreferences = {
   crossfadeSkipAlbum: true,
   groupArtists: true,
   onlineLyrics: true,
+  audioOutputId: null,
 }
 
 /** Video streaming ceilings offered in Settings (bits per second). */
@@ -127,6 +130,8 @@ function sanitize(raw: unknown): PlaybackPreferences {
       typeof o['crossfadeSkipAlbum'] === 'boolean' ? o['crossfadeSkipAlbum'] : d.crossfadeSkipAlbum,
     groupArtists: typeof o['groupArtists'] === 'boolean' ? o['groupArtists'] : d.groupArtists,
     onlineLyrics: typeof o['onlineLyrics'] === 'boolean' ? o['onlineLyrics'] : d.onlineLyrics,
+    audioOutputId:
+      typeof o['audioOutputId'] === 'string' && o['audioOutputId'] ? o['audioOutputId'] : null,
   }
 }
 
@@ -181,6 +186,8 @@ function subscribe(listener: () => void): () => void {
     window.removeEventListener('storage', onStorage)
   }
 }
+
+export const subscribePlaybackPreferences = subscribe
 
 export interface UsePlaybackPreferencesResult extends PlaybackPreferences {
   /** Merge a partial update (persisted immediately, every consumer re-renders). */
