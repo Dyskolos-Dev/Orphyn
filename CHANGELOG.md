@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [1.4.1] - 2026-11-18
+
+### Fixed
+
+- macOS reported the app as damaged and refused to open it: the bundle is now signed ad hoc, and the release checks the signature.
+
 ## [1.4.0] - 2026-11-17
 
 ### Added

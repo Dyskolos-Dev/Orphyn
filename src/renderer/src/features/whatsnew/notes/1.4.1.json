@@ -1,0 +1,22 @@
+{
+  "fr": {
+    "title": "Orphyn s'installe sur Mac",
+    "items": [
+      {
+        "icon": "download",
+        "title": "Installation sur Mac",
+        "text": "macOS ne signale plus Orphyn comme « endommagé » : l'app est désormais signée correctement et s'ouvre après une simple confirmation dans Réglages Système."
+      }
+    ]
+  },
+  "en": {
+    "title": "Orphyn installs on Mac",
+    "items": [
+      {
+        "icon": "download",
+        "title": "Installing on Mac",
+        "text": "macOS no longer reports Orphyn as \"damaged\": the app is now properly signed and opens after a single confirmation in System Settings."
+      }
+    ]
+  }
+}

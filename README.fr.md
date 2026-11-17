@@ -46,7 +46,15 @@ Télécharge l'installeur de ton système dans la [dernière release](https://gi
 | Linux | `Orphyn_x.y.z_amd64.AppImage` ou `Orphyn_x.y.z_amd64.deb` |
 
 > [!NOTE]
-> Les builds ne sont pas encore signés. Sur Windows, clique sur **Informations complémentaires → Exécuter quand même** dans SmartScreen. Sur macOS, fais un clic droit sur l'app puis **Ouvrir** la première fois.
+> Les builds ne sont pas encore signés. Sur Windows, clique sur **Informations complémentaires → Exécuter quand même** dans SmartScreen.
+>
+> Sur macOS, glisse Orphyn dans Applications puis ouvre-le. Si macOS dit qu'il ne peut pas vérifier l'app, ouvre **Réglages Système → Confidentialité et sécurité** et clique sur **Ouvrir quand même** (une seule fois). S'il dit que l'app est **endommagée**, lance ceci dans le Terminal, puis rouvre-la :
+>
+> ```bash
+> xattr -cr /Applications/Orphyn.app
+> ```
+>
+> Les mises à jour s'installent ensuite depuis l'app, sans autre étape.
 
 Il te faut un serveur [Jellyfin](https://jellyfin.org) en version 10.9 ou plus.
 

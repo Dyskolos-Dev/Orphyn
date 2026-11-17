@@ -1,6 +1,6 @@
 {
   "name": "orphyn",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "productName": "Orphyn",
   "description": "Orphyn - a desktop Jellyfin client for music, movies and series",
   "private": true,

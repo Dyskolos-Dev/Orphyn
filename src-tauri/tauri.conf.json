@@ -59,6 +59,7 @@
       }
     },
     "macOS": {
+      "signingIdentity": "-",
       "dmg": {
         "background": "../build/dmg-background.png",
         "windowSize": {

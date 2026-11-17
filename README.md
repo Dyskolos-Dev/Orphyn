@@ -46,7 +46,15 @@ Download the installer for your system from the [latest release](https://github.
 | Linux | `Orphyn_x.y.z_amd64.AppImage` or `Orphyn_x.y.z_amd64.deb` |
 
 > [!NOTE]
-> The builds are not code-signed yet. On Windows, click **More info → Run anyway** in SmartScreen. On macOS, right-click the app and choose **Open** the first time.
+> The builds are not code-signed yet. On Windows, click **More info → Run anyway** in SmartScreen.
+>
+> On macOS, drag Orphyn to Applications and open it. If macOS says it cannot verify the app, open **System Settings → Privacy & Security** and click **Open Anyway** (once). If it says the app is **damaged**, run this in Terminal, then open it again:
+>
+> ```bash
+> xattr -cr /Applications/Orphyn.app
+> ```
+>
+> Updates then install from inside the app, with no further step.
 
 You need a [Jellyfin](https://jellyfin.org) server, version 10.9 or later.
 
