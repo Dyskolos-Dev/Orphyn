@@ -9,6 +9,8 @@ export const PIP_EVENTS = {
   musicState: 'orphyn:pip:music-state',
   /** music PiP -> main: {@link MusicPipCommand}. */
   musicCommand: 'orphyn:pip:music-command',
+  /** music PiP -> main: show the full-screen Now Playing (the PiP's "back to Orphyn" button). */
+  showNowPlaying: 'orphyn:pip:show-now-playing',
   /** PiP -> main: the PiP window is loaded and wants the current state. */
   ready: 'orphyn:pip:ready',
   /** main -> video PiP: {@link VideoPipStart}. */

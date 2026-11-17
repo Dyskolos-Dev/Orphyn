@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react'
 import { useIsFavorite, useToggleFavorite } from '@renderer/jellyfin'
 import { musicPlayer, useCurrentTrack, useMusicPlayer } from '@renderer/features/music/player/api'
 import type { PlayerState } from '@renderer/features/music/player/store'
+import { useNowPlayingUi } from '@renderer/features/music/components/ui-state'
 import { currentItem } from '@renderer/features/music/player/queue'
 import { trackArt, trackArtist, trackTitle } from '@renderer/features/music/player/track'
 import { onPip, sendPip, togglePip, usePipState } from './events'
@@ -85,6 +86,12 @@ export function useMusicPipHost(): void {
   // A new PiP window asks for the state as soon as it is loaded. This listener is always on: the
   // request can arrive before this component has seen the window open.
   useEffect(() => onPip(PIP_EVENTS.ready, () => forcePush.current?.()), [])
+
+  // The PiP's "back to Orphyn" button: open the full-screen Now Playing. Always on, like `ready`.
+  useEffect(
+    () => onPip(PIP_EVENTS.showNowPlaying, () => useNowPlayingUi.getState().show('player')),
+    [],
+  )
 
   // The favourite flag can change without the player store changing.
   useEffect(() => {

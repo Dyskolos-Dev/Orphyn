@@ -1,3 +1,4 @@
+import './now-playing-layer.css'
 import { AnimatePresence, motion } from 'framer-motion'
 import { ChevronDown, Music } from 'lucide-react'
 import { useEffect, useRef } from 'react'

@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
   EMPTY_MUSIC_PIP,
+  PIP_EVENTS,
   artworkAtWidth,
   artworkStep,
   extrapolatePosition,
@@ -87,5 +88,13 @@ describe('artwork sizing', () => {
     expect(q.get('maxHeight')).toBeNull()
     expect(q.get('quality')).toBe('90')
     expect(q.get('tag')).toBe('x')
+  })
+})
+
+describe('PIP_EVENTS', () => {
+  it('gives every message its own event name', () => {
+    const names = Object.values(PIP_EVENTS)
+    expect(new Set(names).size).toBe(names.length)
+    expect(PIP_EVENTS.showNowPlaying).toBe('orphyn:pip:show-now-playing')
   })
 })

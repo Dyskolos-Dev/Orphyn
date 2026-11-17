@@ -1,0 +1,8 @@
+/*
+ * The "..." menu of the full-screen Now Playing is a popover portalled to <body>. It sits at
+ * --z-popover (100), below the sheet (--z-modal, 200), so it opened behind it and looked dead.
+ * A popover opened from inside a modal layer must stay above it (still under toasts).
+ */
+body > .jr-popover {
+  z-index: calc(var(--z-modal) + 1);
+}

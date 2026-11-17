@@ -19,16 +19,19 @@ const MUSIC_RATIO = 320 / 380
 
 const command = (cmd: MusicPipCommand): void => sendPip(PIP_EVENTS.musicCommand, cmd)
 
-/** Brings the main window back (it may be minimised), then closes the PiP. */
-export async function backToMain(): Promise<void> {
+/** Brings the main window back (it may be minimised) and closes the PiP. */
+export async function backToMain(opts: { nowPlaying?: boolean } = {}): Promise<void> {
+  // Ask first: the main window opens Now Playing even if restoring it fails below.
+  if (opts.nowPlaying) sendPip(PIP_EVENTS.showNowPlaying)
   try {
     const main = await Window.getByLabel('main')
     await main?.unminimize()
     await main?.show()
     await main?.setFocus()
   } catch {
-    /* the main window is gone: nothing to go back to */
+    /* the main window is gone or refused: still close the PiP */
   }
+  closePip()
 }
 
 export const closePip = (): void => {
@@ -159,7 +162,7 @@ export function MusicPip() {
             className="pip__btn"
             aria-label={t('backToOrphyn')}
             title={t('backToOrphyn')}
-            onClick={() => void backToMain()}
+            onClick={() => void backToMain({ nowPlaying: true })}
           >
             <Maximize2 />
           </button>
