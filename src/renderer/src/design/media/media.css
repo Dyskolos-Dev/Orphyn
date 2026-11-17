@@ -564,3 +564,9 @@
   font-weight: 600;
   color: var(--secondary-label);
 }
+
+/* A poster shown as a 16:9 card (landscape video shelves, no landscape artwork): keep the top,
+   where titles and faces usually are. */
+.jr-card--cropped-poster .jr-artwork__img {
+  object-position: 50% 22%;
+}

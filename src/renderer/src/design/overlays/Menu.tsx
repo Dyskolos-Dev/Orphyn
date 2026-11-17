@@ -135,6 +135,8 @@ export function Menu({
           }
           if (!isAction(item)) return null
           const hasCheck = items.some((i) => isAction(i) && i.checked !== undefined)
+          // One icon column for every item as soon as one has an icon, so the labels line up.
+          const hasIcon = items.some((i) => isAction(i) && i.icon != null)
           return (
             <div
               key={key}
@@ -164,7 +166,7 @@ export function Menu({
                   {item.checked && <Check size={14} strokeWidth={2.6} />}
                 </span>
               )}
-              {item.icon && (
+              {hasIcon && (
                 <span className="jr-menu__icon" aria-hidden="true">
                   {item.icon}
                 </span>

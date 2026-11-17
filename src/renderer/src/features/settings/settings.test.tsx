@@ -10,6 +10,7 @@ import {
   usePlaybackPreferences,
 } from './index'
 import { reloadPlaybackPreferences } from './preferences'
+import { AppearancePane } from './AppearancePane'
 import { GeneralPane } from './GeneralPane'
 
 beforeEach(() => {
@@ -91,7 +92,7 @@ describe('languageMatches', () => {
 })
 
 describe('GeneralPane', () => {
-  it('switches the language and the theme instantly and remembers both', async () => {
+  it('switches the language instantly and remembers it', async () => {
     const user = userEvent.setup()
     await act(() => i18n.changeLanguage('en'))
     render(
@@ -103,29 +104,69 @@ describe('GeneralPane', () => {
     await user.click(screen.getByRole('radio', { name: 'Français' }))
     expect(i18n.language).toBe('fr')
     expect(localStorage.getItem('orphyn.language')).toBe('fr')
-    expect((await screen.findAllByText('Apparence')).length).toBeGreaterThan(0)
+    expect((await screen.findAllByText('Langue')).length).toBeGreaterThan(0)
 
-    await user.click(screen.getByRole('radio', { name: 'Sombre' }))
+    await act(() => i18n.changeLanguage('en'))
+  })
+})
+
+describe('AppearancePane', () => {
+  const renderPane = async () => {
+    await act(() => i18n.changeLanguage('en'))
+    interfaceStyleStore.reload()
+    themeStore.reload()
+    return render(
+      <MemoryRouter>
+        <AppearancePane />
+      </MemoryRouter>,
+    )
+  }
+  afterEach(() => {
+    act(() => {
+      interfaceStyleStore.setStyle('classic')
+      interfaceStyleStore.resetAppearance()
+      themeStore.setMode('system')
+      themeStore.setAccent('red')
+      themeStore.setFollowArtwork(false)
+    })
+  })
+
+  it('shows a live preview of the current style with its options', async () => {
+    await renderPane()
+    const live = document.querySelector('.jr-appearance__preview .jr-style-preview__window')
+    expect(live).toHaveAttribute('data-style', 'classic')
+    expect(live).toHaveAttribute('data-sidebar', 'expanded')
+    act(() => interfaceStyleStore.setAppearance({ sidebar: 'icons', videoCards: 'landscape' }))
+    expect(live).toHaveAttribute('data-sidebar', 'icons')
+    expect(live).toHaveAttribute('data-cards', 'landscape')
+  })
+
+  it('switches light / dark and the accent instantly and remembers both', async () => {
+    const user = userEvent.setup()
+    await renderPane()
+    const mode = screen.getByRole('radiogroup', { name: 'Appearance' })
+    await user.click(within(mode).getByRole('radio', { name: 'Dark' }))
     expect(document.documentElement.dataset['theme']).toBe('dark')
     expect(localStorage.getItem('orphyn.theme.mode')).toBe('dark')
 
-    await user.click(screen.getByRole('radio', { name: 'Bleu' }))
+    const accents = screen.getByRole('radiogroup', { name: 'Accent colour' })
+    await user.click(within(accents).getByRole('radio', { name: 'Blue' }))
     expect(localStorage.getItem('orphyn.theme.accent')).toBe('blue')
+    expect(within(accents).getByRole('radio', { name: 'Blue' })).toBeChecked()
 
-    await act(() => i18n.changeLanguage('en'))
-    themeStore.setMode('system')
+    await user.click(screen.getByRole('switch', { name: 'Follow artwork colour' }))
+    expect(localStorage.getItem('orphyn.theme.followArtwork')).toBe('true')
   })
 
-  it('picks an interface style from the gallery and reduces transparency', async () => {
-    const user = userEvent.setup()
-    await act(() => i18n.changeLanguage('en'))
-    interfaceStyleStore.reload()
-    render(
-      <MemoryRouter>
-        <GeneralPane />
-      </MemoryRouter>,
-    )
+  it('explains when a custom colour was adjusted for legibility', async () => {
+    await renderPane()
+    act(() => themeStore.setAccent('#ffff00'))
+    expect(screen.getByText(/Adjusted to stay readable/)).toBeInTheDocument()
+  })
 
+  it('picks an interface style from the gallery', async () => {
+    const user = userEvent.setup()
+    await renderPane()
     const gallery = screen.getByRole('radiogroup', { name: 'Interface style' })
     const cards = within(gallery).getAllByRole('radio')
     expect(cards).toHaveLength(5)
@@ -137,14 +178,65 @@ describe('GeneralPane', () => {
     expect(document.documentElement.dataset['style']).toBe('cinema')
     expect(localStorage.getItem('orphyn.interface.style')).toBe('cinema')
     expect(within(gallery).getByRole('radio', { name: /^Cinema/ })).toBeChecked()
+    // Cinema's own defaults show in the options.
+    const sidebar = screen.getByRole('radiogroup', { name: 'Sidebar' })
+    expect(within(sidebar).getByRole('radio', { name: 'Icons only' })).toBeChecked()
+  })
 
-    await user.click(screen.getByRole('switch', { name: 'Reduce transparency' }))
-    expect(document.documentElement.dataset['reduceTransparency']).toBe('true')
-    expect(localStorage.getItem('orphyn.interface.reduceTransparency')).toBe('true')
+  it('applies every option at once, then resets to the style defaults', async () => {
+    const user = userEvent.setup()
+    await renderPane()
+    const pick = async (group: string, option: string) =>
+      user.click(
+        within(screen.getByRole('radiogroup', { name: group })).getByRole('radio', {
+          name: option,
+        }),
+      )
 
-    act(() => {
-      interfaceStyleStore.setStyle('classic')
-      interfaceStyleStore.setReduceTransparency(false)
+    const reset = screen.getByRole('button', { name: 'Reset to Style Defaults' })
+    expect(reset).toBeDisabled()
+
+    await pick('Corners', 'Round')
+    await pick('Density', 'Compact')
+    await pick('Text size', 'Extra large')
+    await pick('Sidebar', 'Auto-hide')
+    await pick('Artwork backdrop', 'Immersive')
+    await pick('Video shelves', 'Landscape')
+    await pick('Motion', 'Reduced')
+    const d = document.documentElement.dataset
+    expect(d).toMatchObject({
+      corners: 'round',
+      density: 'compact',
+      textSize: 'xl',
+      sidebar: 'auto-hide',
+      backdrop: 'immersive',
+      videoCards: 'landscape',
+      motion: 'reduced',
     })
+
+    const slider = screen.getByRole('slider', { name: 'Transparency' })
+    slider.focus()
+    await user.keyboard('{Home}')
+    expect(d['transparency']).toBe('solid')
+    expect(d['reduceTransparency']).toBe('true')
+
+    expect(JSON.parse(localStorage.getItem('orphyn.interface.appearance') ?? '{}')).toMatchObject({
+      corners: 'round',
+      transparency: 0,
+    })
+
+    await user.click(reset)
+    expect(d).toMatchObject({ corners: 'standard', sidebar: 'expanded', transparency: 'full' })
+    expect(localStorage.getItem('orphyn.interface.appearance')).toBe('{}')
+  })
+
+  it('disables the transparency slider on Minimal, which is always solid', async () => {
+    await renderPane()
+    act(() => interfaceStyleStore.setStyle('minimal'))
+    expect(screen.getByText('Minimal is always solid.')).toBeInTheDocument()
+    expect(screen.getByRole('slider', { name: 'Transparency' })).toHaveAttribute(
+      'aria-disabled',
+      'true',
+    )
   })
 })

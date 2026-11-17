@@ -2,7 +2,7 @@
 // Rules and catalogue: docs/DESIGN.md.
 
 // Theme
-export { ThemeProvider, useInterfaceStyle, useTheme } from './theme/ThemeProvider'
+export { ThemeProvider, useAppearance, useInterfaceStyle, useTheme } from './theme/ThemeProvider'
 export type {
   ThemeProviderProps,
   UseInterfaceStyleResult,
@@ -17,17 +17,45 @@ export {
 } from './theme/interfaceStyle'
 export {
   extractPalette,
+  findAnyArtwork,
+  tameAmbientColor,
   useAmbientArtwork,
   type AmbientArtwork,
   type AmbientPalette,
 } from './theme/ambient'
 export {
+  APPEARANCE_KEYS,
+  BACKDROP_OPTIONS,
+  CORNER_OPTIONS,
+  DENSITY_OPTIONS,
+  MOTION_OPTIONS,
+  SIDEBAR_OPTIONS,
+  SOLID_STYLES,
+  STYLE_DEFAULTS,
+  TEXT_SIZE_OPTIONS,
+  VIDEO_CARD_OPTIONS,
+  appearanceTokens,
+  type Appearance,
+  type AppearanceKey,
+  type Backdrop,
+  type Corners,
+  type Density,
+  type Motion,
+  type SidebarMode,
+  type TextSize,
+  type VideoCards,
+} from './theme/appearance'
+export {
   ACCENT_PRESETS,
+  ACCENT_PRESET_COLORS,
+  accentHex,
+  accentTokens,
   THEME_MODES,
   THEME_STORAGE_KEYS,
   themeStore,
   type AccentColor,
   type AccentPreset,
+  type AccentTokens,
   type ResolvedTheme,
   type ThemeMode,
   type ThemeState,

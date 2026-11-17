@@ -3,6 +3,7 @@
   "nav": "Settings sections",
   "panes": {
     "general": "General",
+    "appearance": "Appearance",
     "servers": "Servers",
     "playback": "Playback",
     "music": "Music",
@@ -17,8 +18,12 @@
       "system": "System",
       "fr": "Français",
       "en": "English"
-    },
-    "appearance": {
+    }
+  },
+  "appearance": {
+    "preview": "Preview",
+    "previewCaption": "Every change applies at once, everywhere.",
+    "mode": {
       "header": "Appearance",
       "label": "Appearance",
       "system": "System",
@@ -28,38 +33,17 @@
     "style": {
       "header": "Interface Style",
       "label": "Interface style",
-      "selected": "Selected",
-      "styles": {
-        "classic": {
-          "name": "Classic",
-          "description": "The signature look: balanced, airy and familiar."
-        },
-        "glass": {
-          "name": "Glass",
-          "description": "Translucent, light-catching layers that float over a soft glow."
-        },
-        "cinema": {
-          "name": "Cinema",
-          "description": "Immersive: the artwork you are viewing tints the whole interface."
-        },
-        "minimal": {
-          "name": "Minimal",
-          "description": "Pure and typographic: flat surfaces, hairlines and quiet colour."
-        },
-        "compact": {
-          "name": "Compact",
-          "description": "Dense rows and smaller artwork, made for large libraries."
-        }
-      },
-      "reduceTransparency": {
-        "label": "Reduce transparency",
-        "description": "Opaque surfaces without blur, in every style."
-      }
+      "selected": "Selected"
     },
     "accent": {
       "header": "Accent Colour",
       "label": "Accent colour",
       "custom": "Custom colour",
+      "adjusted": "Adjusted to stay readable: {{text}} for text, {{fill}} for buttons.",
+      "followArtwork": {
+        "label": "Follow artwork colour",
+        "description": "The accent takes the colour of the artwork on screen or playing."
+      },
       "colors": {
         "red": "Red",
         "pink": "Pink",
@@ -71,6 +55,94 @@
         "indigo": "Indigo",
         "purple": "Purple",
         "graphite": "Graphite"
+      }
+    },
+    "materials": {
+      "header": "Materials and Shape",
+      "transparency": {
+        "label": "Transparency",
+        "description": "Blur and translucency of the chrome. 0 is solid.",
+        "solidStyle": "Minimal is always solid.",
+        "value": "{{percent}} %"
+      },
+      "corners": {
+        "label": "Corners",
+        "sharp": "Sharp",
+        "standard": "Standard",
+        "round": "Round"
+      },
+      "density": {
+        "label": "Density",
+        "description": "Spacing and rows, on top of the style’s own.",
+        "comfortable": "Comfortable",
+        "standard": "Standard",
+        "compact": "Compact"
+      },
+      "textSize": {
+        "label": "Text size",
+        "s": "S",
+        "m": "M",
+        "l": "L",
+        "xl": "XL",
+        "sLabel": "Small",
+        "mLabel": "Medium",
+        "lLabel": "Large",
+        "xlLabel": "Extra large"
+      }
+    },
+    "layout": {
+      "header": "Layout",
+      "sidebar": {
+        "label": "Sidebar",
+        "expanded": "Expanded",
+        "icons": "Icons only",
+        "auto-hide": "Auto-hide",
+        "autoHideHint": "Point at the left edge of the window to show it."
+      },
+      "backdrop": {
+        "label": "Artwork backdrop",
+        "description": "The page’s artwork, blurred behind the interface.",
+        "off": "Off",
+        "subtle": "Subtle",
+        "immersive": "Immersive"
+      },
+      "videoCards": {
+        "label": "Video shelves",
+        "poster": "Posters",
+        "landscape": "Landscape"
+      },
+      "motion": {
+        "label": "Motion",
+        "description": "Reduced also follows the system setting.",
+        "full": "Full",
+        "reduced": "Reduced"
+      }
+    },
+    "reset": {
+      "label": "Reset to Style Defaults",
+      "description": "Brings every option above back to what {{style}} uses.",
+      "done": "Back to the {{style}} defaults"
+    },
+    "styles": {
+      "classic": {
+        "name": "Classic",
+        "description": "The signature look: balanced, airy and familiar."
+      },
+      "glass": {
+        "name": "Glass",
+        "description": "Translucent, light-catching layers that float over a soft glow."
+      },
+      "cinema": {
+        "name": "Cinema",
+        "description": "Immersive: the artwork you are viewing tints the whole interface."
+      },
+      "minimal": {
+        "name": "Minimal",
+        "description": "Pure and typographic: flat surfaces, hairlines and quiet colour."
+      },
+      "compact": {
+        "name": "Compact",
+        "description": "Dense rows and smaller artwork, made for large libraries."
       }
     }
   },

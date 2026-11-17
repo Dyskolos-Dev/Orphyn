@@ -131,8 +131,8 @@
 }
 .jr-track--selected,
 .jr-track--selected:hover {
-  background: var(--accent);
-  color: var(--accent-contrast);
+  background: var(--accent-fill);
+  color: var(--accent-fill-contrast);
 }
 .jr-track:focus-visible {
   outline-offset: -2px;

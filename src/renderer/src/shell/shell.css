@@ -158,27 +158,106 @@ body:has(.jr-shell__now-playing:not(:empty):not([hidden])) {
   }
 }
 
-/* ---------------- Interface styles: shell variants ----------------
+/* ---------------- Interface styles and appearance: shell variants ----------------
  * Tokens do most of the work (styles/interface-styles.css); these are the layout changes tokens
- * cannot express. The ambient layer sits behind the sidebar and the content. */
+ * cannot express: the layer behind the sidebar and the content (glass wash, artwork backdrop),
+ * floating glass chrome, and the three sidebar modes (html[data-sidebar]). */
+
+/* Backdrop strength (Settings > Appearance > Artwork backdrop), per theme. */
+html {
+  --backdrop-art-opacity: 0;
+  --backdrop-art-filter: blur(90px) saturate(130%) brightness(1.15);
+}
+html[data-theme='dark'] {
+  --backdrop-art-filter: blur(90px) saturate(130%) brightness(0.6);
+}
+html[data-backdrop='subtle'] {
+  --backdrop-art-opacity: 0.16;
+}
+html[data-backdrop='subtle'][data-theme='dark'] {
+  --backdrop-art-opacity: 0.3;
+}
+html[data-backdrop='immersive'] {
+  --backdrop-art-opacity: 0.3;
+}
+html[data-backdrop='immersive'][data-theme='dark'] {
+  --backdrop-art-opacity: 0.5;
+}
+
 .jr-shell__ambient {
   display: none;
 }
-html:is([data-style='glass'], [data-style='cinema']) .jr-shell {
+html:is(
+    [data-style='glass'],
+    [data-style='cinema'],
+    [data-backdrop='subtle'],
+    [data-backdrop='immersive']
+  )
+  .jr-shell {
   position: relative;
+  background: var(--surface-window);
 }
-html:is([data-style='glass'], [data-style='cinema']) .jr-shell__ambient:not([hidden]) {
+html:is(
+    [data-style='glass'],
+    [data-style='cinema'],
+    [data-backdrop='subtle'],
+    [data-backdrop='immersive']
+  )
+  .jr-shell__ambient:not([hidden]) {
   display: block;
   position: absolute;
   inset: 0;
   overflow: hidden;
   pointer-events: none;
 }
-html:is([data-style='glass'], [data-style='cinema']) .jr-shell__sidebar {
+html:is(
+    [data-style='glass'],
+    [data-style='cinema'],
+    [data-backdrop='subtle'],
+    [data-backdrop='immersive']
+  )
+  .jr-shell__sidebar {
   position: relative;
 }
-html:is([data-style='glass'], [data-style='cinema']) .jr-shell__main {
+html:is(
+    [data-style='glass'],
+    [data-style='cinema'],
+    [data-backdrop='subtle'],
+    [data-backdrop='immersive']
+  )
+  .jr-shell__main {
   background: transparent;
+}
+
+/* ---- Artwork backdrop: the page's artwork, huge and blurred, behind everything ---- */
+.jr-shell__ambient-art {
+  display: none;
+}
+html:is([data-backdrop='subtle'], [data-backdrop='immersive']) .jr-shell__ambient-art {
+  display: block;
+  position: absolute;
+  inset: -12%;
+  background: var(--ambient-image) center / cover no-repeat;
+  filter: var(--backdrop-art-filter);
+  opacity: var(--backdrop-art-opacity);
+  animation: jr-ambient-in 900ms var(--ease-out) both;
+}
+/* A veil of the window colour towards the bottom keeps long pages calm and text readable. */
+html:is([data-backdrop='subtle'], [data-backdrop='immersive']) .jr-shell__ambient::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--surface-window) 10%, transparent) 0%,
+    color-mix(in srgb, var(--surface-window) 50%, transparent) 60%,
+    color-mix(in srgb, var(--surface-window) 85%, transparent) 100%
+  );
+}
+@keyframes jr-ambient-in {
+  from {
+    opacity: 0;
+  }
 }
 
 /* ---- Glass: a soft wash to refract, floating sidebar, toolbar and now-playing bar ---- */
@@ -192,7 +271,7 @@ html[data-style='glass'] .jr-shell__ambient {
     radial-gradient(70% 55% at 45% 108%, var(--glass-wash-3), transparent 70%),
     radial-gradient(
       38% 40% at 72% 58%,
-      color-mix(in srgb, var(--accent) 14%, transparent),
+      color-mix(in srgb, var(--accent-fill) 12%, transparent),
       transparent 70%
     ),
     var(--glass-wash-base);
@@ -209,13 +288,10 @@ html[data-style='glass'] .jr-shell__sidebar > .jr-sidebar {
   backdrop-filter: var(--material-regular-filter);
   box-shadow: var(--glass-shadow), var(--material-highlight);
 }
-html[data-style='glass'] .jr-shell__sidebar .jr-sidebar__footer {
-  border-top-color: rgb(var(--glass-rgb) / 0.5);
-}
 html[data-style='glass'] .jr-sidebar-item__link--active,
 html[data-style='glass'] .jr-sidebar-item__link--active:hover,
 html[data-style='glass'][data-window-focused='true'] .jr-sidebar-item__link--active {
-  background: rgb(var(--glass-rgb) / 0.7);
+  background: var(--glass-selected);
   box-shadow: var(--material-highlight);
 }
 html[data-style='glass'] .jr-page__toolbar .jr-toolbar {
@@ -266,117 +342,204 @@ html[data-style='glass']
   .jr-shell__scroll {
   padding-bottom: calc(var(--now-playing-height) + 2 * var(--chrome-inset));
 }
+html[data-style='glass'] body:has(.jr-shell__now-playing:not(:empty):not([hidden])) {
+  --jr-toast-offset: calc(var(--now-playing-height) + 2 * var(--chrome-inset));
+}
 
-/* ---- Cinema: blurred artwork behind everything, a sidebar that recedes to icons ---- */
+/* ---- Cinema: tinted window, glow of the artwork's colours ---- */
 html[data-style='cinema'] .jr-shell {
-  background: var(--surface-window);
   transition: background-color 700ms var(--ease-standard);
 }
 html[data-style='cinema'] .jr-shell__ambient {
   background:
     radial-gradient(
       80% 60% at 18% 0%,
-      color-mix(in srgb, var(--ambient) 32%, transparent),
+      color-mix(in srgb, var(--ambient) 26%, transparent),
       transparent 72%
     ),
     radial-gradient(
       60% 60% at 100% 100%,
-      color-mix(in srgb, var(--ambient-2) 24%, transparent),
+      color-mix(in srgb, var(--ambient-2) 18%, transparent),
       transparent 70%
     );
 }
-html[data-style='cinema'] .jr-shell__ambient-art {
-  position: absolute;
-  inset: -12%;
-  background: var(--ambient-image) center / cover no-repeat;
-  filter: blur(90px) saturate(150%);
-  opacity: var(--cinema-art-opacity);
-  animation: jr-ambient-in 900ms var(--ease-out) both;
+html[data-style='cinema'] .jr-shell__now-playing {
+  border-top-color: color-mix(in srgb, var(--label) 8%, transparent);
 }
-html[data-style='cinema'] .jr-shell__ambient::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    180deg,
-    transparent 0%,
-    color-mix(in srgb, var(--surface-window) 45%, transparent) 65%,
-    color-mix(in srgb, var(--surface-window) 85%, transparent) 100%
-  );
-}
-@keyframes jr-ambient-in {
-  from {
-    opacity: 0;
-  }
-}
-html[data-style='cinema'] .jr-shell__sidebar {
-  z-index: 2;
+
+/* ---------------- Sidebar: icons only (a rail that expands over the content) ---------------- */
+html[data-sidebar='icons'] .jr-shell__sidebar {
+  position: relative;
+  z-index: calc(var(--z-toolbar) + 1);
   width: var(--sidebar-rail-width);
 }
-html[data-style='cinema'] .jr-shell__sidebar > .jr-sidebar {
+html[data-sidebar='icons'] .jr-shell__sidebar > .jr-sidebar {
   position: absolute;
   top: 0;
   bottom: 0;
   left: 0;
   width: var(--sidebar-rail-width);
   overflow: hidden;
-  border-right: 0;
-  background: transparent;
   transition:
     width var(--duration-base) var(--ease-out),
     background-color var(--duration-base) var(--ease-standard),
     box-shadow var(--duration-base) var(--ease-standard);
 }
 /* Contents keep the full width while the rail clips them: nothing reflows when it expands. */
-html[data-style='cinema'] .jr-shell__sidebar > .jr-sidebar > * {
+html[data-sidebar='icons'] .jr-shell__sidebar > .jr-sidebar > * {
   min-width: var(--sidebar-width);
 }
-html[data-style='cinema'] .jr-shell__sidebar :is(.jr-sidebar__scroll, .jr-sidebar__footer) {
+html[data-sidebar='icons']
+  .jr-shell__sidebar
+  :is(.jr-sidebar__header, .jr-sidebar__scroll, .jr-sidebar__footer) {
   padding-left: calc((var(--sidebar-rail-width) - 40px) / 2);
 }
-html[data-style='cinema'] .jr-shell__sidebar .jr-sidebar__footer {
-  border-top-color: transparent;
+html[data-sidebar='icons'] .jr-shell__sidebar .jr-sidebar__header {
+  padding-right: calc(var(--sidebar-width) - var(--sidebar-rail-width) + var(--space-3));
+  transition: padding-right var(--duration-base) var(--ease-out);
 }
-html[data-style='cinema'] .jr-shell__sidebar .jr-sidebar-item__link {
+html[data-sidebar='icons'] .jr-shell__sidebar .jr-sidebar-item__link {
   gap: var(--space-3);
   padding: 0 calc((40px - var(--sidebar-icon-size)) / 2);
-  border-radius: var(--radius-md);
 }
-html[data-style='cinema'] .jr-shell__sidebar:is(:hover, :has(:focus-visible)) > .jr-sidebar {
+html[data-sidebar='icons'] .jr-shell__sidebar:is(:hover, :has(:focus-visible)) > .jr-sidebar {
   width: var(--sidebar-width);
   background: var(--material-thick-bg);
   -webkit-backdrop-filter: var(--material-thick-filter);
   backdrop-filter: var(--material-thick-filter);
   box-shadow: var(--shadow-lg);
 }
-html[data-style='cinema']
+html[data-sidebar='icons'] .jr-shell__sidebar:is(:hover, :has(:focus-visible)) .jr-sidebar__header {
+  padding-right: var(--space-3);
+}
+html[data-sidebar='icons']
   .jr-shell__sidebar
   :is(
-    .jr-sidebar__header,
     .jr-sidebar-section__title,
     .jr-sidebar-item__label,
     .jr-sidebar-item__trailing,
-    .jr-shell__footer-row
+    .jr-shell__footer-row,
+    .jr-field__input,
+    .jr-search-field__clear
   ) {
   transition: opacity var(--duration-fast) var(--ease-standard);
 }
-html[data-style='cinema']
+html[data-sidebar='icons']
   .jr-shell__sidebar:not(:hover, :has(:focus-visible))
   :is(
-    .jr-sidebar__header,
     .jr-sidebar-section__title,
     .jr-sidebar-item__label,
     .jr-sidebar-item__trailing,
-    .jr-shell__footer-row
+    .jr-shell__footer-row,
+    .jr-field__input,
+    .jr-search-field__clear
   ) {
   opacity: 0;
   pointer-events: none;
 }
-html[data-style='cinema']
+/* Collapsed, the search field is a square with its magnifier, aligned with the icons. */
+html[data-sidebar='icons']
+  .jr-shell__sidebar:not(:hover, :has(:focus-visible))
+  .jr-sidebar__header
+  .jr-field__box {
+  width: 40px;
+  height: var(--sidebar-item-height);
+  padding: 0 calc((40px - var(--sidebar-icon-size)) / 2);
+  background: transparent;
+  box-shadow: none;
+}
+html[data-sidebar='icons']
+  .jr-shell__sidebar:not(:hover, :has(:focus-visible))
+  .jr-sidebar__header
+  .jr-field__leading
+  svg {
+  width: var(--sidebar-icon-size);
+  height: var(--sidebar-icon-size);
+}
+html[data-sidebar='icons']
+  .jr-shell__sidebar:not(:hover, :has(:focus-visible))
+  .jr-sidebar__header
+  .jr-field__leading {
+  flex: none;
+}
+html[data-sidebar='icons']
+  .jr-shell__sidebar:not(:hover, :has(:focus-visible))
+  .jr-sidebar__header
+  :is(.jr-field__input, .jr-field__trailing) {
+  flex: 0 0 0;
+  width: 0;
+}
+html[data-sidebar='icons']
   .jr-shell__sidebar:not(:hover, :has(:focus-visible))
   .jr-sidebar-item__link {
   width: 40px;
 }
-html[data-style='cinema'] .jr-shell__now-playing {
-  border-top-color: color-mix(in srgb, var(--label) 8%, transparent);
+/* The rail shows the server switcher and refresh only when expanded: no empty block above. */
+html[data-sidebar='icons']
+  .jr-shell__sidebar:not(:hover, :has(:focus-visible))
+  .jr-shell__footer-row {
+  height: 0;
+  margin: 0;
+  overflow: hidden;
+}
+/* Cinema: the rail floats on the artwork, transparent until it opens. */
+html[data-style='cinema'][data-sidebar='icons'] .jr-shell__sidebar > .jr-sidebar {
+  border-right: 0;
+  background: transparent;
+}
+/* Glass: the rail is a floating pane too. */
+html[data-style='glass'][data-sidebar='icons'] .jr-shell__sidebar {
+  width: calc(var(--sidebar-rail-width) + var(--chrome-inset));
+  padding: 0;
+}
+html[data-style='glass'][data-sidebar='icons'] .jr-shell__sidebar > .jr-sidebar {
+  top: var(--chrome-inset);
+  bottom: var(--chrome-inset);
+  left: var(--chrome-inset);
+}
+
+/* ---------------- Sidebar: auto-hide (slides in from the left edge) ---------------- */
+html[data-sidebar='auto-hide'] .jr-shell__sidebar {
+  position: relative;
+  z-index: calc(var(--z-toolbar) + 1);
+  width: 0;
+  padding: 0;
+}
+/* The hot edge: pointing at the window's left edge reveals the sidebar. */
+html[data-sidebar='auto-hide'] .jr-shell__sidebar::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 8px;
+}
+html[data-sidebar='auto-hide'] .jr-shell__sidebar > .jr-sidebar {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  border-right: 0;
+  background: var(--material-thick-bg);
+  -webkit-backdrop-filter: var(--material-thick-filter);
+  backdrop-filter: var(--material-thick-filter);
+  box-shadow: var(--shadow-lg);
+  transform: translateX(calc(-100% - 24px));
+  transition: transform var(--duration-base) var(--ease-out);
+}
+html[data-sidebar='auto-hide'] .jr-shell__sidebar:is(:hover, :has(:focus-visible)) > .jr-sidebar {
+  transform: none;
+}
+html[data-style='glass'][data-sidebar='auto-hide'] .jr-shell__sidebar > .jr-sidebar {
+  top: var(--chrome-inset);
+  bottom: var(--chrome-inset);
+  left: var(--chrome-inset);
+  box-shadow: var(--glass-shadow), var(--material-highlight);
+}
+/* No sidebar under the macOS traffic lights any more: the toolbars make room for them. */
+html[data-sidebar='auto-hide'] .jr-page__toolbar .jr-toolbar {
+  padding-left: calc(var(--space-4) + var(--titlebar-inset-left));
+}
+html[data-style='glass'][data-sidebar='auto-hide'] .jr-page__toolbar .jr-toolbar {
+  padding-left: calc(var(--chrome-inset) + var(--space-3) + var(--titlebar-inset-left));
 }

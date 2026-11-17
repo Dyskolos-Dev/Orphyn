@@ -5,6 +5,7 @@ import {
   isValidElement,
   useCallback,
   useEffect,
+  useMemo,
   useRef,
   useState,
   type KeyboardEvent,
@@ -12,6 +13,8 @@ import {
 } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
+import { useAppearance } from '../theme/ThemeProvider'
+import { ShelfLayoutContext } from './shelfContext'
 import './media.css'
 
 /**
@@ -29,7 +32,10 @@ export interface ShelfProps {
   /** Click handler for "See All" when there is no route. */
   onSeeAll?(): void
   seeAllLabel?: string
-  /** Sizing preset of the items. */
+  /**
+   * Sizing preset of the items. A `poster` shelf turns into a `landscape` one (and its
+   * PosterCards into 16:9 cards) when the user picks landscape video shelves in Settings.
+   */
   kind?: ShelfItemKind
   /** The cards. Each child becomes one list item. */
   children: ReactNode
@@ -56,6 +62,10 @@ export function Shelf({
   'aria-label': ariaLabel,
 }: ShelfProps) {
   const { t } = useTranslation('shell')
+  const { videoCards } = useAppearance()
+  const postersAsLandscape = kind === 'poster' && videoCards === 'landscape'
+  const layoutKind: ShelfItemKind = postersAsLandscape ? 'landscape' : kind
+  const layout = useMemo(() => ({ postersAsLandscape }), [postersAsLandscape])
   const scroller = useRef<HTMLUListElement>(null)
   const [edges, setEdges] = useState({ back: false, forward: false })
 
@@ -104,7 +114,7 @@ export function Shelf({
 
   return (
     <section
-      className={clsx('jr-shelf', `jr-shelf--${kind}`, className)}
+      className={clsx('jr-shelf', `jr-shelf--${layoutKind}`, className)}
       aria-label={ariaLabel ?? (typeof title === 'string' ? title : undefined)}
     >
       {(title || seeAllTo || onSeeAll) && (
@@ -126,38 +136,40 @@ export function Shelf({
           )}
         </header>
       )}
-      <div className="jr-shelf__viewport">
-        <ul ref={scroller} className="jr-shelf__list" onScroll={measure} onKeyDown={onKeyDown}>
-          {items.map((child, i) => (
-            <li
-              key={isValidElement(child) && child.key != null ? child.key : i}
-              className="jr-shelf__item"
-            >
-              {child}
-            </li>
-          ))}
-        </ul>
-        <button
-          type="button"
-          tabIndex={-1}
-          className="jr-shelf__chevron jr-shelf__chevron--back"
-          aria-label={t('design.scrollBack')}
-          hidden={!edges.back}
-          onClick={() => page(-1)}
-        >
-          <ChevronLeft aria-hidden="true" />
-        </button>
-        <button
-          type="button"
-          tabIndex={-1}
-          className="jr-shelf__chevron jr-shelf__chevron--forward"
-          aria-label={t('design.scrollForward')}
-          hidden={!edges.forward}
-          onClick={() => page(1)}
-        >
-          <ChevronRight aria-hidden="true" />
-        </button>
-      </div>
+      <ShelfLayoutContext.Provider value={layout}>
+        <div className="jr-shelf__viewport">
+          <ul ref={scroller} className="jr-shelf__list" onScroll={measure} onKeyDown={onKeyDown}>
+            {items.map((child, i) => (
+              <li
+                key={isValidElement(child) && child.key != null ? child.key : i}
+                className="jr-shelf__item"
+              >
+                {child}
+              </li>
+            ))}
+          </ul>
+          <button
+            type="button"
+            tabIndex={-1}
+            className="jr-shelf__chevron jr-shelf__chevron--back"
+            aria-label={t('design.scrollBack')}
+            hidden={!edges.back}
+            onClick={() => page(-1)}
+          >
+            <ChevronLeft aria-hidden="true" />
+          </button>
+          <button
+            type="button"
+            tabIndex={-1}
+            className="jr-shelf__chevron jr-shelf__chevron--forward"
+            aria-label={t('design.scrollForward')}
+            hidden={!edges.forward}
+            onClick={() => page(1)}
+          >
+            <ChevronRight aria-hidden="true" />
+          </button>
+        </div>
+      </ShelfLayoutContext.Provider>
     </section>
   )
 }

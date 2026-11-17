@@ -17,7 +17,8 @@
   --secondary-system-grouped-background: #ffffff;
 
   --label: #000000;
-  --secondary-label: rgb(60 60 67 / 0.6);
+  /* Secondary text reaches AA (4.5:1) on every light surface, materials included. */
+  --secondary-label: rgb(60 60 67 / 0.78);
   --tertiary-label: rgb(60 60 67 / 0.3);
   --quaternary-label: rgb(60 60 67 / 0.18);
 
@@ -41,6 +42,11 @@
   --system-gray: #8e8e93;
   /* Signature red-pink. */
   --music-red: #fa2d48;
+  /* Text versions of blue and red that reach AA on every surface (links, destructive labels). */
+  --text-link: #0062cc;
+  --text-danger: #d70015;
+  /* Destructive filled buttons (white text reaches AA in both themes). */
+  --danger-fill: #d70015;
 
   /* ---- Semantic surfaces ---- */
   --surface-window-base: #ffffff;
@@ -52,9 +58,17 @@
   --surface-placeholder: #e5e5ea;
   --scrim: rgb(0 0 0 / 0.3);
 
-  /* ---- Accent (set by ThemeProvider via [data-accent] or an inline --accent) ---- */
-  --accent: var(--music-red);
-  --accent-contrast: #ffffff;
+  /*
+   * ---- Accent ----
+   * The theme store writes one accessible set per theme on <html> (--accent-light, --accent-dark,
+   * ...; see accentTokens in design/theme/theme.ts); the fallbacks are the red preset's.
+   * --accent: text, icons, links, rings (AA on every surface). --accent-contrast: text on it.
+   * --accent-fill: filled controls (buttons, selected rows, switches). --accent-fill-contrast: text on it.
+   */
+  --accent: var(--accent-light, #cf0520);
+  --accent-contrast: var(--accent-contrast-light, #ffffff);
+  --accent-fill: var(--accent-fill-light, #ed0624);
+  --accent-fill-contrast: var(--accent-fill-contrast-light, #ffffff);
 
   /* ---- Materials: base colour (channels); the materials themselves are style tokens below ---- */
   --material-rgb: 246 246 246;
@@ -148,24 +162,70 @@
 }
 
 /*
- * Style tokens: shape, density, type scale and material recipe. These are the values an interface
- * style overrides (interface-styles.css, html[data-style='glass|cinema|minimal|compact']). They are
- * declared on every [data-style] element too, so a subtree can wear another style than the window
- * (the live previews in Settings > Appearance), and on every [data-theme] scope so materials
- * re-resolve against a forced theme (HeroBanner).
+ * Style tokens: shape, density, type scale and material recipe.
+ *
+ * Two kinds of variables:
+ * - Inputs, which an interface style overrides (interface-styles.css): the *-base radii and
+ *   spacings, the type ramp numbers (--fs-*, --lh-*, --fw-*), the material recipe
+ *   (--material-base, --material-*-opacity, --material-*-blur, --material-saturation).
+ * - Outputs, which components read (--radius-md, --text-body, --section-gap, --material-thick-bg,
+ *   ...): computed here from the inputs and the user's appearance multipliers, which the
+ *   interface style store writes on <html> (appearance.ts): --radius-scale (corners),
+ *   --text-scale (text size), --density / --density-rows / --density-cards / --density-items
+ *   (density), --transparency (0 = solid).
+ *
+ * Both are declared on every [data-style] element too, so a subtree can wear another style than
+ * the window (the live previews in Settings > Appearance), and the materials on every [data-theme]
+ * scope so they re-resolve against a forced theme (HeroBanner).
  */
 :root,
 [data-style],
 [data-theme] {
-  /* ---- Materials: background + backdrop-filter ---- */
-  --material-ultra-thin-bg: rgb(var(--material-rgb) / 0.36);
-  --material-thin-bg: rgb(var(--material-rgb) / 0.56);
-  --material-regular-bg: rgb(var(--material-rgb) / 0.72);
-  --material-thick-bg: rgb(var(--material-rgb) / 0.86);
-  --material-ultra-thin-filter: blur(16px) saturate(180%);
-  --material-thin-filter: blur(24px) saturate(180%);
-  --material-regular-filter: blur(30px) saturate(180%);
-  --material-thick-filter: blur(40px) saturate(200%);
+  /* ---- Material recipe (inputs) ---- */
+  --material-base: rgb(var(--material-rgb));
+  --material-ultra-thin-opacity: 36%;
+  --material-thin-opacity: 56%;
+  --material-regular-opacity: 72%;
+  --material-thick-opacity: 86%;
+  --material-ultra-thin-blur: 16px;
+  --material-thin-blur: 24px;
+  --material-regular-blur: 30px;
+  --material-thick-blur: 40px;
+  --material-saturation: 180%;
+
+  /* ---- Materials (outputs): background + backdrop-filter, scaled by --transparency ---- */
+  --material-ultra-thin-bg: color-mix(
+    in srgb,
+    var(--material-base)
+      calc(100% - (100% - var(--material-ultra-thin-opacity)) * var(--transparency, 1)),
+    transparent
+  );
+  --material-thin-bg: color-mix(
+    in srgb,
+    var(--material-base) calc(100% - (100% - var(--material-thin-opacity)) * var(--transparency, 1)),
+    transparent
+  );
+  --material-regular-bg: color-mix(
+    in srgb,
+    var(--material-base)
+      calc(100% - (100% - var(--material-regular-opacity)) * var(--transparency, 1)),
+    transparent
+  );
+  --material-thick-bg: color-mix(
+    in srgb,
+    var(--material-base)
+      calc(100% - (100% - var(--material-thick-opacity)) * var(--transparency, 1)),
+    transparent
+  );
+  --jr-material-saturate: calc(100% + (var(--material-saturation) - 100%) * var(--transparency, 1));
+  --material-ultra-thin-filter: blur(calc(var(--material-ultra-thin-blur) * var(--transparency, 1)))
+    saturate(var(--jr-material-saturate));
+  --material-thin-filter: blur(calc(var(--material-thin-blur) * var(--transparency, 1)))
+    saturate(var(--jr-material-saturate));
+  --material-regular-filter: blur(calc(var(--material-regular-blur) * var(--transparency, 1)))
+    saturate(var(--jr-material-saturate));
+  --material-thick-filter: blur(calc(var(--material-thick-blur) * var(--transparency, 1)))
+    saturate(var(--jr-material-saturate));
   /* Light catching the top edge of chrome (glass); none by default. */
   --material-highlight: 0 0 #0000;
 
@@ -178,59 +238,121 @@
 
 :root,
 [data-style] {
-  /* ---- Radii ---- */
-  --radius-xs: 4px;
-  --radius-sm: 6px;
-  --radius-md: 8px;
-  --radius-lg: 12px;
-  --radius-xl: 16px;
-  --radius-2xl: 22px;
-  --radius-full: 9999px;
-  --radius-artwork: 8px;
-  --radius-poster: 10px;
-  --radius-control: 7px;
+  /* ---- Radii (inputs) ---- */
+  --radius-xs-base: 4px;
+  --radius-sm-base: 6px;
+  --radius-md-base: 8px;
+  --radius-lg-base: 12px;
+  --radius-xl-base: 16px;
+  --radius-2xl-base: 22px;
+  --radius-artwork-base: 8px;
+  --radius-poster-base: 10px;
+  --radius-control-base: 7px;
+  --chrome-radius-base: 0px;
 
-  /* ---- Type scale: size / line-height / weight per text style ---- */
-  --text-large-title: 700 32px/38px var(--font-display);
-  --text-title-1: 700 26px/32px var(--font-display);
-  --text-title-2: 700 22px/28px var(--font-display);
-  --text-title-3: 600 19px/24px var(--font-display);
-  --text-headline: 600 15px/20px var(--font-text);
-  --text-body: 400 15px/20px var(--font-text);
-  --text-callout: 400 14px/19px var(--font-text);
-  --text-subheadline: 400 13px/18px var(--font-text);
-  --text-footnote: 400 12px/16px var(--font-text);
-  --text-caption: 400 11px/14px var(--font-text);
+  /* ---- Radii (outputs), scaled by the Corners option ---- */
+  --radius-xs: calc(var(--radius-xs-base) * var(--radius-scale, 1));
+  --radius-sm: calc(var(--radius-sm-base) * var(--radius-scale, 1));
+  --radius-md: calc(var(--radius-md-base) * var(--radius-scale, 1));
+  --radius-lg: calc(var(--radius-lg-base) * var(--radius-scale, 1));
+  --radius-xl: calc(var(--radius-xl-base) * var(--radius-scale, 1));
+  --radius-2xl: calc(var(--radius-2xl-base) * var(--radius-scale, 1));
+  --radius-full: 9999px;
+  --radius-artwork: calc(var(--radius-artwork-base) * var(--radius-scale, 1));
+  --radius-poster: calc(var(--radius-poster-base) * var(--radius-scale, 1));
+  --radius-control: calc(var(--radius-control-base) * var(--radius-scale, 1));
+  /* Floating chrome (glass): gap to the window edges, and its corners. */
+  --chrome-inset: 0px;
+  --chrome-radius: calc(var(--chrome-radius-base) * var(--radius-scale, 1));
+
+  /* ---- Type ramp (inputs): size, line height, weight per text style ---- */
+  --fs-large-title: 32px;
+  --lh-large-title: 38px;
+  --fw-large-title: 700;
+  --fs-title-1: 26px;
+  --lh-title-1: 32px;
+  --fw-title-1: 700;
+  --fs-title-2: 22px;
+  --lh-title-2: 28px;
+  --fw-title-2: 700;
+  --fs-title-3: 19px;
+  --lh-title-3: 24px;
+  --fw-title-3: 600;
+  --fs-headline: 15px;
+  --lh-headline: 20px;
+  --fw-headline: 600;
+  --fs-body: 15px;
+  --lh-body: 20px;
+  --fs-callout: 14px;
+  --lh-callout: 19px;
+  --fs-subheadline: 13px;
+  --lh-subheadline: 18px;
+  --fs-footnote: 12px;
+  --lh-footnote: 16px;
+  --fs-caption: 11px;
+  --lh-caption: 14px;
+
+  /* ---- Type ramp (outputs), scaled by the Text size option ---- */
+  --text-large-title: var(--fw-large-title) calc(var(--fs-large-title) * var(--text-scale, 1)) /
+    calc(var(--lh-large-title) * var(--text-scale, 1)) var(--font-display);
+  --text-title-1: var(--fw-title-1) calc(var(--fs-title-1) * var(--text-scale, 1)) /
+    calc(var(--lh-title-1) * var(--text-scale, 1)) var(--font-display);
+  --text-title-2: var(--fw-title-2) calc(var(--fs-title-2) * var(--text-scale, 1)) /
+    calc(var(--lh-title-2) * var(--text-scale, 1)) var(--font-display);
+  --text-title-3: var(--fw-title-3) calc(var(--fs-title-3) * var(--text-scale, 1)) /
+    calc(var(--lh-title-3) * var(--text-scale, 1)) var(--font-display);
+  --text-headline: var(--fw-headline) calc(var(--fs-headline) * var(--text-scale, 1)) /
+    calc(var(--lh-headline) * var(--text-scale, 1)) var(--font-text);
+  --text-body: 400 calc(var(--fs-body) * var(--text-scale, 1)) /
+    calc(var(--lh-body) * var(--text-scale, 1)) var(--font-text);
+  --text-callout: 400 calc(var(--fs-callout) * var(--text-scale, 1)) /
+    calc(var(--lh-callout) * var(--text-scale, 1)) var(--font-text);
+  --text-subheadline: 400 calc(var(--fs-subheadline) * var(--text-scale, 1)) /
+    calc(var(--lh-subheadline) * var(--text-scale, 1)) var(--font-text);
+  --text-footnote: 400 calc(var(--fs-footnote) * var(--text-scale, 1)) /
+    calc(var(--lh-footnote) * var(--text-scale, 1)) var(--font-text);
+  --text-caption: 400 calc(var(--fs-caption) * var(--text-scale, 1)) /
+    calc(var(--lh-caption) * var(--text-scale, 1)) var(--font-text);
   --tracking-large-title: -0.022em;
   --tracking-title: -0.018em;
   --tracking-headline: -0.01em;
   --tracking-body: -0.006em;
   --tracking-caption: 0;
 
-  /* ---- Spacing and density ---- */
+  /* ---- Spacing and density (inputs) ---- */
+  --section-gap-base: var(--space-8);
+  --shelf-gap-base: var(--space-5);
+  --grid-row-gap-base: var(--space-6);
+  --grid-column-gap-base: var(--space-5);
+  --card-scale-base: 1;
+  --shelf-density-base: 0;
+  --sidebar-item-height-base: 30px;
+  --track-row-height-base: 48px;
+
+  /* ---- Spacing and density (outputs), scaled by the Density option ---- */
   /* Horizontal page margin, ~40px on desktop. */
   --page-gutter: 40px;
   /* Between shelves / sections of a page. */
-  --section-gap: var(--space-8);
-  --shelf-gap: var(--space-5);
-  --grid-gap: var(--space-6) var(--space-5);
+  --section-gap: calc(var(--section-gap-base) * var(--density, 1));
+  --shelf-gap: calc(var(--shelf-gap-base) * var(--density, 1));
+  --grid-gap: calc(var(--grid-row-gap-base) * var(--density, 1))
+    calc(var(--grid-column-gap-base) * var(--density, 1));
   /* Multiplies the minimum width of grid items. */
-  --card-scale: 1;
+  --card-scale: calc(var(--card-scale-base) * var(--density-cards, 1));
   /* Added to the number of items a shelf shows (negative = bigger artwork). */
-  --shelf-density: 0;
+  --shelf-density: calc(var(--shelf-density-base) + var(--density-items, 0));
   --hero-height: clamp(420px, 70vh, 860px);
 
   /* ---- Layout ---- */
   --sidebar-width: 248px;
-  --sidebar-item-height: 30px;
+  /* Width of the sidebar when it shows icons only. */
+  --sidebar-rail-width: 60px;
+  --sidebar-item-height: max(24px, calc(var(--sidebar-item-height-base) * var(--density-rows, 1)));
   --sidebar-icon-size: 18px;
   --toolbar-height: 52px;
   --now-playing-height: 72px;
-  --track-row-height: 48px;
+  --track-row-height: max(28px, calc(var(--track-row-height-base) * var(--density-rows, 1)));
   --track-art-size: 40px;
-  /* Floating chrome (glass): gap between the sidebar / toolbar / bar and the window edges. */
-  --chrome-inset: 0px;
-  --chrome-radius: 0px;
 }
 
 /* ---------------- Dark ---------------- */
@@ -244,7 +366,7 @@
   --secondary-system-grouped-background: #1c1c1e;
 
   --label: #ffffff;
-  --secondary-label: rgb(235 235 245 / 0.6);
+  --secondary-label: rgb(235 235 245 / 0.66);
   --tertiary-label: rgb(235 235 245 / 0.3);
   --quaternary-label: rgb(235 235 245 / 0.16);
 
@@ -267,6 +389,8 @@
   --system-purple: #bf5af2;
   --system-gray: #8e8e93;
   --music-red: #fa2d48;
+  --text-link: #4ea2ff;
+  --text-danger: #ff6961;
 
   --surface-window-base: #1d1d1f;
   --surface-sidebar-base: #262628;
@@ -279,6 +403,11 @@
 
   --material-rgb: 30 30 32;
   --material-border: rgb(255 255 255 / 0.1);
+
+  --accent: var(--accent-dark, #fc7b8c);
+  --accent-contrast: var(--accent-contrast-dark, #000000);
+  --accent-fill: var(--accent-fill-dark, #ed0624);
+  --accent-fill-contrast: var(--accent-fill-contrast-dark, #ffffff);
 
   --shadow-xs: 0 1px 1px rgb(0 0 0 / 0.3);
   --shadow-sm: 0 1px 3px rgb(0 0 0 / 0.4), 0 1px 2px rgb(0 0 0 / 0.3);
@@ -296,43 +425,11 @@
 [data-theme] {
   --accent-tint: color-mix(in srgb, var(--accent) 14%, transparent);
   --accent-tint-hover: color-mix(in srgb, var(--accent) 22%, transparent);
-  --link: var(--system-blue);
-  --danger: var(--system-red);
+  --link: var(--text-link);
+  --danger: var(--text-danger);
   --success: var(--system-green);
-  --focus-ring: color-mix(in srgb, var(--accent) 55%, transparent);
-}
-
-/* ---------------- Accent presets ---------------- */
-[data-accent='red'] {
-  --accent: var(--music-red);
-}
-[data-accent='pink'] {
-  --accent: var(--system-pink);
-}
-[data-accent='orange'] {
-  --accent: var(--system-orange);
-}
-[data-accent='yellow'] {
-  --accent: var(--system-yellow);
-  --accent-contrast: #000000;
-}
-[data-accent='green'] {
-  --accent: var(--system-green);
-}
-[data-accent='teal'] {
-  --accent: var(--system-teal);
-}
-[data-accent='blue'] {
-  --accent: var(--system-blue);
-}
-[data-accent='indigo'] {
-  --accent: var(--system-indigo);
-}
-[data-accent='purple'] {
-  --accent: var(--system-purple);
-}
-[data-accent='graphite'] {
-  --accent: var(--system-gray);
+  /* Keyboard focus: a solid accent ring, at least 3:1 against the surfaces. */
+  --focus-ring: var(--accent);
 }
 
 /* ---------------- Platform adjustments ---------------- */

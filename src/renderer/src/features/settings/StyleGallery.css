@@ -22,8 +22,8 @@
   outline: none;
 }
 .jr-style-card:focus-visible .jr-style-preview {
-  outline: 3px solid var(--focus-ring);
-  outline-offset: 2px;
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 3px;
 }
 .jr-style-card__text {
   display: flex;
@@ -49,8 +49,8 @@
   width: 22px;
   height: 22px;
   border-radius: var(--radius-full);
-  background: var(--accent);
-  color: var(--accent-contrast);
+  background: var(--accent-fill);
+  color: var(--accent-fill-contrast);
   box-shadow: var(--shadow-sm);
 }
 .jr-style-card__check svg {
@@ -135,7 +135,7 @@
   width: var(--sidebar-icon-size);
   height: var(--sidebar-icon-size);
   border-radius: 5px;
-  background: var(--accent);
+  background: var(--accent-fill);
 }
 .jr-style-preview__nav b {
   height: 8px;
@@ -224,7 +224,7 @@
   opacity: 0.5;
 }
 .jr-style-preview__row.is-current b {
-  background: var(--accent);
+  background: var(--accent-fill);
   opacity: 1;
 }
 .jr-style-preview__player {
@@ -289,36 +289,10 @@
   box-shadow: var(--material-highlight);
 }
 
-/* Cinema: an artwork glow tints everything; the sidebar is a rail of icons. */
+/* Cinema: an artwork glow tints everything. */
 .jr-style-preview__window[data-style='cinema'] {
-  --ambient-rgb: 196 84 52;
-  --ambient-rgb-2: 72 56 150;
-}
-.jr-style-preview__window[data-style='cinema'] .jr-style-preview__backdrop {
-  display: block;
-}
-.jr-style-preview__window[data-style='cinema'] .jr-style-preview__art {
-  position: absolute;
-  inset: -20%;
-  background:
-    radial-gradient(40% 50% at 30% 30%, rgb(var(--ambient-rgb)), transparent 70%),
-    radial-gradient(45% 50% at 75% 60%, rgb(var(--ambient-rgb-2)), transparent 70%);
-  filter: blur(40px);
-  opacity: var(--cinema-art-opacity);
-}
-.jr-style-preview__window[data-style='cinema'] .jr-style-preview__sidebar {
-  width: var(--sidebar-rail-width);
-  padding-inline: calc((var(--sidebar-rail-width) - 40px) / 2);
-  border-right: 0;
-  background: transparent;
-}
-.jr-style-preview__window[data-style='cinema']
-  :is(.jr-style-preview__search, .jr-style-preview__nav b) {
-  visibility: hidden;
-}
-.jr-style-preview__window[data-style='cinema'] .jr-style-preview__nav {
-  width: 40px;
-  padding: 0 calc((40px - var(--sidebar-icon-size)) / 2);
+  --ambient-rgb: 168 82 60;
+  --ambient-rgb-2: 72 62 140;
 }
 .jr-style-preview__window[data-style='cinema'] .jr-style-preview__card {
   background: linear-gradient(160deg, rgb(var(--ambient-rgb)), rgb(var(--ambient-rgb-2)));
@@ -329,6 +303,79 @@
 }
 .jr-style-preview__window[data-style='cinema'] .jr-style-preview__player {
   border-top-color: transparent;
+}
+.jr-style-preview__window[data-style='cinema'] .jr-style-preview__row:nth-child(even) {
+  background: color-mix(in srgb, var(--label) 3%, transparent);
+}
+
+/* Artwork backdrop (any style): the artwork's colours, blurred, behind the window. */
+.jr-style-preview__window:is([data-backdrop='subtle'], [data-backdrop='immersive'])
+  .jr-style-preview__backdrop {
+  display: block;
+}
+.jr-style-preview__window:is([data-backdrop='subtle'], [data-backdrop='immersive'])
+  .jr-style-preview__art {
+  position: absolute;
+  inset: -20%;
+  background:
+    radial-gradient(40% 50% at 30% 30%, rgb(var(--ambient-rgb, 168 82 60)), transparent 70%),
+    radial-gradient(45% 50% at 75% 60%, rgb(var(--ambient-rgb-2, 72 62 140)), transparent 70%);
+  filter: blur(40px);
+  opacity: 0.3;
+}
+[data-theme='dark']
+  .jr-style-preview__window:is([data-backdrop='subtle'], [data-backdrop='immersive'])
+  .jr-style-preview__art {
+  opacity: 0.5;
+}
+.jr-style-preview__window[data-backdrop='subtle'] .jr-style-preview__art {
+  opacity: 0.16;
+}
+[data-theme='dark'] .jr-style-preview__window[data-backdrop='subtle'] .jr-style-preview__art {
+  opacity: 0.3;
+}
+.jr-style-preview__window:is([data-backdrop='subtle'], [data-backdrop='immersive'])
+  .jr-style-preview__main {
+  background: transparent;
+}
+.jr-style-preview__window:not([data-style='glass']):is(
+    [data-backdrop='subtle'],
+    [data-backdrop='immersive']
+  ) {
+  background: var(--surface-window);
+}
+
+/* Sidebar: icons only (a rail) or hidden. */
+.jr-style-preview__window[data-sidebar='icons'] .jr-style-preview__sidebar {
+  width: var(--sidebar-rail-width);
+  padding-inline: calc((var(--sidebar-rail-width) - 40px) / 2);
+}
+.jr-style-preview__window[data-style='cinema'][data-sidebar='icons'] .jr-style-preview__sidebar {
+  border-right: 0;
+  background: transparent;
+}
+.jr-style-preview__window[data-sidebar='icons']
+  :is(.jr-style-preview__search, .jr-style-preview__nav b) {
+  visibility: hidden;
+}
+.jr-style-preview__window[data-sidebar='icons'] .jr-style-preview__search {
+  width: 40px;
+  visibility: visible;
+}
+.jr-style-preview__window[data-sidebar='icons'] .jr-style-preview__nav {
+  width: 40px;
+  padding: 0 calc((40px - var(--sidebar-icon-size)) / 2);
+}
+.jr-style-preview__window[data-sidebar='auto-hide'] .jr-style-preview__sidebar {
+  display: none;
+}
+
+/* Landscape cards on video shelves. */
+.jr-style-preview__window[data-cards='landscape'] .jr-style-preview__shelf {
+  grid-auto-columns: calc(150px * var(--card-scale));
+}
+.jr-style-preview__window[data-cards='landscape'] .jr-style-preview__card {
+  aspect-ratio: 16 / 9;
 }
 
 /* Minimal: monochrome, no zebra, hairlines. */
@@ -348,4 +395,13 @@
 .jr-style-preview__window[data-style='minimal'] .jr-style-preview__row.is-current b {
   background: var(--label);
   opacity: 0.85;
+}
+
+/* The large live preview of the Appearance pane. */
+.jr-style-preview--large {
+  aspect-ratio: 16 / 9;
+  border-radius: var(--radius-lg);
+}
+.jr-style-preview--large .jr-style-preview__window {
+  height: 405px;
 }

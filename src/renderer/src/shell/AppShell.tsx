@@ -78,7 +78,7 @@ function ShellLayout() {
   return (
     <ShellContext.Provider value={ctx}>
       <div className={clsx('jr-shell', immersive && 'jr-shell--immersive')}>
-        <ShellAmbient scrollRef={scrollRef} hidden={immersive} />
+        <ShellAmbient scrollRef={scrollRef} fallback={nowPlayingTarget} hidden={immersive} />
         <div className="jr-shell__sidebar" hidden={immersive}>
           <ShellSidebar
             searchRef={searchRef}

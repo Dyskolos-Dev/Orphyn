@@ -101,8 +101,8 @@ a {
   outline: none;
 }
 :focus-visible {
-  outline: 3px solid var(--focus-ring);
-  outline-offset: 1px;
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
 }
 
 ::selection {
@@ -143,6 +143,7 @@ html:not([data-platform='darwin']) ::-webkit-scrollbar-thumb:hover {
   border: 0;
 }
 
+/* Reduced motion: the OS setting, or Settings > Appearance > Motion (html[data-motion='reduced']). */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -152,4 +153,12 @@ html:not([data-platform='darwin']) ::-webkit-scrollbar-thumb:hover {
     transition-duration: 1ms !important;
     scroll-behavior: auto !important;
   }
+}
+html[data-motion='reduced'] *,
+html[data-motion='reduced'] *::before,
+html[data-motion='reduced'] *::after {
+  animation-duration: 1ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 1ms !important;
+  scroll-behavior: auto !important;
 }

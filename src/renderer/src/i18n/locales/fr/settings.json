@@ -3,6 +3,7 @@
   "nav": "Sections des réglages",
   "panes": {
     "general": "Général",
+    "appearance": "Apparence",
     "servers": "Serveurs",
     "playback": "Lecture",
     "music": "Musique",
@@ -17,8 +18,12 @@
       "system": "Système",
       "fr": "Français",
       "en": "English"
-    },
-    "appearance": {
+    }
+  },
+  "appearance": {
+    "preview": "Aperçu",
+    "previewCaption": "Chaque changement s’applique aussitôt, partout.",
+    "mode": {
       "header": "Apparence",
       "label": "Apparence",
       "system": "Système",
@@ -28,38 +33,17 @@
     "style": {
       "header": "Style de l’interface",
       "label": "Style de l’interface",
-      "selected": "Sélectionné",
-      "styles": {
-        "classic": {
-          "name": "Classique",
-          "description": "Le style de référence : équilibré, aéré et familier."
-        },
-        "glass": {
-          "name": "Verre",
-          "description": "Des couches translucides qui captent la lumière et flottent sur un halo."
-        },
-        "cinema": {
-          "name": "Cinéma",
-          "description": "Immersif : l’affiche ou la pochette affichée teinte toute l’interface."
-        },
-        "minimal": {
-          "name": "Minimal",
-          "description": "Épuré et typographique : surfaces mates, filets fins, couleur discrète."
-        },
-        "compact": {
-          "name": "Compact",
-          "description": "Lignes denses et visuels plus petits, pensé pour les grandes bibliothèques."
-        }
-      },
-      "reduceTransparency": {
-        "label": "Réduire la transparence",
-        "description": "Surfaces opaques et sans flou, dans tous les styles."
-      }
+      "selected": "Sélectionné"
     },
     "accent": {
-      "header": "Couleur d’accentuation",
-      "label": "Couleur d’accentuation",
+      "header": "Couleur d’accent",
+      "label": "Couleur d’accent",
       "custom": "Couleur personnalisée",
+      "adjusted": "Ajustée pour rester lisible : {{text}} pour le texte, {{fill}} pour les boutons.",
+      "followArtwork": {
+        "label": "Suivre la couleur de l’illustration",
+        "description": "L’accent prend la couleur de l’illustration affichée ou en lecture."
+      },
       "colors": {
         "red": "Rouge",
         "pink": "Rose",
@@ -71,6 +55,94 @@
         "indigo": "Indigo",
         "purple": "Violet",
         "graphite": "Graphite"
+      }
+    },
+    "materials": {
+      "header": "Matières et formes",
+      "transparency": {
+        "label": "Transparence",
+        "description": "Flou et translucidité des barres. 0 = opaque.",
+        "solidStyle": "Minimal est toujours opaque.",
+        "value": "{{percent}} %"
+      },
+      "corners": {
+        "label": "Coins",
+        "sharp": "Vifs",
+        "standard": "Standard",
+        "round": "Arrondis"
+      },
+      "density": {
+        "label": "Densité",
+        "description": "Espacements et lignes, en plus de ceux du style.",
+        "comfortable": "Aérée",
+        "standard": "Standard",
+        "compact": "Compacte"
+      },
+      "textSize": {
+        "label": "Taille du texte",
+        "s": "S",
+        "m": "M",
+        "l": "L",
+        "xl": "XL",
+        "sLabel": "Petite",
+        "mLabel": "Moyenne",
+        "lLabel": "Grande",
+        "xlLabel": "Très grande"
+      }
+    },
+    "layout": {
+      "header": "Disposition",
+      "sidebar": {
+        "label": "Barre latérale",
+        "expanded": "Déployée",
+        "icons": "Icônes seules",
+        "auto-hide": "Masquage auto",
+        "autoHideHint": "Pointez le bord gauche de la fenêtre pour l’afficher."
+      },
+      "backdrop": {
+        "label": "Illustration en fond",
+        "description": "L’illustration de la page, floutée derrière l’interface.",
+        "off": "Non",
+        "subtle": "Discrète",
+        "immersive": "Immersive"
+      },
+      "videoCards": {
+        "label": "Rangées vidéo",
+        "poster": "Affiches",
+        "landscape": "Paysage"
+      },
+      "motion": {
+        "label": "Animations",
+        "description": "Réduites suit aussi le réglage du système.",
+        "full": "Complètes",
+        "reduced": "Réduites"
+      }
+    },
+    "reset": {
+      "label": "Rétablir les réglages du style",
+      "description": "Remet chaque option ci-dessus comme {{style}} le prévoit.",
+      "done": "Réglages de {{style}} rétablis"
+    },
+    "styles": {
+      "classic": {
+        "name": "Classique",
+        "description": "Le style de référence : équilibré, aéré et familier."
+      },
+      "glass": {
+        "name": "Verre",
+        "description": "Des couches translucides qui captent la lumière et flottent sur un halo."
+      },
+      "cinema": {
+        "name": "Cinéma",
+        "description": "Immersif : l’affiche ou la pochette affichée teinte toute l’interface."
+      },
+      "minimal": {
+        "name": "Minimal",
+        "description": "Épuré et typographique : surfaces mates, filets fins, couleur discrète."
+      },
+      "compact": {
+        "name": "Compact",
+        "description": "Lignes denses et visuels plus petits, pensé pour les grandes bibliothèques."
       }
     }
   },

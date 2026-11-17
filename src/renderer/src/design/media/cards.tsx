@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import { IconButton } from '../controls/IconButton'
 import { Artwork, initials, type ArtworkRatio } from './Artwork'
+import { useShelfLayout } from './shelfContext'
 import './media.css'
 
 /** Props shared by every card. */
@@ -161,10 +162,31 @@ export interface PosterCardProps extends CardBaseProps {
   progress?: number
   /** Hide the text under the poster (rows of posters). */
   hideText?: boolean
+  /**
+   * 16:9 artwork (thumb / backdrop) shown instead of the poster when the user prefers landscape
+   * cards on video shelves (Settings > Appearance). Without it the poster is cropped to 16:9.
+   */
+  landscapeImage?: string | null
 }
 
-/** 2:3 movie / series poster. */
-export function PosterCard({ progress, hideText, ...props }: PosterCardProps) {
+/** 2:3 movie / series poster (16:9 on shelves when the user prefers landscape video cards). */
+export function PosterCard({ progress, hideText, landscapeImage, ...props }: PosterCardProps) {
+  const { postersAsLandscape } = useShelfLayout()
+  if (postersAsLandscape) {
+    return (
+      <MediaCard
+        {...props}
+        image={landscapeImage ?? props.image}
+        srcSet={landscapeImage ? undefined : props.srcSet}
+        kind="landscape"
+        ratio="16/9"
+        shape="poster"
+        hideText={hideText}
+        className={clsx(props.className, !landscapeImage && 'jr-card--cropped-poster')}
+        artOverlay={progress != null && <CardProgress value={progress} />}
+      />
+    )
+  }
   return (
     <MediaCard
       {...props}

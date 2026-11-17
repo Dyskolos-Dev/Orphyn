@@ -1,10 +1,19 @@
-import { Info, MessageCircle, Music, Play, Server, Settings as SettingsIcon } from 'lucide-react'
+import {
+  Info,
+  MessageCircle,
+  Music,
+  Palette,
+  Play,
+  Server,
+  Settings as SettingsIcon,
+} from 'lucide-react'
 import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useSearchParams } from 'react-router'
 import { SidebarItem } from '@renderer/design'
 import { ShellPage } from '@renderer/shell'
 import { AboutPane } from './AboutPane'
+import { AppearancePane } from './AppearancePane'
 import { DiscordPane } from './DiscordPane'
 import { GeneralPane } from './GeneralPane'
 import { MusicPane } from './MusicPane'
@@ -14,6 +23,7 @@ import './settings.css'
 
 const PANES = [
   { id: 'general', icon: <SettingsIcon />, view: <GeneralPane /> },
+  { id: 'appearance', icon: <Palette />, view: <AppearancePane /> },
   { id: 'servers', icon: <Server />, view: <ServersPane /> },
   { id: 'playback', icon: <Play />, view: <PlaybackPane /> },
   { id: 'music', icon: <Music />, view: <MusicPane /> },

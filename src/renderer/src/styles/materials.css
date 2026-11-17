@@ -26,3 +26,11 @@
 .jr-material-bordered {
   box-shadow: inset 0 0 0 0.5px var(--material-border);
 }
+
+/* No blur on blur: a material inside another one (the capsule of the now-playing bar, a field in a
+   popover) only takes its colour; the outer material already blurs what is behind. */
+:is(.jr-material-ultra-thin, .jr-material-thin, .jr-material-regular, .jr-material-thick, .jr-sheet)
+  :is(.jr-material-ultra-thin, .jr-material-thin, .jr-material-regular, .jr-material-thick) {
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}

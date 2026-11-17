@@ -1,14 +1,17 @@
 /*
  * Interface styles (owner: design agent). Documented in docs/DESIGN.md, "Interface styles".
  *
- * Each style is a token layer on [data-style='…'] (ThemeProvider writes it on <html>; the Settings
- * previews put it on their own subtree). Layers override style tokens only (tokens.css, "Style
- * tokens"): materials, radii, type scale, spacing, card sizes, sidebar width, row heights. The few
- * things tokens cannot express are component variants, scoped to html[data-style='…'] so they
- * never reach a preview of another style, at the end of this file and in shell.css.
+ * Each style is a token layer on [data-style='…'] (the interface style store writes it on <html>;
+ * the Settings previews put it on their own subtree). Layers override the *inputs* of the style
+ * tokens only (tokens.css, "Style tokens": --radius-*-base, the --fs-, --lh- and --fw- type
+ * numbers, spacing bases, the material recipe, sizes), so the user's appearance options (corners, text size, density,
+ * transparency) scale every style the same way. The few things tokens cannot express are
+ * component variants, scoped to html[data-style='…'] so they never reach a preview of another
+ * style, at the end of this file and in shell.css.
  *
  * Theme-dependent primitives a layer needs are declared on :root / [data-theme='dark'], and the
- * layer is declared on `[data-style='x'] [data-theme]` too, so a forced theme (HeroBanner) re-resolves it.
+ * layer is declared on `[data-style='x'] [data-theme]` too, so a forced theme (HeroBanner)
+ * re-resolves it.
  *
  * Classic is the base tokens, unchanged: it has no layer.
  */
@@ -25,12 +28,18 @@
   --glass-wash-2: rgb(196 222 255 / 0.9);
   --glass-wash-3: rgb(214 246 236 / 0.8);
   --glass-wash-base: #eef0f6;
-  /* Cinema */
+  /* Rows and selections on glass: a whisper of the label colour, never a grey slab. */
+  --glass-row: rgb(255 255 255 / 0.42);
+  --glass-selected: rgb(255 255 255 / 0.78);
+  /* Cinema: the ambient colour is clamped to a mid lightness by the shell, so these mixes keep
+     the label colours readable whatever the artwork. */
   --cinema-base: #f6f6f8;
-  --cinema-tint-amount: 9%;
-  --cinema-art-opacity: 0.32;
+  --cinema-tint-amount: 10%;
+  --cinema-art-opacity: 0.3;
+  --cinema-art-filter: blur(90px) saturate(130%) brightness(1.15);
   /* Minimal */
   --minimal-surface: #ffffff;
+  --minimal-sidebar: #fafafa;
 }
 [data-theme='dark'] {
   --glass-rgb: 38 38 44;
@@ -42,41 +51,48 @@
   --glass-wash-2: rgb(30 60 130 / 0.6);
   --glass-wash-3: rgb(20 90 90 / 0.45);
   --glass-wash-base: #121318;
+  --glass-row: rgb(255 255 255 / 0.04);
+  --glass-selected: rgb(255 255 255 / 0.14);
   --cinema-base: #0b0b0d;
-  --cinema-tint-amount: 20%;
-  --cinema-art-opacity: 0.55;
+  --cinema-tint-amount: 16%;
+  --cinema-art-opacity: 0.5;
+  --cinema-art-filter: blur(90px) saturate(130%) brightness(0.6);
   --minimal-surface: #161618;
+  --minimal-sidebar: #161618;
 }
 
 /* ================================ Glass ================================ */
 /* Translucent everything: strong blur + saturation, specular edges, rounder, floating chrome. */
 [data-style='glass'],
 [data-style='glass'] [data-theme] {
-  --material-ultra-thin-bg: rgb(var(--glass-rgb) / 0.22);
-  --material-thin-bg: rgb(var(--glass-rgb) / 0.38);
-  --material-regular-bg: rgb(var(--glass-rgb) / 0.5);
-  --material-thick-bg: rgb(var(--glass-rgb) / 0.62);
-  --material-ultra-thin-filter: blur(20px) saturate(190%);
-  --material-thin-filter: blur(28px) saturate(200%);
-  --material-regular-filter: blur(36px) saturate(210%);
-  --material-thick-filter: blur(48px) saturate(220%);
+  --material-base: rgb(var(--glass-rgb));
+  --material-ultra-thin-opacity: 22%;
+  --material-thin-opacity: 38%;
+  --material-regular-opacity: 50%;
+  --material-thick-opacity: 62%;
+  --material-ultra-thin-blur: 20px;
+  --material-thin-blur: 28px;
+  --material-regular-blur: 36px;
+  --material-thick-blur: 48px;
+  --material-saturation: 210%;
   --material-highlight: var(--glass-highlight);
+  --surface-grouped: var(--material-thin-bg);
 }
 [data-style='glass'] {
-  --radius-xs: 6px;
-  --radius-sm: 8px;
-  --radius-md: 11px;
-  --radius-lg: 16px;
-  --radius-xl: 22px;
-  --radius-2xl: 28px;
-  --radius-artwork: 12px;
-  --radius-poster: 14px;
-  --radius-control: 10px;
-  --sidebar-item-height: 32px;
+  --radius-xs-base: 6px;
+  --radius-sm-base: 8px;
+  --radius-md-base: 11px;
+  --radius-lg-base: 16px;
+  --radius-xl-base: 22px;
+  --radius-2xl-base: 28px;
+  --radius-artwork-base: 12px;
+  --radius-poster-base: 14px;
+  --radius-control-base: 10px;
+  --sidebar-item-height-base: 32px;
   /* The floating toolbar sits 8px below the window edge. */
   --toolbar-height: 60px;
   --chrome-inset: 10px;
-  --chrome-radius: 22px;
+  --chrome-radius-base: 22px;
 }
 
 /* ================================ Cinema ================================ */
@@ -92,129 +108,159 @@
     var(--cinema-base)
   );
   --surface-sidebar: color-mix(in srgb, var(--surface-window) 70%, transparent);
-  --surface-grouped: color-mix(in srgb, var(--ambient) 6%, var(--secondary-system-background));
-  --material-ultra-thin-bg: color-mix(in srgb, var(--surface-window) 30%, transparent);
-  --material-thin-bg: color-mix(in srgb, var(--surface-window) 50%, transparent);
-  --material-regular-bg: color-mix(in srgb, var(--surface-window) 66%, transparent);
-  --material-thick-bg: color-mix(in srgb, var(--surface-window) 78%, transparent);
+  --surface-grouped: color-mix(in srgb, var(--label) 5%, transparent);
+  --material-base: var(--surface-window);
+  --material-ultra-thin-opacity: 30%;
+  --material-thin-opacity: 50%;
+  --material-regular-opacity: 66%;
+  --material-thick-opacity: 80%;
 }
 [data-style='cinema'] {
-  --text-large-title: 800 40px/46px var(--font-display);
-  --text-title-1: 800 32px/38px var(--font-display);
-  --text-title-2: 700 25px/31px var(--font-display);
-  --text-title-3: 600 21px/26px var(--font-display);
-  --text-headline: 600 16px/21px var(--font-text);
-  --text-body: 400 16px/22px var(--font-text);
-  --text-callout: 400 15px/20px var(--font-text);
-  --text-subheadline: 400 14px/19px var(--font-text);
+  --fs-large-title: 40px;
+  --lh-large-title: 46px;
+  --fw-large-title: 800;
+  --fs-title-1: 32px;
+  --lh-title-1: 38px;
+  --fw-title-1: 800;
+  --fs-title-2: 25px;
+  --lh-title-2: 31px;
+  --fs-title-3: 21px;
+  --lh-title-3: 26px;
+  --fs-headline: 16px;
+  --lh-headline: 21px;
+  --fs-body: 16px;
+  --lh-body: 22px;
+  --fs-callout: 15px;
+  --lh-callout: 20px;
+  --fs-subheadline: 14px;
+  --lh-subheadline: 19px;
   --tracking-large-title: -0.03em;
   --tracking-title: -0.022em;
-  --radius-artwork: 10px;
-  --radius-poster: 12px;
+  --radius-artwork-base: 10px;
+  --radius-poster-base: 12px;
   --page-gutter: 48px;
-  --section-gap: var(--space-10);
-  --shelf-gap: var(--space-6);
-  --grid-gap: var(--space-8) var(--space-6);
-  --card-scale: 1.25;
-  --shelf-density: -1;
+  --section-gap-base: var(--space-10);
+  --shelf-gap-base: var(--space-6);
+  --grid-row-gap-base: var(--space-8);
+  --grid-column-gap-base: var(--space-6);
+  --card-scale-base: 1.25;
+  --shelf-density-base: -1;
   --hero-height: clamp(480px, 80vh, 1000px);
-  /* The sidebar recedes to a rail of icons and expands over the content on hover. */
-  --sidebar-rail-width: 60px;
-  --sidebar-item-height: 36px;
+  --sidebar-item-height-base: 36px;
   --sidebar-icon-size: 20px;
-}
-/* The macOS traffic lights need a wider rail. */
-[data-platform='darwin'][data-style='cinema'] {
-  --sidebar-rail-width: 80px;
 }
 
 /* ================================ Minimal ================================ */
-/* Pure and typographic: flat opaque surfaces, no blur, hairlines, air, accent used sparingly. */
+/* Pure and typographic: flat opaque surfaces, no blur, no shadows, hairlines, air. */
 [data-style='minimal'],
 [data-style='minimal'] [data-theme] {
   --surface-window: var(--minimal-surface);
-  --surface-sidebar: var(--minimal-surface);
+  --surface-sidebar: var(--minimal-sidebar);
   --surface-grouped: var(--minimal-surface);
-  --material-ultra-thin-bg: color-mix(in srgb, var(--minimal-surface) 92%, transparent);
-  --material-thin-bg: var(--minimal-surface);
-  --material-regular-bg: var(--minimal-surface);
-  --material-thick-bg: var(--minimal-surface);
-  --material-ultra-thin-filter: none;
-  --material-thin-filter: none;
-  --material-regular-filter: none;
-  --material-thick-filter: none;
+  --material-base: var(--minimal-surface);
+  --material-ultra-thin-opacity: 100%;
+  --material-thin-opacity: 100%;
+  --material-regular-opacity: 100%;
+  --material-thick-opacity: 100%;
+  --material-ultra-thin-blur: 0px;
+  --material-thin-blur: 0px;
+  --material-regular-blur: 0px;
+  --material-thick-blur: 0px;
+  --material-saturation: 100%;
   --shadow-artwork: none;
+  --shadow-popover: 0 0 0 0.5px var(--opaque-separator), 0 8px 24px rgb(0 0 0 / 0.08);
+}
+[data-style='minimal'] [data-theme='dark'],
+[data-theme='dark'][data-style='minimal'] {
+  --shadow-popover: 0 0 0 0.5px var(--opaque-separator), 0 8px 24px rgb(0 0 0 / 0.4);
 }
 [data-style='minimal'] {
-  --radius-xs: 3px;
-  --radius-sm: 4px;
-  --radius-md: 6px;
-  --radius-lg: 8px;
-  --radius-xl: 12px;
-  --radius-artwork: 4px;
-  --radius-poster: 6px;
-  --radius-control: 5px;
-  --text-large-title: 600 36px/42px var(--font-display);
-  --text-title-1: 600 28px/34px var(--font-display);
-  --text-title-2: 600 20px/26px var(--font-display);
-  --text-title-3: 500 18px/24px var(--font-display);
-  --text-headline: 500 15px/20px var(--font-text);
+  --radius-xs-base: 3px;
+  --radius-sm-base: 4px;
+  --radius-md-base: 6px;
+  --radius-lg-base: 8px;
+  --radius-xl-base: 12px;
+  --radius-2xl-base: 14px;
+  --radius-artwork-base: 4px;
+  --radius-poster-base: 6px;
+  --radius-control-base: 5px;
+  --fs-large-title: 36px;
+  --lh-large-title: 42px;
+  --fw-large-title: 600;
+  --fs-title-1: 28px;
+  --lh-title-1: 34px;
+  --fw-title-1: 600;
+  --fs-title-2: 20px;
+  --lh-title-2: 26px;
+  --fw-title-2: 600;
+  --fs-title-3: 18px;
+  --lh-title-3: 24px;
+  --fw-title-3: 500;
+  --fw-headline: 500;
   --tracking-large-title: -0.03em;
   --tracking-title: -0.02em;
   --page-gutter: 56px;
-  --section-gap: var(--space-12);
-  --shelf-gap: var(--space-7);
-  --grid-gap: var(--space-10) var(--space-7);
+  --section-gap-base: var(--space-12);
+  --shelf-gap-base: var(--space-7);
+  --grid-row-gap-base: var(--space-10);
+  --grid-column-gap-base: var(--space-7);
 }
 
 /* ================================ Compact ================================ */
 /* Dense for large libraries: smaller type, artwork and rows, tighter grids, narrower sidebar. */
 [data-style='compact'] {
-  --radius-md: 6px;
-  --radius-lg: 10px;
-  --radius-xl: 14px;
-  --radius-artwork: 6px;
-  --radius-poster: 7px;
-  --text-large-title: 700 24px/30px var(--font-display);
-  --text-title-1: 700 21px/26px var(--font-display);
-  --text-title-2: 700 17px/22px var(--font-display);
-  --text-title-3: 600 15px/20px var(--font-display);
-  --text-headline: 600 13px/18px var(--font-text);
-  --text-body: 400 13px/18px var(--font-text);
-  --text-callout: 400 13px/17px var(--font-text);
-  --text-subheadline: 400 12px/16px var(--font-text);
-  --text-footnote: 400 11px/14px var(--font-text);
-  --text-caption: 400 10px/13px var(--font-text);
+  --radius-md-base: 6px;
+  --radius-lg-base: 10px;
+  --radius-xl-base: 14px;
+  --radius-2xl-base: 18px;
+  --radius-artwork-base: 6px;
+  --radius-poster-base: 7px;
+  --radius-control-base: 6px;
+  --fs-large-title: 24px;
+  --lh-large-title: 30px;
+  --fs-title-1: 21px;
+  --lh-title-1: 26px;
+  --fs-title-2: 17px;
+  --lh-title-2: 22px;
+  --fs-title-3: 15px;
+  --lh-title-3: 20px;
+  --fs-headline: 13px;
+  --lh-headline: 18px;
+  --fs-body: 13px;
+  --lh-body: 18px;
+  --fs-callout: 13px;
+  --lh-callout: 17px;
+  --fs-subheadline: 12px;
+  --lh-subheadline: 16px;
+  --fs-footnote: 11px;
+  --lh-footnote: 14px;
+  --fs-caption: 10px;
+  --lh-caption: 13px;
   --page-gutter: 24px;
-  --section-gap: var(--space-5);
-  --shelf-gap: var(--space-3);
-  --grid-gap: var(--space-4) var(--space-3);
-  --card-scale: 0.72;
-  --shelf-density: 2;
+  --section-gap-base: var(--space-6);
+  --shelf-gap-base: var(--space-3);
+  --grid-row-gap-base: var(--space-4);
+  --grid-column-gap-base: var(--space-3);
+  --card-scale-base: 0.72;
+  --shelf-density-base: 2;
   --hero-height: clamp(300px, 46vh, 520px);
   --sidebar-width: 208px;
-  --sidebar-item-height: 26px;
+  --sidebar-item-height-base: 26px;
   --sidebar-icon-size: 16px;
   --toolbar-height: 44px;
   --now-playing-height: 60px;
-  --track-row-height: 32px;
+  --track-row-height-base: 32px;
   --track-art-size: 24px;
 }
 
-/* ================================ Reduce transparency ================================ */
-/* Opaque materials and no blur, in every style. */
-html[data-reduce-transparency='true'],
-html[data-reduce-transparency='true'] [data-style],
-html[data-reduce-transparency='true'] [data-theme] {
-  --material-ultra-thin-bg: color-mix(in srgb, var(--surface-window) 94%, var(--label));
-  --material-thin-bg: color-mix(in srgb, var(--surface-window) 94%, var(--label));
-  --material-regular-bg: color-mix(in srgb, var(--surface-window) 95%, var(--label));
-  --material-thick-bg: color-mix(in srgb, var(--surface-window) 96%, var(--label));
-  --material-ultra-thin-filter: none;
-  --material-thin-filter: none;
-  --material-regular-filter: none;
-  --material-thick-filter: none;
+/* The macOS traffic lights need a wider rail of icons. */
+html[data-platform='darwin'],
+html[data-platform='darwin'] [data-style] {
+  --sidebar-rail-width: 80px;
 }
+
+/* ================================ Solid (transparency 0) ================================ */
+/* Materials are already opaque (--transparency 0); this also stops every other backdrop blur. */
 html[data-reduce-transparency='true'] *,
 html[data-reduce-transparency='true'] *::before,
 html[data-reduce-transparency='true'] *::after {
@@ -255,23 +301,22 @@ html[data-style='glass'] .jr-sheet {
 html[data-style='glass'] :is(.jr-popover, .jr-toast) {
   box-shadow: var(--shadow-popover), var(--material-highlight);
 }
-html[data-style='glass'] .jr-button:not(.jr-button--plain),
-html[data-style='glass']
-  .jr-icon-button:is(.jr-icon-button--gray, .jr-icon-button--filled, .jr-icon-button--tinted) {
+html[data-style='glass'] .jr-button:is(.jr-button--filled, .jr-button--contrast),
+html[data-style='glass'] .jr-icon-button.jr-icon-button--filled {
   background-image: linear-gradient(
     180deg,
-    rgb(255 255 255 / 0.3),
-    rgb(255 255 255 / 0.06) 52%,
+    rgb(255 255 255 / 0.24),
+    rgb(255 255 255 / 0.04) 52%,
     rgb(255 255 255 / 0) 53%,
-    rgb(255 255 255 / 0.08)
+    rgb(255 255 255 / 0.06)
   );
   box-shadow:
-    inset 0 1px 0 rgb(255 255 255 / 0.5),
-    inset 0 0 0 0.5px rgb(255 255 255 / 0.22),
-    0 4px 14px color-mix(in srgb, var(--jr-btn-bg, var(--accent)) 28%, transparent);
+    inset 0 1px 0 rgb(255 255 255 / 0.45),
+    inset 0 0 0 0.5px rgb(255 255 255 / 0.2),
+    0 4px 14px color-mix(in srgb, var(--jr-btn-bg, var(--accent-fill)) 26%, transparent);
 }
 html[data-style='glass'] .jr-button:is(.jr-button--gray, .jr-button--tinted),
-html[data-style='glass'] .jr-icon-button.jr-icon-button--gray {
+html[data-style='glass'] .jr-icon-button:is(.jr-icon-button--gray, .jr-icon-button--tinted) {
   -webkit-backdrop-filter: var(--material-thin-filter);
   backdrop-filter: var(--material-thin-filter);
   box-shadow: var(--material-highlight);
@@ -280,6 +325,12 @@ html[data-style='glass'] .jr-button.jr-button--gray {
   --jr-btn-bg: var(--material-thin-bg);
   --jr-btn-bg-hover: var(--material-regular-bg);
   --jr-btn-bg-active: var(--material-thick-bg);
+}
+html[data-style='glass'] .jr-icon-button.jr-icon-button--gray {
+  background: var(--material-thin-bg);
+}
+html[data-style='glass'] .jr-icon-button.jr-icon-button--gray:hover:not(:disabled) {
+  background: var(--material-regular-bg);
 }
 html[data-style='glass'] .jr-icon-button--glass {
   background-image: linear-gradient(180deg, rgb(255 255 255 / 0.22), rgb(255 255 255 / 0) 55%);
@@ -292,16 +343,33 @@ html[data-style='glass'] .jr-segmented {
   box-shadow: var(--material-highlight);
 }
 html[data-style='glass'] .jr-segmented__thumb {
-  background: rgb(var(--glass-rgb) / 0.9);
+  background: rgb(var(--glass-rgb) / 0.92);
   box-shadow:
     0 3px 10px rgb(0 0 0 / 0.12),
-    inset 0 1px 0 rgb(255 255 255 / 0.6);
+    inset 0 1px 0 rgb(255 255 255 / 0.5);
+}
+html[data-style='glass'][data-theme='dark'] .jr-segmented__thumb {
+  background: rgb(255 255 255 / 0.2);
 }
 html[data-style='glass'] .jr-shelf__chevron {
   box-shadow: var(--shadow-md), var(--material-highlight);
 }
+html[data-style='glass'] .jr-field__box {
+  background: var(--material-thin-bg);
+  box-shadow: var(--material-highlight);
+}
+html[data-style='glass'] .jr-track:nth-child(even) {
+  background: var(--glass-row);
+}
+html[data-style='glass'] .jr-track:hover {
+  background: var(--glass-selected);
+}
+html[data-style='glass'] .jr-track--selected,
+html[data-style='glass'] .jr-track--selected:hover {
+  background: var(--accent-fill);
+}
 
-/* ---- Minimal: monochrome icons, no zebra, hairline rows, quiet selection ---- */
+/* ---- Minimal: monochrome icons, no zebra, hairline rows, quiet selection, no blur at all ---- */
 html[data-style='minimal'] .jr-sidebar-item__icon {
   color: var(--secondary-label);
 }
@@ -333,15 +401,42 @@ html[data-style='minimal'] .jr-track--selected:hover {
 }
 html[data-style='minimal'] .jr-list-group--inset .jr-list {
   background: transparent;
-  box-shadow: inset 0 0 0 0.5px var(--separator);
+  box-shadow: inset 0 0 0 0.5px var(--opaque-separator);
 }
 html[data-style='minimal'] .jr-shelf__see-all {
   color: var(--secondary-label);
 }
+html[data-style='minimal'] .jr-shelf__see-all:hover {
+  color: var(--label);
+}
 html[data-style='minimal'] .jr-sheet {
   box-shadow:
     0 24px 60px rgb(0 0 0 / 0.14),
-    0 0 0 0.5px var(--separator);
+    0 0 0 0.5px var(--opaque-separator);
+}
+html[data-style='minimal'] .jr-shelf__chevron {
+  background: var(--minimal-surface);
+  box-shadow: 0 0 0 0.5px var(--opaque-separator);
+}
+/* Controls on artwork stay legible without a blur. */
+html[data-style='minimal'] .jr-icon-button--glass {
+  background: rgb(0 0 0 / 0.55);
+}
+html[data-style='minimal'] .jr-icon-button--glass:hover:not(:disabled) {
+  background: rgb(0 0 0 / 0.7);
+}
+html[data-style='minimal'] .jr-segmented__thumb {
+  box-shadow: 0 0 0 0.5px var(--opaque-separator);
+}
+html[data-style='minimal'] .jr-button--filled:not(.jr-button--destructive) {
+  --jr-btn-bg: var(--label);
+  --jr-btn-fg: var(--system-background);
+  --jr-btn-bg-hover: color-mix(in srgb, var(--label) 86%, var(--system-background));
+  --jr-btn-bg-active: color-mix(in srgb, var(--label) 74%, var(--system-background));
+}
+html[data-style='minimal'] .jr-hero .jr-button--filled:not(.jr-button--destructive) {
+  --jr-btn-bg: #fff;
+  --jr-btn-fg: #000;
 }
 
 /* ---- Compact: one-line track rows (title · artist) to fit 32px ---- */
@@ -372,16 +467,65 @@ html[data-style='compact'] .jr-track--with-art .jr-track__lead {
 html[data-style='compact'] .jr-row {
   min-height: 36px;
 }
+html[data-style='compact'] .jr-track__more {
+  width: 24px;
+  height: 24px;
+}
+html[data-style='compact'] .jr-shelf__header {
+  margin-bottom: var(--space-2);
+}
+html[data-style='compact'] .jr-card__text {
+  gap: 0;
+}
+html[data-style='compact'] .jr-hero__content {
+  gap: var(--space-2);
+  padding-bottom: var(--space-8);
+}
+html[data-style='compact'] .jr-button--medium {
+  height: 30px;
+  padding: 0 var(--space-3);
+}
+html[data-style='compact'] .jr-button--large {
+  height: 38px;
+  padding: 0 var(--space-5);
+}
+html[data-style='compact'] .jr-field__box {
+  --jr-field-h: 30px;
+}
+html[data-style='compact'] .jr-segmented--medium .jr-segmented__item {
+  height: 24px;
+}
+html[data-style='compact'] .jr-menu__item {
+  min-height: 24px;
+  padding-block: 2px;
+}
 
 /* ---- Cinema: content sits on the ambient artwork ---- */
 html[data-style='cinema'] .jr-list-group--inset .jr-list {
   background: var(--material-thin-bg);
   -webkit-backdrop-filter: var(--material-thin-filter);
   backdrop-filter: var(--material-thin-filter);
+  box-shadow: inset 0 0 0 0.5px color-mix(in srgb, var(--label) 8%, transparent);
 }
 html[data-style='cinema'] .jr-track:nth-child(even) {
-  background: color-mix(in srgb, var(--label) 4%, transparent);
+  background: color-mix(in srgb, var(--label) 3%, transparent);
+}
+html[data-style='cinema'] .jr-track:hover {
+  background: color-mix(in srgb, var(--label) 8%, transparent);
 }
 html[data-style='cinema'] .jr-hero__title {
   font-size: clamp(42px, 5.2vw, 72px);
+}
+/* In dark, the hero melts into the ambient glow instead of ending on a hard edge; the fade
+   stays below the hero's text and buttons. (In light a dark hero fading into a light page
+   would only smear.) */
+html[data-style='cinema'][data-theme='dark'] .jr-hero {
+  -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 72px), transparent);
+  mask-image: linear-gradient(to bottom, #000 calc(100% - 72px), transparent);
+}
+html[data-style='cinema'][data-theme='dark'] .jr-hero__content {
+  padding-bottom: calc(72px + var(--space-4));
+}
+html[data-style='cinema'] .jr-field__box {
+  background: color-mix(in srgb, var(--label) 7%, transparent);
 }

@@ -103,14 +103,14 @@
 .jr-menu__item:focus,
 .jr-menu__item:focus-visible {
   outline: none;
-  background: var(--accent);
-  color: var(--accent-contrast);
+  background: var(--accent-fill);
+  color: var(--accent-fill-contrast);
 }
 .jr-menu__item--destructive {
   color: var(--danger);
 }
 .jr-menu__item--destructive:focus {
-  background: var(--danger);
+  background: var(--danger-fill);
   color: #fff;
 }
 .jr-menu__item--disabled {
@@ -126,6 +126,8 @@
 }
 .jr-menu__icon {
   display: inline-flex;
+  flex: none;
+  width: 16px;
 }
 .jr-menu__icon svg {
   width: 16px;

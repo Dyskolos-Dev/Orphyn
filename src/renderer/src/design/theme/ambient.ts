@@ -1,11 +1,11 @@
 /**
- * Ambient artwork for the Cinema style: finds the artwork the user is looking at (hero backdrop,
- * poster, album cover) and extracts a small palette from it with a canvas sampler, cached per
- * image. The shell paints the image, blurred, behind the content and tints the UI with the palette.
+ * Ambient artwork: finds the artwork the user is looking at (hero backdrop, poster, album cover;
+ * else the now-playing artwork) and extracts a small palette from it with a canvas sampler, cached
+ * per image. The shell paints the image, blurred, behind the content (artwork backdrop), tints the
+ * Cinema style with the palette, and gives it to the accent when it follows the artwork.
  */
 import { useEffect, useState, type RefObject } from 'react'
-
-type Rgb = readonly [number, number, number]
+import { rgbToHsl, hslToRgb, type Rgb } from './color'
 
 export interface AmbientPalette {
   /** Dominant colour of the artwork. */
@@ -123,6 +123,30 @@ export function findVisibleArtwork(root: HTMLElement): string | null {
   return best?.src ?? null
 }
 
+/**
+ * The colour kept in a calm, readable range: mid lightness, no neon. The Cinema surfaces mix it
+ * with near-black or near-white, and the labels must keep their contrast over the result.
+ */
+export function tameAmbientColor(c: Rgb): Rgb {
+  const hsl = rgbToHsl(c)
+  const [r, g, b] = hslToRgb({
+    h: hsl.h,
+    s: Math.min(hsl.s, 0.72),
+    l: Math.min(0.58, Math.max(0.32, hsl.l)),
+  })
+  return [Math.round(r), Math.round(g), Math.round(b)]
+}
+
+/** The first loaded artwork in `root`, whatever its size (the now-playing bar's cover). */
+export function findAnyArtwork(root: HTMLElement | null): string | null {
+  if (!root) return null
+  for (const img of root.querySelectorAll<HTMLImageElement>('.jr-artwork__img, img')) {
+    const src = img.currentSrc || img.src
+    if (src && img.complete && img.naturalWidth > 0) return src
+  }
+  return null
+}
+
 export interface AmbientArtwork {
   src: string | null
   palette: AmbientPalette | null
@@ -130,11 +154,13 @@ export interface AmbientArtwork {
 
 /**
  * Follows the artwork visible in the scroll container (route changes, images loading, scrolling)
- * while `enabled`. Keeps the last artwork when the page has none, so the mood does not flicker.
+ * while `enabled`; when the page shows none, the artwork in `fallback` (the now-playing bar). Keeps
+ * the last artwork when there is none at all, so the mood does not flicker.
  */
 export function useAmbientArtwork(
   scrollRef: RefObject<HTMLElement | null>,
   enabled: boolean,
+  fallback: HTMLElement | null = null,
 ): AmbientArtwork {
   const [src, setSrc] = useState<string | null>(null)
   const [palette, setPalette] = useState<AmbientPalette | null>(null)
@@ -145,7 +171,7 @@ export function useAmbientArtwork(
     let timer: ReturnType<typeof setTimeout> | undefined
     const scan = () => {
       timer = undefined
-      const found = findVisibleArtwork(root)
+      const found = findVisibleArtwork(root) ?? findAnyArtwork(fallback)
       if (found) setSrc(found)
     }
     const schedule = () => {
@@ -154,12 +180,15 @@ export function useAmbientArtwork(
     scan()
     const observer =
       typeof MutationObserver === 'function' ? new MutationObserver(schedule) : undefined
-    observer?.observe(root, {
-      subtree: true,
-      childList: true,
-      attributes: true,
-      attributeFilter: ['src', 'class'],
-    })
+    for (const target of fallback ? [root, fallback] : [root]) {
+      observer?.observe(target, {
+        subtree: true,
+        childList: true,
+        attributes: true,
+        attributeFilter: ['src', 'class'],
+      })
+    }
+    fallback?.addEventListener('load', schedule, true)
     root.addEventListener('load', schedule, true)
     root.addEventListener('scroll', schedule, { passive: true })
     return () => {
@@ -167,8 +196,9 @@ export function useAmbientArtwork(
       observer?.disconnect()
       root.removeEventListener('load', schedule, true)
       root.removeEventListener('scroll', schedule)
+      fallback?.removeEventListener('load', schedule, true)
     }
-  }, [scrollRef, enabled])
+  }, [scrollRef, enabled, fallback])
 
   useEffect(() => {
     if (!enabled || !src) return
