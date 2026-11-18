@@ -1,0 +1,36 @@
+name: native
+
+on:
+  push:
+    branches: [main]
+    paths: ['native/**', 'src/renderer/src/**/*.css', 'src/renderer/src/i18n/locales/**', '.github/workflows/native.yml']
+  pull_request:
+    paths: ['native/**', '.github/workflows/native.yml']
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, macos-latest, ubuntu-22.04]
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        working-directory: native
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Linux packages
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y build-essential pkg-config libasound2-dev libxkbcommon-dev libwayland-dev libx11-dev libvulkan-dev libssl-dev libdbus-1-dev
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: native
+      - run: cargo build --locked
+      - run: cargo test --locked
+      - run: cargo clippy --locked --all-targets -- -D warnings
