@@ -1,1 +1,19 @@
 /* Blitz-only fixes for the settings port. */
+
+/* Blitz runs @keyframes but not framer-motion: the connect flow's step transition
+   (opacity + 28px slide, `durations.base` / `easings.out`) and the success check pop. */
+@keyframes jr-step-in-fwd {
+  from { opacity: 0; transform: translateX(28px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+@keyframes jr-step-in-back {
+  from { opacity: 0; transform: translateX(-28px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+@keyframes jr-check-pop {
+  from { opacity: 0; transform: scale(0.7); }
+  to { opacity: 1; transform: scale(1); }
+}
+.jr-step-enter { animation: jr-step-in-fwd 240ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+.jr-step-enter-back { animation: jr-step-in-back 240ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+.jr-check-pop { animation: jr-check-pop 420ms cubic-bezier(0.34, 1.56, 0.64, 1) both; }
