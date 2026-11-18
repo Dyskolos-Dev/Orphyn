@@ -18,6 +18,7 @@ import { ShellPage } from '@renderer/shell'
 import { AlbumCard, ArtistCard } from '../components/Cards'
 import { SongRows } from '../components/TrackRows'
 import { groupArtists, groupIdsOf } from '../library/artistGroups'
+import { useArtistImage } from '../library/useArtistImage'
 import { musicPlayer } from '../player/api'
 
 /** Albums with this many tracks or fewer are shown under "Singles & EPs". */
@@ -41,6 +42,7 @@ export function ArtistPage() {
   const { id } = useParams()
   const artist = useItem(id)
   const { groupArtists: grouping } = usePlaybackPreferences()
+  const heroImage = useArtistImage(artist.data, { maxWidth: 1200, eager: true }).src
   const lists = useArtistLists(grouping)
   // Every Jellyfin artist merged with this one (just this id when grouping is off).
   const ids = useMemo(() => {
@@ -113,8 +115,7 @@ export function ArtistPage() {
       <HeroBanner
         title={item.Name ?? ''}
         backdrop={
-          imageUrl(item, 'Backdrop', { maxWidth: 1920, quality: 80 }) ??
-          imageUrl(item, 'Primary', { maxWidth: 1200, quality: 80 })
+          imageUrl(item, 'Backdrop', { maxWidth: 1920, quality: 80 }) ?? heroImage
         }
         eyebrow={t('artist.eyebrow')}
         meta={item.Genres?.slice(0, 3).join(' · ')}

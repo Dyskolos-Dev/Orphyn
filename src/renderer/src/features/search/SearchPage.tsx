@@ -21,6 +21,7 @@ import {
 } from '@renderer/design'
 import { imageUrl, useSearch, type BaseItemDto } from '@renderer/jellyfin'
 import { musicPlayer } from '@renderer/features/music'
+import { useArtistImage } from '@renderer/features/music/library/useArtistImage'
 import { ShellPage } from '@renderer/shell'
 import { groupResults, routeFor, type ResultKind, type ResultSection } from './grouping'
 import { addRecentSearch, clearRecentSearches, useRecentSearches } from './recents'
@@ -193,11 +194,12 @@ function TopCard({ kind, item }: { kind: ResultKind; item: BaseItemDto }) {
   const round = kind === 'artist'
   const ratio = kind === 'movie' || kind === 'series' ? '2/3' : kind === 'episode' ? '16/9' : '1/1'
   const subtitle = itemSubtitle(kind, item)
+  const online = useArtistImage(round ? item : undefined, { maxWidth: 400, eager: true })
   return (
     <Link to={routeFor(kind, item)} className="jr-search__top-card" draggable={false}>
       <div className={`jr-search__top-art jr-search__top-art--${ratio.replace('/', 'x')}`}>
         <Artwork
-          src={imageUrl(item, 'Primary', { maxWidth: 400 })}
+          src={round ? online.src : imageUrl(item, 'Primary', { maxWidth: 400 })}
           ratio={ratio}
           shape={round ? 'circle' : 'rounded'}
           shadow
@@ -218,6 +220,16 @@ function TopCard({ kind, item }: { kind: ResultKind; item: BaseItemDto }) {
         )}
       </div>
     </Link>
+  )
+}
+
+function SearchArtistCard({ item, to }: { item: BaseItemDto; to: string }) {
+  const { src, ref } = useArtistImage(item, { maxWidth: 300 })
+  const name = item.Name ?? ''
+  return (
+    <div ref={ref}>
+      <RoundCard title={name} image={src} fallback={initials(name)} to={to} />
+    </div>
   )
 }
 
@@ -303,15 +315,8 @@ function SectionView({
               />
             )
           case 'artists':
-            return (
-              <RoundCard
-                key={item.Id}
-                title={name}
-                image={imageUrl(item, 'Primary', { maxWidth: 300 })}
-                fallback={initials(name)}
-                to={to}
-              />
-            )
+            return <SearchArtistCard key={item.Id} item={item} to={to} />
+
           default:
             return (
               <SquareCard

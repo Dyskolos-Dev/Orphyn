@@ -34,6 +34,8 @@ export interface PlaybackPreferences {
   groupArtists: boolean
   /** Music: fall back to LRCLIB for lyrics the server does not have. */
   onlineLyrics: boolean
+  /** Music: fetch images for artists without a server image from an online database (Deezer). */
+  artistImages: boolean
   /** Audio output device (`deviceId`) for music and video; `null` = the system default. */
   audioOutputId: string | null
 }
@@ -52,6 +54,7 @@ export const DEFAULT_PLAYBACK_PREFERENCES: PlaybackPreferences = {
   crossfadeSkipAlbum: true,
   groupArtists: true,
   onlineLyrics: true,
+  artistImages: true,
   audioOutputId: null,
 }
 
@@ -130,6 +133,7 @@ function sanitize(raw: unknown): PlaybackPreferences {
       typeof o['crossfadeSkipAlbum'] === 'boolean' ? o['crossfadeSkipAlbum'] : d.crossfadeSkipAlbum,
     groupArtists: typeof o['groupArtists'] === 'boolean' ? o['groupArtists'] : d.groupArtists,
     onlineLyrics: typeof o['onlineLyrics'] === 'boolean' ? o['onlineLyrics'] : d.onlineLyrics,
+    artistImages: typeof o['artistImages'] === 'boolean' ? o['artistImages'] : d.artistImages,
     audioOutputId:
       typeof o['audioOutputId'] === 'string' && o['audioOutputId'] ? o['audioOutputId'] : null,
   }

@@ -218,6 +218,8 @@
     "original": "Original",
     "kbps": "{{value}} kbit/s",
     "groupArtists": "Regrouper les artistes",
+    "artistImages": "Chercher les images d’artistes",
+    "artistImagesDescription": "Les artistes sans image sur votre serveur en reçoivent une depuis Deezer (le nom de l’artiste lui est envoyé). Rien n’est écrit sur votre serveur. Désactivé : aucune requête.",
     "groupArtistsDescription": "Une seule fiche par artiste : les variantes « feat. », « & », majuscules et accents sont fusionnées. Ne modifie que l’affichage de votre bibliothèque.",
     "onlineLyrics": "Paroles en ligne",
     "onlineLyricsDescription": "Si votre serveur n’a pas les paroles d’un titre, les chercher sur LRCLIB (envoie le titre, l’artiste et l’album)."

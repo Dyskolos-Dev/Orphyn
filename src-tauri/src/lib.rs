@@ -4,6 +4,7 @@
 //! commands; this file only composes them (see `docs/TAURI.md`).
 
 pub mod accounts;
+pub mod artwork;
 pub mod cast;
 pub mod discord;
 pub mod error;
@@ -99,6 +100,8 @@ pub fn run() {
             cast::cast_set_volume,
             cast::cast_set_muted,
             cast::cast_disconnect,
+            // online artist images
+            artwork::artwork_artist_image,
             // discord (stubs)
             discord::discord_get_state,
             discord::discord_set_presence,

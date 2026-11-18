@@ -137,7 +137,20 @@ describe('MusicPane artist grouping and online lyrics', () => {
     render(<MusicPane />)
     expect(screen.getByRole('switch', { name: /^Regrouper les artistes/ })).toBeInTheDocument()
     expect(screen.getByRole('switch', { name: /^Paroles en ligne/ })).toBeInTheDocument()
+    expect(
+      screen.getByRole('switch', { name: /^Chercher les images d’artistes/ }),
+    ).toBeInTheDocument()
     await act(() => i18n.changeLanguage('en'))
+  })
+
+  it('artist image lookup is on by default and persisted when switched off', async () => {
+    const user = userEvent.setup()
+    await act(() => i18n.changeLanguage('en'))
+    expect(DEFAULT_PLAYBACK_PREFERENCES.artistImages).toBe(true)
+    render(<MusicPane />)
+    await user.click(screen.getByRole('switch', { name: /^Look up artist images/ }))
+    expect(getPlaybackPreferences().artistImages).toBe(false)
+    expect(localStorage.getItem(PLAYBACK_PREFERENCES_KEY)).toContain('"artistImages":false')
   })
 })
 

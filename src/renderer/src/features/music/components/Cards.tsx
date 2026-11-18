@@ -5,6 +5,7 @@ import { musicPlayer } from '../player/api'
 import { writeDragItems } from '../playlists/dnd'
 import { useContainerMenuWithPlaylists } from '../playlists/menus'
 import { PlaylistMosaic } from '../playlists/PlaylistMosaic'
+import { useArtistImage } from '../library/useArtistImage'
 import { art } from './hooks'
 
 export function AlbumCard({ album }: { album: BaseItemDto }) {
@@ -50,14 +51,17 @@ export function PlaylistCard({ playlist }: { playlist: BaseItemDto }) {
 export function ArtistCard({ artist }: { artist: BaseItemDto }) {
   const menu = useContainerMenuWithPlaylists()
   const id = artist.Id ?? ''
+  const { src, ref } = useArtistImage(artist, { maxWidth: 320 })
   return (
     <ContextMenu items={menu(artist)}>
-      <RoundCard
-        title={artist.Name ?? ''}
-        image={art(artist)}
-        fallback={<User />}
-        to={`/music/artist/${id}`}
-      />
+      <div ref={ref}>
+        <RoundCard
+          title={artist.Name ?? ''}
+          image={src}
+          fallback={<User />}
+          to={`/music/artist/${id}`}
+        />
+      </div>
     </ContextMenu>
   )
 }
