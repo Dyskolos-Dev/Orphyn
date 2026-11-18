@@ -339,8 +339,10 @@ impl MusicPlayer {
             f64::INFINITY
         };
         c.progress.position = seconds.clamp(0.0, max);
+        c.s.seek_nonce += 1;
         self.send(Msg::Seek(c.progress.position));
         self.inner.progress_tx.send_replace(c.progress);
+        self.publish(&c);
     }
 
     pub fn set_volume(&self, v: f32) {
@@ -407,6 +409,7 @@ impl MusicPlayer {
             volume,
             muted,
             want_playing: false,
+            seek_nonce: c.s.seek_nonce,
         };
         c.progress = Progress {
             position,

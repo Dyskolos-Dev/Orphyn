@@ -84,6 +84,8 @@ pub struct PlayerState {
     pub muted: bool,
     /// The user wants audio (play pressed / autoplay) as opposed to paused.
     pub want_playing: bool,
+    /// Counts the seeks asked of the player (SyncPlay tells a person's seek from the engine's).
+    pub seek_nonce: u64,
 }
 
 impl PlayerState {
