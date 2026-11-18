@@ -16,7 +16,11 @@ pub fn TextField(
 ) -> Element {
     let mut value = value;
     let invalid_flag = error.is_some();
-    let invalid = if error.is_some() { " jr-field--invalid" } else { "" };
+    let invalid = if error.is_some() {
+        " jr-field--invalid"
+    } else {
+        ""
+    };
     rsx! {
         div { class: "jr-field jr-field--{size}{invalid}",
             label { class: "jr-field__label", "{label}" }

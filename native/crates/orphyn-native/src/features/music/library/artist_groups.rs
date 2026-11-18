@@ -10,7 +10,13 @@ pub fn artist_key(name: &str) -> String {
         .chars()
         .map(fold_accent)
         .flat_map(|c| c.to_lowercase())
-        .map(|c| if matches!(c, '’' | '‘' | '`' | '´') { '\'' } else { c })
+        .map(|c| {
+            if matches!(c, '’' | '‘' | '`' | '´') {
+                '\''
+            } else {
+                c
+            }
+        })
         .collect();
     let collapsed = folded.split_whitespace().collect::<Vec<_>>().join(" ");
     match collapsed.strip_prefix("the ") {
@@ -87,9 +93,7 @@ fn split_joiners(s: &str) -> Vec<String> {
             .into_iter()
             .flat_map(|p| {
                 if sep.starts_with(' ') {
-                    p.split(sep)
-                        .map(str::to_string)
-                        .collect::<Vec<_>>()
+                    p.split(sep).map(str::to_string).collect::<Vec<_>>()
                 } else {
                     p.split(sep).map(str::to_string).collect()
                 }
@@ -204,43 +208,10 @@ pub fn group_artists(album_artists: &[BaseItemDto], everyone: &[BaseItemDto]) ->
     for a in everyone {
         add(a, false);
     }
-    order.into_iter().filter_map(|k| groups.remove(&k)).collect()
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    fn artist(id: &str, name: &str) -> BaseItemDto {
-        BaseItemDto {
-            id: id.into(),
-            name: Some(name.into()),
-            ..Default::default()
-        }
-    }
-
-    #[test]
-    fn keys_ignore_case_accents_and_the() {
-        assert_eq!(artist_key("The Béatles"), "beatles");
-        assert_eq!(artist_key("  AC/DC "), "ac/dc");
-    }
-
-    #[test]
-    fn credits_are_split() {
-        let s = split_artist_credit("Daft Punk feat. Pharrell Williams & Nile Rodgers");
-        assert!(s.featured);
-        assert_eq!(s.names, ["Daft Punk", "Pharrell Williams", "Nile Rodgers"]);
-        assert_eq!(split_artist_credit("Solo").names, ["Solo"]);
-    }
-
-    #[test]
-    fn variants_merge_into_their_root() {
-        let roots = [artist("1", "Daft Punk")];
-        let all = [artist("1", "Daft Punk"), artist("2", "daft punk"), artist("3", "Daft Punk feat. Julian Casablancas")];
-        let g = group_artists(&roots, &all);
-        assert_eq!(g.len(), 1);
-        assert_eq!(g[0].ids, ["1", "2", "3"]);
-    }
+    order
+        .into_iter()
+        .filter_map(|k| groups.remove(&k))
+        .collect()
 }
 
 /// The two full artist lists (`useArtistLists`), shared through the query cache.
@@ -289,5 +260,45 @@ pub fn use_artist_lists(
         error: a.error.is_some(),
         album_artists: a.data,
         everyone: e.data,
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn artist(id: &str, name: &str) -> BaseItemDto {
+        BaseItemDto {
+            id: id.into(),
+            name: Some(name.into()),
+            ..Default::default()
+        }
+    }
+
+    #[test]
+    fn keys_ignore_case_accents_and_the() {
+        assert_eq!(artist_key("The Béatles"), "beatles");
+        assert_eq!(artist_key("  AC/DC "), "ac/dc");
+    }
+
+    #[test]
+    fn credits_are_split() {
+        let s = split_artist_credit("Daft Punk feat. Pharrell Williams & Nile Rodgers");
+        assert!(s.featured);
+        assert_eq!(s.names, ["Daft Punk", "Pharrell Williams", "Nile Rodgers"]);
+        assert_eq!(split_artist_credit("Solo").names, ["Solo"]);
+    }
+
+    #[test]
+    fn variants_merge_into_their_root() {
+        let roots = [artist("1", "Daft Punk")];
+        let all = [
+            artist("1", "Daft Punk"),
+            artist("2", "daft punk"),
+            artist("3", "Daft Punk feat. Julian Casablancas"),
+        ];
+        let g = group_artists(&roots, &all);
+        assert_eq!(g.len(), 1);
+        assert_eq!(g[0].ids, ["1", "2", "3"]);
     }
 }

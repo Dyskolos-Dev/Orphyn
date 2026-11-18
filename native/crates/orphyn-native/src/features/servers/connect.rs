@@ -222,9 +222,17 @@ pub fn ConnectFlow(
         }
     };
 
-    let dot = if step() == Step::Success { Step::Login } else { step() };
+    let dot = if step() == Step::Success {
+        Step::Login
+    } else {
+        step()
+    };
     let dot_index = DOT_STEPS.iter().position(|d| *d == dot).unwrap_or(0);
-    let enter = if forward() { "jr-step-enter" } else { "jr-step-enter-back" };
+    let enter = if forward() {
+        "jr-step-enter"
+    } else {
+        "jr-step-enter-back"
+    };
     let steps_label = t.tf(
         "servers:steps.label",
         &[

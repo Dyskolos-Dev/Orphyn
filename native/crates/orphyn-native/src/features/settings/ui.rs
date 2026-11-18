@@ -35,7 +35,11 @@ pub fn ListRow(
     onclick: Option<EventHandler<MouseEvent>>,
     #[props(default = false)] selected: bool,
 ) -> Element {
-    let interactive = if onclick.is_some() { " jr-row--interactive" } else { "" };
+    let interactive = if onclick.is_some() {
+        " jr-row--interactive"
+    } else {
+        ""
+    };
     let selected_cls = if selected { " jr-row--selected" } else { "" };
     rsx! {
         li { class: "jr-list__item",
@@ -143,7 +147,11 @@ pub fn ValueMenu<T: Clone + PartialEq + 'static>(
 
 /// A small gray action button.
 #[component]
-pub fn GrayButton(onclick: EventHandler<MouseEvent>, icon: Option<&'static str>, children: Element) -> Element {
+pub fn GrayButton(
+    onclick: EventHandler<MouseEvent>,
+    icon: Option<&'static str>,
+    children: Element,
+) -> Element {
     rsx! {
         Button { variant: "gray", size: "small", icon, onclick: move |e| onclick.call(e), {children} }
     }

@@ -158,13 +158,16 @@ pub fn pick_best(records: &[Value], q: &TrackQuery) -> Option<Lyrics> {
     let mut usable: Vec<&Value> = records
         .iter()
         .filter(|r| {
-            lyrics_from_record(r).is_some() && (q.duration.is_none() || gap(r) <= DURATION_TOLERANCE_S)
+            lyrics_from_record(r).is_some()
+                && (q.duration.is_none() || gap(r) <= DURATION_TOLERANCE_S)
         })
         .collect();
     usable.sort_by(|a, b| {
-        synced(b)
-            .cmp(&synced(a))
-            .then(gap(a).partial_cmp(&gap(b)).unwrap_or(std::cmp::Ordering::Equal))
+        synced(b).cmp(&synced(a)).then(
+            gap(a)
+                .partial_cmp(&gap(b))
+                .unwrap_or(std::cmp::Ordering::Equal),
+        )
     });
     usable.first().and_then(|r| lyrics_from_record(r))
 }
@@ -221,7 +224,13 @@ pub fn from_server(dto: &Value) -> Option<Lyrics> {
 // ---------------------------------------------------------------------------------- cache
 
 pub fn cache_key(q: &TrackQuery) -> String {
-    let n = |s: &str| s.trim().to_lowercase().split_whitespace().collect::<Vec<_>>().join(" ");
+    let n = |s: &str| {
+        s.trim()
+            .to_lowercase()
+            .split_whitespace()
+            .collect::<Vec<_>>()
+            .join(" ")
+    };
     format!(
         "{}|{}|{}|{}",
         n(&q.artist),
@@ -423,7 +432,10 @@ mod tests {
         assert!(l.synced);
         assert_eq!(starts(&l), [1500, 5000, 7250, 12500, 62003]);
         let texts: Vec<&str> = l.lines.iter().map(|x| x.text.as_str()).collect();
-        assert_eq!(texts, ["Shared", "Plain stamp", "Colon", "Second", "Shared"]);
+        assert_eq!(
+            texts,
+            ["Shared", "Plain stamp", "Colon", "Second", "Shared"]
+        );
     }
 
     #[test]
@@ -485,7 +497,10 @@ mod tests {
         let far = vec![json!({"duration": 260, "syncedLyrics": "[00:01.00]x"})];
         assert!(pick_best(&far, &q).is_none());
         // No wanted duration: any usable record will do.
-        let q2 = TrackQuery { duration: None, ..q };
+        let q2 = TrackQuery {
+            duration: None,
+            ..q
+        };
         assert!(pick_best(&far, &q2).is_some());
     }
 

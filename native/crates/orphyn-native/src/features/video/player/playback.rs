@@ -225,7 +225,10 @@ fn describe(s: &Value, fallback: String) -> String {
 /// `buildTracks`.
 pub fn build_tracks(c: &Client, item_id: &str, source: &Value) -> PlaybackTracks {
     let source_id = source["Id"].as_str().unwrap_or(item_id);
-    let streams = source["MediaStreams"].as_array().cloned().unwrap_or_default();
+    let streams = source["MediaStreams"]
+        .as_array()
+        .cloned()
+        .unwrap_or_default();
     let mut t = PlaybackTracks {
         default_audio_index: source["DefaultAudioStreamIndex"].as_i64(),
         default_subtitle_index: source["DefaultSubtitleStreamIndex"].as_i64(),
@@ -277,8 +280,11 @@ pub fn normalize_segments(items: &Value) -> Vec<MediaSegment> {
             let kind = SegmentType::parse(s["Type"].as_str()?)?;
             let start = s["StartTicks"].as_f64().unwrap_or(0.0) / TICKS_PER_SECOND;
             let end = s["EndTicks"].as_f64().unwrap_or(0.0) / TICKS_PER_SECOND;
-            (start.is_finite() && end.is_finite() && end > start)
-                .then_some(MediaSegment { kind, start, end })
+            (start.is_finite() && end.is_finite() && end > start).then_some(MediaSegment {
+                kind,
+                start,
+                end,
+            })
         })
         .collect();
     out.sort_by(|a, b| a.start.total_cmp(&b.start));
@@ -302,15 +308,28 @@ pub async fn media_segments(s: &Session, item_id: &str) -> Vec<MediaSegment> {
 }
 
 /// `getPlaybackInfo` for video: POST /Items/{id}/PlaybackInfo, then the URL to load.
-pub async fn playback_info(s: &Session, item_id: &str, o: &InfoOptions) -> Result<PlaybackInfo, String> {
+pub async fn playback_info(
+    s: &Session,
+    item_id: &str,
+    o: &InfoOptions,
+) -> Result<PlaybackInfo, String> {
     let max = o.max_bitrate.unwrap_or(DEFAULT_MAX_BITRATE);
     let start = (o.start_ticks > 0).then_some(o.start_ticks);
     let params: Vec<(&str, Option<Q>)> = vec![
         ("userId", Some(Q::Str(s.user_id.clone()))),
         ("startTimeTicks", start.map(|v| Q::Str(v.to_string()))),
-        ("audioStreamIndex", o.audio_index.map(|v| Q::Str(v.to_string()))),
-        ("subtitleStreamIndex", o.subtitle_index.map(|v| Q::Str(v.to_string()))),
-        ("maxStreamingBitrate", Some(Q::Str((max as i64).to_string()))),
+        (
+            "audioStreamIndex",
+            o.audio_index.map(|v| Q::Str(v.to_string())),
+        ),
+        (
+            "subtitleStreamIndex",
+            o.subtitle_index.map(|v| Q::Str(v.to_string())),
+        ),
+        (
+            "maxStreamingBitrate",
+            Some(Q::Str((max as i64).to_string())),
+        ),
         ("autoOpenLiveStream", Some(true.into())),
     ];
     let body = json!({
@@ -345,7 +364,10 @@ pub async fn playback_info(s: &Session, item_id: &str, o: &InfoOptions) -> Resul
                 ("mediaSourceId", Some(Q::Str(media_source_id.clone()))),
                 ("deviceId", Some(Q::Str(c.device_id().to_string()))),
                 ("playSessionId", Some(Q::Str(play_session_id.clone()))),
-                ("tag", source["ETag"].as_str().map(|t| Q::Str(t.to_string()))),
+                (
+                    "tag",
+                    source["ETag"].as_str().map(|t| Q::Str(t.to_string())),
+                ),
             ],
         );
         (url, PlayMethod::DirectPlay)
@@ -385,7 +407,11 @@ pub async fn playback_info(s: &Session, item_id: &str, o: &InfoOptions) -> Resul
 }
 
 /// `transcodeFallback` (`streamUrlForCast(..., { transcode: true })`): HLS h264/aac.
-pub fn transcode_fallback(s: &Session, info: &PlaybackInfo, max_bitrate: Option<f64>) -> PlaybackInfo {
+pub fn transcode_fallback(
+    s: &Session,
+    info: &PlaybackInfo,
+    max_bitrate: Option<f64>,
+) -> PlaybackInfo {
     let c = &s.client;
     let url = c.authed_url(
         &format!("/Videos/{}/master.m3u8", info.item_id),
@@ -399,7 +425,10 @@ pub fn transcode_fallback(s: &Session, info: &PlaybackInfo, max_bitrate: Option<
             ("maxAudioChannels", Some(2u32.into())),
             ("minSegments", Some(1u32.into())),
             ("breakOnNonKeyFrames", Some(true.into())),
-            ("videoBitRate", max_bitrate.map(|b| Q::Str((b as i64).to_string()))),
+            (
+                "videoBitRate",
+                max_bitrate.map(|b| Q::Str((b as i64).to_string())),
+            ),
         ],
     );
     PlaybackInfo {
@@ -459,7 +488,11 @@ pub async fn report(c: &Client, kind: ReportKind, r: &Report) {
         ReportKind::Stopped => ("/Sessions/Playing/Stopped", None),
     };
     match send(c, "POST", path, &[], Some(report_body(r, event))).await {
-        Ok(_) => log::info!("[video] reported {path} {:?} at {}", event, r.position_ticks),
+        Ok(_) => log::info!(
+            "[video] reported {path} {:?} at {}",
+            event,
+            r.position_ticks
+        ),
         Err(e) => log::warn!("[video] report {path}: {e}"),
     }
 }

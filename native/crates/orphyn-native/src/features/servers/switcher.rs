@@ -20,7 +20,10 @@ pub fn ServerSwitcher() -> Element {
 
     let accounts = (app.accounts)();
     let active_id = (app.session)().map(|s| s.account_id);
-    let active = accounts.iter().find(|a| Some(&a.id) == active_id.as_ref()).cloned();
+    let active = accounts
+        .iter()
+        .find(|a| Some(&a.id) == active_id.as_ref())
+        .cloned();
     if active.is_none() && accounts.is_empty() {
         return rsx! {};
     }
@@ -50,10 +53,16 @@ pub fn ServerSwitcher() -> Element {
             })
             .collect();
         items.push(MenuItem::Separator);
-        items.push(MenuItem::action(t.t("servers:switcher.add"), Some("plus"), move |_| adding.set(true)));
-        items.push(MenuItem::action(t.t("servers:switcher.manage"), Some("settings-2"), move |_| {
-            router.push("/settings")
-        }));
+        items.push(MenuItem::action(
+            t.t("servers:switcher.add"),
+            Some("plus"),
+            move |_| adding.set(true),
+        ));
+        items.push(MenuItem::action(
+            t.t("servers:switcher.manage"),
+            Some("settings-2"),
+            move |_| router.push("/settings"),
+        ));
         let rows = items.len() as f64;
         let c = e.client_coordinates();
         overlay.menu(c.x, (c.y - rows * 32.0 - 16.0).max(8.0), items);

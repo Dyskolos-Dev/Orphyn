@@ -193,7 +193,11 @@ pub fn pick_initial_audio<'a>(t: &'a PlaybackTracks, pref: Option<&str>) -> Opti
             .iter()
             .find(|a| same_language(a.language.as_deref(), Some(p)))
     })
-    .or_else(|| t.audio.iter().find(|a| Some(a.index) == t.default_audio_index))
+    .or_else(|| {
+        t.audio
+            .iter()
+            .find(|a| Some(a.index) == t.default_audio_index)
+    })
     .or_else(|| t.audio.iter().find(|a| a.is_default))
     .or_else(|| t.audio.first())
 }
@@ -210,11 +214,7 @@ pub fn pick_initial_subtitle<'a>(
             .iter()
             .filter(|s| same_language(s.language.as_deref(), Some(p)))
             .collect();
-        if let Some(pick) = matches
-            .iter()
-            .find(|s| !s.is_forced)
-            .or(matches.first())
-        {
+        if let Some(pick) = matches.iter().find(|s| !s.is_forced).or(matches.first()) {
             return Some(pick);
         }
     }
@@ -314,14 +314,21 @@ mod tests {
         };
         let t = PlaybackTracks {
             audio: vec![audio(1, "eng", true), audio(2, "fre", false)],
-            subtitles: vec![sub(3, "fra", true), sub(4, "fr", false), sub(5, "eng", false)],
+            subtitles: vec![
+                sub(3, "fra", true),
+                sub(4, "fr", false),
+                sub(5, "eng", false),
+            ],
             default_audio_index: Some(1),
             default_subtitle_index: None,
         };
         assert_eq!(pick_initial_audio(&t, Some("fr")).map(|a| a.index), Some(2));
         assert_eq!(pick_initial_audio(&t, Some("de")).map(|a| a.index), Some(1));
         assert_eq!(pick_initial_audio(&t, None).map(|a| a.index), Some(1));
-        assert_eq!(pick_initial_subtitle(&t, Some("fra")).map(|s| s.index), Some(4));
+        assert_eq!(
+            pick_initial_subtitle(&t, Some("fra")).map(|s| s.index),
+            Some(4)
+        );
         assert_eq!(pick_initial_subtitle(&t, None), None);
         assert!(same_language(Some("fr-FR"), Some("fre")));
         assert!(!same_language(None, Some("fre")));
@@ -335,9 +342,20 @@ mod tests {
             index_number: Some(e),
             ..Default::default()
         };
-        let list = vec![ep("s2e1", 2, 1), ep("sp", 0, 1), ep("s1e2", 1, 2), ep("s1e1", 1, 1)];
-        assert_eq!(next_episode(&list, "s1e1").map(|e| e.id), Some("s1e2".into()));
-        assert_eq!(next_episode(&list, "s1e2").map(|e| e.id), Some("s2e1".into()));
+        let list = vec![
+            ep("s2e1", 2, 1),
+            ep("sp", 0, 1),
+            ep("s1e2", 1, 2),
+            ep("s1e1", 1, 1),
+        ];
+        assert_eq!(
+            next_episode(&list, "s1e1").map(|e| e.id),
+            Some("s1e2".into())
+        );
+        assert_eq!(
+            next_episode(&list, "s1e2").map(|e| e.id),
+            Some("s2e1".into())
+        );
         assert_eq!(next_episode(&list, "s2e1").map(|e| e.id), Some("sp".into()));
         assert_eq!(next_episode(&list, "sp"), None);
         assert_eq!(rate_label(1.0), "1×");

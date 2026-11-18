@@ -14,7 +14,9 @@ use crate::state::{use_app, use_services, AppState, Services};
 /// Makes `id` the active server (the session of its stored token), like `session.switchServer`.
 pub fn switch_server(app: AppState, svc: &Services, id: &str) {
     let device = svc.device_id();
-    let Some(store) = svc.accounts.as_ref() else { return };
+    let Some(store) = svc.accounts.as_ref() else {
+        return;
+    };
     let session = {
         let mut s = store.lock().unwrap_or_else(|p| p.into_inner());
         let account = s.list().into_iter().find(|a| a.id == id);
@@ -34,7 +36,13 @@ pub fn switch_server(app: AppState, svc: &Services, id: &str) {
 }
 
 fn remove_server(app: AppState, svc: &Services, id: &str) {
-    let was_active = app.session.peek().as_ref().map(|s| s.account_id.clone()).as_deref() == Some(id);
+    let was_active = app
+        .session
+        .peek()
+        .as_ref()
+        .map(|s| s.account_id.clone())
+        .as_deref()
+        == Some(id);
     if let Some(store) = svc.accounts.as_ref() {
         let mut s = store.lock().unwrap_or_else(|p| p.into_inner());
         let _ = s.remove(id);
@@ -60,7 +68,11 @@ pub fn ServersPane() -> Element {
     let mut removing = use_signal(|| None::<ServerAccount>);
     let accounts = (app.accounts)();
     let active_id = (app.session)().map(|s| s.account_id);
-    let has_token = |a: &ServerAccount| svc.accounts.as_ref().is_some_and(|s| s.lock().map(|s| s.token(&a.id).is_some()).unwrap_or(false));
+    let has_token = |a: &ServerAccount| {
+        svc.accounts
+            .as_ref()
+            .is_some_and(|s| s.lock().map(|s| s.token(&a.id).is_some()).unwrap_or(false))
+    };
 
     rsx! {
         if accounts.is_empty() {
@@ -169,7 +181,10 @@ fn RenameSheet(account: ServerAccount, on_close: EventHandler<()>) -> Element {
         }
         if trimmed != current {
             if let Some(store) = svc.accounts.as_ref() {
-                let _ = store.lock().unwrap_or_else(|p| p.into_inner()).rename(&id, &trimmed);
+                let _ = store
+                    .lock()
+                    .unwrap_or_else(|p| p.into_inner())
+                    .rename(&id, &trimmed);
             }
             let mut accounts = app.accounts;
             accounts.set(svc.list_accounts());

@@ -57,12 +57,16 @@ impl TrackMenu {
         let (t1, t2) = (track.clone(), track.clone());
         let favorite = self.is_favorite(&track);
         let mut items = vec![
-            MenuItem::action(t.t("music:actions.playNext"), Some("list-start"), move |_| {
-                p1.play_next(std::slice::from_ref(&t1))
-            }),
-            MenuItem::action(t.t("music:actions.addToQueue"), Some("list-end"), move |_| {
-                p2.add_to_queue(std::slice::from_ref(&t2))
-            }),
+            MenuItem::action(
+                t.t("music:actions.playNext"),
+                Some("list-start"),
+                move |_| p1.play_next(std::slice::from_ref(&t1)),
+            ),
+            MenuItem::action(
+                t.t("music:actions.addToQueue"),
+                Some("list-end"),
+                move |_| p2.add_to_queue(std::slice::from_ref(&t2)),
+            ),
         ];
         if self.session.is_some() {
             let (me, id) = (self.clone(), track.id.clone());
@@ -71,7 +75,8 @@ impl TrackMenu {
                 Some("list-plus"),
                 move |_| me.pick_playlist(x, y, vec![id.clone()]),
             ));
-            let (player, session, id) = (self.player.clone(), self.session.clone(), track.id.clone());
+            let (player, session, id) =
+                (self.player.clone(), self.session.clone(), track.id.clone());
             items.push(MenuItem::action(
                 t.t("mixes:radio.start"),
                 Some("radio"),

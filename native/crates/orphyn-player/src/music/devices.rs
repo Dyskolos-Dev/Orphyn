@@ -44,7 +44,10 @@ pub fn resolve_device(saved: Option<&str>, devices: Option<&[AudioDevice]>) -> O
     let saved = saved.filter(|s| !s.is_empty() && *s != "default" && *s != "communications")?;
     match devices {
         None => Some(saved.to_string()),
-        Some(list) => list.iter().any(|d| d.id == saved).then(|| saved.to_string()),
+        Some(list) => list
+            .iter()
+            .any(|d| d.id == saved)
+            .then(|| saved.to_string()),
     }
 }
 

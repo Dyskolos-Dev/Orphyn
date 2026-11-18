@@ -6,9 +6,7 @@ use super::ui::{List, ListRow, Toggle};
 use crate::design::{Button, Segment, SegmentedControl, Slider};
 use crate::i18n::use_i18n;
 use crate::state::{use_app, use_services};
-use crate::theme::{
-    accent_tokens, ThemeMode, ACCENT_PRESETS, INTERFACE_STYLES,
-};
+use crate::theme::{accent_tokens, ThemeMode, ACCENT_PRESETS, INTERFACE_STYLES};
 
 const CORNERS: [&str; 3] = ["sharp", "standard", "round"];
 const DENSITY: [&str; 3] = ["comfortable", "standard", "compact"];
@@ -22,7 +20,10 @@ const SOLID_STYLES: [&str; 1] = ["minimal"];
 fn seg(t: &crate::i18n::I18n, prefix: &str, values: &[&'static str]) -> Vec<Segment> {
     values
         .iter()
-        .map(|v| Segment { value: v, label: t.t(&format!("{prefix}.{v}")) })
+        .map(|v| Segment {
+            value: v,
+            label: t.t(&format!("{prefix}.{v}")),
+        })
         .collect()
 }
 
@@ -57,12 +58,19 @@ pub fn AppearancePane() -> Element {
         let set = set.clone();
         move |key: &'static str, v: &'static str| set(key, Value::from(v))
     };
-    let (s_style, s_mode, s_accent, s_follow) = (svc.clone(), svc.clone(), svc.clone(), svc.clone());
+    let (s_style, s_mode, s_accent, s_follow) =
+        (svc.clone(), svc.clone(), svc.clone(), svc.clone());
     let s_reset = svc.clone();
     let transparency = if solid { 0 } else { a.transparency };
     let (set_t, set_c, set_d, set_x, set_sb, set_bd, set_m, set_v) = (
-        set.clone(), set_str.clone(), set_str.clone(), set_str.clone(),
-        set_str.clone(), set_str.clone(), set_str.clone(), set_str.clone(),
+        set.clone(),
+        set_str.clone(),
+        set_str.clone(),
+        set_str.clone(),
+        set_str.clone(),
+        set_str.clone(),
+        set_str.clone(),
+        set_str.clone(),
     );
 
     rsx! {

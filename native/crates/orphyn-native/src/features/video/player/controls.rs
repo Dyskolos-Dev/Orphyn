@@ -114,7 +114,10 @@ pub fn PlayerControls(p: ControlsProps) -> Element {
     let mut open: Signal<Option<OpenPop>> = use_signal(|| None);
     let mut root: Signal<Option<Rc<MountedData>>> = use_signal(|| None);
     let snap = &p.snapshot;
-    let playing = matches!(snap.status, PlaybackStatus::Playing | PlaybackStatus::Loading);
+    let playing = matches!(
+        snap.status,
+        PlaybackStatus::Playing | PlaybackStatus::Loading
+    );
     let duration = snap.duration_seconds;
     let position = scrub().unwrap_or(snap.position_seconds);
     let volume_icon = if snap.muted || snap.volume == 0.0 {
@@ -157,7 +160,11 @@ pub fn PlayerControls(p: ControlsProps) -> Element {
     let tracks = p.tracks.clone().unwrap_or_default();
     let sub_on = p.subtitle_index.is_some_and(|i| i >= 0);
     let play_icon = if playing { "pause" } else { "play" };
-    let fs_icon = if p.is_fullscreen { "minimize" } else { "maximize" };
+    let fs_icon = if p.is_fullscreen {
+        "minimize"
+    } else {
+        "maximize"
+    };
     let fs_label = if p.is_fullscreen {
         t.t("video:player.exitFullscreen")
     } else {

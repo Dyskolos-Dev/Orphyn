@@ -284,10 +284,19 @@ mod tests {
             ..MpvState::default()
         };
         // `waiting` while playing, but a paused player stays paused.
-        assert_eq!(status_of(&s, PlaybackStatus::Playing), PlaybackStatus::Loading);
+        assert_eq!(
+            status_of(&s, PlaybackStatus::Playing),
+            PlaybackStatus::Loading
+        );
         s.paused = true;
-        assert_eq!(status_of(&s, PlaybackStatus::Playing), PlaybackStatus::Paused);
+        assert_eq!(
+            status_of(&s, PlaybackStatus::Playing),
+            PlaybackStatus::Paused
+        );
         s.error = Some("unrecognized file format".into());
-        assert_eq!(status_of(&s, PlaybackStatus::Loading), PlaybackStatus::Error);
+        assert_eq!(
+            status_of(&s, PlaybackStatus::Loading),
+            PlaybackStatus::Error
+        );
     }
 }

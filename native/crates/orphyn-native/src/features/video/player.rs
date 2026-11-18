@@ -16,15 +16,17 @@ use std::collections::HashSet;
 use std::time::Duration;
 
 use dioxus::prelude::*;
-use dioxus_native::CustomWidgetAttr;
 use dioxus_native::winit::event::{ElementState, WindowEvent};
 use dioxus_native::winit::keyboard::{Key as WKey, ModifiersState, NamedKey};
 use dioxus_native::winit::monitor::Fullscreen;
+use dioxus_native::CustomWidgetAttr;
 use orphyn_jellyfin::endpoints::Session;
 use orphyn_jellyfin::images::{build_image_url, ImageKind, ImageOptions};
 use orphyn_jellyfin::keys::{self, stale};
 use orphyn_jellyfin::{BaseItemDto, ItemsParams};
-use orphyn_player::video::{PlayOptions, PlaybackSnapshot, PlaybackStatus, VideoController, VideoWidget};
+use orphyn_player::video::{
+    PlayOptions, PlaybackSnapshot, PlaybackStatus, VideoController, VideoWidget,
+};
 
 use crate::design::{Button, EmptyState, Spinner};
 use crate::i18n::use_i18n;
@@ -94,7 +96,12 @@ fn fire(fut: impl std::future::Future<Output = ()> + Send + 'static) {
     }
 }
 
-fn report_of(info: &PlaybackInfo, snap: &PlaybackSnapshot, audio: Option<i64>, sub: Option<i64>) -> Report {
+fn report_of(
+    info: &PlaybackInfo,
+    snap: &PlaybackSnapshot,
+    audio: Option<i64>,
+    sub: Option<i64>,
+) -> Report {
     Report {
         item_id: info.item_id.clone(),
         media_source_id: info.media_source_id.clone(),
@@ -117,7 +124,12 @@ impl Ctl {
         let Some(info) = self.info.peek().clone() else {
             return;
         };
-        let r = report_of(&info, &video.snapshot(), *self.audio.peek(), *self.sub.peek());
+        let r = report_of(
+            &info,
+            &video.snapshot(),
+            *self.audio.peek(),
+            *self.sub.peek(),
+        );
         let c = s.client.clone();
         fire(async move { report(&c, kind, &r).await });
     }
@@ -162,7 +174,9 @@ fn mpv_options(info: &PlaybackInfo, audio: Option<i64>, sub: Option<i64>) -> Str
     let sid = sub_track(info, sub)
         .filter(|t| !t.is_external)
         .and_then(|t| {
-            mpv_ordinal(&info.tracks.subtitles, t.index, |s| (s.index, s.is_external))
+            mpv_ordinal(&info.tracks.subtitles, t.index, |s| {
+                (s.index, s.is_external)
+            })
         })
         .map(|n| n.to_string())
         .unwrap_or_else(|| "no".into());
@@ -201,7 +215,10 @@ async fn wait_loaded(video: &VideoController) {
         if !matches!(st, PlaybackStatus::Loading | PlaybackStatus::Idle) {
             return;
         }
-        if tokio::time::timeout_at(deadline, rx.changed()).await.is_err() {
+        if tokio::time::timeout_at(deadline, rx.changed())
+            .await
+            .is_err()
+        {
             return;
         }
     }
@@ -233,7 +250,15 @@ async fn load(ctl: Ctl, s: Session, video: VideoController, info: PlaybackInfo, 
 }
 
 /// `play`: PlaybackInfo, track choice, load. A newer call wins (generation).
-async fn start_stream(ctl: Ctl, s: Session, video: VideoController, item_id: String, start_ticks: i64, want: Want, prefs: Prefs) {
+async fn start_stream(
+    ctl: Ctl,
+    s: Session,
+    video: VideoController,
+    item_id: String,
+    start_ticks: i64,
+    want: Want,
+    prefs: Prefs,
+) {
     let mut c = ctl;
     let gen = *ctl.generation.peek() + 1;
     c.generation.set(gen);
@@ -376,7 +401,12 @@ fn Player(item_id: String, start: Option<i64>) -> Element {
     });
     let widget = use_hook({
         let video = video.clone();
-        move || video.mpv().ok().map(|m| CustomWidgetAttr::new(VideoWidget::new(m)))
+        move || {
+            video
+                .mpv()
+                .ok()
+                .map(|m| CustomWidgetAttr::new(VideoWidget::new(m)))
+        }
     });
 
     // --- the item and its series (next episode)
@@ -396,7 +426,11 @@ fn Player(item_id: String, start: Option<i64>) -> Element {
     let episodes_params = ItemsParams {
         parent_id: series_id.clone(),
         include_item_types: vec!["Episode".into()],
-        sort_by: vec!["ParentIndexNumber".into(), "IndexNumber".into(), "SortName".into()],
+        sort_by: vec![
+            "ParentIndexNumber".into(),
+            "IndexNumber".into(),
+            "SortName".into(),
+        ],
         page_size: Some(1000),
         fields: Some(vec!["SortName".into()]),
         ..Default::default()
@@ -436,7 +470,12 @@ fn Player(item_id: String, start: Option<i64>) -> Element {
                 .and_then(|u| u.playback_position_ticks)
                 .unwrap_or(0)
         });
-        let (s, v, id, p) = (session.clone(), video.clone(), item_id.clone(), prefs.clone());
+        let (s, v, id, p) = (
+            session.clone(),
+            video.clone(),
+            item_id.clone(),
+            prefs.clone(),
+        );
         spawn(async move {
             start_play(ctl, s, v, id, ticks, p).await;
         });
@@ -560,7 +599,11 @@ fn Player(item_id: String, start: Option<i64>) -> Element {
         let (v, s) = (video.clone(), session.clone());
         move |secs: f64| {
             let d = v.snapshot().duration_seconds;
-            let target = if d > 0.0 { secs.clamp(0.0, d) } else { secs.max(0.0) };
+            let target = if d > 0.0 {
+                secs.clamp(0.0, d)
+            } else {
+                secs.max(0.0)
+            };
             v.seek(target);
             // `seeked`: the server learns the new position.
             let (v, s) = (v.clone(), s.clone());
@@ -615,7 +658,12 @@ fn Player(item_id: String, start: Option<i64>) -> Element {
         }
     };
     let select_audio = {
-        let (s, v, id, p) = (session.clone(), video.clone(), item_id.clone(), prefs.clone());
+        let (s, v, id, p) = (
+            session.clone(),
+            video.clone(),
+            item_id.clone(),
+            prefs.clone(),
+        );
         move |index: i64| {
             let Some(info) = ctl.info.peek().clone() else {
                 return;
@@ -643,7 +691,12 @@ fn Player(item_id: String, start: Option<i64>) -> Element {
         }
     };
     let select_subtitle = {
-        let (s, v, id, p) = (session.clone(), video.clone(), item_id.clone(), prefs.clone());
+        let (s, v, id, p) = (
+            session.clone(),
+            video.clone(),
+            item_id.clone(),
+            prefs.clone(),
+        );
         move |index: Option<i64>| {
             let Some(info) = ctl.info.peek().clone() else {
                 return;
@@ -677,14 +730,21 @@ fn Player(item_id: String, start: Option<i64>) -> Element {
                     spawn(async move { attach_sub(&v, &t).await });
                 }
                 Some(t) => {
-                    let n = mpv_ordinal(&info.tracks.subtitles, t.index, |s| (s.index, s.is_external));
+                    let n = mpv_ordinal(&info.tracks.subtitles, t.index, |s| {
+                        (s.index, s.is_external)
+                    });
                     v.set_subtitle_track(n.map(|n| n as i64));
                 }
             }
         }
     };
     let retry = {
-        let (s, v, id, p) = (session.clone(), video.clone(), item_id.clone(), prefs.clone());
+        let (s, v, id, p) = (
+            session.clone(),
+            video.clone(),
+            item_id.clone(),
+            prefs.clone(),
+        );
         move || {
             let sub = *ctl.sub.peek();
             let info = ctl.info.peek().clone();
@@ -705,7 +765,12 @@ fn Player(item_id: String, start: Option<i64>) -> Element {
     // --- skip intro / credits, up next
     let snapshot = snap();
     let mut dismissed = use_signal(|| false);
-    let segments = ctl.info.read().as_ref().map(|i| i.segments.clone()).unwrap_or_default();
+    let segments = ctl
+        .info
+        .read()
+        .as_ref()
+        .map(|i| i.segments.clone())
+        .unwrap_or_default();
     let (up_visible, seconds_left) = up_next_state(
         snapshot.position_seconds,
         snapshot.duration_seconds,
@@ -766,9 +831,19 @@ fn Player(item_id: String, start: Option<i64>) -> Element {
     let mut modifiers = use_signal(ModifiersState::default);
     let mut popover_open = held;
     let key_actions = {
-        let (toggle_play, seek_by, set_volume) = (toggle_play.clone(), seek_by.clone(), set_volume.clone());
-        let (toggle_fullscreen, toggle_mute, leave) = (toggle_fullscreen.clone(), toggle_mute.clone(), leave.clone());
-        let (do_skip, has_pill, v, w) = (do_skip.clone(), pill.is_some(), video.clone(), window.clone());
+        let (toggle_play, seek_by, set_volume) =
+            (toggle_play.clone(), seek_by.clone(), set_volume.clone());
+        let (toggle_fullscreen, toggle_mute, leave) = (
+            toggle_fullscreen.clone(),
+            toggle_mute.clone(),
+            leave.clone(),
+        );
+        let (do_skip, has_pill, v, w) = (
+            do_skip.clone(),
+            pill.is_some(),
+            video.clone(),
+            window.clone(),
+        );
         move |key: &WKey| -> bool {
             let ch = |c: &str| matches!(key, WKey::Character(s) if s.as_str() == c);
             if ch(" ") || ch("k") {
@@ -785,7 +860,9 @@ fn Player(item_id: String, start: Option<i64>) -> Element {
                 toggle_fullscreen();
             } else if ch("m") || ch("M") {
                 toggle_mute();
-            } else if (ch("s") || ch("S") || matches!(key, WKey::Named(NamedKey::Enter))) && has_pill {
+            } else if (ch("s") || ch("S") || matches!(key, WKey::Named(NamedKey::Enter)))
+                && has_pill
+            {
                 do_skip();
             } else if matches!(key, WKey::Named(NamedKey::Escape)) {
                 if w.fullscreen().is_some() {
@@ -799,7 +876,11 @@ fn Player(item_id: String, start: Option<i64>) -> Element {
             true
         }
     };
-    let current_keys = use_hook(|| std::rc::Rc::new(std::cell::RefCell::new(None::<std::rc::Rc<dyn Fn(&WKey) -> bool>>)));
+    let current_keys = use_hook(|| {
+        std::rc::Rc::new(std::cell::RefCell::new(
+            None::<std::rc::Rc<dyn Fn(&WKey) -> bool>>,
+        ))
+    });
     *current_keys.borrow_mut() = Some(std::rc::Rc::new(key_actions));
     let mut show_for_keys = show_controls;
     dioxus_native::use_window_event({
@@ -812,7 +893,9 @@ fn Player(item_id: String, start: Option<i64>) -> Element {
                     return;
                 }
                 // An open popover takes Escape for itself.
-                if *popover_open.peek() && matches!(event.logical_key, WKey::Named(NamedKey::Escape)) {
+                if *popover_open.peek()
+                    && matches!(event.logical_key, WKey::Named(NamedKey::Escape))
+                {
                     popover_open.set(false);
                     return;
                 }
@@ -850,7 +933,13 @@ fn Player(item_id: String, start: Option<i64>) -> Element {
             parts.join(" · ")
         });
     let load_error = (ctl.error)();
-    let failed = status == PlaybackStatus::Error && (*ctl.fell_back.read() || ctl.info.read().as_ref().is_some_and(|i| i.method == PlayMethod::Transcode))
+    let failed = status == PlaybackStatus::Error
+        && (*ctl.fell_back.read()
+            || ctl
+                .info
+                .read()
+                .as_ref()
+                .is_some_and(|i| i.method == PlayMethod::Transcode))
         || load_error.is_some()
         || widget.is_none();
     let error_message = load_error
@@ -858,9 +947,16 @@ fn Player(item_id: String, start: Option<i64>) -> Element {
         .or_else(|| video.mpv().err());
     let loading = (ctl.preparing)() || status == PlaybackStatus::Loading;
     let tracks = ctl.info.read().as_ref().map(|i| i.tracks.clone());
-    let controls_attr = if controls_visible() { "visible" } else { "hidden" };
+    let controls_attr = if controls_visible() {
+        "visible"
+    } else {
+        "hidden"
+    };
     let up_next_img = next.as_ref().and_then(|n| landscape_image(&base, n, 320));
-    let next_name = next.as_ref().and_then(|n| n.name.clone()).unwrap_or_default();
+    let next_name = next
+        .as_ref()
+        .and_then(|n| n.name.clone())
+        .unwrap_or_default();
 
     let (tp, tp2) = (toggle_play.clone(), toggle_fullscreen.clone());
     let leave2 = leave.clone();
@@ -868,7 +964,10 @@ fn Player(item_id: String, start: Option<i64>) -> Element {
     let retry2 = retry.clone();
     let pn1 = play_next.clone();
     let svc2 = svc.clone();
-    let skip_key = pill.as_ref().map(|p| format!("{:?}", p.kind)).unwrap_or_default();
+    let skip_key = pill
+        .as_ref()
+        .map(|p| format!("{:?}", p.kind))
+        .unwrap_or_default();
 
     rsx! {
         div {
@@ -960,7 +1059,6 @@ fn Player(item_id: String, start: Option<i64>) -> Element {
             }
         }
     }
-
 }
 
 /// First load of the item (languages from the preferences).

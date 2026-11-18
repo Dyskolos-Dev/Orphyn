@@ -32,10 +32,7 @@ pub fn apply_playback_prefs(
 type PrefEdit = Box<dyn FnOnce(&mut PlaybackPreferences)>;
 
 /// A preference setter that persists, then applies to the engine.
-fn updater(
-    app: crate::state::AppState,
-    svc: Services,
-) -> impl Fn(PrefEdit) + Clone {
+fn updater(app: crate::state::AppState, svc: Services) -> impl Fn(PrefEdit) + Clone {
     move |f| {
         app.set_preferences(&svc, f);
         apply_playback_prefs(&svc, &app.preferences.peek(), app.session.peek().clone());
@@ -88,16 +85,29 @@ pub fn PlaybackPane() -> Element {
 
     let languages = |none: String| -> Vec<(Option<String>, String)> {
         std::iter::once((None, none))
-            .chain(LANGUAGES.iter().map(|l| (Some(l.to_string()), t.t(&format!("settings:playback.languages.{l}")))))
+            .chain(LANGUAGES.iter().map(|l| {
+                (
+                    Some(l.to_string()),
+                    t.t(&format!("settings:playback.languages.{l}")),
+                )
+            }))
             .collect()
     };
-    let bitrates: Vec<(Option<u64>, String)> = std::iter::once((None, t.t("settings:playback.auto")))
-        .chain(VIDEO_BITRATES.iter().map(|b| {
-            (Some(*b), t.tf("settings:playback.mbps", &[("value", (b / 1_000_000).to_string())]))
-        }))
-        .collect();
+    let bitrates: Vec<(Option<u64>, String)> =
+        std::iter::once((None, t.t("settings:playback.auto")))
+            .chain(VIDEO_BITRATES.iter().map(|b| {
+                (
+                    Some(*b),
+                    t.tf(
+                        "settings:playback.mbps",
+                        &[("value", (b / 1_000_000).to_string())],
+                    ),
+                )
+            }))
+            .collect();
     let devs = use_hook(devices::output_devices);
-    let mut outputs: Vec<(Option<String>, String)> = vec![(None, t.t("settings:playback.outputDefault"))];
+    let mut outputs: Vec<(Option<String>, String)> =
+        vec![(None, t.t("settings:playback.outputDefault"))];
     outputs.extend(devs.iter().map(|d| (Some(d.id.clone()), d.label.clone())));
     if let Some(id) = &p.audio_output_id {
         if !outputs.iter().any(|(v, _)| v.as_ref() == Some(id)) {
@@ -105,10 +115,18 @@ pub fn PlaybackPane() -> Element {
         }
     }
     let (u1, u2, u3, u4, u5, u6) = (
-        update.clone(), update.clone(), update.clone(), update.clone(), update.clone(), update,
+        update.clone(),
+        update.clone(),
+        update.clone(),
+        update.clone(),
+        update.clone(),
+        update,
     );
     let max_bitrate = p.max_video_bitrate.map(|b| b as u64);
-    let (audio_lang, sub_lang) = (p.preferred_audio_language.clone(), p.preferred_subtitle_language.clone());
+    let (audio_lang, sub_lang) = (
+        p.preferred_audio_language.clone(),
+        p.preferred_subtitle_language.clone(),
+    );
 
     rsx! {
         List { header: t.t("settings:playback.videoHeader"),
@@ -190,14 +208,27 @@ pub fn MusicPane() -> Element {
     let update = updater(app, svc);
     let p = (app.preferences)();
     let (u1, u2, u3, u4, u5, u6, u7) = (
-        update.clone(), update.clone(), update.clone(), update.clone(), update.clone(), update.clone(), update,
+        update.clone(),
+        update.clone(),
+        update.clone(),
+        update.clone(),
+        update.clone(),
+        update.clone(),
+        update,
     );
-    let seconds = t.tf("settings:music.seconds", &[("value", p.crossfade_seconds.to_string())]);
-    let quality: Vec<(String, String)> = std::iter::once(("original".to_string(), t.t("settings:music.original")))
-        .chain(AUDIO_BITRATES.iter().map(|b| {
-            (b.to_string(), t.tf("settings:music.kbps", &[("value", (b / 1000).to_string())]))
-        }))
-        .collect();
+    let seconds = t.tf(
+        "settings:music.seconds",
+        &[("value", p.crossfade_seconds.to_string())],
+    );
+    let quality: Vec<(String, String)> =
+        std::iter::once(("original".to_string(), t.t("settings:music.original")))
+            .chain(AUDIO_BITRATES.iter().map(|b| {
+                (
+                    b.to_string(),
+                    t.tf("settings:music.kbps", &[("value", (b / 1000).to_string())]),
+                )
+            }))
+            .collect();
     let current_quality = match p.audio_quality {
         AudioQuality::Original => "original".to_string(),
         AudioQuality::Bitrate(b) => (b as u64).to_string(),

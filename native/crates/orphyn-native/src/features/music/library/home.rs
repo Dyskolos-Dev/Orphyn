@@ -97,7 +97,10 @@ fn parse_layout(json: Option<Value>) -> Vec<HomeRow> {
         if rows.iter().any(|x| x.id == id) || (def.1 && rows.iter().any(|x| x.kind == kind)) {
             continue;
         }
-        let param = r.get("param").and_then(Value::as_str).filter(|p| !p.is_empty());
+        let param = r
+            .get("param")
+            .and_then(Value::as_str)
+            .filter(|p| !p.is_empty());
         if def.2 && param.is_none() {
             continue;
         }
@@ -106,7 +109,10 @@ fn parse_layout(json: Option<Value>) -> Vec<HomeRow> {
             kind: kind.into(),
             hidden: r.get("hidden").and_then(Value::as_bool) == Some(true),
             param: def.2.then(|| param.map(str::to_string)).flatten(),
-            label: def.2.then(|| r.get("label").and_then(Value::as_str).map(str::to_string)).flatten(),
+            label: def
+                .2
+                .then(|| r.get("label").and_then(Value::as_str).map(str::to_string))
+                .flatten(),
             size: r
                 .get("size")
                 .and_then(Value::as_str)
@@ -226,15 +232,25 @@ fn MusicShelf(
 }
 
 fn title_of(t: crate::i18n::I18n, row: &HomeRow) -> String {
-    let name = row.label.clone().or_else(|| row.param.clone()).unwrap_or_default();
-    t.tf(&format!("home:rows.music.{}.title", row.kind), &[("name", name)])
+    let name = row
+        .label
+        .clone()
+        .or_else(|| row.param.clone())
+        .unwrap_or_default();
+    t.tf(
+        &format!("home:rows.music.{}.title", row.kind),
+        &[("name", name)],
+    )
 }
 
 /// `useItems`/`useAlbums` as one query: the items of a `GET /Items` page.
 fn use_items(params: ItemsParams, enabled: bool) -> Vec<BaseItemDto> {
     let app = use_app();
     let session = (app.session)();
-    let acc = session.as_ref().map(|s| s.account_id.clone()).unwrap_or_default();
+    let acc = session
+        .as_ref()
+        .map(|s| s.account_id.clone())
+        .unwrap_or_default();
     let q = use_query(keys::items(&acc, &params), stale::CATALOG, move || {
         let (s, p) = (session.clone(), params.clone());
         async move {
@@ -282,7 +298,12 @@ fn AlbumShelf(row: HomeRow, albums: Vec<BaseItemDto>, see_all_to: Option<String>
 }
 
 #[component]
-fn TrackShelf(row: HomeRow, tracks: Vec<BaseItemDto>, subtitle: Option<String>, see_all_to: Option<String>) -> Element {
+fn TrackShelf(
+    row: HomeRow,
+    tracks: Vec<BaseItemDto>,
+    subtitle: Option<String>,
+    see_all_to: Option<String>,
+) -> Element {
     let t = use_i18n();
     let svc = use_services();
     let base = use_base_url();
@@ -378,7 +399,10 @@ fn FavArtists(row: HomeRow, count: usize) -> Element {
     let t = use_i18n();
     let app = use_app();
     let session = (app.session)();
-    let acc = session.as_ref().map(|s| s.account_id.clone()).unwrap_or_default();
+    let acc = session
+        .as_ref()
+        .map(|s| s.account_id.clone())
+        .unwrap_or_default();
     let params = ItemsParams {
         is_favorite: Some(true),
         page_size: Some(count as u32),
@@ -448,7 +472,10 @@ fn InstantMix(row: HomeRow, count: usize) -> Element {
     let newest = use_items(albums_params(&["DateCreated"], "Descending", 1), true);
     let seed = last.first().or(newest.first()).cloned();
     let session = (app.session)();
-    let acc = session.as_ref().map(|s| s.account_id.clone()).unwrap_or_default();
+    let acc = session
+        .as_ref()
+        .map(|s| s.account_id.clone())
+        .unwrap_or_default();
     let seed_id = seed.as_ref().map(|s| s.id.clone()).unwrap_or_default();
     let mut key = keys::instant_mix(&acc, &seed_id);
     key.push(count.to_string());
@@ -465,7 +492,11 @@ fn InstantMix(row: HomeRow, count: usize) -> Element {
             }
         }
     });
-    let tracks: Vec<BaseItemDto> = if has_seed { mix.data.as_deref().cloned().unwrap_or_default() } else { Vec::new() };
+    let tracks: Vec<BaseItemDto> = if has_seed {
+        mix.data.as_deref().cloned().unwrap_or_default()
+    } else {
+        Vec::new()
+    };
     let subtitle = seed.map(|s| t.tf("home:instantMixFrom", &[("name", s.name().to_string())]));
     rsx! { TrackShelf { row, tracks, subtitle } }
 }
@@ -482,7 +513,10 @@ fn GenreRow(row: HomeRow, count: usize) -> Element {
 fn ArtistRow(row: HomeRow, count: usize) -> Element {
     let app = use_app();
     let session = (app.session)();
-    let acc = session.as_ref().map(|s| s.account_id.clone()).unwrap_or_default();
+    let acc = session
+        .as_ref()
+        .map(|s| s.account_id.clone())
+        .unwrap_or_default();
     let artist_id = row.param.clone().unwrap_or_default();
     let q = use_query(keys::artist_albums(&acc, &artist_id), stale::CATALOG, {
         let id = artist_id.clone();
@@ -496,7 +530,11 @@ fn ArtistRow(row: HomeRow, count: usize) -> Element {
             }
         }
     });
-    let albums: Vec<BaseItemDto> = q.data.as_deref().map(|a| a.iter().take(count).cloned().collect()).unwrap_or_default();
+    let albums: Vec<BaseItemDto> = q
+        .data
+        .as_deref()
+        .map(|a| a.iter().take(count).cloned().collect())
+        .unwrap_or_default();
     let see_all = row.param.as_ref().map(|p| format!("/music/artist/{p}"));
     rsx! { AlbumShelf { row, albums, see_all_to: see_all } }
 }
@@ -530,7 +568,16 @@ mod tests {
         });
         let rows = parse_layout(Some(json));
         let kinds: Vec<&str> = rows.iter().map(|r| r.kind.as_str()).collect();
-        assert_eq!(kinds, ["recentlyPlayed", "mixForYou", "mixDaily", "instantMix", "mixGenres"]);
+        assert_eq!(
+            kinds,
+            [
+                "recentlyPlayed",
+                "mixForYou",
+                "mixDaily",
+                "instantMix",
+                "mixGenres"
+            ]
+        );
         assert!(rows[3].hidden);
     }
 

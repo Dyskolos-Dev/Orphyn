@@ -33,8 +33,11 @@ pub struct RadioSeed {
 }
 
 /// More songs for a seed (`id`); the second argument is the song playing now.
-pub type Fetcher =
-    Arc<dyn Fn(String, Option<String>) -> Pin<Box<dyn Future<Output = Vec<Track>> + Send>> + Send + Sync>;
+pub type Fetcher = Arc<
+    dyn Fn(String, Option<String>) -> Pin<Box<dyn Future<Output = Vec<Track>> + Send>>
+        + Send
+        + Sync,
+>;
 
 // ---------------------------------------------------------------------------------- rules
 
@@ -229,7 +232,11 @@ impl Radio {
             let mut c = self.core();
             c.epoch += 1;
             c.seed = Some(seed.clone());
-            c.known = first.iter().map(|t| t.id.clone()).filter(|i| !i.is_empty()).collect();
+            c.known = first
+                .iter()
+                .map(|t| t.id.clone())
+                .filter(|i| !i.is_empty())
+                .collect();
             c.fetcher = Some(fetcher);
             c.epoch
         };
@@ -383,7 +390,12 @@ mod tests {
     #[test]
     fn refill_skips_heard_songs_and_avoids_the_last_artist_first() {
         let avoid: HashSet<String> = ["1".to_string()].into();
-        let list = vec![song("1", "a"), song("2", "a"), song("3", "b"), song("4", "c")];
+        let list = vec![
+            song("1", "a"),
+            song("2", "a"),
+            song("3", "b"),
+            song("4", "c"),
+        ];
         let out = pick_refill(&list, &avoid, Some("a"), 25);
         assert_eq!(ids(&out), ["3", "2", "4"]);
         let out = pick_refill(&list, &avoid, None, 2);
@@ -402,7 +414,10 @@ mod tests {
         let q = queue(12);
         assert_eq!(decide(&known, &q, 0, 0, 8), Decision::Nothing);
         assert_eq!(decide(&known, &q, 5, 0, 8), Decision::Refill);
-        assert_eq!(decide(&known, &q, 5, MAX_EMPTY_REFILLS, 8), Decision::Nothing);
+        assert_eq!(
+            decide(&known, &q, 5, MAX_EMPTY_REFILLS, 8),
+            Decision::Nothing
+        );
         assert_eq!(decide(&known, &[], -1, 0, 8), Decision::Stop);
         // The current song is not one the radio queued.
         let other = vec![QueueItem::new("x".into(), song("zzz", "a"))];
@@ -412,7 +427,9 @@ mod tests {
     #[tokio::test]
     async fn radio_refills_the_player_queue_and_ends_by_itself() {
         let player = MusicPlayer::new();
-        let first: Vec<Track> = (0..3).map(|i| song(&format!("s{i}"), &format!("a{i}"))).collect();
+        let first: Vec<Track> = (0..3)
+            .map(|i| song(&format!("s{i}"), &format!("a{i}")))
+            .collect();
         player.play(&first, Some(0), Some(false));
         let radio = Radio::new(player.clone(), 8);
         let fetcher: Fetcher = Arc::new(|_seed, _cur| {

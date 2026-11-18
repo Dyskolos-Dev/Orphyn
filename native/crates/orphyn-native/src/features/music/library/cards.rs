@@ -13,26 +13,26 @@ use crate::router::use_router;
 use crate::state::{use_app, use_services, Services};
 
 /// `fetchTracksOf`: the songs behind an album, playlist, artist or song id.
-pub async fn tracks_of(
-    svc: &Services,
-    session: &Session,
-    item: &BaseItemDto,
-) -> Vec<BaseItemDto> {
+pub async fn tracks_of(svc: &Services, session: &Session, item: &BaseItemDto) -> Vec<BaseItemDto> {
     let acc = session.account_id.clone();
     let id = item.id.clone();
     let s = session.clone();
     let cache = svc.cache.clone();
     let r = match item.item_type.as_deref() {
         Some("MusicAlbum") => cache
-            .fetch(keys::album_tracks(&acc, &id), stale::CATALOG, move || async move {
-                s.album_tracks(&id).await
-            })
+            .fetch(
+                keys::album_tracks(&acc, &id),
+                stale::CATALOG,
+                move || async move { s.album_tracks(&id).await },
+            )
             .await
             .map(|a| (*a).clone()),
         Some("Playlist") => cache
-            .fetch(keys::playlist_items(&acc, &id), stale::ITEM, move || async move {
-                s.playlist_items(&id).await
-            })
+            .fetch(
+                keys::playlist_items(&acc, &id),
+                stale::ITEM,
+                move || async move { s.playlist_items(&id).await },
+            )
             .await
             .map(|a| (*a).clone()),
         Some("MusicArtist") => artist_songs(session, &id, 500).await,
@@ -50,7 +50,11 @@ pub async fn artist_songs(
     let p = ItemsParams {
         include_item_types: vec!["Audio".into()],
         artist_ids: vec![artist_id.to_string()],
-        sort_by: vec!["Album".into(), "ParentIndexNumber".into(), "IndexNumber".into()],
+        sort_by: vec![
+            "Album".into(),
+            "ParentIndexNumber".into(),
+            "IndexNumber".into(),
+        ],
         sort_order: Some("Ascending".into()),
         page_size: Some(limit),
         ..ItemsParams::default()
@@ -67,7 +71,8 @@ pub fn play_item(svc: &Services, session: Option<Session>, item: &BaseItemDto, s
         if tracks.is_empty() {
             return;
         }
-        svc.music.play(&tracks, (!shuffle).then_some(0), Some(shuffle));
+        svc.music
+            .play(&tracks, (!shuffle).then_some(0), Some(shuffle));
     });
 }
 
@@ -99,18 +104,38 @@ pub fn container_menu(
         MenuItem::action(label, Some(icon), move |_| f())
     };
     let (s, ses, it) = (svc.clone(), session.clone(), item.clone());
-    out.push(mk(t.t("music:actions.play"), "play", Box::new(move || play_item(&s, ses.clone(), &it, false))));
+    out.push(mk(
+        t.t("music:actions.play"),
+        "play",
+        Box::new(move || play_item(&s, ses.clone(), &it, false)),
+    ));
     let (s, ses, it) = (svc.clone(), session.clone(), item.clone());
-    out.push(mk(t.t("music:actions.shuffle"), "shuffle", Box::new(move || play_item(&s, ses.clone(), &it, true))));
+    out.push(mk(
+        t.t("music:actions.shuffle"),
+        "shuffle",
+        Box::new(move || play_item(&s, ses.clone(), &it, true)),
+    ));
     out.push(MenuItem::Separator);
     let (s, ses, it) = (svc.clone(), session.clone(), item.clone());
-    out.push(mk(t.t("music:actions.playNext"), "list-start", Box::new(move || queue_item(&s, ses.clone(), &it, true))));
+    out.push(mk(
+        t.t("music:actions.playNext"),
+        "list-start",
+        Box::new(move || queue_item(&s, ses.clone(), &it, true)),
+    ));
     let (s, ses, it) = (svc.clone(), session.clone(), item.clone());
-    out.push(mk(t.t("music:actions.addToQueue"), "list-end", Box::new(move || queue_item(&s, ses.clone(), &it, false))));
+    out.push(mk(
+        t.t("music:actions.addToQueue"),
+        "list-end",
+        Box::new(move || queue_item(&s, ses.clone(), &it, false)),
+    ));
     out.push(MenuItem::Separator);
     let (s, ses, it) = (svc.clone(), session, item.clone());
     out.push(mk(
-        if favorite { t.t("music:actions.unfavorite") } else { t.t("music:actions.favorite") },
+        if favorite {
+            t.t("music:actions.unfavorite")
+        } else {
+            t.t("music:actions.favorite")
+        },
         "heart",
         Box::new(move || toggle_favorite(&s, ses.clone(), &it, !favorite)),
     ));
@@ -146,7 +171,11 @@ pub fn MediaCard(
     let router = use_router();
     let overlay = use_overlay();
     let kind = if round { "round" } else { "square" };
-    let actions = if playable { " jr-card--has-actions" } else { "" };
+    let actions = if playable {
+        " jr-card--has-actions"
+    } else {
+        ""
+    };
     let shape = if round { "circle" } else { "rounded" };
     let (menu_item, menu_svc) = (item.clone(), svc.clone());
     let (play_item_v, play_svc) = (item.clone(), svc.clone());
@@ -254,7 +283,11 @@ pub fn ArtistCard(artist: BaseItemDto) -> Element {
 /// `GridSkeleton`: placeholder grid while a library page loads.
 #[component]
 pub fn GridSkeleton(#[props(default = "square")] kind: &'static str) -> Element {
-    let radius = if kind == "round" { "50%" } else { "var(--radius-artwork)" };
+    let radius = if kind == "round" {
+        "50%"
+    } else {
+        "var(--radius-artwork)"
+    };
     rsx! {
         ul { class: "jr-grid jr-grid--{kind}", "aria-label": "…",
             for i in 0..12 {
@@ -279,23 +312,31 @@ pub fn track_menu(
     let (a, b) = (player.clone(), player.clone());
     let (t1, t2) = (track.clone(), track.clone());
     let mut items = vec![
-        MenuItem::action(t.t("music:actions.playNext"), Some("list-start"), move |_| {
-            a.play_next(std::slice::from_ref(&t1))
-        }),
-        MenuItem::action(t.t("music:actions.addToQueue"), Some("list-end"), move |_| {
-            b.add_to_queue(std::slice::from_ref(&t2))
-        }),
+        MenuItem::action(
+            t.t("music:actions.playNext"),
+            Some("list-start"),
+            move |_| a.play_next(std::slice::from_ref(&t1)),
+        ),
+        MenuItem::action(
+            t.t("music:actions.addToQueue"),
+            Some("list-end"),
+            move |_| b.add_to_queue(std::slice::from_ref(&t2)),
+        ),
         MenuItem::Separator,
     ];
     if let Some(album) = track.album_id.clone() {
-        items.push(MenuItem::action(t.t("music:actions.goToAlbum"), Some("disc-3"), move |_| {
-            router.push(&format!("/music/album/{album}"))
-        }));
+        items.push(MenuItem::action(
+            t.t("music:actions.goToAlbum"),
+            Some("disc-3"),
+            move |_| router.push(&format!("/music/album/{album}")),
+        ));
     }
     if let Some(artist) = crate::features::music::track_artist_id(&track) {
-        items.push(MenuItem::action(t.t("music:actions.goToArtist"), Some("mic-vocal"), move |_| {
-            router.push(&format!("/music/artist/{artist}"))
-        }));
+        items.push(MenuItem::action(
+            t.t("music:actions.goToArtist"),
+            Some("mic-vocal"),
+            move |_| router.push(&format!("/music/artist/{artist}")),
+        ));
     }
     items
 }

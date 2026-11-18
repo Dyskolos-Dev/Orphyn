@@ -67,8 +67,20 @@ pub fn classify_release(album: &BaseItemDto) -> ReleaseType {
         "b-sides",
     ];
     let various = matches!(
-        album.album_artist.as_deref().unwrap_or("").trim().to_lowercase().as_str(),
-        "various artist" | "various artists" | "artiste varié" | "artistes variés" | "artistes varies" | "artiste varie" | "va"
+        album
+            .album_artist
+            .as_deref()
+            .unwrap_or("")
+            .trim()
+            .to_lowercase()
+            .as_str(),
+        "various artist"
+            | "various artists"
+            | "artiste varié"
+            | "artistes variés"
+            | "artistes varies"
+            | "artiste varie"
+            | "va"
     );
     if has_word(name, COMPILATION) || various {
         return ReleaseType::Compilation;
@@ -108,11 +120,19 @@ pub fn build_discography(albums: &[BaseItemDto], ids: &[String]) -> DiscographyD
             .any(|x| x.id.as_ref().is_some_and(|i| ids.contains(i)))
     });
     let by = |t: ReleaseType| {
-        let mut v: Vec<BaseItemDto> = own.iter().filter(|a| classify_release(a) == t).cloned().collect();
+        let mut v: Vec<BaseItemDto> = own
+            .iter()
+            .filter(|a| classify_release(a) == t)
+            .cloned()
+            .collect();
         sort_newest_first(&mut v);
         v
     };
-    let (albums, eps, compilations) = (by(ReleaseType::Album), by(ReleaseType::Ep), by(ReleaseType::Compilation));
+    let (albums, eps, compilations) = (
+        by(ReleaseType::Album),
+        by(ReleaseType::Ep),
+        by(ReleaseType::Compilation),
+    );
     own.clear();
     sort_newest_first(&mut appears_on);
     DiscographyData {
@@ -126,16 +146,35 @@ pub fn build_discography(albums: &[BaseItemDto], ids: &[String]) -> DiscographyD
 // ------------------------------------------------------------------- popularSongs.ts
 
 const NOISE: &[&str] = &[
-    "remaster", "remastered", "remastering", "live", "version", "mono", "stereo", "radio edit",
-    "single edit", "album version", "bonus track", "deluxe", "explicit", "clean", "acoustic version",
+    "remaster",
+    "remastered",
+    "remastering",
+    "live",
+    "version",
+    "mono",
+    "stereo",
+    "radio edit",
+    "single edit",
+    "album version",
+    "bonus track",
+    "deluxe",
+    "explicit",
+    "clean",
+    "acoustic version",
 ];
 
 fn is_noise(s: &str) -> bool {
     let l = s.to_lowercase();
     NOISE.iter().any(|n| {
         l.match_indices(n).any(|(i, _)| {
-            let before = l[..i].chars().next_back().is_none_or(|c| !c.is_alphanumeric());
-            let after = l[i + n.len()..].chars().next().is_none_or(|c| !c.is_alphanumeric());
+            let before = l[..i]
+                .chars()
+                .next_back()
+                .is_none_or(|c| !c.is_alphanumeric());
+            let after = l[i + n.len()..]
+                .chars()
+                .next()
+                .is_none_or(|c| !c.is_alphanumeric());
             before && after
         })
     })
@@ -148,7 +187,10 @@ fn feat_at(s: &str) -> Option<usize> {
     }
     ["featuring", "feat", "ft"].iter().find_map(|w| {
         l.match_indices(w).find_map(|(i, _)| {
-            let before = l[..i].chars().next_back().is_none_or(|c| !c.is_alphanumeric());
+            let before = l[..i]
+                .chars()
+                .next_back()
+                .is_none_or(|c| !c.is_alphanumeric());
             let rest = l[i + w.len()..].trim_start_matches('.');
             let after = rest.chars().next().is_some_and(char::is_whitespace);
             (before && after).then(|| {
@@ -178,7 +220,11 @@ pub fn normalize_title(title: &str) -> String {
     }
     t.push_str(rest);
     // "Song - Remastered 2011": a dash tail made of a qualifier.
-    if let Some(i) = [" - ", " – ", " — "].iter().filter_map(|d| t.find(d).map(|i| (i, d.len()))).min() {
+    if let Some(i) = [" - ", " – ", " — "]
+        .iter()
+        .filter_map(|d| t.find(d).map(|i| (i, d.len())))
+        .min()
+    {
         if is_noise(&t[i.0 + i.1..]) {
             t.truncate(i.0);
         }
@@ -206,7 +252,11 @@ fn plays(s: &BaseItemDto) -> i64 {
 }
 
 /// `pickPopularSongs`: online-ranked songs first, then the library's own play count.
-pub fn pick_popular_songs(songs: &[BaseItemDto], ranked: &[String], limit: usize) -> Vec<BaseItemDto> {
+pub fn pick_popular_songs(
+    songs: &[BaseItemDto],
+    ranked: &[String],
+    limit: usize,
+) -> Vec<BaseItemDto> {
     let mut best: HashMap<String, &BaseItemDto> = HashMap::new();
     let mut order: Vec<String> = Vec::new();
     for s in songs {
@@ -260,7 +310,12 @@ fn merge_similar(
     let mut seen = HashSet::new();
     let mut add = |a: &BaseItemDto| {
         let key = artist_key(a.name());
-        if a.id.is_empty() || key.is_empty() || key == self_key || self_ids.contains(&a.id) || !seen.insert(key) {
+        if a.id.is_empty()
+            || key.is_empty()
+            || key == self_key
+            || self_ids.contains(&a.id)
+            || !seen.insert(key)
+        {
             return;
         }
         out.push(a.clone());
@@ -288,7 +343,11 @@ fn merge_similar(
 
 /// `cleanOverview`: server biographies may hold HTML or BBCode.
 fn clean_overview(raw: Option<&str>) -> String {
-    let s = raw.unwrap_or("").replace("<br>", "\n").replace("<br/>", "\n").replace("<br />", "\n");
+    let s = raw
+        .unwrap_or("")
+        .replace("<br>", "\n")
+        .replace("<br/>", "\n")
+        .replace("<br />", "\n");
     let mut out = String::new();
     let mut depth = 0;
     for c in s.chars() {
@@ -350,10 +409,16 @@ pub fn ArtistPage(id: String) -> Element {
         sort_by: vec!["ProductionYear".into(), "SortName".into()],
         sort_order: Some("Descending".into()),
         fields: Some(
-            ["PrimaryImageAspectRatio", "Genres", "ProductionYear", "DateCreated", "ChildCount"]
-                .iter()
-                .map(|s| s.to_string())
-                .collect(),
+            [
+                "PrimaryImageAspectRatio",
+                "Genres",
+                "ProductionYear",
+                "DateCreated",
+                "ChildCount",
+            ]
+            .iter()
+            .map(|s| s.to_string())
+            .collect(),
         ),
         page_size: Some(200),
         ..ItemsParams::default()
@@ -368,7 +433,12 @@ pub fn ArtistPage(id: String) -> Element {
     let song_params = ItemsParams {
         include_item_types: vec!["Audio".into()],
         artist_ids: ids.clone(),
-        sort_by: vec!["Album".into(), "ParentIndexNumber".into(), "IndexNumber".into(), "SortName".into()],
+        sort_by: vec![
+            "Album".into(),
+            "ParentIndexNumber".into(),
+            "IndexNumber".into(),
+            "SortName".into(),
+        ],
         page_size: Some(1000),
         ..ItemsParams::default()
     };
@@ -387,49 +457,65 @@ pub fn ArtistPage(id: String) -> Element {
         }
     });
 
-    let name = artist.data.as_ref().map(|a| a.name().to_string()).unwrap_or_default();
+    let name = artist
+        .data
+        .as_ref()
+        .map(|a| a.name().to_string())
+        .unwrap_or_default();
     let overview = clean_overview(artist.data.as_ref().and_then(|a| a.overview.as_deref()));
     let lang = if t.lang() == Lang::Fr { "fr" } else { "en" };
     let key = artist_key(&name);
     let online_on = online && !name.is_empty();
     let forever = Duration::from_secs(3600 * 24 * 30);
-    let top = use_query(vec!["artistInfo".into(), "top".into(), key.clone()], forever, {
-        let name = name.clone();
-        move || {
+    let top = use_query(
+        vec!["artistInfo".into(), "top".into(), key.clone()],
+        forever,
+        {
             let name = name.clone();
-            async move {
-                if !online_on {
-                    return Names::Ok(Vec::new());
+            move || {
+                let name = name.clone();
+                async move {
+                    if !online_on {
+                        return Names::Ok(Vec::new());
+                    }
+                    net(orphyn_core::artwork::artwork_artist_top_tracks(name).await)
                 }
-                net(orphyn_core::artwork::artwork_artist_top_tracks(name).await)
             }
-        }
-    });
-    let related = use_query(vec!["artistInfo".into(), "related".into(), key.clone()], forever, {
-        let name = name.clone();
-        move || {
+        },
+    );
+    let related = use_query(
+        vec!["artistInfo".into(), "related".into(), key.clone()],
+        forever,
+        {
             let name = name.clone();
-            async move {
-                if !online_on {
-                    return Names::Ok(Vec::new());
+            move || {
+                let name = name.clone();
+                async move {
+                    if !online_on {
+                        return Names::Ok(Vec::new());
+                    }
+                    net(orphyn_core::artwork::artwork_related_artists(name).await)
                 }
-                net(orphyn_core::artwork::artwork_related_artists(name).await)
             }
-        }
-    });
+        },
+    );
     let want_bio = online_on && overview.is_empty() && artist.data.is_some();
-    let online_bio = use_query(vec!["artistInfo".into(), "bio".into(), lang.into(), key.clone()], forever, {
-        let name = name.clone();
-        move || {
+    let online_bio = use_query(
+        vec!["artistInfo".into(), "bio".into(), lang.into(), key.clone()],
+        forever,
+        {
             let name = name.clone();
-            async move {
-                if !want_bio {
-                    return Ok(None::<String>);
+            move || {
+                let name = name.clone();
+                async move {
+                    if !want_bio {
+                        return Ok(None::<String>);
+                    }
+                    net(orphyn_core::artwork::artwork_artist_bio(name, lang.to_string()).await)
                 }
-                net(orphyn_core::artwork::artwork_artist_bio(name, lang.to_string()).await)
             }
-        }
-    });
+        },
+    );
 
     if artist.is_loading() {
         return rsx! {
@@ -447,7 +533,10 @@ pub fn ArtistPage(id: String) -> Element {
     };
 
     let songs: Vec<BaseItemDto> = songs_q.data.as_deref().cloned().unwrap_or_default();
-    let discography = build_discography(albums.data.as_deref().map(Vec::as_slice).unwrap_or(&[]), &ids);
+    let discography = build_discography(
+        albums.data.as_deref().map(Vec::as_slice).unwrap_or(&[]),
+        &ids,
+    );
     let library: Vec<BaseItemDto> = lists
         .album_artists
         .iter()
@@ -467,7 +556,13 @@ pub fn ArtistPage(id: String) -> Element {
     let bio: Option<(String, bool)> = if !overview.is_empty() {
         Some((overview.clone(), true))
     } else {
-        online_bio.data.as_deref().cloned().flatten().filter(|b| !b.is_empty()).map(|b| (b, false))
+        online_bio
+            .data
+            .as_deref()
+            .cloned()
+            .flatten()
+            .filter(|b| !b.is_empty())
+            .map(|b| (b, false))
     };
     let bio_loading = overview.is_empty() && want_bio && online_bio.is_loading();
     let similar_loading = similar.is_loading() || (online && related.is_loading());
@@ -476,12 +571,14 @@ pub fn ArtistPage(id: String) -> Element {
         let (svc, session, songs, id) = (svc.clone(), session.clone(), songs.clone(), id.clone());
         move |shuffle: bool| {
             if !songs.is_empty() {
-                svc.music.play(&songs, (!shuffle).then_some(0), Some(shuffle));
+                svc.music
+                    .play(&songs, (!shuffle).then_some(0), Some(shuffle));
             } else {
                 let (svc, session, id) = (svc.clone(), session.clone(), id.clone());
                 spawn(async move {
                     if let Ok(list) = artist_songs(&session, &id, 500).await {
-                        svc.music.play(&list, (!shuffle).then_some(0), Some(shuffle));
+                        svc.music
+                            .play(&list, (!shuffle).then_some(0), Some(shuffle));
                     }
                 });
             }
@@ -501,7 +598,11 @@ pub fn ArtistPage(id: String) -> Element {
 }
 
 #[component]
-fn ArtistHeader(artist: BaseItemDto, on_play: EventHandler<()>, on_shuffle: EventHandler<()>) -> Element {
+fn ArtistHeader(
+    artist: BaseItemDto,
+    on_play: EventHandler<()>,
+    on_shuffle: EventHandler<()>,
+) -> Element {
     let t = use_i18n();
     let svc = use_services();
     let app = use_app();
@@ -514,18 +615,22 @@ fn ArtistHeader(artist: BaseItemDto, on_play: EventHandler<()>, on_shuffle: Even
     let name = artist.name().to_string();
     let online = prefs.artist_images && jf_image.is_none();
     let key = artist_key(&name);
-    let found = use_query(vec!["artistInfo".into(), "image".into(), key], Duration::from_secs(3600 * 24 * 30), {
-        let name = name.clone();
-        move || {
+    let found = use_query(
+        vec!["artistInfo".into(), "image".into(), key],
+        Duration::from_secs(3600 * 24 * 30),
+        {
             let name = name.clone();
-            async move {
-                if !online {
-                    return Ok(None::<String>);
+            move || {
+                let name = name.clone();
+                async move {
+                    if !online {
+                        return Ok(None::<String>);
+                    }
+                    net(orphyn_core::artwork::artwork_artist_image(name).await)
                 }
-                net(orphyn_core::artwork::artwork_artist_image(name).await)
             }
-        }
-    });
+        },
+    );
     let src = jf_image.or_else(|| found.data.as_deref().cloned().flatten());
     let fav_item = artist.clone();
     let radio_item = artist.id.clone();
@@ -589,7 +694,11 @@ fn PopularSongs(songs: Vec<BaseItemDto>, ranking: Vec<String>, loading: bool) ->
     let base = use_base_url();
     let mut expanded = use_signal(|| false);
     let top = pick_popular_songs(&songs, &ranking, EXPANDED);
-    let shown: Vec<BaseItemDto> = if expanded() { top.clone() } else { top.iter().take(COLLAPSED).cloned().collect() };
+    let shown: Vec<BaseItemDto> = if expanded() {
+        top.clone()
+    } else {
+        top.iter().take(COLLAPSED).cloned().collect()
+    };
     if loading {
         return rsx! {
             section { class: "jrm-section jrm-artist__section", "aria-busy": "true",
@@ -725,7 +834,11 @@ fn ArtistAbout(bio: Option<(String, bool)>, loading: bool) -> Element {
     };
     // Blitz has no -webkit-line-clamp: the clamped text is cut by length (4 lines ≈ 360 chars).
     let long = text.chars().count() > 360;
-    let shown: String = if open() || !long { text.clone() } else { format!("{}…", text.chars().take(360).collect::<String>().trim_end()) };
+    let shown: String = if open() || !long {
+        text.clone()
+    } else {
+        format!("{}…", text.chars().take(360).collect::<String>().trim_end())
+    };
     rsx! {
         section { class: "jrm-section jrm-artist__section",
             h2 { class: "jr-text-title-2 jr-color-primary jrm-section__title", {t.t("music:artist.about")} }
@@ -795,11 +908,26 @@ mod tests {
 
     #[test]
     fn releases_are_classified() {
-        assert_eq!(classify_release(&album("Greatest Hits", "X", Some(14))), ReleaseType::Compilation);
-        assert_eq!(classify_release(&album("Whatever", "Various Artists", Some(14))), ReleaseType::Compilation);
-        assert_eq!(classify_release(&album("Thing (EP)", "X", Some(9))), ReleaseType::Ep);
-        assert_eq!(classify_release(&album("Short", "X", Some(4))), ReleaseType::Ep);
-        assert_eq!(classify_release(&album("Long", "X", Some(12))), ReleaseType::Album);
+        assert_eq!(
+            classify_release(&album("Greatest Hits", "X", Some(14))),
+            ReleaseType::Compilation
+        );
+        assert_eq!(
+            classify_release(&album("Whatever", "Various Artists", Some(14))),
+            ReleaseType::Compilation
+        );
+        assert_eq!(
+            classify_release(&album("Thing (EP)", "X", Some(9))),
+            ReleaseType::Ep
+        );
+        assert_eq!(
+            classify_release(&album("Short", "X", Some(4))),
+            ReleaseType::Ep
+        );
+        assert_eq!(
+            classify_release(&album("Long", "X", Some(12))),
+            ReleaseType::Album
+        );
     }
 
     #[test]
@@ -815,11 +943,17 @@ mod tests {
         let mk = |n: &str, p: i64| BaseItemDto {
             id: n.into(),
             name: Some(n.into()),
-            user_data: Some(orphyn_jellyfin::types::UserItemData { play_count: Some(p), ..Default::default() }),
+            user_data: Some(orphyn_jellyfin::types::UserItemData {
+                play_count: Some(p),
+                ..Default::default()
+            }),
             ..Default::default()
         };
         let songs = [mk("A", 1), mk("B", 9), mk("C", 5)];
         let out = pick_popular_songs(&songs, &["C".into()], 10);
-        assert_eq!(out.iter().map(|s| s.name()).collect::<Vec<_>>(), ["C", "B", "A"]);
+        assert_eq!(
+            out.iter().map(|s| s.name()).collect::<Vec<_>>(),
+            ["C", "B", "A"]
+        );
     }
 }

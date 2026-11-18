@@ -284,8 +284,10 @@ impl Thread {
             return;
         };
         let gen = self.current;
-        let result = decode(bytes)
-            .and_then(|(source, _)| self.output().map(|s| (source, Sink::connect_new(s.mixer()))));
+        let result = decode(bytes).and_then(|(source, _)| {
+            self.output()
+                .map(|s| (source, Sink::connect_new(s.mixer())))
+        });
         match result {
             Ok((source, sink)) => {
                 sink.set_volume(self.volume);

@@ -31,11 +31,7 @@ async fn artist_songs(s: &Session, artist: &str, limit: u32) -> Vec<BaseItemDto>
 /// More songs for a radio seeded by a song, album or artist: its Instant Mix, the Instant Mix of
 /// the song being played, and a few songs of similar artists, interleaved. Not deduplicated (the
 /// radio does it).
-pub async fn fetch_radio_batch(
-    s: &Session,
-    seed: &str,
-    current: Option<&str>,
-) -> Vec<BaseItemDto> {
+pub async fn fetch_radio_batch(s: &Session, seed: &str, current: Option<&str>) -> Vec<BaseItemDto> {
     let current_mix = async {
         match current {
             Some(c) if c != seed => s.instant_mix(c, 30).await.unwrap_or_default(),

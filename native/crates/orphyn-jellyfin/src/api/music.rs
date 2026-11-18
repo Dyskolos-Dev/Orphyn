@@ -77,10 +77,9 @@ impl Session {
             ..ItemsParams::default()
         };
         match kind {
-            FavoriteKind::Artists => Ok(self
-                .artists_page(ArtistList::Everyone, &p, 0)
-                .await?
-                .items),
+            FavoriteKind::Artists => {
+                Ok(self.artists_page(ArtistList::Everyone, &p, 0).await?.items)
+            }
             FavoriteKind::Songs | FavoriteKind::Albums => {
                 let p = ItemsParams {
                     include_item_types: vec![if kind == FavoriteKind::Songs {
@@ -136,7 +135,12 @@ impl Session {
     }
 
     /// Moves one entry (PlaylistItemId) to a 0-based position.
-    pub async fn move_playlist_item(&self, id: &str, entry_id: &str, new_index: usize) -> JfResult<()> {
+    pub async fn move_playlist_item(
+        &self,
+        id: &str,
+        entry_id: &str,
+        new_index: usize,
+    ) -> JfResult<()> {
         let _: serde_json::Value = self
             .client
             .request(

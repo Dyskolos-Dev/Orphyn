@@ -54,7 +54,10 @@ pub fn SongsPage() -> Element {
     let base = use_base_url();
     let mut sort = use_signal(|| (SortKey::Name, true));
     let session = (app.session)();
-    let acc = session.as_ref().map(|s| s.account_id.clone()).unwrap_or_default();
+    let acc = session
+        .as_ref()
+        .map(|s| s.account_id.clone())
+        .unwrap_or_default();
 
     let params = ItemsParams {
         include_item_types: vec!["Audio".into()],
@@ -113,7 +116,11 @@ pub fn SongsPage() -> Element {
         let (cur, asc) = sort();
         let icon = if asc { "arrow-up" } else { "arrow-down" };
         let aria = if cur == key {
-            if asc { "ascending" } else { "descending" }
+            if asc {
+                "ascending"
+            } else {
+                "descending"
+            }
         } else {
             "none"
         };

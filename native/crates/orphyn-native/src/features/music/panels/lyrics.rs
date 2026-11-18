@@ -178,9 +178,13 @@ fn LyricsBody(lyrics: Lyrics) -> Element {
             ) else {
                 return;
             };
-            let top = off.y + l.origin.y + l.size.height / 2.0 - (b.origin.y + b.size.height * 0.35);
+            let top =
+                off.y + l.origin.y + l.size.height / 2.0 - (b.origin.y + b.size.height * 0.35);
             let _ = box_el
-                .scroll(PixelsVector2D::new(0.0, top.max(0.0)), ScrollBehavior::Smooth)
+                .scroll(
+                    PixelsVector2D::new(0.0, top.max(0.0)),
+                    ScrollBehavior::Smooth,
+                )
                 .await;
         });
     }));

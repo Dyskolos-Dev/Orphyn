@@ -151,12 +151,7 @@ impl Converter {
             PixelFormat::Yuyv => (f.w / 2, wgpu::TextureFormat::Rgba8Unorm),
             PixelFormat::Bgrx => (f.w, wgpu::TextureFormat::Bgra8Unorm),
         };
-        if self
-            .source
-            .as_ref()
-            .map(|s| (s.2, s.3, s.4))
-            != Some((f.format, f.w, f.h))
-        {
+        if self.source.as_ref().map(|s| (s.2, s.3, s.4)) != Some((f.format, f.w, f.h)) {
             let tex = dev.device.create_texture(&wgpu::TextureDescriptor {
                 label: Some("mpv-frame-src"),
                 size: extent(tex_w, f.h),

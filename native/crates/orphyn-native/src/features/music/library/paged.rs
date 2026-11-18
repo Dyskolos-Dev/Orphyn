@@ -29,8 +29,7 @@ struct SortState {
 }
 
 /// Sort state persisted per page (`orphyn.music.sort.<key>`).
-#[derive(Clone, Copy)]
-#[derive(PartialEq)]
+#[derive(Clone, Copy, PartialEq)]
 pub struct SortPref {
     state: Signal<(String, String)>,
     key: &'static str,
@@ -94,7 +93,9 @@ pub fn open_sort_menu(
     let mut items: Vec<MenuItem> = fields
         .into_iter()
         .map(|(id, label, order, checked)| {
-            menu_action(label, checked, move |_| on_pick.call((id.clone(), order.clone())))
+            menu_action(label, checked, move |_| {
+                on_pick.call((id.clone(), order.clone()))
+            })
         })
         .collect();
     items.push(MenuItem::Separator);
@@ -143,8 +144,7 @@ pub fn SortMenu(pref: SortPref, options: Vec<SortOption>) -> Element {
 
 /// An accumulating paginated query: page `n` goes through the query cache, pages stay appended
 /// until the key changes.
-#[derive(Clone, Copy)]
-#[derive(PartialEq)]
+#[derive(Clone, Copy, PartialEq)]
 pub struct Paged {
     pub items: Signal<Vec<BaseItemDto>>,
     pub total: Signal<Option<usize>>,

@@ -57,7 +57,11 @@ fn LibraryGrid(
     let t = use_i18n();
     let items: Vec<BaseItemDto> = paged.items.read().clone();
     let total = (paged.total)();
-    let kind = if card == Card::Artist { "round" } else { "square" };
+    let kind = if card == Card::Artist {
+        "round"
+    } else {
+        "square"
+    };
     let min = if card == Card::Artist { 140 } else { 160 };
     let sentinel = use_end_reached(items.len(), move || {
         if paged.has_next() {
@@ -132,9 +136,24 @@ pub fn AlbumsPage() -> Element {
     let t = use_i18n();
     let options = vec![
         sort_option("name", t.t("music:sort.name"), &["SortName"], "Ascending"),
-        sort_option("artist", t.t("music:sort.artist"), &["AlbumArtist", "SortName"], "Ascending"),
-        sort_option("year", t.t("music:sort.year"), &["ProductionYear", "SortName"], "Descending"),
-        sort_option("added", t.t("music:sort.added"), &["DateCreated", "SortName"], "Descending"),
+        sort_option(
+            "artist",
+            t.t("music:sort.artist"),
+            &["AlbumArtist", "SortName"],
+            "Ascending",
+        ),
+        sort_option(
+            "year",
+            t.t("music:sort.year"),
+            &["ProductionYear", "SortName"],
+            "Descending",
+        ),
+        sort_option(
+            "added",
+            t.t("music:sort.added"),
+            &["DateCreated", "SortName"],
+            "Descending",
+        ),
     ];
     let pref = use_sort_pref("albums", &options);
     let params = ItemsParams {
@@ -165,7 +184,12 @@ pub fn PlaylistsPage() -> Element {
     let t = use_i18n();
     let options = vec![
         sort_option("name", t.t("music:sort.name"), &["SortName"], "Ascending"),
-        sort_option("added", t.t("music:sort.added"), &["DateCreated", "SortName"], "Descending"),
+        sort_option(
+            "added",
+            t.t("music:sort.added"),
+            &["DateCreated", "SortName"],
+            "Descending",
+        ),
     ];
     let pref = use_sort_pref("playlists", &options);
     let params = ItemsParams {
@@ -213,14 +237,22 @@ pub fn ArtistsPage() -> Element {
     let app = use_app();
     let options = vec![
         sort_option("name", t.t("music:sort.name"), &["SortName"], "Ascending"),
-        sort_option("added", t.t("music:sort.added"), &["DateCreated", "SortName"], "Descending"),
+        sort_option(
+            "added",
+            t.t("music:sort.added"),
+            &["DateCreated", "SortName"],
+            "Descending",
+        ),
     ];
     let pref = use_sort_pref("artists", &options);
     let grouping = (app.preferences)().group_artists;
     let sort_by = pref.sort_by(&options);
     let order = pref.order();
     let session = (app.session)();
-    let acc = session.as_ref().map(|s| s.account_id.clone()).unwrap_or_default();
+    let acc = session
+        .as_ref()
+        .map(|s| s.account_id.clone())
+        .unwrap_or_default();
 
     // Ungrouped: the paginated album-artist endpoint. Grouped: the two full lists, merged here.
     let params = ItemsParams {
@@ -230,7 +262,15 @@ pub fn ArtistsPage() -> Element {
         ..ItemsParams::default()
     };
     let mut key = keys::items(&acc, &params);
-    key.insert(2, if grouping { "artists-grouped-stub" } else { "album-artists" }.into());
+    key.insert(
+        2,
+        if grouping {
+            "artists-grouped-stub"
+        } else {
+            "album-artists"
+        }
+        .into(),
+    );
     let fetch = {
         let (session, params) = (session.clone(), params.clone());
         move |start: usize| {
@@ -246,7 +286,8 @@ pub fn ArtistsPage() -> Element {
     let paged = use_paged(key, fetch.clone());
     let more = Callback::new(move |_| paged.fetch_more(fetch.clone()));
 
-    let lists = super::artist_groups::use_artist_lists(session.as_ref().expect("signed in"), grouping);
+    let lists =
+        super::artist_groups::use_artist_lists(session.as_ref().expect("signed in"), grouping);
     let descending = order == "Descending";
     let merged: Option<Vec<BaseItemDto>> = if grouping {
         match (&lists.album_artists, &lists.everyone) {
@@ -361,7 +402,14 @@ fn sort_favorites(items: &[BaseItemDto], sort: &str, descending: bool) -> Vec<Ba
     let text = |s: &Option<String>| s.clone().unwrap_or_default().to_lowercase();
     let key = |i: &BaseItemDto| -> (i64, String) {
         match sort {
-            "artist" => (0, text(&i.album_artist.clone().or_else(|| i.artists.first().cloned()))),
+            "artist" => (
+                0,
+                text(
+                    &i.album_artist
+                        .clone()
+                        .or_else(|| i.artists.first().cloned()),
+                ),
+            ),
             "album" => (0, text(&i.album)),
             "year" => (i.production_year.unwrap_or(0) as i64, String::new()),
             "added" => (0, i.date_created.clone().unwrap_or_default()),
@@ -384,10 +432,20 @@ pub fn FavoritesPage() -> Element {
     let app = use_app();
     let overlay = use_overlay();
     let saved: Option<serde_json::Value> = svc.storage.get_json("orphyn.music.favorites");
-    let get = |k: &str| saved.as_ref().and_then(|v| v.get(k)).and_then(|v| v.as_str()).map(str::to_string);
+    let get = |k: &str| {
+        saved
+            .as_ref()
+            .and_then(|v| v.get(k))
+            .and_then(|v| v.as_str())
+            .map(str::to_string)
+    };
     let tab0 = FavTab::from_id(&get("tab").unwrap_or_default());
     let mut tab = use_signal(|| tab0);
-    let mut sort = use_signal(|| get("sort").filter(|s| tab0.sorts().contains(&s.as_str())).unwrap_or_else(|| "name".into()));
+    let mut sort = use_signal(|| {
+        get("sort")
+            .filter(|s| tab0.sorts().contains(&s.as_str()))
+            .unwrap_or_else(|| "name".into())
+    });
     let mut order = use_signal(|| get("order").unwrap_or_else(|| "Ascending".into()));
     let persist = {
         let svc = svc.clone();
@@ -400,18 +458,30 @@ pub fn FavoritesPage() -> Element {
     };
 
     let session = (app.session)();
-    let acc = session.as_ref().map(|s| s.account_id.clone()).unwrap_or_default();
+    let acc = session
+        .as_ref()
+        .map(|s| s.account_id.clone())
+        .unwrap_or_default();
     let fav = |kind: FavoriteKind, name: &str| {
         let s = session.clone();
-        crate::query::use_query(vec!["jf".into(), acc.clone(), "favorites".into(), name.to_string()], stale::ITEM, move || {
-            let s = s.clone();
-            async move {
-                match s {
-                    Some(s) => s.favorites(kind).await,
-                    None => Ok(Vec::new()),
+        crate::query::use_query(
+            vec![
+                "jf".into(),
+                acc.clone(),
+                "favorites".into(),
+                name.to_string(),
+            ],
+            stale::ITEM,
+            move || {
+                let s = s.clone();
+                async move {
+                    match s {
+                        Some(s) => s.favorites(kind).await,
+                        None => Ok(Vec::new()),
+                    }
                 }
-            }
-        })
+            },
+        )
     };
     let songs = fav(FavoriteKind::Songs, "songs");
     let albums = fav(FavoriteKind::Albums, "albums");
@@ -426,13 +496,42 @@ pub fn FavoritesPage() -> Element {
         .as_ref()
         .map(|d| sort_favorites(d, &sort(), order() == "Descending"))
         .unwrap_or_default();
-    let count = |n: Option<usize>| n.filter(|n| *n > 0).map(|n| format!(" {n}")).unwrap_or_default();
+    let count = |n: Option<usize>| {
+        n.filter(|n| *n > 0)
+            .map(|n| format!(" {n}"))
+            .unwrap_or_default()
+    };
     let segments = vec![
-        Segment { value: "songs", label: format!("{}{}", t.t("music:nav.songs"), count(songs.data.as_ref().map(|d| d.len()))) },
-        Segment { value: "albums", label: format!("{}{}", t.t("music:nav.albums"), count(albums.data.as_ref().map(|d| d.len()))) },
-        Segment { value: "artists", label: format!("{}{}", t.t("music:nav.artists"), count(artists.data.as_ref().map(|d| d.len()))) },
+        Segment {
+            value: "songs",
+            label: format!(
+                "{}{}",
+                t.t("music:nav.songs"),
+                count(songs.data.as_ref().map(|d| d.len()))
+            ),
+        },
+        Segment {
+            value: "albums",
+            label: format!(
+                "{}{}",
+                t.t("music:nav.albums"),
+                count(albums.data.as_ref().map(|d| d.len()))
+            ),
+        },
+        Segment {
+            value: "artists",
+            label: format!(
+                "{}{}",
+                t.t("music:nav.artists"),
+                count(artists.data.as_ref().map(|d| d.len()))
+            ),
+        },
     ];
-    let kind = if tab() == FavTab::Artists { "round" } else { "square" };
+    let kind = if tab() == FavTab::Artists {
+        "round"
+    } else {
+        "square"
+    };
     let min_w = if kind == "round" { 140 } else { 160 };
     let play_list = sorted.clone();
     let shuffle_list = sorted.clone();

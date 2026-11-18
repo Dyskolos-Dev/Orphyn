@@ -33,10 +33,18 @@ pub fn QueueView() -> Element {
         drag_from.set(None);
         drop_at.set(None);
     };
-    let (p_shuffle, p_repeat, p_clear, p_end) =
-        (player.clone(), player.clone(), player.clone(), player.clone());
+    let (p_shuffle, p_repeat, p_clear, p_end) = (
+        player.clone(),
+        player.clone(),
+        player.clone(),
+        player.clone(),
+    );
     let repeat = model.repeat;
-    let repeat_icon = if repeat == RepeatMode::One { "repeat-1" } else { "repeat" };
+    let repeat_icon = if repeat == RepeatMode::One {
+        "repeat-1"
+    } else {
+        "repeat"
+    };
     let playing = state.status == PlayerStatus::Playing;
     let from = drag_from();
     let over = drop_at();
