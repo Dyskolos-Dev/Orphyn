@@ -1,10 +1,14 @@
 //! Feature screens, routed like `app/routes.tsx`. A screen not ported yet renders the `StubPage`
 //! of the React app (its nav label as the name); porting one = replacing its arm below.
+pub mod discord;
 pub mod music;
 pub mod search;
 pub mod servers;
 pub mod settings;
 pub mod stats;
+pub mod system;
+pub mod updater;
+pub mod whatsnew;
 pub mod video;
 
 use dioxus::prelude::*;

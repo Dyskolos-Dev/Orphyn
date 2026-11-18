@@ -51,6 +51,7 @@ pub fn app() -> Element {
         menu: Signal::new(None),
     });
     crate::features::music::use_music_provider(&svc);
+    crate::features::system::use_system_provider(&svc);
 
     // The saved session, or (development) the test server of ORPHYN_E2E_* when there is none.
     use_hook({
@@ -145,6 +146,8 @@ pub fn app() -> Element {
         div { class: "jr-root", style: "{tokens.style}", ..attrs,
             div { class: "jr-body",
                 div { class: "jr-app", AppShell {} }
+                crate::features::whatsnew::WhatsNewHost {}
+                crate::features::updater::UpdateNotice {}
                 CaptionButtons {
                     fullscreen: facts.fullscreen,
                     focused: facts.focused,
