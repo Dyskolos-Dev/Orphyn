@@ -4,11 +4,13 @@ on:
   push:
     branches: [main]
     paths: ['native/**', 'src/renderer/src/**/*.css', 'src/renderer/src/i18n/locales/**', '.github/workflows/native.yml']
+  workflow_dispatch:
   pull_request:
     paths: ['native/**', '.github/workflows/native.yml']
 
 jobs:
   build:
+    if: github.event_name != 'workflow_dispatch'
     strategy:
       fail-fast: false
       matrix:
@@ -34,3 +36,39 @@ jobs:
       - run: cargo build --locked
       - run: cargo test --locked
       - run: cargo clippy --locked --all-targets -- -D warnings
+
+  # Manual preview build (Actions > native > Run workflow): a release binary per OS to try the
+  # native app. libmpv is not bundled yet: install it (Linux: libmpv2, macOS: brew install mpv,
+  # Windows: libmpv-2.dll next to the exe or ORPHYN_MPV_DIR).
+  preview:
+    if: github.event_name == 'workflow_dispatch'
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            bin: orphyn-native.exe
+          - os: ubuntu-22.04
+            bin: orphyn-native
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        working-directory: native
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Linux packages
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y build-essential pkg-config libasound2-dev libxkbcommon-dev libwayland-dev libx11-dev libvulkan-dev libssl-dev libdbus-1-dev
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: native
+          key: preview
+      - run: cargo build --locked --release -p orphyn-native
+      - uses: actions/upload-artifact@v4
+        with:
+          name: orphyn-native-preview-${{ runner.os }}
+          path: native/target/release/${{ matrix.bin }}
