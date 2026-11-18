@@ -25,7 +25,7 @@ export function MixCard({ mix }: { mix: Mix }) {
 /** Home row types of the mixes and the kinds of mix each one shows. */
 export const MIX_ROWS: Record<string, readonly MixKind[]> = {
   mixForYou: ['forYou'],
-  mixDaily: ['discovery', 'onRepeat', 'rediscover'],
+  mixDaily: ['discovery', 'onRepeat', 'rediscover', 'topYear'],
   mixGenres: ['genre'],
 }
 

@@ -258,6 +258,7 @@ const HUES: Record<MixKind, number> = {
   onRepeat: 8,
   rediscover: 38,
   genre: 160,
+  topYear: 205,
 }
 
 const hash = (s: string): number => {

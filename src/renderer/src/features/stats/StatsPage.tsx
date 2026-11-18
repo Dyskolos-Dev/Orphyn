@@ -1,8 +1,12 @@
 import { animate, motion, useInView, useReducedMotion } from 'framer-motion'
-import { Clapperboard, Disc3, Music, Sparkles, Tv } from 'lucide-react'
-import { useEffect, useRef, useState, type ReactNode } from 'react'
+import { Clapperboard, Disc3, ListPlus, Music, Play, Shuffle, Sparkles, Tv } from 'lucide-react'
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
-import { EmptyState, SegmentedControl, Skeleton } from '@renderer/design'
+import { Link } from 'react-router'
+import { Button, EmptyState, SegmentedControl, Skeleton } from '@renderer/design'
+import { itemPath } from '@renderer/features/video/cards'
+import { MixCover, makeTopYearMix, useSaveTopPlaylist } from '@renderer/features/mixes'
+import { musicPlayer } from '@renderer/features/music/player/api'
 import { imageUrl } from '@renderer/jellyfin'
 import type { BaseItemDto } from '@renderer/jellyfin/types'
 import { ShellPage } from '@renderer/shell'
@@ -62,12 +66,72 @@ function CountUp({ value }: { value: number }) {
   )
 }
 
-function Art({ item, size, round }: { item: BaseItemDto; size: number; round?: boolean }) {
-  const src = imageUrl(item, 'Primary', { maxWidth: size * 2, maxHeight: size * 2, quality: 92 })
+/** Device pixel ratio the artwork is requested at, so it stays sharp on dense screens. */
+const pixelRatio = (): number => Math.min(3, Math.max(1, Math.ceil(window.devicePixelRatio || 1)))
+
+type Shape = 'square' | 'poster'
+
+function Art({
+  item,
+  size,
+  round,
+  shape = 'square',
+}: {
+  item: BaseItemDto
+  /** Display width in CSS pixels. */
+  size: number
+  round?: boolean
+  shape?: Shape
+}) {
+  const width = Math.ceil(size * pixelRatio())
+  // A poster keeps its own 2:3 ratio (only the width is bounded); a cover is a square.
+  const src = imageUrl(
+    item,
+    'Primary',
+    shape === 'poster'
+      ? { maxWidth: width, quality: 92 }
+      : { maxWidth: width, maxHeight: width, quality: 92 },
+  )
+  const Fallback = shape === 'poster' ? Clapperboard : Music
+  const cls = ['jrs-art', round && 'jrs-art--round', shape === 'poster' && 'jrs-art--poster']
   return (
-    <div className={round ? 'jrs-art jrs-art--round' : 'jrs-art'}>
-      {src ? <img src={src} alt="" loading="lazy" decoding="async" /> : <Music aria-hidden />}
+    <div className={cls.filter(Boolean).join(' ')}>
+      {src ? <img src={src} alt="" loading="lazy" decoding="async" /> : <Fallback aria-hidden />}
     </div>
+  )
+}
+
+type Kind = 'artist' | 'album' | 'movie' | 'series'
+
+/** Detail page of an entry, from the app's own routes. */
+function pathOf(kind: Kind, id: string): string {
+  switch (kind) {
+    case 'artist':
+      return `/music/artist/${id}`
+    case 'album':
+      return `/music/album/${id}`
+    default:
+      return itemPath({ Id: id })
+  }
+}
+
+/** A link to the entry's page when it has one, else a plain block with the same look. */
+function EntryLink({
+  kind,
+  entry,
+  className,
+  children,
+}: {
+  kind: Kind
+  entry: RankedEntry
+  className: string
+  children: ReactNode
+}) {
+  if (!entry.targetId) return <div className={className}>{children}</div>
+  return (
+    <Link to={pathOf(kind, entry.targetId)} className={`${className} jrs-link`}>
+      {children}
+    </Link>
   )
 }
 
@@ -93,20 +157,22 @@ function Section({
   )
 }
 
-function Ranking({ entries }: { entries: RankedEntry[] }) {
+function Ranking({ entries, kind }: { entries: RankedEntry[]; kind: Kind }) {
   const { t } = useTranslation('stats')
   return (
     <ol className="jrs-rank">
       {entries.map((e, i) => (
         <Reveal key={e.key} delay={i * 0.06}>
-          <li className="jrs-rank__row">
-            <span className="jrs-rank__n">{i + 1}</span>
-            <Art item={e.item} size={56} />
-            <span className="jrs-rank__text">
-              <span className="jrs-rank__name">{e.name}</span>
-              {e.subtitle && <span className="jrs-rank__sub">{e.subtitle}</span>}
-            </span>
-            <span className="jrs-rank__plays">{t('plays', { count: e.plays })}</span>
+          <li>
+            <EntryLink kind={kind} entry={e} className="jrs-rank__row">
+              <span className="jrs-rank__n">{i + 1}</span>
+              <Art item={e.art ?? e.item} size={56} />
+              <span className="jrs-rank__text">
+                <span className="jrs-rank__name">{e.name}</span>
+                {e.subtitle && <span className="jrs-rank__sub">{e.subtitle}</span>}
+              </span>
+              <span className="jrs-rank__plays">{t('plays', { count: e.plays })}</span>
+            </EntryLink>
           </li>
         </Reveal>
       ))}
@@ -114,18 +180,18 @@ function Ranking({ entries }: { entries: RankedEntry[] }) {
   )
 }
 
-function Posters({ entries }: { entries: RankedEntry[] }) {
+function Posters({ entries, kind, shape }: { entries: RankedEntry[]; kind: Kind; shape: Shape }) {
   return (
-    <div className="jrs-posters">
+    <div className={shape === 'poster' ? 'jrs-posters jrs-posters--poster' : 'jrs-posters'}>
       {entries.map((e, i) => (
         <Reveal key={e.key} delay={i * 0.07}>
-          <figure className="jrs-poster">
-            <Art item={e.item} size={240} />
-            <figcaption>
+          <EntryLink kind={kind} entry={e} className="jrs-poster">
+            <Art item={e.art ?? e.item} size={260} shape={shape} />
+            <span className="jrs-poster__caption">
               <span className="jrs-rank__name">{e.name}</span>
               {e.subtitle && <span className="jrs-rank__sub">{e.subtitle}</span>}
-            </figcaption>
-          </figure>
+            </span>
+          </EntryLink>
         </Reveal>
       ))}
     </div>
@@ -157,6 +223,60 @@ function Genres({ genres }: { genres: GenreEntry[] }) {
   )
 }
 
+/** The year's most played songs: play now, shuffle, or keep them as a Jellyfin playlist. */
+function TopSongs({ year, tracks }: { year: number; tracks: BaseItemDto[] }) {
+  const { t } = useTranslation('stats')
+  const save = useSaveTopPlaylist()
+  const [saving, setSaving] = useState(false)
+  const mix = useMemo(() => makeTopYearMix(year, tracks), [year, tracks])
+  const title = t('topSongs.title', { year })
+  const onSave = async () => {
+    setSaving(true)
+    try {
+      await save(
+        title,
+        tracks.map((x) => x.Id ?? ''),
+      )
+    } finally {
+      setSaving(false)
+    }
+  }
+  return (
+    <Reveal className="jrs-top">
+      <div className="jrs-top__cover">
+        <MixCover mix={mix} name={title} />
+      </div>
+      <div className="jrs-top__text">
+        <p className="jrs-hero__eyebrow">{t('topSongs.line', { count: tracks.length })}</p>
+        <h3 className="jrs-top__title">{title}</h3>
+        <div className="jrs-top__actions">
+          <Button
+            icon={<Play fill="currentColor" />}
+            onClick={() => musicPlayer.play(tracks, 0, { shuffle: false })}
+          >
+            {t('topSongs.play')}
+          </Button>
+          <Button
+            variant="tinted"
+            icon={<Shuffle />}
+            onClick={() => musicPlayer.play(tracks, undefined, { shuffle: true })}
+          >
+            {t('topSongs.shuffle')}
+          </Button>
+          <Button
+            variant="tinted"
+            icon={<ListPlus />}
+            disabled={saving}
+            onClick={() => void onSave()}
+          >
+            {t('topSongs.save')}
+          </Button>
+        </div>
+      </div>
+    </Reveal>
+  )
+}
+
 function Loading() {
   return (
     <div className="jrs" aria-busy="true">
@@ -169,7 +289,15 @@ function Loading() {
   )
 }
 
-function Story({ stats, exact }: { stats: YearStats; exact: boolean }) {
+function Story({
+  stats,
+  topTracks,
+  exact,
+}: {
+  stats: YearStats
+  topTracks: BaseItemDto[]
+  exact: boolean
+}) {
   const { t, i18n } = useTranslation('stats')
   const { music, video, facts } = stats
   const topArtist = music.artists[0]
@@ -197,28 +325,31 @@ function Story({ stats, exact }: { stats: YearStats; exact: boolean }) {
 
       {topArtist && (
         <Section icon={<Disc3 aria-hidden />} title={t('music.title')}>
-          <Reveal className="jrs-spotlight">
-            <Art item={topArtist.item} size={360} round />
-            <div>
-              <p className="jrs-hero__eyebrow">{t('music.topArtist')}</p>
-              <p className="jrs-spotlight__name">{topArtist.name}</p>
-              <p className="jrs-rank__sub">
-                {t('music.topArtistLine', { count: topArtist.plays })}
-              </p>
-            </div>
+          <Reveal>
+            <EntryLink kind="artist" entry={topArtist} className="jrs-spotlight">
+              <Art item={topArtist.item} size={240} round />
+              <div className="jrs-spotlight__text">
+                <p className="jrs-hero__eyebrow">{t('music.topArtist')}</p>
+                <p className="jrs-spotlight__name">{topArtist.name}</p>
+                <p className="jrs-spotlight__line">
+                  {t('music.topArtistLine', { count: topArtist.plays })}
+                </p>
+              </div>
+            </EntryLink>
           </Reveal>
+          {topTracks.length > 0 && <TopSongs year={stats.year} tracks={topTracks} />}
           <div className="jrs-grid">
             <div>
               <h3 className="jrs-sub">{t('music.artists')}</h3>
-              <Ranking entries={music.artists} />
+              <Ranking kind="artist" entries={music.artists} />
             </div>
             <div>
               <h3 className="jrs-sub">{t('music.songs')}</h3>
-              <Ranking entries={music.songs} />
+              <Ranking kind="album" entries={music.songs} />
             </div>
           </div>
           <h3 className="jrs-sub">{t('music.albums')}</h3>
-          <Posters entries={music.albums} />
+          <Posters kind="album" shape="square" entries={music.albums} />
           {music.genres.length > 0 && (
             <>
               <h3 className="jrs-sub">{t('music.genres')}</h3>
@@ -243,7 +374,7 @@ function Story({ stats, exact }: { stats: YearStats; exact: boolean }) {
           {video.movies.length > 0 && (
             <>
               <h3 className="jrs-sub">{t('video.topMovies')}</h3>
-              <Posters entries={video.movies} />
+              <Posters kind="movie" shape="poster" entries={video.movies} />
             </>
           )}
           {video.series.length > 0 && (
@@ -251,7 +382,7 @@ function Story({ stats, exact }: { stats: YearStats; exact: boolean }) {
               <h3 className="jrs-sub">
                 <Tv aria-hidden /> {t('video.topSeries')}
               </h3>
-              <Posters entries={video.series} />
+              <Posters kind="series" shape="poster" entries={video.series} />
             </>
           )}
         </Section>
@@ -292,7 +423,7 @@ export function StatsPage() {
   const { t } = useTranslation('stats')
   const [picked, setPicked] = useState<number | null>(null)
   const year = picked ?? new Date().getFullYear()
-  const { isLoading, isError, years, stats, exact } = useYearInReview(year)
+  const { isLoading, isError, years, stats, topTracks, exact } = useYearInReview(year)
 
   const picker =
     years.length > 1 ? (
@@ -318,7 +449,7 @@ export function StatsPage() {
           message={t('empty.message')}
         />
       ) : (
-        <Story stats={stats} exact={exact} />
+        <Story stats={stats} topTracks={topTracks} exact={exact} />
       )}
     </ShellPage>
   )

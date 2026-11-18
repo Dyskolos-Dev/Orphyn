@@ -5,7 +5,7 @@ export type Track = BaseItemDto
 /** Anything that returns numbers in [0, 1): injectable so tests are deterministic. */
 export type Rng = () => number
 
-export type MixKind = 'forYou' | 'discovery' | 'onRepeat' | 'rediscover' | 'genre'
+export type MixKind = 'forYou' | 'discovery' | 'onRepeat' | 'rediscover' | 'genre' | 'topYear'
 
 export interface Mix {
   /** Stable id, used in the URL of the mix page. */
@@ -13,6 +13,8 @@ export interface Mix {
   kind: MixKind
   /** 1-3 for the "For You" mixes. */
   n?: number
+  /** Year of a "Top titres" mix. */
+  year?: number
   /** Genre of a genre mix. */
   genre?: string
   /** A few artists heard in the mix, for its subtitle. */

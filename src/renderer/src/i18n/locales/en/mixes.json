@@ -8,14 +8,16 @@
     "discovery": "Discovery",
     "onRepeat": "On Repeat",
     "rediscover": "Rediscover",
-    "genre": "{{genre}} Mix"
+    "genre": "{{genre}} Mix",
+    "topYear": "Top Songs {{year}}"
   },
   "hints": {
     "forYou": "Made from what you play most",
     "discovery": "New to you, close to your favourites",
     "onRepeat": "What you played most this month",
     "rediscover": "Songs you love, not heard in a while",
-    "genre": "A mix of your favourite genre"
+    "genre": "A mix of your favourite genre",
+    "topYear": "Your most played songs of the year"
   },
   "rows": {
     "mixForYou": {
@@ -40,5 +42,8 @@
     "failed": "Could not start the radio.",
     "indicator": "Radio · {{name}}",
     "stop": "Stop the radio"
+  },
+  "topYear": {
+    "updated": "Playlist “{{name}}” updated"
   }
 }

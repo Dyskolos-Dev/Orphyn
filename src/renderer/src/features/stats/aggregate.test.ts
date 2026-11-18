@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { BaseItemDto } from '@renderer/jellyfin/types'
-import { aggregateYear, availableYears, countPluginRows, playsInYear } from './aggregate'
+import { aggregateYear, availableYears, countPluginRows, playsInYear, topSongs } from './aggregate'
 
 const MIN = 600_000_000 // ticks in one minute
 
@@ -121,5 +121,47 @@ describe('availableYears', () => {
   it('lists years descending and always includes the current one', () => {
     expect(availableYears(items, NOW)).toEqual([2026, 2025])
     expect(availableYears([], NOW)).toEqual([2026])
+  })
+})
+
+describe('topSongs', () => {
+  it('keeps only the songs played in the year, most played first', () => {
+    const top = topSongs(items, 2026)
+    expect(top.map((s) => s.Id)).toEqual(['a', 'c', 'b'])
+  })
+
+  it('ignores films, episodes and songs without an id, and lists a song once', () => {
+    const noId = { ...song('z', 'X', 'Y', 9, '2026-01-01T10:00:00'), Id: undefined }
+    const dup = song('a', 'Muse', 'Drones', 99, '2026-03-02T10:00:00')
+    const top = topSongs([...items, noId, dup], 2026)
+    expect(top.map((s) => s.Id)).toEqual(['a', 'c', 'b'])
+    expect(top[0]?.UserData?.PlayCount).toBe(10)
+  })
+
+  it('breaks ties by title and caps the list at the limit (50 by default)', () => {
+    const many = Array.from({ length: 60 }, (_, i) =>
+      song(String(100 + i).padStart(3, '0'), 'A', 'B', 5, '2026-02-01T10:00:00'),
+    )
+    const top = topSongs(many, 2026)
+    expect(top).toHaveLength(50)
+    expect(top[0]?.Id).toBe('100')
+    expect(topSongs(many, 2026, { limit: 3 }).map((s) => s.Id)).toEqual(['100', '101', '102'])
+  })
+
+  it('uses the exact plays of the plugin when there are some', () => {
+    const plays = new Map([
+      ['a', 1],
+      ['b', 7],
+      ['old', 3],
+    ])
+    expect(topSongs(items, 2026, { pluginPlays: plays }).map((s) => s.Id)).toEqual([
+      'b',
+      'old',
+      'a',
+    ])
+  })
+
+  it('is empty when nothing was played that year', () => {
+    expect(topSongs(items, 2019)).toEqual([])
   })
 })

@@ -9,6 +9,10 @@ export interface RankedEntry {
   plays: number
   /** Representative item, used for its artwork. */
   item: BaseItemDto
+  /** Item whose Primary image to show when it is not `item` itself (a series' own poster). */
+  art?: BaseItemDto
+  /** Id of the page this entry opens (artist, album, film or series); undefined = not linkable. */
+  targetId?: string
   /** Secondary line: artist of a song or album, year of a film. */
   subtitle?: string
 }
@@ -107,6 +111,41 @@ const artistOf = (item: BaseItemDto): { id: string; name: string } | null => {
   return name ? { id: name, name } : null
 }
 
+/** The series an episode belongs to, as an item whose Primary image is the series poster. */
+function seriesItemOf(episode: BaseItemDto): BaseItemDto | undefined {
+  if (!episode.SeriesId || !episode.SeriesPrimaryImageTag) return undefined
+  return {
+    Id: episode.SeriesId,
+    Name: episode.SeriesName,
+    Type: 'Series',
+    ImageTags: { Primary: episode.SeriesPrimaryImageTag },
+  }
+}
+
+/**
+ * The songs of the year, most played first (ties by title), at most `limit`. Only songs with at
+ * least one play in `year` count; each song appears once.
+ */
+export function topSongs(
+  items: readonly BaseItemDto[],
+  year: number,
+  opts: { pluginPlays?: ReadonlyMap<string, number>; limit?: number } = {},
+): BaseItemDto[] {
+  const seen = new Set<string>()
+  const ranked: { item: BaseItemDto; plays: number }[] = []
+  for (const item of items) {
+    if (item.Type !== 'Audio' || !item.Id || seen.has(item.Id)) continue
+    const plays = playsInYear(item, year, opts.pluginPlays)
+    if (plays <= 0) continue
+    seen.add(item.Id)
+    ranked.push({ item, plays })
+  }
+  return ranked
+    .sort((a, b) => b.plays - a.plays || (a.item.Name ?? '').localeCompare(b.item.Name ?? ''))
+    .slice(0, opts.limit ?? 50)
+    .map((r) => r.item)
+}
+
 const isLeap = (y: number) => (y % 4 === 0 && y % 100 !== 0) || y % 400 === 0
 
 export function aggregateYear(
@@ -142,12 +181,32 @@ export function aggregateYear(
       musicPlays += plays
       musicMinutes += minutesOf(item, plays)
       const artist = artistOf(item)
-      bump(songs, { key: item.Id, name: item.Name ?? '', item, subtitle: artist?.name }, plays)
-      if (artist) bump(artists, { key: artist.id, name: artist.name, item }, plays)
+      bump(
+        songs,
+        {
+          key: item.Id,
+          name: item.Name ?? '',
+          item,
+          // A song opens its album.
+          targetId: item.AlbumId ?? undefined,
+          subtitle: artist?.name,
+        },
+        plays,
+      )
+      if (artist) {
+        const realId = item.ArtistItems?.[0]?.Id ?? item.AlbumArtists?.[0]?.Id ?? undefined
+        bump(artists, { key: artist.id, name: artist.name, item, targetId: realId }, plays)
+      }
       if (item.AlbumId && item.Album) {
         bump(
           albums,
-          { key: item.AlbumId, name: item.Album, item, subtitle: item.AlbumArtist ?? undefined },
+          {
+            key: item.AlbumId,
+            name: item.Album,
+            item,
+            targetId: item.AlbumId,
+            subtitle: item.AlbumArtist ?? undefined,
+          },
           plays,
         )
       }
@@ -161,6 +220,7 @@ export function aggregateYear(
           key: item.Id,
           name: item.Name ?? '',
           item,
+          targetId: item.Id,
           subtitle: item.ProductionYear ? String(item.ProductionYear) : undefined,
         },
         plays,
@@ -169,7 +229,19 @@ export function aggregateYear(
       episodePlays += plays
       videoMinutes += minutesOf(item, plays)
       const key = item.SeriesId ?? item.SeriesName
-      if (key) bump(series, { key, name: item.SeriesName ?? item.Name ?? '', item }, plays)
+      if (key) {
+        bump(
+          series,
+          {
+            key,
+            name: item.SeriesName ?? item.Name ?? '',
+            item,
+            art: seriesItemOf(item),
+            targetId: item.SeriesId ?? undefined,
+          },
+          plays,
+        )
+      }
     }
   }
 

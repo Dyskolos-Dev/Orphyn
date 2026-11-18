@@ -44,5 +44,13 @@
   "error": {
     "title": "Impossible de charger ton année",
     "message": "Vérifie ta connexion au serveur puis réessaie."
+  },
+  "topSongs": {
+    "title": "Top titres {{year}}",
+    "line_one": "Ton titre le plus écouté de l’année",
+    "line_other": "Tes {{count}} titres les plus écoutés de l’année",
+    "play": "Écouter",
+    "shuffle": "Lecture aléatoire",
+    "save": "Enregistrer en playlist"
   }
 }

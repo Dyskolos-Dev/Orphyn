@@ -44,5 +44,13 @@
   "error": {
     "title": "Couldn't load your year",
     "message": "Check your connection to the server and try again."
+  },
+  "topSongs": {
+    "title": "Top songs {{year}}",
+    "line_one": "Your {{count}} most played song of the year",
+    "line_other": "Your {{count}} most played songs of the year",
+    "play": "Listen",
+    "shuffle": "Shuffle",
+    "save": "Save as playlist"
   }
 }
