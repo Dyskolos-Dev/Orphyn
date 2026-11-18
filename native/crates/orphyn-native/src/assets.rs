@@ -7,8 +7,17 @@ use dioxus_native::FontContext;
 
 /// The React app's stylesheets, bundled by `build.rs` (see `native/styles/manifest.txt`).
 pub const APP_CSS: &str = include_str!(concat!(env!("OUT_DIR"), "/app.css"));
-/// Blitz-only fixes (`native/styles/overrides.css`).
-pub const OVERRIDES_CSS: &str = include_str!("../../../styles/overrides.css");
+/// Blitz-only fixes (`native/styles/overrides.css`, then one file per feature port in
+/// `native/styles/overrides/` so parallel ports never edit the same file).
+pub const OVERRIDES_CSS: &str = concat!(
+    include_str!("../../../styles/overrides.css"),
+    include_str!("../../../styles/overrides/music-library.css"),
+    include_str!("../../../styles/overrides/music-panels.css"),
+    include_str!("../../../styles/overrides/video-browse.css"),
+    include_str!("../../../styles/overrides/video-player.css"),
+    include_str!("../../../styles/overrides/settings.css"),
+    include_str!("../../../styles/overrides/search.css"),
+);
 
 const LOGO_PNG: &[u8] = include_bytes!("../../../../src/renderer/src/assets/orphyn-logo.png");
 const INTER: &[u8] = include_bytes!("../../../assets/fonts/inter-latin-wght-normal.woff2");
