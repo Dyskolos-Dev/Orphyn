@@ -8,11 +8,10 @@ use std::sync::{Arc, Mutex, MutexGuard, RwLock};
 
 use tokio::sync::watch;
 
+use super::crossfade::{plan_fade, CrossfadeSettings, FadePlanInput};
 use super::output::{self, Event, Msg};
 use super::queue::{self, Advance, PreviousAction};
-use super::types::{
-    PlayerState, PlayerStatus, Progress, QueueModel, RepeatMode, Track, Transition,
-};
+use super::types::{PlayerState, PlayerStatus, Progress, QueueModel, RepeatMode, Track};
 
 /// Turns a track into the URL to play (direct stream or transcode), given by the app.
 pub type Resolver = Arc<dyn Fn(&Track) -> Option<String> + Send + Sync>;
@@ -26,6 +25,8 @@ struct Inner {
     progress_tx: watch::Sender<Progress>,
     resolver: RwLock<Option<Resolver>>,
     audio: Mutex<Option<Sender<Msg>>>,
+    /// Output device (`None` = system default), applied when the audio thread starts.
+    device: Mutex<Option<String>>,
 }
 
 #[derive(Default)]
@@ -38,7 +39,7 @@ struct Core {
     preload: Option<(u64, String)>,
     /// The audio thread holds the current entry, ready to play / pause.
     loaded: bool,
-    transition: Transition,
+    crossfade: CrossfadeSettings,
 }
 
 #[derive(Clone)]
@@ -70,6 +71,7 @@ impl MusicPlayer {
                 progress_tx,
                 resolver: RwLock::new(None),
                 audio: Mutex::new(None),
+                device: Mutex::new(None),
             }),
         }
     }
@@ -83,13 +85,42 @@ impl MusicPlayer {
             .unwrap_or_else(|p| p.into_inner()) = Some(resolver);
     }
 
-    /// Crossfade hook: stored for the music port (the engine plays gapless for now).
-    pub fn set_transition(&self, t: Transition) {
-        self.lock().transition = t;
+    /// Crossfade settings (the `crossfade*` preferences), read when the next track is preloaded.
+    pub fn set_crossfade(&self, s: CrossfadeSettings) {
+        self.lock().crossfade = s;
     }
 
-    pub fn transition(&self) -> Transition {
-        self.lock().transition
+    pub fn crossfade(&self) -> CrossfadeSettings {
+        self.lock().crossfade
+    }
+
+    /// Audio output device (`None` = system default); playback moves to it at once.
+    pub fn set_output_device(&self, name: Option<String>) {
+        {
+            let mut d = self.inner.device.lock().unwrap_or_else(|p| p.into_inner());
+            if *d == name {
+                return;
+            }
+            d.clone_from(&name);
+        }
+        // Nothing plays yet: the thread picks the device up when it starts.
+        let started = self
+            .inner
+            .audio
+            .lock()
+            .unwrap_or_else(|p| p.into_inner())
+            .is_some();
+        if started {
+            self.send(Msg::Device(name));
+        }
+    }
+
+    pub fn output_device(&self) -> Option<String> {
+        self.inner
+            .device
+            .lock()
+            .unwrap_or_else(|p| p.into_inner())
+            .clone()
     }
 
     pub fn state(&self) -> Arc<PlayerState> {
@@ -377,11 +408,15 @@ impl MusicPlayer {
                 return; // nothing plays yet
             }
             let weak = Arc::downgrade(&self.inner);
-            *audio = Some(output::spawn(move |event| {
+            let tx = output::spawn(move |event| {
                 if let Some(inner) = weak.upgrade() {
                     MusicPlayer { inner }.on_event(event);
                 }
-            }));
+            });
+            if let Some(name) = self.output_device() {
+                let _ = tx.send(Msg::Device(Some(name)));
+            }
+            *audio = Some(tx);
         }
         if let Some(tx) = audio.as_ref() {
             let _ = tx.send(msg);
@@ -551,12 +586,24 @@ impl MusicPlayer {
         let Some(url) = self.resolve(&item.track) else {
             return;
         };
+        let fade = plan_fade(&FadePlanInput {
+            settings: c.crossfade,
+            current: c.s.current().map(|q| &*q.track).unwrap_or(&item.track),
+            next: &item.track,
+            repeat: c.s.model.repeat,
+            current_duration: Some(c.progress.duration),
+        });
         c.load_gen += 1;
         let gen = c.load_gen;
         // The playing source keeps its generation until it is replaced: Loaded/Failed of the
         // current track can no longer arrive, and Advanced carries this one.
         c.preload = Some((gen, item.uid));
-        self.send(Msg::Preload { gen, url });
+        self.send(Msg::Preload {
+            gen,
+            url,
+            fade,
+            current_duration: c.progress.duration,
+        });
     }
 }
 

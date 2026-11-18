@@ -108,16 +108,3 @@ pub struct Progress {
     pub position: f64,
     pub duration: f64,
 }
-
-/// How one track hands over to the next. Only `Gapless` is implemented by the engine so far; the
-/// crossfade settings (`crossfade`, `crossfadeSeconds`, `crossfadeSkipAlbum` preferences) are
-/// stored here for the music port to implement (see README, "Player core").
-#[derive(Clone, Copy, Debug, Default, PartialEq)]
-pub enum Transition {
-    #[default]
-    Gapless,
-    Crossfade {
-        seconds: f32,
-        skip_same_album: bool,
-    },
-}

@@ -1,14 +1,14 @@
 //! `components/NowPlaying.tsx`: the full-window sheet, sliding in with framer-motion's
-//! `springs.smooth` (here `motion::use_spring`). The Lyrics and Up Next panels belong to the
-//! lyrics / queue ports: until then the panel says so (like the stub routes).
+//! `springs.smooth` (here `motion::use_spring`), with its Lyrics and Up Next panels.
 use dioxus::prelude::*;
 
+use super::panels::{LyricsView, PanelsHost, QueueView};
 use super::transport::{SeekBar, TransportButtons, VolumeControl};
 use super::{
     track_art, track_artist, track_artist_id, use_base_url, use_music, CurrentTrackHeart,
     NowPlayingView,
 };
-use crate::design::{Artwork, EmptyState, IconButton, Segment, SegmentedControl};
+use crate::design::{Artwork, IconButton, Segment, SegmentedControl};
 use crate::i18n::use_i18n;
 use crate::motion::{springs, use_spring};
 use crate::router::use_router;
@@ -26,9 +26,12 @@ pub fn NowPlaying() -> Element {
     let y = use_spring(target, springs::SMOOTH);
     // AnimatePresence: unmounted once the exit animation reached the bottom.
     if y() >= 99.9 && !open() {
-        return rsx! {};
+        return rsx! { PanelsHost {} };
     }
-    rsx! { Sheet { y: y() } }
+    rsx! {
+        PanelsHost {}
+        Sheet { y: y() }
+    }
 }
 
 #[component]
@@ -51,10 +54,10 @@ fn Sheet(y: f64) -> Element {
         NowPlayingView::Queue => "queue",
     };
     let window = dioxus_native::use_window();
-    let (panel_icon, panel_name) = if view == NowPlayingView::Lyrics {
-        ("message-square-quote", t.t("music:player.lyrics"))
+    let panel_name = if view == NowPlayingView::Lyrics {
+        t.t("music:player.lyrics")
     } else {
-        ("list-music", t.t("music:player.queue"))
+        t.t("music:player.queue")
     };
     rsx! {
         div {
@@ -130,10 +133,10 @@ fn Sheet(y: f64) -> Element {
                 }
                 if view != NowPlayingView::Player {
                     section { class: "jrm-np__panel", "aria-label": "{panel_name}",
-                        EmptyState {
-                            size: "inline",
-                            icon: panel_icon,
-                            title: t.tf("stub", &[("name", panel_name.clone())]),
+                        if view == NowPlayingView::Lyrics {
+                            LyricsView { key: "{track.id}", track_id: track.id.clone(), has_lyrics: track.has_lyrics }
+                        } else {
+                            QueueView {}
                         }
                     }
                 }
