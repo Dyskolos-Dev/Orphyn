@@ -4,9 +4,16 @@ use serde::Deserialize;
 
 #[derive(Deserialize)]
 pub struct DeezerArtist {
+    pub id: Option<u64>,
     pub name: Option<String>,
     pub picture_xl: Option<String>,
     pub picture_big: Option<String>,
+}
+
+#[derive(Deserialize)]
+pub struct DeezerTrack {
+    pub title: Option<String>,
+    pub title_short: Option<String>,
 }
 
 #[derive(Deserialize)]
@@ -15,6 +22,10 @@ pub struct AudioDbArtist {
     pub name: Option<String>,
     #[serde(rename = "strArtistThumb")]
     pub thumb: Option<String>,
+    #[serde(rename = "strBiographyEN")]
+    pub bio_en: Option<String>,
+    #[serde(rename = "strBiographyFR")]
+    pub bio_fr: Option<String>,
 }
 
 fn fold(c: char) -> Option<&'static str> {
@@ -90,6 +101,63 @@ pub fn pick_deezer(wanted: &str, results: &[DeezerArtist]) -> Option<String> {
         })
 }
 
+/// Id of the first Deezer result whose name equals `wanted` once normalised (any picture).
+pub fn pick_deezer_id(wanted: &str, results: &[DeezerArtist]) -> Option<u64> {
+    let key = normalize(wanted);
+    results
+        .iter()
+        .find(|a| a.name.as_deref().map(normalize).as_deref() == Some(key.as_str()))
+        .and_then(|a| a.id)
+}
+
+/// Track titles in Deezer order, blanks and exact repeats dropped.
+pub fn track_titles(tracks: &[DeezerTrack]) -> Vec<String> {
+    let mut out: Vec<String> = Vec::new();
+    for t in tracks {
+        let title = t
+            .title
+            .as_deref()
+            .or(t.title_short.as_deref())
+            .unwrap_or("")
+            .trim();
+        if !title.is_empty() && !out.iter().any(|x| x == title) {
+            out.push(title.to_string());
+        }
+    }
+    out
+}
+
+/// Names of the related artists, blanks dropped.
+pub fn related_names(artists: &[DeezerArtist]) -> Vec<String> {
+    artists
+        .iter()
+        .filter_map(|a| a.name.as_deref())
+        .map(str::trim)
+        .filter(|n| !n.is_empty())
+        .map(String::from)
+        .collect()
+}
+
+/// TheAudioDB biography of the exact-name match in `lang` ("fr", anything else = English),
+/// falling back to the other language when the wanted one is empty.
+pub fn pick_audiodb_bio(wanted: &str, lang: &str, results: &[AudioDbArtist]) -> Option<String> {
+    let key = normalize(wanted);
+    let a = results
+        .iter()
+        .find(|a| a.name.as_deref().map(normalize).as_deref() == Some(key.as_str()))?;
+    let (first, second) = if lang == "fr" {
+        (&a.bio_fr, &a.bio_en)
+    } else {
+        (&a.bio_en, &a.bio_fr)
+    };
+    [first, second]
+        .into_iter()
+        .filter_map(|b| b.as_deref())
+        .map(str::trim)
+        .find(|b| !b.is_empty())
+        .map(String::from)
+}
+
 pub fn pick_audiodb(wanted: &str, results: &[AudioDbArtist]) -> Option<String> {
     let key = normalize(wanted);
     results
@@ -104,6 +172,7 @@ mod tests {
 
     fn dz(name: &str, xl: &str) -> DeezerArtist {
         DeezerArtist {
+            id: Some(7),
             name: Some(name.into()),
             picture_xl: Some(xl.into()),
             picture_big: None,
@@ -149,6 +218,7 @@ mod tests {
     #[test]
     fn falls_back_to_picture_big() {
         let a = DeezerArtist {
+            id: None,
             name: Some("Muse".into()),
             picture_xl: Some(EMPTY.into()),
             picture_big: Some(REAL.into()),
@@ -157,10 +227,52 @@ mod tests {
     }
 
     #[test]
+    fn deezer_id_needs_the_exact_name() {
+        let results = vec![dz("Muse Tribute", REAL), dz("Muse", EMPTY)];
+        assert_eq!(pick_deezer_id("muse", &results), Some(7));
+        assert_eq!(pick_deezer_id("Mute", &results), None);
+    }
+
+    #[test]
+    fn track_titles_drop_blanks_and_repeats() {
+        let t = |s: &str| DeezerTrack {
+            title: Some(s.into()),
+            title_short: None,
+        };
+        assert_eq!(
+            track_titles(&[t("Hysteria"), t(" "), t("Hysteria"), t("Starlight")]),
+            vec!["Hysteria", "Starlight"]
+        );
+    }
+
+    #[test]
+    fn related_names_skip_blanks() {
+        let r = vec![dz("Placebo", REAL), dz("  ", REAL)];
+        assert_eq!(related_names(&r), vec!["Placebo"]);
+    }
+
+    #[test]
+    fn audiodb_bio_prefers_the_language_then_falls_back() {
+        let a = AudioDbArtist {
+            name: Some("Muse".into()),
+            thumb: None,
+            bio_en: Some("English bio".into()),
+            bio_fr: Some("  ".into()),
+        };
+        assert_eq!(
+            pick_audiodb_bio("Muse", "fr", std::slice::from_ref(&a)).as_deref(),
+            Some("English bio")
+        );
+        assert_eq!(pick_audiodb_bio("Other", "en", &[a]), None);
+    }
+
+    #[test]
     fn audiodb_needs_exact_name_and_a_thumb() {
         let a = |n: &str, t: Option<&str>| AudioDbArtist {
             name: Some(n.into()),
             thumb: t.map(Into::into),
+            bio_en: None,
+            bio_fr: None,
         };
         assert_eq!(pick_audiodb("Muse", &[a("Muse", None)]), None);
         assert_eq!(pick_audiodb("Muse", &[a("Mute", Some(REAL))]), None);

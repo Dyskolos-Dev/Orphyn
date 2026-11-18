@@ -102,6 +102,9 @@ pub fn run() {
             cast::cast_disconnect,
             // online artist images
             artwork::artwork_artist_image,
+            artwork::artwork_artist_top_tracks,
+            artwork::artwork_related_artists,
+            artwork::artwork_artist_bio,
             // discord (stubs)
             discord::discord_get_state,
             discord::discord_set_presence,

@@ -218,8 +218,8 @@
     "original": "Original",
     "kbps": "{{value}} kbps",
     "groupArtists": "Group artists",
-    "artistImages": "Look up artist images",
-    "artistImagesDescription": "Artists without an image on your server get one from Deezer (the artist name is sent to it). Nothing is written to your server. Off: no request is made.",
+    "artistImages": "Look up artist images, biography and popular songs",
+    "artistImagesDescription": "Artists get an image, a biography, popular songs and similar artists from Deezer, Wikipedia and TheAudioDB (the artist name is sent to them). Nothing is written to your server. Off: no request is made.",
     "groupArtistsDescription": "One entry per artist: “feat.”, “&”, case and accent variants are merged. Only changes how your library is shown.",
     "onlineLyrics": "Online lyrics",
     "onlineLyricsDescription": "When your server has no lyrics for a song, look them up on LRCLIB (sends the title, artist and album)."

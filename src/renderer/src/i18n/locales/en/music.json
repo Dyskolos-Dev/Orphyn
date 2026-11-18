@@ -73,11 +73,23 @@
   "artist": {
     "notFound": "Artist not found",
     "eyebrow": "Artist",
-    "topSongs": "Top Songs",
+    "topSongs": "Popular Songs",
     "albums": "Albums",
-    "singles": "Singles & EPs",
+    "singles": "EPs & Singles",
+    "compilations": "Compilations",
     "appearsOn": "Appears On",
-    "similar": "Similar Artists"
+    "similar": "Similar Artists",
+    "about": "About",
+    "more": "More",
+    "less": "Less",
+    "showMore": "Show more",
+    "showLess": "Show less",
+    "plays_one": "{{count}} play",
+    "plays_other": "{{count}} plays",
+    "source": {
+      "wikipedia": "Source: Wikipedia",
+      "audiodb": "Source: TheAudioDB"
+    }
   },
   "actions": {
     "play": "Play",

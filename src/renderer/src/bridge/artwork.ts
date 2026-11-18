@@ -12,4 +12,13 @@ export const artworkApi = {
   /** An https image URL for the artist, or `null` when none reliable was found. */
   artistImage: (name: string): Promise<string | null> =>
     call<string | null>('artwork_artist_image', { name }),
+  /** Deezer's popular track titles of the artist, best first (empty when unknown). */
+  topTracks: (name: string): Promise<string[]> =>
+    call<string[]>('artwork_artist_top_tracks', { name }),
+  /** Names of the artists Deezer relates to this one (empty when unknown). */
+  relatedArtists: (name: string): Promise<string[]> =>
+    call<string[]>('artwork_related_artists', { name }),
+  /** TheAudioDB biography in `lang` ("fr" | "en"), or `null`. */
+  artistBio: (name: string, lang: 'fr' | 'en'): Promise<string | null> =>
+    call<string | null>('artwork_artist_bio', { name, lang }),
 }

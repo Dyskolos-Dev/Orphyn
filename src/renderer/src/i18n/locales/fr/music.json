@@ -75,9 +75,21 @@
     "eyebrow": "Artiste",
     "topSongs": "Titres populaires",
     "albums": "Albums",
-    "singles": "Singles et EP",
+    "singles": "EP et singles",
+    "compilations": "Compilations",
     "appearsOn": "Apparaît sur",
-    "similar": "Artistes similaires"
+    "similar": "Artistes similaires",
+    "about": "À propos",
+    "more": "Plus",
+    "less": "Moins",
+    "showMore": "Afficher plus",
+    "showLess": "Afficher moins",
+    "plays_one": "{{count}} lecture",
+    "plays_other": "{{count}} lectures",
+    "source": {
+      "wikipedia": "Source : Wikipédia",
+      "audiodb": "Source : TheAudioDB"
+    }
   },
   "actions": {
     "play": "Lecture",
