@@ -13,6 +13,7 @@ pub mod client;
 pub mod endpoints;
 pub mod images;
 pub mod keys;
+pub mod syncplay;
 pub mod types;
 
 pub use cache::{QueryCache, QueryState};

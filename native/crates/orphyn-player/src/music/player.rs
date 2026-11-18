@@ -16,6 +16,32 @@ use super::types::{PlayerState, PlayerStatus, Progress, QueueModel, RepeatMode, 
 /// Turns a track into the URL to play (direct stream or transcode), given by the app.
 pub type Resolver = Arc<dyn Fn(&Track) -> Option<String> + Send + Sync>;
 
+/// A receiver the music engine plays on instead of the local audio thread (cast). The engine keeps
+/// owning the queue, the state and the reporting; the output only turns its calls into commands
+/// and reports back through [`MusicPlayer::remote_event`].
+pub trait RemoteOutput: Send + Sync {
+    /// Replaces what plays with `track`, starting at `start_at` seconds.
+    fn load(&self, track: &Track, start_at: f64, autoplay: bool);
+    fn play(&self);
+    fn pause(&self);
+    fn seek(&self, seconds: f64);
+    fn set_volume(&self, volume: f32);
+    /// Stops playback on the device (the session stays; the app disconnects it).
+    fn stop(&self);
+}
+
+/// What a [`RemoteOutput`] reports back.
+#[derive(Debug, Clone, PartialEq)]
+pub enum RemoteEvent {
+    /// The current track is loaded on the device.
+    Loaded { duration: Option<f64> },
+    Position(f64),
+    /// The device finished the track.
+    Ended,
+    /// The device itself started (`true`) or paused (`false`).
+    Playing(bool),
+}
+
 /// The next track is downloaded and queued this long before the current one ends.
 const PRELOAD_BEFORE_END: f64 = 20.0;
 
@@ -25,6 +51,7 @@ struct Inner {
     progress_tx: watch::Sender<Progress>,
     resolver: RwLock<Option<Resolver>>,
     audio: Mutex<Option<Sender<Msg>>>,
+    remote: RwLock<Option<Arc<dyn RemoteOutput>>>,
     /// Output device (`None` = system default), applied when the audio thread starts.
     device: Mutex<Option<String>>,
 }
@@ -71,6 +98,7 @@ impl MusicPlayer {
                 progress_tx,
                 resolver: RwLock::new(None),
                 audio: Mutex::new(None),
+                remote: RwLock::new(None),
                 device: Mutex::new(None),
             }),
         }
@@ -401,7 +429,80 @@ impl MusicPlayer {
         self.inner.progress_tx.send_replace(c.progress);
     }
 
+    fn remote(&self) -> Option<Arc<dyn RemoteOutput>> {
+        self.inner
+            .remote
+            .read()
+            .unwrap_or_else(|p| p.into_inner())
+            .clone()
+    }
+
+    /// Plays on `remote` (a cast device) instead of this computer, or back here with `None`. The
+    /// current track and position carry over; going back to local leaves the music paused.
+    pub fn set_remote(&self, remote: Option<Arc<dyn RemoteOutput>>) {
+        let previous = self.remote();
+        if remote.is_none() && previous.is_none() {
+            return;
+        }
+        if previous.is_none() {
+            self.send(Msg::Stop); // silence the local output
+        }
+        if let Some(p) = previous {
+            p.stop();
+        }
+        let going_remote = remote.is_some();
+        *self.inner.remote.write().unwrap_or_else(|p| p.into_inner()) = remote;
+        let mut c = self.lock();
+        if !going_remote {
+            c.s.want_playing = false;
+        }
+        let at = c.progress.position;
+        if c.s.current().is_some() {
+            self.send_load(&mut c, at);
+        }
+    }
+
+    /// Whether the music currently plays on a remote device.
+    pub fn is_remote(&self) -> bool {
+        self.remote().is_some()
+    }
+
+    /// Report of the remote output (position, end of track, ...).
+    pub fn remote_event(&self, event: RemoteEvent) {
+        match event {
+            RemoteEvent::Loaded { duration } => {
+                let gen = self.lock().load_gen;
+                self.on_event(Event::Loaded { gen, duration });
+            }
+            RemoteEvent::Position(p) => self.on_event(Event::Position(p)),
+            RemoteEvent::Ended => self.on_event(Event::Ended),
+            RemoteEvent::Playing(playing) => {
+                let mut c = self.lock();
+                if c.loaded && c.s.want_playing != playing {
+                    c.s.want_playing = playing;
+                    c.s.status = if playing {
+                        PlayerStatus::Playing
+                    } else {
+                        PlayerStatus::Paused
+                    };
+                    self.publish(&c);
+                }
+            }
+        }
+    }
+
     fn send(&self, msg: Msg) {
+        if let Some(remote) = self.remote() {
+            match msg {
+                Msg::Play => remote.play(),
+                Msg::Pause => remote.pause(),
+                Msg::Seek(s) => remote.seek(s),
+                Msg::Volume(v) => remote.set_volume(v),
+                Msg::Stop => remote.stop(),
+                _ => {}
+            }
+            return;
+        }
         let mut audio = self.inner.audio.lock().unwrap_or_else(|p| p.into_inner());
         if audio.is_none() {
             if matches!(msg, Msg::Pause | Msg::Stop | Msg::Seek(_)) {
@@ -454,6 +555,12 @@ impl MusicPlayer {
             return;
         };
         c.progress.duration = track.duration_seconds();
+        if let Some(remote) = self.remote() {
+            c.s.status = PlayerStatus::Loading;
+            remote.load(&track, start_at, c.s.want_playing);
+            self.publish(c);
+            return;
+        }
         match self.resolve(&track) {
             Some(url) => {
                 c.s.status = PlayerStatus::Loading;
@@ -570,7 +677,7 @@ impl MusicPlayer {
     }
 
     fn maybe_preload(&self, c: &mut Core) {
-        if c.preload.is_some() || c.s.status != PlayerStatus::Playing {
+        if c.preload.is_some() || c.s.status != PlayerStatus::Playing || self.is_remote() {
             return;
         }
         let remaining = c.progress.duration - c.progress.position;

@@ -10,5 +10,5 @@ pub mod queue;
 pub mod radio;
 pub mod types;
 
-pub use player::{MusicPlayer, Resolver};
+pub use player::{MusicPlayer, RemoteEvent, RemoteOutput, Resolver};
 pub use types::*;
