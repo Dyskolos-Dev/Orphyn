@@ -130,7 +130,7 @@ pub fn LyricsView(track_id: String, has_lyrics: Option<bool>) -> Element {
             }
         };
     };
-    rsx! { LyricsBody { lyrics } }
+    rsx! { LyricsBody { key: "{track_id}", lyrics } }
 }
 
 #[component]
@@ -152,9 +152,11 @@ fn LyricsBody(lyrics: Lyrics) -> Element {
         }
     }));
 
+    let total = lyrics.lines.len();
     use_effect(use_reactive!(|(synced,)| {
         let active = active();
-        if !synced || active < 0 {
+        let mounted = line_els.read().len();
+        if !synced || active < 0 || mounted < total {
             return;
         }
         if last_manual

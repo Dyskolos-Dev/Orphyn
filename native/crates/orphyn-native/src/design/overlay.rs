@@ -2,9 +2,15 @@
 //! shell (above everything, `position: fixed`), fed by a context. A screen opens a menu with
 //! `use_overlay().menu(x, y, items)`; clicking outside, picking an item or Escape closes it.
 //! Same DOM as `Popover` + `Menu` (`design/overlays`).
+use std::collections::HashMap;
+use std::rc::Rc;
+
 use dioxus::prelude::*;
 
 use super::Icon;
+
+/// Viewport margin kept around a popover (`max-width: calc(100vw - 16px)` of `.jr-popover`).
+const EDGE: f64 = 8.0;
 
 /// One entry of a menu (`MenuItem` of `design/overlays/Menu.tsx`).
 #[derive(Clone, PartialEq)]
@@ -65,13 +71,55 @@ pub fn use_overlay() -> Overlay {
     use_context::<Overlay>()
 }
 
+/// Blitz sizes a `position: fixed` box that only has `left`/`top` to the whole free space instead
+/// of its content, so the popover gets an explicit size estimated from its entries (the metrics of
+/// `.jr-menu`: 5px padding, 26px items, callout text).
+fn menu_size(items: &[MenuItem], has_icon: bool, has_check: bool) -> (f64, f64) {
+    let (mut w, mut h) = (0.0_f64, 10.0_f64);
+    for item in items {
+        match item {
+            MenuItem::Separator => h += 10.5,
+            MenuItem::Header(l) => {
+                h += 22.0;
+                w = w.max(l.chars().count() as f64 * 7.4 + 20.0);
+            }
+            MenuItem::Action { label, .. } => {
+                h += 26.0;
+                let extra =
+                    20.0 + if has_icon { 24.0 } else { 0.0 } + if has_check { 22.0 } else { 0.0 };
+                w = w.max(label.chars().count() as f64 * 7.4 + extra);
+            }
+        }
+    }
+    (w.clamp(180.0, 420.0) + 10.0, h)
+}
+
 /// Rendered once, last in the shell.
 #[component]
 pub fn OverlayHost() -> Element {
     let overlay = use_overlay();
+    let win = dioxus_native::use_window();
+    let mut cursor: Signal<Option<usize>> = use_signal(|| None);
+    let mut mounted: Signal<HashMap<usize, Rc<MountedData>>> = use_signal(HashMap::new);
     let Some(open) = (overlay.menu)() else {
         return rsx! {};
     };
+    // Enabled entries in order, for the arrow keys.
+    let enabled: Vec<usize> = open
+        .items
+        .iter()
+        .enumerate()
+        .filter(|(_, i)| {
+            matches!(
+                i,
+                MenuItem::Action {
+                    disabled: false,
+                    ..
+                }
+            )
+        })
+        .map(|(i, _)| i)
+        .collect();
     let has_icon = open
         .items
         .iter()
@@ -85,6 +133,59 @@ pub fn OverlayHost() -> Element {
             }
         )
     });
+
+    // Kept inside the window.
+    let (mw, mh) = menu_size(&open.items, has_icon, has_check);
+    let scale = win.scale_factor().max(0.1);
+    let size = win.surface_size();
+    let (vw, vh) = (size.width as f64 / scale, size.height as f64 / scale);
+    let width = mw.min((vw - 2.0 * EDGE).max(120.0));
+    let height = mh.min((vh - 2.0 * EDGE).max(60.0));
+    let left = open.x.min(vw - width - EDGE).max(EDGE);
+    let top = open.y.min(vh - height - EDGE).max(EDGE);
+
+    let focus_at = move |idx: usize| {
+        cursor.set(Some(idx));
+        if let Some(m) = mounted.peek().get(&idx).cloned() {
+            spawn(async move {
+                let _ = m.set_focus(true).await;
+            });
+        }
+    };
+    let on_key = move |e: KeyboardEvent| {
+        let cur = *cursor.peek();
+        let next = match e.key() {
+            Key::Named(NamedKey::Escape) => {
+                overlay.close();
+                return;
+            }
+            Key::Named(NamedKey::ArrowDown) => match cur {
+                None => enabled.first().copied(),
+                Some(c) => enabled
+                    .iter()
+                    .copied()
+                    .find(|i| *i > c)
+                    .or(enabled.first().copied()),
+            },
+            Key::Named(NamedKey::ArrowUp) => match cur {
+                None => enabled.last().copied(),
+                Some(c) => enabled
+                    .iter()
+                    .rev()
+                    .copied()
+                    .find(|i| *i < c)
+                    .or(enabled.last().copied()),
+            },
+            Key::Named(NamedKey::Home) => enabled.first().copied(),
+            Key::Named(NamedKey::End) => enabled.last().copied(),
+            _ => return,
+        };
+        e.prevent_default();
+        if let Some(n) = next {
+            focus_at(n);
+        }
+    };
+
     rsx! {
         // Click-catcher: a click anywhere else closes the menu (the capture listener of Popover).
         div {
@@ -95,8 +196,16 @@ pub fn OverlayHost() -> Element {
         div {
             class: "jr-popover jr-material-thick",
             role: "presentation",
-            style: "left: {open.x}px; top: {open.y}px; z-index: 1000;",
-            onkeydown: move |e| if e.key() == Key::Named(NamedKey::Escape) { overlay.close() },
+            tabindex: "-1",
+            style: "left: {left}px; top: {top}px; width: {width}px; height: {height}px; z-index: 1000;",
+            // Focus lands on the popover so Escape and the arrows work at once.
+            onmounted: move |e| {
+                cursor.set(None);
+                mounted.write().clear();
+                let m = e.data();
+                spawn(async move { let _ = m.set_focus(true).await; });
+            },
+            onkeydown: on_key,
             div { role: "menu", class: "jr-menu",
                 for (i, item) in open.items.into_iter().enumerate() {
                     match item {
@@ -114,6 +223,15 @@ pub fn OverlayHost() -> Element {
                                     "aria-disabled": disabled.then_some("true"),
                                     tabindex: "-1",
                                     class: "{cls}",
+                                    onmounted: move |e| { mounted.write().insert(i, e.data()); },
+                                    onmouseenter: move |_| if !disabled { focus_at(i) },
+                                    onkeydown: move |e| {
+                                        if !disabled && (e.key() == Key::Named(NamedKey::Enter) || e.key() == Key::Character(" ".into())) {
+                                            e.prevent_default();
+                                            overlay.close();
+                                            on_select.call(());
+                                        }
+                                    },
                                     onclick: move |_| {
                                         if !disabled {
                                             overlay.close();

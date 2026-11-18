@@ -1,1 +1,25 @@
 /* Blitz-only fixes for the music-panels port. */
+
+/* Lyrics: Blitz has no `mask-image` or `filter`; a mask it cannot paint must not hide the text, and
+   the blur is dropped (the dimmed opacity alone marks the other lines). Transitions on transform
+   would restart layout at every position tick, so the active line only changes opacity. */
+.jrm-lyrics {
+  mask-image: none;
+  display: block;
+  scrollbar-width: none;
+}
+.jrm-lyrics--empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.jrm-lyric {
+  filter: none;
+  transform: none;
+  transition: opacity var(--duration-base) var(--ease-standard);
+  box-sizing: border-box;
+  text-align: left;
+}
+.jrm-lyric[data-state='active'] {
+  transform: none;
+}
