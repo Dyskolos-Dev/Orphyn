@@ -1,0 +1,62 @@
+# Orphyn native: the full-Rust app (no web engine). See README.md for why the pre-release
+# crates below are pinned with `=`.
+[workspace]
+resolver = "2"
+members = [
+    "crates/orphyn-core",
+    "crates/orphyn-jellyfin",
+    "crates/orphyn-player",
+    "crates/orphyn-native",
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.88"
+license = "UNLICENSED"
+publish = false
+
+[workspace.dependencies]
+# Pre-release UI stack, pinned exactly: Dioxus 0.8 alpha + Blitz 0.3 beta + winit 0.31 beta change
+# their APIs between pre-releases, and they must move together.
+dioxus = { version = "=0.8.0-alpha.3", default-features = false, features = ["macro", "html", "signals", "hooks"] }
+dioxus-native = { version = "=0.8.0-alpha.3", features = ["data-uri"] }
+blitz-dom = { version = "=0.3.0-beta.4", default-features = false }
+winit = "=0.31.0-beta.3"
+anyrender = "=0.14.0"
+peniko = "=0.6.1"
+kurbo = "=0.13.1"
+wgpu = { version = "=30.0.2", default-features = false }
+
+# Stable crates.
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "time", "sync"] }
+rodio = "0.21"
+libloading = "0.8"
+thiserror = "2"
+log = "0.4"
+uuid = { version = "1", features = ["v4"] }
+chrono = { version = "0.4", default-features = false, features = ["clock", "std"] }
+dirs = "7"
+tempfile = "3"
+
+orphyn-core = { path = "crates/orphyn-core" }
+orphyn-jellyfin = { path = "crates/orphyn-jellyfin" }
+orphyn-player = { path = "crates/orphyn-player" }
+
+# blitz-dom 0.3.0-beta.4 with one fix (hit testing skips nodes removed since the last layout,
+# instead of panicking): see vendor/blitz-dom and README.md, "Pinned pre-release crates".
+[patch.crates-io]
+blitz-dom = { path = "vendor/blitz-dom" }
+
+[profile.dev]
+# Stylo, wgpu and Vello are unusably slow unoptimised; our own crates stay debuggable.
+opt-level = 1
+[profile.dev.package."*"]
+opt-level = 3
+
+[profile.release]
+opt-level = 3
+lto = "thin"

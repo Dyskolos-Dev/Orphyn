@@ -1,0 +1,27 @@
+[package]
+name = "orphyn-player"
+description = "Player core of Orphyn native: music engine (rodio/symphonia, gapless queue) and video engine (libmpv software render into a Blitz widget)"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[features]
+default = ["widget"]
+# The Blitz widget that paints video frames (needs the UI stack).
+widget = ["dep:dioxus-native", "dep:blitz-dom", "dep:anyrender", "dep:wgpu", "dep:peniko", "dep:kurbo"]
+
+[dependencies]
+orphyn-jellyfin.workspace = true
+rodio.workspace = true
+reqwest = { workspace = true, features = ["blocking"] }
+tokio.workspace = true
+libloading.workspace = true
+log.workspace = true
+dioxus-native = { workspace = true, optional = true }
+blitz-dom = { workspace = true, optional = true }
+anyrender = { workspace = true, optional = true }
+wgpu = { workspace = true, optional = true }
+peniko = { workspace = true, optional = true }
+kurbo = { workspace = true, optional = true }
