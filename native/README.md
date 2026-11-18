@@ -48,3 +48,28 @@ can be installed side by side.
   onboarding (a single sign-in form stands in), the full Settings page (a theme / style / language
   stand-in), crossfade, macOS traffic-light offset (no winit API), Mica / vibrancy materials.
 - Verified on Windows only; WSL Debian build and the CI run on the 3 OSes are not checked yet.
+
+## Video
+
+libmpv (software render API, `hwdec=auto-copy`) draws into a Blitz widget (`orphyn-player/src/video`);
+the player page is `orphyn-native/src/features/video/player`. Frame pipeline (`ORPHYN_VIDEO_PIPELINE`):
+
+- default: mpv renders at the **video's own size**, the frame is uploaded once and a wgpu render
+  pass makes the texture the scene samples; the GPU scales it into the box (`object-fit: contain`).
+  It asks mpv for packed YUV 4:2:2 (`yuyv422`, half the bytes, converted in the shader, BT.709 /
+  BT.601 limited range). The software render API takes a single plane, so two-plane NV12 is not
+  possible through it. The libmpv tested (Stremio's `libmpv-2.dll`) refuses `yuyv422`, so the frames
+  come as `bgr0` through the same pass: no CPU alpha pass, no CPU scaling.
+- `bgra`: the spike A2 path (BGRA at the box's pixel size, CPU alpha pass), kept to compare.
+
+CPU at 1080p (Windows, AMD Radeon iGPU, release build, 1080p HEVC episode in direct play, `d3d11va-copy`,
+window covering a 2560x1440 screen, process CPU over 10 to 20 s of playback):
+
+| Pipeline | CPU |
+|---|---|
+| spike A2 (REPORT.md, 2560x1440 texture) | about 3 cores |
+| `bgra` (same path in the app) | 1.57 cores |
+| default (video size + GPU pass, `bgr0` frames) | 0.76 to 1.15 cores (3 runs) |
+
+Next steps: a libmpv build that accepts `yuyv422` (or another packed YUV format) halves the upload
+again; a GPU interop path (D3D11 / Vulkan) would remove the copy entirely.
