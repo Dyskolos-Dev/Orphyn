@@ -44,7 +44,7 @@ can be installed side by side.
 
 ## Known gaps
 
-- Not done yet in this foundation: `PORTING.md`, the Lyrics / Up Next panels, the multi-step
+- Not done yet in this foundation: the Lyrics / Up Next panels, the multi-step
   onboarding (a single sign-in form stands in), the full Settings page (a theme / style / language
   stand-in), crossfade, macOS traffic-light offset (no winit API), Mica / vibrancy materials.
 - Verified on Windows only; WSL Debian build and the CI run on the 3 OSes are not checked yet.
