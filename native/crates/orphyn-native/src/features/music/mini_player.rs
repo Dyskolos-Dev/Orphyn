@@ -3,8 +3,8 @@
 //! features.
 use dioxus::prelude::*;
 
-use super::CurrentTrackHeart;
 use super::transport::{track_duration, TransportButtons, VolumeControl};
+use super::CurrentTrackHeart;
 use super::{track_art, track_artist, use_base_url, use_music, NowPlayingView};
 use crate::design::{format_duration, Artwork, IconButton, Slider};
 use crate::i18n::use_i18n;

@@ -22,7 +22,9 @@ pub fn Shelf(
     let page = move |dir: f64| {
         if let Some(el) = list.peek().clone() {
             spawn(async move {
-                let (Ok(rect), Ok(off)) = (el.get_client_rect().await, el.get_scroll_offset().await) else {
+                let (Ok(rect), Ok(off)) =
+                    (el.get_client_rect().await, el.get_scroll_offset().await)
+                else {
                     return;
                 };
                 let x = (off.x + dir * rect.size.width * 0.9).max(0.0);
@@ -100,7 +102,11 @@ pub fn SquareCard(
 ) -> Element {
     let t = use_i18n();
     let router = use_router();
-    let actions = if on_play.is_some() { " jr-card--has-actions" } else { "" };
+    let actions = if on_play.is_some() {
+        " jr-card--has-actions"
+    } else {
+        ""
+    };
     rsx! {
         li { class: "jr-shelf__item",
             div { class: "jr-card jr-card--square{actions}", style: "--jr-card-ratio: 1 / 1;",

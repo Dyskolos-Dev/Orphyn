@@ -369,10 +369,13 @@ mod tests {
         let m = create_queue(&tracks(3), Some(0), false, RepeatMode::Off, &mut fixed(0.0));
         let m = insert_next(&m, &tracks(1));
         assert_eq!(ids(&m), ["t0", "t0", "t1", "t2"]);
-        let m = append(&m, &[Track {
-            id: "x".into(),
-            ..Track::default()
-        }]);
+        let m = append(
+            &m,
+            &[Track {
+                id: "x".into(),
+                ..Track::default()
+            }],
+        );
         assert_eq!(ids(&m).last().map(String::as_str), Some("x"));
         assert_eq!(m.index, 0);
     }

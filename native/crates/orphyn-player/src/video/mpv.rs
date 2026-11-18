@@ -65,7 +65,10 @@ fn candidates() -> Vec<PathBuf> {
     if let Some(d) = std::env::var_os("ORPHYN_MPV_DIR") {
         dirs.push(d.into());
     }
-    if let Some(d) = std::env::current_exe().ok().and_then(|e| e.parent().map(PathBuf::from)) {
+    if let Some(d) = std::env::current_exe()
+        .ok()
+        .and_then(|e| e.parent().map(PathBuf::from))
+    {
         dirs.push(d);
     }
     let mut out = Vec::new();
@@ -281,7 +284,13 @@ fn worker(api: Api, rx: Receiver<Cmd>, sh: Shared, ready: mpsc::Sender<Result<()
         let get_f64 = |name: &str| -> f64 {
             let n = cstr(name);
             let mut v: f64 = 0.0;
-            if (api.get_property)(hnd, n.as_ptr(), FMT_DOUBLE, &mut v as *mut f64 as *mut c_void) < 0 {
+            if (api.get_property)(
+                hnd,
+                n.as_ptr(),
+                FMT_DOUBLE,
+                &mut v as *mut f64 as *mut c_void,
+            ) < 0
+            {
                 0.0
             } else {
                 v
@@ -290,13 +299,23 @@ fn worker(api: Api, rx: Receiver<Cmd>, sh: Shared, ready: mpsc::Sender<Result<()
         let get_flag = |name: &str| -> bool {
             let n = cstr(name);
             let mut v: c_int = 0;
-            (api.get_property)(hnd, n.as_ptr(), FMT_FLAG, &mut v as *mut c_int as *mut c_void);
+            (api.get_property)(
+                hnd,
+                n.as_ptr(),
+                FMT_FLAG,
+                &mut v as *mut c_int as *mut c_void,
+            );
             v != 0
         };
         let get_str = |name: &str| -> String {
             let n = cstr(name);
             let mut p: *mut c_char = std::ptr::null_mut();
-            if (api.get_property)(hnd, n.as_ptr(), FMT_STRING, &mut p as *mut *mut c_char as *mut c_void) < 0
+            if (api.get_property)(
+                hnd,
+                n.as_ptr(),
+                FMT_STRING,
+                &mut p as *mut *mut c_char as *mut c_void,
+            ) < 0
                 || p.is_null()
             {
                 return String::new();

@@ -40,18 +40,16 @@ fn decode(s: &str) -> String {
     let mut i = 0;
     while i < bytes.len() {
         match bytes[i] {
-            b'%' if i + 2 < bytes.len() => {
-                match u8::from_str_radix(&s[i + 1..i + 3], 16) {
-                    Ok(b) => {
-                        out.push(b);
-                        i += 3;
-                    }
-                    Err(_) => {
-                        out.push(b'%');
-                        i += 1;
-                    }
+            b'%' if i + 2 < bytes.len() => match u8::from_str_radix(&s[i + 1..i + 3], 16) {
+                Ok(b) => {
+                    out.push(b);
+                    i += 3;
                 }
-            }
+                Err(_) => {
+                    out.push(b'%');
+                    i += 1;
+                }
+            },
             b'+' => {
                 out.push(b' ');
                 i += 1;
@@ -357,7 +355,13 @@ mod tests {
         let album = Route::MusicAlbum { id: "x".into() };
         assert!(!album.is_active_link("/music"));
         assert!(Route::MusicAlbums.is_active_link("/music/albums"));
-        assert!(Route::VideoLibrary { library_id: "movies".into() }.is_active_link("/video/library/movies"));
-        assert!(!Route::VideoLibrary { library_id: "movies".into() }.is_active_link("/video"));
+        assert!(Route::VideoLibrary {
+            library_id: "movies".into()
+        }
+        .is_active_link("/video/library/movies"));
+        assert!(!Route::VideoLibrary {
+            library_id: "movies".into()
+        }
+        .is_active_link("/video"));
     }
 }

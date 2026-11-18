@@ -1,16 +1,18 @@
 //! Music feature: the reference port (album page, mini player, Now Playing sheet). See
 //! native/PORTING.md for the patterns it demonstrates.
 mod album;
+pub mod library;
 mod mini_player;
 mod now_playing;
+pub mod panels;
 mod rows;
 mod transport;
 
 use std::sync::Arc;
 
 use dioxus::prelude::*;
-use orphyn_jellyfin::images::{build_image_url, ImageKind, ImageOptions};
 use orphyn_jellyfin::endpoints::Session;
+use orphyn_jellyfin::images::{build_image_url, ImageKind, ImageOptions};
 use orphyn_jellyfin::{keys, BaseItemDto};
 use orphyn_player::music::{PlayerState, Progress};
 
@@ -126,7 +128,8 @@ pub fn track_art(base: &str, item: &BaseItemDto, size: u32) -> Option<String> {
 pub fn use_base_url() -> String {
     let app = use_app();
     let s = (app.session)();
-    s.map(|s| s.client.base_url().to_string()).unwrap_or_default()
+    s.map(|s| s.client.base_url().to_string())
+        .unwrap_or_default()
 }
 
 /// `trackArtist`: every artist, else the album artist.
@@ -188,11 +191,19 @@ pub fn CurrentTrackHeart(
         return rsx! {};
     };
     let session = (app.session)();
-    let cached = session
-        .as_ref()
-        .and_then(|s| svc.cache.peek::<BaseItemDto>(&keys::item(&s.account_id, &track.id)).data);
-    let favorite = cached.map(|c| c.is_favorite()).unwrap_or(track.is_favorite());
-    let style = if favorite { format!("color: var(--accent); {style}") } else { style };
+    let cached = session.as_ref().and_then(|s| {
+        svc.cache
+            .peek::<BaseItemDto>(&keys::item(&s.account_id, &track.id))
+            .data
+    });
+    let favorite = cached
+        .map(|c| c.is_favorite())
+        .unwrap_or(track.is_favorite());
+    let style = if favorite {
+        format!("color: var(--accent); {style}")
+    } else {
+        style
+    };
     rsx! {
         crate::design::IconButton {
             icon: "heart",
@@ -223,6 +234,9 @@ pub fn format_total(t: crate::i18n::I18n, seconds: f64) -> String {
             ],
         )
     } else {
-        t.tf("music:album.durationMinutes", &[("minutes", minutes.to_string())])
+        t.tf(
+            "music:album.durationMinutes",
+            &[("minutes", minutes.to_string())],
+        )
     }
 }

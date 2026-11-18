@@ -14,7 +14,12 @@ use crate::state::{use_app, use_services};
 use crate::theme::{ThemeMode, INTERFACE_STYLES};
 
 #[component]
-fn Field(label: String, value: Signal<String>, #[props(default = "text")] kind: &'static str, #[props(default)] placeholder: String) -> Element {
+fn Field(
+    label: String,
+    value: Signal<String>,
+    #[props(default = "text")] kind: &'static str,
+    #[props(default)] placeholder: String,
+) -> Element {
     let mut value = value;
     rsx! {
         div { class: "jr-field jr-field--large",

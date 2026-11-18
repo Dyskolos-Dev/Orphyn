@@ -20,9 +20,19 @@ pub fn TransportButtons(
     let playing = s.is_playing();
     let has_queue = s.has_queue();
     let repeat = s.model.repeat;
-    let (p1, p2, p3, p4, p5) = (player.clone(), player.clone(), player.clone(), player.clone(), player);
+    let (p1, p2, p3, p4, p5) = (
+        player.clone(),
+        player.clone(),
+        player.clone(),
+        player.clone(),
+        player,
+    );
     let play_icon = if playing { "pause" } else { "play" };
-    let repeat_icon = if repeat == RepeatMode::One { "repeat-1" } else { "repeat" };
+    let repeat_icon = if repeat == RepeatMode::One {
+        "repeat-1"
+    } else {
+        "repeat"
+    };
     rsx! {
         div { class: "jrm-transport", role: "group", "aria-label": t.t("music:player.controls"),
             if extras {

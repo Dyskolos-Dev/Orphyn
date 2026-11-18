@@ -4,7 +4,10 @@
 use dioxus::prelude::*;
 
 use super::transport::{SeekBar, TransportButtons, VolumeControl};
-use super::{track_art, track_artist, track_artist_id, use_base_url, use_music, CurrentTrackHeart, NowPlayingView};
+use super::{
+    track_art, track_artist, track_artist_id, use_base_url, use_music, CurrentTrackHeart,
+    NowPlayingView,
+};
 use crate::design::{Artwork, EmptyState, IconButton, Segment, SegmentedControl};
 use crate::i18n::use_i18n;
 use crate::motion::{springs, use_spring};

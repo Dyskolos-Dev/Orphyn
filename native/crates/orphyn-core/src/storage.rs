@@ -79,7 +79,8 @@ impl LocalStorage {
 
     /// Typed read of a JSON value stored as text (`None` when missing or invalid).
     pub fn get_json<T: serde::de::DeserializeOwned>(&self, key: &str) -> Option<T> {
-        self.get(key).and_then(|raw| serde_json::from_str(&raw).ok())
+        self.get(key)
+            .and_then(|raw| serde_json::from_str(&raw).ok())
     }
 
     pub fn set_json<T: serde::Serialize>(&self, key: &str, value: &T) {

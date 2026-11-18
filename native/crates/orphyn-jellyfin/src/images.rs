@@ -87,14 +87,20 @@ fn resolve(item: &BaseItemDto, kind: ImageKind) -> Option<Source> {
         ImageKind::Primary => own(item.image_tags.get("Primary"), id)
             .or_else(|| {
                 if item.is_type("Episode") || item.is_type("Season") {
-                    own(item.series_primary_image_tag.as_ref(), item.series_id.as_ref())
+                    own(
+                        item.series_primary_image_tag.as_ref(),
+                        item.series_id.as_ref(),
+                    )
                 } else {
                     None
                 }
             })
             .or_else(|| {
                 if item.is_type("Audio") {
-                    own(item.album_primary_image_tag.as_ref(), item.album_id.as_ref())
+                    own(
+                        item.album_primary_image_tag.as_ref(),
+                        item.album_id.as_ref(),
+                    )
                 } else {
                     None
                 }
@@ -203,12 +209,22 @@ mod tests {
             "ParentBackdropImageTags": ["b"]
         }));
         assert_eq!(
-            build_image_url("https://jf.x", &e, ImageKind::Backdrop, &ImageOptions::default())
-                .as_deref(),
+            build_image_url(
+                "https://jf.x",
+                &e,
+                ImageKind::Backdrop,
+                &ImageOptions::default()
+            )
+            .as_deref(),
             Some("https://jf.x/Items/s1/Images/Backdrop/0?quality=90&tag=b")
         );
         assert_eq!(
-            build_image_url("https://jf.x", &e, ImageKind::Logo, &ImageOptions::default()),
+            build_image_url(
+                "https://jf.x",
+                &e,
+                ImageKind::Logo,
+                &ImageOptions::default()
+            ),
             None
         );
     }

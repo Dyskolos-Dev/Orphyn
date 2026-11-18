@@ -97,7 +97,10 @@ impl Session {
 
     /// `GET /UserViews`: the libraries.
     pub async fn user_views(&self) -> JfResult<Vec<BaseItemDto>> {
-        let r: QueryResult = self.client.get("/UserViews", &[("userId", self.user())]).await?;
+        let r: QueryResult = self
+            .client
+            .get("/UserViews", &[("userId", self.user())])
+            .await?;
         Ok(r.items)
     }
 
@@ -144,7 +147,10 @@ impl Session {
             .client
             .get(
                 &format!("/Playlists/{playlist_id}/Items"),
-                &[("userId", self.user()), ("fields", Some(fields(&["MediaSources"])))],
+                &[
+                    ("userId", self.user()),
+                    ("fields", Some(fields(&["MediaSources"]))),
+                ],
             )
             .await?;
         Ok(r.items)
@@ -235,10 +241,19 @@ impl Session {
 
     /// Favourite on / off (`setFavorite`).
     pub async fn set_favorite(&self, id: &str, favorite: bool) -> JfResult<()> {
-        let method = if favorite { Method::POST } else { Method::DELETE };
+        let method = if favorite {
+            Method::POST
+        } else {
+            Method::DELETE
+        };
         let _: serde_json::Value = self
             .client
-            .request(method, &format!("/UserFavoriteItems/{id}"), &[("userId", self.user())], None)
+            .request(
+                method,
+                &format!("/UserFavoriteItems/{id}"),
+                &[("userId", self.user())],
+                None,
+            )
             .await?;
         Ok(())
     }
@@ -248,15 +263,22 @@ impl Session {
         let method = if played { Method::POST } else { Method::DELETE };
         let _: serde_json::Value = self
             .client
-            .request(method, &format!("/UserPlayedItems/{id}"), &[("userId", self.user())], None)
+            .request(
+                method,
+                &format!("/UserPlayedItems/{id}"),
+                &[("userId", self.user())],
+                None,
+            )
             .await?;
         Ok(())
     }
 
     /// Direct-play URL of a track (what `musicPlayer` loads with `audioQuality: 'original'`).
     pub fn audio_url(&self, id: &str) -> String {
-        self.client
-            .authed_url(&format!("/Audio/{id}/stream"), &[("static", Some(true.into()))])
+        self.client.authed_url(
+            &format!("/Audio/{id}/stream"),
+            &[("static", Some(true.into()))],
+        )
     }
 
     /// Transcoded audio URL capped at `max_bitrate` bits/s (`audioQuality` set to a number).
@@ -267,7 +289,10 @@ impl Session {
                 ("userId", self.user()),
                 ("deviceId", Some(self.client.device_id().into())),
                 ("maxStreamingBitrate", Some(max_bitrate.into())),
-                ("container", Some("opus,webm|opus,mp3,aac,m4a|aac,flac".into())),
+                (
+                    "container",
+                    Some("opus,webm|opus,mp3,aac,m4a|aac,flac".into()),
+                ),
                 ("transcodingContainer", Some("mp3".into())),
                 ("audioCodec", Some("mp3".into())),
             ],
@@ -276,7 +301,9 @@ impl Session {
 
     /// Direct-play URL of a video file (handed to libmpv).
     pub fn video_url(&self, id: &str) -> String {
-        self.client
-            .authed_url(&format!("/Videos/{id}/stream"), &[("static", Some(true.into()))])
+        self.client.authed_url(
+            &format!("/Videos/{id}/stream"),
+            &[("static", Some(true.into()))],
+        )
     }
 }

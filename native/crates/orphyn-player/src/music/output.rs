@@ -16,7 +16,10 @@ pub(crate) enum Msg {
         autoplay: bool,
     },
     /// Download `url` and queue it after the current track (gapless).
-    Preload { gen: u64, url: String },
+    Preload {
+        gen: u64,
+        url: String,
+    },
     Play,
     Pause,
     Seek(f64),
@@ -31,12 +34,21 @@ pub(crate) enum Msg {
 
 #[derive(Debug, Clone, PartialEq)]
 pub(crate) enum Event {
-    Loaded { gen: u64, duration: Option<f64> },
+    Loaded {
+        gen: u64,
+        duration: Option<f64>,
+    },
     /// The preloaded track `gen` started (the previous one ended).
-    Advanced { gen: u64, duration: Option<f64> },
+    Advanced {
+        gen: u64,
+        duration: Option<f64>,
+    },
     Position(f64),
     Ended,
-    Failed { gen: u64, message: String },
+    Failed {
+        gen: u64,
+        message: String,
+    },
 }
 
 pub(crate) fn spawn(on_event: impl Fn(Event) + Send + 'static) -> Sender<Msg> {

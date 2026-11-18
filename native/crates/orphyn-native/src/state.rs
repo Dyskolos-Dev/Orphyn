@@ -126,8 +126,14 @@ impl AppState {
         self.interface.set(s);
     }
 
-    pub fn set_language(mut self, svc: &Services, choice: LanguageChoice, mut lang: Signal<crate::i18n::Lang>) {
-        svc.storage.set(crate::i18n::LANGUAGE_STORAGE_KEY, choice.as_str());
+    pub fn set_language(
+        mut self,
+        svc: &Services,
+        choice: LanguageChoice,
+        mut lang: Signal<crate::i18n::Lang>,
+    ) {
+        svc.storage
+            .set(crate::i18n::LANGUAGE_STORAGE_KEY, choice.as_str());
         self.language.set(choice);
         lang.set(choice.resolve());
     }
@@ -142,7 +148,8 @@ impl AppState {
     /// Switches the active session: music URLs follow it, the old server's cache is dropped.
     pub fn activate(mut self, svc: &Services, session: Option<Session>) {
         if let Some(old) = self.session.peek().as_ref() {
-            svc.cache.remove(&orphyn_jellyfin::keys::all(&old.account_id));
+            svc.cache
+                .remove(&orphyn_jellyfin::keys::all(&old.account_id));
         }
         if let Some(s) = &session {
             let s = s.clone();
@@ -168,14 +175,16 @@ impl AppState {
     ) -> Result<(), LoginError> {
         let url = url.trim().trim_end_matches('/').to_string();
         let device = svc.device_id();
-        let info = auth::public_info(&url, &device).await.map_err(|e| LoginError {
-            kind: if matches!(e, orphyn_jellyfin::JfError::Network(_)) {
-                LoginErrorKind::Unreachable
-            } else {
-                LoginErrorKind::ServerError
-            },
-            message: e.to_string(),
-        })?;
+        let info = auth::public_info(&url, &device)
+            .await
+            .map_err(|e| LoginError {
+                kind: if matches!(e, orphyn_jellyfin::JfError::Network(_)) {
+                    LoginErrorKind::Unreachable
+                } else {
+                    LoginErrorKind::ServerError
+                },
+                message: e.to_string(),
+            })?;
         let ok = auth::login(&url, &user, &password, &device).await?;
         let added = svc.with_accounts(|s| {
             let a = s.add(NewServerAccount {

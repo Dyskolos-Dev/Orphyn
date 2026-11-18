@@ -1,7 +1,11 @@
 //! Feature screens, routed like `app/routes.tsx`. A screen not ported yet renders the `StubPage`
 //! of the React app (its nav label as the name); porting one = replacing its arm below.
 pub mod music;
+pub mod search;
 pub mod servers;
+pub mod settings;
+pub mod stats;
+pub mod video;
 
 use dioxus::prelude::*;
 
@@ -24,23 +28,28 @@ pub fn RoutedPage() -> Element {
     match route {
         Route::MusicAlbum { id } => rsx! { music::AlbumPage { key: "{id}", id } },
         Route::Onboarding => rsx! { servers::OnboardingPage {} },
-        Route::VideoHome => stub("shell:nav.home"),
-        Route::VideoLibrary { library_id } => match library_id.as_str() {
-            "movies" => stub("shell:nav.movies"),
-            "series" => stub("shell:nav.series"),
-            _ => stub("common:nav.video"),
-        },
-        Route::VideoItem { .. } | Route::VideoPlay { .. } => stub("common:nav.video"),
-        Route::MusicHome => stub("shell:nav.music"),
-        Route::MusicAlbums => stub("shell:nav.albums"),
-        Route::MusicArtists | Route::MusicArtist { .. } => stub("shell:nav.artists"),
-        Route::MusicPlaylists | Route::MusicPlaylist { .. } => stub("shell:nav.playlists"),
-        Route::MusicFavorites => stub("music:nav.favorites"),
-        Route::MusicSongs => stub("shell:nav.songs"),
-        Route::Search { .. } => stub("common:nav.search"),
-        Route::Settings => rsx! { servers::QuickSettings {} },
+        Route::VideoHome => rsx! { video::browse::VideoHomePage {} },
+        Route::VideoLibrary { library_id } => {
+            rsx! { video::browse::VideoLibraryPage { key: "{library_id}", library_id } }
+        }
+        Route::VideoItem { item_id } => {
+            rsx! { video::browse::VideoItemPage { key: "{item_id}", item_id } }
+        }
+        Route::VideoPlay { item_id } => {
+            rsx! { video::player::VideoPlayerPage { key: "{item_id}", item_id } }
+        }
+        Route::MusicHome => rsx! { music::library::MusicHomePage {} },
+        Route::MusicAlbums => rsx! { music::library::AlbumsPage {} },
+        Route::MusicArtists => rsx! { music::library::ArtistsPage {} },
+        Route::MusicArtist { id } => rsx! { music::library::ArtistPage { key: "{id}", id } },
+        Route::MusicPlaylists => rsx! { music::library::PlaylistsPage {} },
+        Route::MusicPlaylist { id } => rsx! { music::library::PlaylistPage { key: "{id}", id } },
+        Route::MusicFavorites => rsx! { music::library::FavoritesPage {} },
+        Route::MusicSongs => rsx! { music::library::SongsPage {} },
+        Route::Search { q } => rsx! { search::SearchPage { q } },
+        Route::Settings => rsx! { settings::SettingsPage {} },
         Route::Cast => stub("common:nav.cast"),
-        Route::Stats => stub("stats:nav"),
+        Route::Stats => rsx! { stats::StatsPage {} },
         Route::NotFound { path } => rsx! { StubPage { name: path } },
     }
 }

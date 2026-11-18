@@ -22,7 +22,8 @@ pub fn app() -> Element {
     let win = dioxus_native::use_window();
     let storage = svc.storage.clone();
 
-    let language = use_signal(|| LanguageChoice::parse(storage.get(LANGUAGE_STORAGE_KEY).as_deref()));
+    let language =
+        use_signal(|| LanguageChoice::parse(storage.get(LANGUAGE_STORAGE_KEY).as_deref()));
     let i18n = use_context_provider(|| I18n {
         lang: Signal::new(language.peek().resolve()),
     });
@@ -41,8 +42,14 @@ pub fn app() -> Element {
         accounts: Signal::new(svc.list_accounts()),
         session: Signal::new(None),
     });
-    let router = use_context_provider(|| Router::new(Route::parse(&std::env::var("ORPHYN_ROUTE").unwrap_or_else(|_| "/".into()))));
-    use_context_provider(|| Overlay { menu: Signal::new(None) });
+    let router = use_context_provider(|| {
+        Router::new(Route::parse(
+            &std::env::var("ORPHYN_ROUTE").unwrap_or_else(|_| "/".into()),
+        ))
+    });
+    use_context_provider(|| Overlay {
+        menu: Signal::new(None),
+    });
     crate::features::music::use_music_provider(&svc);
 
     // The saved session, or (development) the test server of ORPHYN_E2E_* when there is none.
@@ -95,7 +102,11 @@ pub fn app() -> Element {
                 }
             }
             WindowEvent::ModifiersChanged(m) => modifiers.set(m.state()),
-            WindowEvent::PointerButton { state: ElementState::Pressed, button, .. } => {
+            WindowEvent::PointerButton {
+                state: ElementState::Pressed,
+                button,
+                ..
+            } => {
                 use dioxus_native::winit::event::MouseButton;
                 match button.clone().mouse_button() {
                     Some(MouseButton::Back) => router.back(),
@@ -103,7 +114,9 @@ pub fn app() -> Element {
                     _ => {}
                 }
             }
-            WindowEvent::KeyboardInput { event, .. } if event.state == ElementState::Pressed && modifiers.peek().alt_key() => {
+            WindowEvent::KeyboardInput { event, .. }
+                if event.state == ElementState::Pressed && modifiers.peek().alt_key() =>
+            {
                 match event.logical_key {
                     WKey::Named(NamedKey::ArrowLeft) => router.back(),
                     WKey::Named(NamedKey::ArrowRight) => router.forward(),

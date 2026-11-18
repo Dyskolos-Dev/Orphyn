@@ -131,7 +131,12 @@ impl QueryCache {
 
     /// Returns fresh data from the cache, or runs `fetcher` (once for all concurrent callers),
     /// stores its result and returns it.
-    pub async fn fetch<T, F, Fut>(&self, key: Key, stale_time: Duration, fetcher: F) -> JfResult<Arc<T>>
+    pub async fn fetch<T, F, Fut>(
+        &self,
+        key: Key,
+        stale_time: Duration,
+        fetcher: F,
+    ) -> JfResult<Arc<T>>
     where
         T: Send + Sync + 'static,
         F: FnOnce() -> Fut,
@@ -295,9 +300,15 @@ mod tests {
         let s = cache.peek::<u32>(&key("a"));
         assert_eq!(s.data.as_deref(), Some(&1));
         assert!(s.stale);
-        assert!(!cache.peek::<u32>(&vec!["jf".into(), "other".into(), "a".into()]).stale);
+        assert!(
+            !cache
+                .peek::<u32>(&vec!["jf".into(), "other".into(), "a".into()])
+                .stale
+        );
         let v = cache
-            .fetch(key("a"), Duration::from_secs(60), || async { Ok::<_, JfError>(2u32) })
+            .fetch(key("a"), Duration::from_secs(60), || async {
+                Ok::<_, JfError>(2u32)
+            })
             .await
             .unwrap();
         assert_eq!(*v, 2);
@@ -310,7 +321,9 @@ mod tests {
         cache.set(key("a"), 1u32);
         cache.invalidate(&key("a"));
         let r = cache
-            .fetch::<u32, _, _>(key("a"), Duration::ZERO, || async { Err(JfError::Http(500)) })
+            .fetch::<u32, _, _>(key("a"), Duration::ZERO, || async {
+                Err(JfError::Http(500))
+            })
             .await;
         assert_eq!(r.unwrap_err(), JfError::Http(500));
         let s = cache.peek::<u32>(&key("a"));
@@ -324,7 +337,10 @@ mod tests {
         let mut rx = cache.subscribe();
         cache.set(key("a"), vec![1u32]);
         cache.update::<Vec<u32>>(&key("a"), |v| v.push(2));
-        assert_eq!(cache.peek::<Vec<u32>>(&key("a")).data.as_deref(), Some(&vec![1, 2]));
+        assert_eq!(
+            cache.peek::<Vec<u32>>(&key("a")).data.as_deref(),
+            Some(&vec![1, 2])
+        );
         assert!(rx.has_changed().unwrap());
         rx.mark_unchanged();
         cache.remove(&["jf".to_string()]);

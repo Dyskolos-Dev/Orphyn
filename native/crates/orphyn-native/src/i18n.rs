@@ -99,7 +99,9 @@ fn bundles() -> &'static Bundles {
     B.get_or_init(|| {
         let mut map = HashMap::new();
         for (lang, ns, text) in embedded::LOCALES {
-            let Some(lang) = Lang::from_code(lang) else { continue };
+            let Some(lang) = Lang::from_code(lang) else {
+                continue;
+            };
             match serde_json::from_str(text) {
                 Ok(v) => {
                     map.entry(lang).or_insert_with(HashMap::new).insert(*ns, v);
@@ -215,7 +217,10 @@ mod tests {
     #[test]
     fn reads_the_react_locales() {
         assert_eq!(translate(Lang::En, "shell:nav.albums", None, &[]), "Albums");
-        assert_eq!(translate(Lang::Fr, "shell:nav.settings", None, &[]), "Réglages");
+        assert_eq!(
+            translate(Lang::Fr, "shell:nav.settings", None, &[]),
+            "Réglages"
+        );
         assert_eq!(translate(Lang::En, "app.name", None, &[]), "Orphyn");
     }
 
@@ -230,14 +235,25 @@ mod tests {
             "12 songs"
         );
         assert_eq!(
-            translate(Lang::En, "music:album.moreBy", None, &[("artist", "Muse".into())]),
+            translate(
+                Lang::En,
+                "music:album.moreBy",
+                None,
+                &[("artist", "Muse".into())]
+            ),
             "More by Muse"
         );
     }
 
     #[test]
     fn missing_keys_fall_back() {
-        assert_eq!(translate(Lang::Fr, "shell:does.not.exist", None, &[]), "does.not.exist");
-        assert_eq!(interpolate("{{a}} and {{b}}", &[("a", "1".into())]), "1 and {{b}}");
+        assert_eq!(
+            translate(Lang::Fr, "shell:does.not.exist", None, &[]),
+            "does.not.exist"
+        );
+        assert_eq!(
+            interpolate("{{a}} and {{b}}", &[("a", "1".into())]),
+            "1 and {{b}}"
+        );
     }
 }

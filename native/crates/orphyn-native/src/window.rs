@@ -96,9 +96,11 @@ pub fn attributes() -> WindowAttributes {
 #[cfg(windows)]
 fn platform_attributes(attrs: WindowAttributes) -> WindowAttributes {
     use dioxus_native::winit::platform::windows::WindowAttributesWindows;
-    attrs.with_decorations(false).with_platform_attributes(Box::new(
-        WindowAttributesWindows::default().with_undecorated_shadow(true),
-    ))
+    attrs
+        .with_decorations(false)
+        .with_platform_attributes(Box::new(
+            WindowAttributesWindows::default().with_undecorated_shadow(true),
+        ))
 }
 
 #[cfg(target_os = "macos")]
@@ -161,7 +163,11 @@ pub fn CaptionButtons(fullscreen: bool, focused: bool, maximized: bool, dark: bo
     }
     let (w1, w2, w3) = (window.clone(), window.clone(), window.clone());
     let fg = if dark { "#ffffff" } else { "#000000" };
-    let (max_title, max_glyph) = if maximized { ("Restore", "\u{E923}") } else { ("Maximize", "\u{E922}") };
+    let (max_title, max_glyph) = if maximized {
+        ("Restore", "\u{E923}")
+    } else {
+        ("Maximize", "\u{E922}")
+    };
     rsx! {
         div {
             id: "orphyn-caption-buttons",

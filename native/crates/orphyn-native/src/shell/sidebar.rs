@@ -16,14 +16,62 @@ pub struct SidebarEntry {
 /// `BUILTIN_SIDEBAR_ITEMS` of `ShellSidebar.tsx` (same order). Features add theirs (stats...) in
 /// their own port, after these.
 pub const BUILTIN_SIDEBAR_ITEMS: &[SidebarEntry] = &[
-    SidebarEntry { id: "watch.home", section: "watch", label_key: "shell:nav.home", icon: "circle-play", to: "/video" },
-    SidebarEntry { id: "watch.movies", section: "watch", label_key: "shell:nav.movies", icon: "clapperboard", to: "/video/library/movies" },
-    SidebarEntry { id: "watch.series", section: "watch", label_key: "shell:nav.series", icon: "tv", to: "/video/library/series" },
-    SidebarEntry { id: "music.home", section: "music", label_key: "shell:nav.home", icon: "house", to: "/music" },
-    SidebarEntry { id: "music.albums", section: "music", label_key: "shell:nav.albums", icon: "disc-3", to: "/music/albums" },
-    SidebarEntry { id: "music.artists", section: "music", label_key: "shell:nav.artists", icon: "mic-vocal", to: "/music/artists" },
-    SidebarEntry { id: "music.playlists", section: "music", label_key: "shell:nav.playlists", icon: "list-music", to: "/music/playlists" },
-    SidebarEntry { id: "music.songs", section: "music", label_key: "shell:nav.songs", icon: "music", to: "/music/songs" },
+    SidebarEntry {
+        id: "watch.home",
+        section: "watch",
+        label_key: "shell:nav.home",
+        icon: "circle-play",
+        to: "/video",
+    },
+    SidebarEntry {
+        id: "watch.movies",
+        section: "watch",
+        label_key: "shell:nav.movies",
+        icon: "clapperboard",
+        to: "/video/library/movies",
+    },
+    SidebarEntry {
+        id: "watch.series",
+        section: "watch",
+        label_key: "shell:nav.series",
+        icon: "tv",
+        to: "/video/library/series",
+    },
+    SidebarEntry {
+        id: "music.home",
+        section: "music",
+        label_key: "shell:nav.home",
+        icon: "house",
+        to: "/music",
+    },
+    SidebarEntry {
+        id: "music.albums",
+        section: "music",
+        label_key: "shell:nav.albums",
+        icon: "disc-3",
+        to: "/music/albums",
+    },
+    SidebarEntry {
+        id: "music.artists",
+        section: "music",
+        label_key: "shell:nav.artists",
+        icon: "mic-vocal",
+        to: "/music/artists",
+    },
+    SidebarEntry {
+        id: "music.playlists",
+        section: "music",
+        label_key: "shell:nav.playlists",
+        icon: "list-music",
+        to: "/music/playlists",
+    },
+    SidebarEntry {
+        id: "music.songs",
+        section: "music",
+        label_key: "shell:nav.songs",
+        icon: "music",
+        to: "/music/songs",
+    },
 ];
 
 #[component]
@@ -96,7 +144,11 @@ pub fn ShellSidebar() -> Element {
             .map(|i| (i.id, i.icon, t.t(i.label_key), i.to.to_string()))
             .collect::<Vec<_>>()
     };
-    let refresh_title = format!("{} ({})", t.t("shell:refresh.label"), crate::platform_shortcut("R"));
+    let refresh_title = format!(
+        "{} ({})",
+        t.t("shell:refresh.label"),
+        crate::platform_shortcut("R")
+    );
     rsx! {
         nav { class: "jr-sidebar", "aria-label": t.t("shell:nav.label"),
             div {

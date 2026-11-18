@@ -195,7 +195,10 @@ mod tests {
         assert_eq!(p.audio_quality, AudioQuality::Bitrate(320_000.0));
         assert_eq!(p.crossfade_seconds, 12);
         assert!(p.group_artists);
-        assert_eq!(PlaybackPreferences::sanitize(&Value::Null), PlaybackPreferences::default());
+        assert_eq!(
+            PlaybackPreferences::sanitize(&Value::Null),
+            PlaybackPreferences::default()
+        );
     }
 
     #[test]
@@ -206,7 +209,10 @@ mod tests {
         assert_eq!(v["audioQuality"], "original");
         assert_eq!(v["autoPlayNext"], true);
         assert_eq!(v["maxVideoBitrate"], Value::Null);
-        assert_eq!(PlaybackPreferences::load(&s), PlaybackPreferences::default());
+        assert_eq!(
+            PlaybackPreferences::load(&s),
+            PlaybackPreferences::default()
+        );
     }
 
     #[test]

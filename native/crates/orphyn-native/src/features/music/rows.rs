@@ -52,7 +52,10 @@ pub fn SongRows(
     let current_id = s.current().map(|q| q.track.id.clone());
     let playing = s.is_playing();
     let multi_disc = group_by_disc && {
-        let mut discs: Vec<i32> = tracks.iter().map(|x| x.parent_index_number.unwrap_or(1)).collect();
+        let mut discs: Vec<i32> = tracks
+            .iter()
+            .map(|x| x.parent_index_number.unwrap_or(1))
+            .collect();
         discs.dedup();
         discs.len() > 1
     };
@@ -129,19 +132,31 @@ fn track_menu(
     let (a, b) = (player.clone(), player.clone());
     let (t1, t2) = (track.clone(), track.clone());
     let mut items = vec![
-        MenuItem::action(t.t("music:actions.playNext"), Some("list-start"), move |_| a.play_next(std::slice::from_ref(&t1))),
-        MenuItem::action(t.t("music:actions.addToQueue"), Some("list-end"), move |_| b.add_to_queue(std::slice::from_ref(&t2))),
+        MenuItem::action(
+            t.t("music:actions.playNext"),
+            Some("list-start"),
+            move |_| a.play_next(std::slice::from_ref(&t1)),
+        ),
+        MenuItem::action(
+            t.t("music:actions.addToQueue"),
+            Some("list-end"),
+            move |_| b.add_to_queue(std::slice::from_ref(&t2)),
+        ),
         MenuItem::Separator,
     ];
     if let Some(album) = track.album_id.clone() {
-        items.push(MenuItem::action(t.t("music:actions.goToAlbum"), Some("disc-3"), move |_| {
-            router.push(&format!("/music/album/{album}"))
-        }));
+        items.push(MenuItem::action(
+            t.t("music:actions.goToAlbum"),
+            Some("disc-3"),
+            move |_| router.push(&format!("/music/album/{album}")),
+        ));
     }
     if let Some(artist) = track_artist_id(&track) {
-        items.push(MenuItem::action(t.t("music:actions.goToArtist"), Some("mic-vocal"), move |_| {
-            router.push(&format!("/music/artist/{artist}"))
-        }));
+        items.push(MenuItem::action(
+            t.t("music:actions.goToArtist"),
+            Some("mic-vocal"),
+            move |_| router.push(&format!("/music/artist/{artist}")),
+        ));
     }
     items
 }

@@ -63,8 +63,16 @@ pub fn AppShell() -> Element {
     }));
 
     let backdrop = app.interface.read().appearance().backdrop != "off";
-    let ambient = if backdrop { (shell.ambient_art)() } else { None };
-    let shell_cls = if immersive { "jr-shell jr-shell--immersive" } else { "jr-shell" };
+    let ambient = if backdrop {
+        (shell.ambient_art)()
+    } else {
+        None
+    };
+    let shell_cls = if immersive {
+        "jr-shell jr-shell--immersive"
+    } else {
+        "jr-shell"
+    };
     let mut scroll_y = router.scroll_y;
 
     rsx! {

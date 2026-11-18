@@ -100,7 +100,11 @@ pub fn ShellPage(
         PageHeader::Hero => "hero",
         PageHeader::Inline => "inline",
     };
-    let gutter_cls = if gutter { " jr-page__content--gutter" } else { "" };
+    let gutter_cls = if gutter {
+        " jr-page__content--gutter"
+    } else {
+        ""
+    };
     let is_collapsed = collapsed();
     let _ = &mut hero;
     let leading = if can_go_back {
@@ -115,7 +119,11 @@ pub fn ShellPage(
     } else {
         rsx! {}
     };
-    let appearance = if is_collapsed { "material" } else { "transparent" };
+    let appearance = if is_collapsed {
+        "material"
+    } else {
+        "transparent"
+    };
     rsx! {
         div { class: "jr-page jr-page--{header_cls} {class}",
             div {

@@ -85,7 +85,13 @@ pub fn AlbumPage(id: String) -> Element {
     let other: Vec<BaseItemDto> = more
         .data
         .as_ref()
-        .map(|p| p.items.iter().filter(|a| a.id != item.id).cloned().collect())
+        .map(|p| {
+            p.items
+                .iter()
+                .filter(|a| a.id != item.id)
+                .cloned()
+                .collect()
+        })
         .unwrap_or_default();
     let base = use_base_url();
     let artist_name = item.album_artist.clone();
@@ -166,7 +172,12 @@ fn AlbumCard(album: BaseItemDto, image: Option<String>) -> Element {
 
 /// Album header: big artwork with a soft shadow, title, buttons (`DetailHeader.tsx`).
 #[component]
-fn DetailHeader(item: BaseItemDto, songs: Vec<BaseItemDto>, meta: String, artist_id: Option<String>) -> Element {
+fn DetailHeader(
+    item: BaseItemDto,
+    songs: Vec<BaseItemDto>,
+    meta: String,
+    artist_id: Option<String>,
+) -> Element {
     let t = use_i18n();
     let svc = use_services();
     let app = use_app();
@@ -182,7 +193,12 @@ fn DetailHeader(item: BaseItemDto, songs: Vec<BaseItemDto>, meta: String, artist
     use_effect(move || shell.ambient_art.set(ambient.clone()));
 
     let (play_list, shuffle_list, menu_list) = (songs.clone(), songs.clone(), songs);
-    let (p1, p2, p3, p4) = (svc.music.clone(), svc.music.clone(), svc.music.clone(), svc.music.clone());
+    let (p1, p2, p3, p4) = (
+        svc.music.clone(),
+        svc.music.clone(),
+        svc.music.clone(),
+        svc.music.clone(),
+    );
     let fav_item = item.clone();
     rsx! {
         header { class: "jrm-detail",

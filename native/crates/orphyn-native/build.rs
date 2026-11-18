@@ -65,10 +65,18 @@ fn main() {
 fn append_css(path: &Path, out: &mut String, depth: usize) {
     assert!(depth < 16, "@import loop at {}", path.display());
     println!("cargo:rerun-if-changed={}", path.display());
-    let text = fs::read_to_string(path)
-        .unwrap_or_else(|e| panic!("{}: {e} (listed in native/styles/manifest.txt)", path.display()));
+    let text = fs::read_to_string(path).unwrap_or_else(|e| {
+        panic!(
+            "{}: {e} (listed in native/styles/manifest.txt)",
+            path.display()
+        )
+    });
     let rel = path.to_string_lossy().replace('\\', "/");
-    let rel = rel.split("src/renderer/src/").last().unwrap_or(&rel).to_string();
+    let rel = rel
+        .split("src/renderer/src/")
+        .last()
+        .unwrap_or(&rel)
+        .to_string();
     writeln!(out, "/* ==== {rel} ==== */").unwrap();
     for line in text.lines() {
         let t = line.trim();
@@ -101,14 +109,20 @@ fn rewrite_root_selectors(css: &str) -> String {
     let in_selector = |stack: &Vec<bool>| stack.iter().all(|b| *b);
     while i < bytes.len() {
         if bytes[i..].starts_with(b"/*") {
-            let end = css[i + 2..].find("*/").map(|e| i + 2 + e + 2).unwrap_or(bytes.len());
+            let end = css[i + 2..]
+                .find("*/")
+                .map(|e| i + 2 + e + 2)
+                .unwrap_or(bytes.len());
             out.push_str(&css[i..end]);
             i = end;
             continue;
         }
         let c = bytes[i] as char;
         if c == '"' || c == '\'' {
-            let end = css[i + 1..].find(c).map(|e| i + 1 + e + 1).unwrap_or(bytes.len());
+            let end = css[i + 1..]
+                .find(c)
+                .map(|e| i + 1 + e + 1)
+                .unwrap_or(bytes.len());
             out.push_str(&css[i..end]);
             i = end;
             continue;
@@ -139,15 +153,21 @@ fn rewrite_root_selectors(css: &str) -> String {
         }
         if in_selector(&stack) {
             let prev = if i == 0 { ' ' } else { bytes[i - 1] as char };
-            let boundary_before = prev.is_whitespace() || matches!(prev, ',' | '{' | '}' | '(' | '>' | '~' | '+' | ';');
-            let replaced = [("html", ".jr-root"), ("body", ".jr-body"), ("#root", ".jr-app")]
-                .iter()
-                .find_map(|(from, to)| {
-                    let next = bytes.get(i + from.len()).map(|b| *b as char).unwrap_or(' ');
-                    let boundary_after = next.is_whitespace() || matches!(next, '[' | ':' | ',' | '{' | '.' | ')' | '>');
-                    (boundary_before && bytes[i..].starts_with(from.as_bytes()) && boundary_after)
-                        .then_some((from.len(), *to))
-                });
+            let boundary_before = prev.is_whitespace()
+                || matches!(prev, ',' | '{' | '}' | '(' | '>' | '~' | '+' | ';');
+            let replaced = [
+                ("html", ".jr-root"),
+                ("body", ".jr-body"),
+                ("#root", ".jr-app"),
+            ]
+            .iter()
+            .find_map(|(from, to)| {
+                let next = bytes.get(i + from.len()).map(|b| *b as char).unwrap_or(' ');
+                let boundary_after =
+                    next.is_whitespace() || matches!(next, '[' | ':' | ',' | '{' | '.' | ')' | '>');
+                (boundary_before && bytes[i..].starts_with(from.as_bytes()) && boundary_after)
+                    .then_some((from.len(), *to))
+            });
             if let Some((len, to)) = replaced {
                 out.push_str(to);
                 i += len;

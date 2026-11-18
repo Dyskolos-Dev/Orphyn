@@ -116,5 +116,8 @@ pub struct Progress {
 pub enum Transition {
     #[default]
     Gapless,
-    Crossfade { seconds: f32, skip_same_album: bool },
+    Crossfade {
+        seconds: f32,
+        skip_same_album: bool,
+    },
 }

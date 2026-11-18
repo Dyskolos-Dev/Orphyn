@@ -22,7 +22,11 @@ pub enum MenuItem {
 }
 
 impl MenuItem {
-    pub fn action(label: impl Into<String>, icon: Option<&'static str>, on_select: impl FnMut(()) + 'static) -> Self {
+    pub fn action(
+        label: impl Into<String>,
+        icon: Option<&'static str>,
+        on_select: impl FnMut(()) + 'static,
+    ) -> Self {
         MenuItem::Action {
             label: label.into(),
             icon,
@@ -72,10 +76,15 @@ pub fn OverlayHost() -> Element {
         .items
         .iter()
         .any(|i| matches!(i, MenuItem::Action { icon: Some(_), .. }));
-    let has_check = open
-        .items
-        .iter()
-        .any(|i| matches!(i, MenuItem::Action { checked: Some(_), .. }));
+    let has_check = open.items.iter().any(|i| {
+        matches!(
+            i,
+            MenuItem::Action {
+                checked: Some(_),
+                ..
+            }
+        )
+    });
     rsx! {
         // Click-catcher: a click anywhere else closes the menu (the capture listener of Popover).
         div {

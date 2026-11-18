@@ -64,8 +64,14 @@ impl Widget for VideoWidget {
             return scene;
         };
         // Ask mpv for frames at the box's pixel size: the texture then maps 1:1.
-        self.mpv.target.0.store(width, std::sync::atomic::Ordering::Relaxed);
-        self.mpv.target.1.store(height, std::sync::atomic::Ordering::Relaxed);
+        self.mpv
+            .target
+            .0
+            .store(width, std::sync::atomic::Ordering::Relaxed);
+        self.mpv
+            .target
+            .1
+            .store(height, std::sync::atomic::Ordering::Relaxed);
         {
             let mut f = self.mpv.frame.lock().unwrap_or_else(|p| p.into_inner());
             if f.fresh && f.w > 0 {

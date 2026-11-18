@@ -92,7 +92,11 @@ pub fn IconButton(
     #[props(default)] style: String,
     onclick: Option<EventHandler<MouseEvent>>,
 ) -> Element {
-    let pressed_cls = if pressed == Some(true) { " jr-icon-button--pressed" } else { "" };
+    let pressed_cls = if pressed == Some(true) {
+        " jr-icon-button--pressed"
+    } else {
+        ""
+    };
     let px = match size {
         "small" => 16,
         "large" => 28,
@@ -148,7 +152,11 @@ pub fn Slider(
         }
         min + ((client_x - left) / width).clamp(0.0, 1.0) * span
     };
-    let dragging_cls = if dragging() { " jr-slider--dragging" } else { "" };
+    let dragging_cls = if dragging() {
+        " jr-slider--dragging"
+    } else {
+        ""
+    };
     let disabled_cls = if disabled { " jr-slider--disabled" } else { "" };
     let media_cls = if on_media { " jr-slider--on-media" } else { "" };
     rsx! {
@@ -272,7 +280,11 @@ pub fn Artwork(
         last_src.set(src.clone());
         failed.set(false);
     }
-    let status = if src.is_none() || failed() { "error" } else { "loaded" };
+    let status = if src.is_none() || failed() {
+        "error"
+    } else {
+        "loaded"
+    };
     let shadow_cls = if shadow { " jr-artwork--shadow" } else { "" };
     rsx! {
         div {
@@ -343,7 +355,11 @@ pub fn Toolbar(
     leading: Option<Element>,
     trailing: Option<Element>,
 ) -> Element {
-    let visible = if show_title && !title.is_empty() { " jr-toolbar__title--visible" } else { "" };
+    let visible = if show_title && !title.is_empty() {
+        " jr-toolbar__title--visible"
+    } else {
+        ""
+    };
     rsx! {
         div { class: "jr-toolbar jr-toolbar--{appearance} jr-drag",
             div { class: "jr-toolbar__leading", {leading} }
@@ -459,10 +475,33 @@ mod tests {
     #[test]
     fn icons_used_by_the_native_app_exist() {
         for name in [
-            "play", "pause", "shuffle", "repeat", "repeat-1", "skip-back", "skip-forward", "heart",
-            "ellipsis", "chevron-left", "chevron-down", "music", "disc-3", "house", "list-music",
-            "mic-vocal", "clapperboard", "tv", "circle-play", "settings", "search", "rotate-cw",
-            "volume-1", "volume-2", "volume-x", "message-square-quote", "construction",
+            "play",
+            "pause",
+            "shuffle",
+            "repeat",
+            "repeat-1",
+            "skip-back",
+            "skip-forward",
+            "heart",
+            "ellipsis",
+            "chevron-left",
+            "chevron-down",
+            "music",
+            "disc-3",
+            "house",
+            "list-music",
+            "mic-vocal",
+            "clapperboard",
+            "tv",
+            "circle-play",
+            "settings",
+            "search",
+            "rotate-cw",
+            "volume-1",
+            "volume-2",
+            "volume-x",
+            "message-square-quote",
+            "construction",
         ] {
             assert!(!icons::icon_markup(name).is_empty(), "{name}");
         }

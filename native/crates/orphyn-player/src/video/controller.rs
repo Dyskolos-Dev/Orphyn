@@ -166,7 +166,8 @@ impl VideoController {
     pub fn seek(&self, seconds: f64) {
         let s = format!("{}", seconds.max(0.0));
         self.with(|m| m.command(&["seek", &s, "absolute"]));
-        self.tx.send_modify(|snap| snap.position_seconds = seconds.max(0.0));
+        self.tx
+            .send_modify(|snap| snap.position_seconds = seconds.max(0.0));
     }
 
     pub fn set_volume(&self, volume: f64) {
@@ -216,11 +217,20 @@ mod tests {
     fn mpv_state_maps_to_the_contract_status() {
         let mut s = MpvState::default();
         assert_eq!(status_of(&s, PlaybackStatus::Idle), PlaybackStatus::Idle);
-        assert_eq!(status_of(&s, PlaybackStatus::Loading), PlaybackStatus::Loading);
+        assert_eq!(
+            status_of(&s, PlaybackStatus::Loading),
+            PlaybackStatus::Loading
+        );
         s.loaded = true;
-        assert_eq!(status_of(&s, PlaybackStatus::Loading), PlaybackStatus::Playing);
+        assert_eq!(
+            status_of(&s, PlaybackStatus::Loading),
+            PlaybackStatus::Playing
+        );
         s.paused = true;
-        assert_eq!(status_of(&s, PlaybackStatus::Playing), PlaybackStatus::Paused);
+        assert_eq!(
+            status_of(&s, PlaybackStatus::Playing),
+            PlaybackStatus::Paused
+        );
         s.ended = true;
         assert_eq!(status_of(&s, PlaybackStatus::Paused), PlaybackStatus::Ended);
     }

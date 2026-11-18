@@ -15,7 +15,11 @@ pub fn parse_hex(hex: &str) -> Option<Rgb> {
         return None;
     }
     let n = u32::from_str_radix(h, 16).ok()?;
-    Some([((n >> 16) & 255) as f64, ((n >> 8) & 255) as f64, (n & 255) as f64])
+    Some([
+        ((n >> 16) & 255) as f64,
+        ((n >> 8) & 255) as f64,
+        (n & 255) as f64,
+    ])
 }
 
 pub fn to_hex(c: Rgb) -> String {
@@ -69,7 +73,11 @@ fn hsl_to_rgb(h: f64, s: f64, l: f64) -> Rgb {
     if s == 0.0 {
         return [l * 255.0; 3];
     }
-    let q = if l < 0.5 { l * (1.0 + s) } else { l + s - l * s };
+    let q = if l < 0.5 {
+        l * (1.0 + s)
+    } else {
+        l + s - l * s
+    };
     let p = 2.0 * l - q;
     let hue = |t: f64| {
         let mut x = t;
@@ -345,7 +353,11 @@ pub fn style_defaults(style: &str) -> Appearance {
     }
 }
 
-fn pick(o: &serde_json::Map<String, Value>, key: &str, choices: &[&'static str]) -> Option<&'static str> {
+fn pick(
+    o: &serde_json::Map<String, Value>,
+    key: &str,
+    choices: &[&'static str],
+) -> Option<&'static str> {
     let v = o.get(key)?.as_str()?;
     choices.iter().copied().find(|c| *c == v)
 }
@@ -530,13 +542,19 @@ mod tests {
         s.set(keys::MODE, "dark");
         s.set(keys::ACCENT, "#12ab34");
         s.set(keys::STYLE, "cinema");
-        s.set(keys::APPEARANCE, r#"{"corners":"round","density":"nope","transparency":140}"#);
+        s.set(
+            keys::APPEARANCE,
+            r#"{"corners":"round","density":"nope","transparency":140}"#,
+        );
         let theme = ThemeState::load(&s);
         assert_eq!(theme.mode, ThemeMode::Dark);
         assert_eq!(theme.accent, "#12ab34");
         let iface = InterfaceState::load(&s);
         let a = iface.appearance();
-        assert_eq!((a.corners, a.density, a.transparency), ("round", "standard", 100));
+        assert_eq!(
+            (a.corners, a.density, a.transparency),
+            ("round", "standard", 100)
+        );
         assert_eq!((a.sidebar, a.backdrop), ("icons", "immersive"));
         let tokens = root_tokens(
             &theme,

@@ -83,7 +83,11 @@ pub fn build_query(params: &[(&str, Option<Q>)]) -> String {
             Some(Q::List(l)) if l.is_empty() => continue,
             Some(Q::List(l)) => l.join(","),
         };
-        parts.push(format!("{}={}", encode_component(key), encode_component(&v)));
+        parts.push(format!(
+            "{}={}",
+            encode_component(key),
+            encode_component(&v)
+        ));
     }
     parts.join("&")
 }
@@ -252,7 +256,10 @@ mod tests {
         let q = build_query(&[
             ("userId", Some("u 1".into())),
             ("limit", None),
-            ("fields", Some(Q::List(vec!["Genres".into(), "Overview".into()]))),
+            (
+                "fields",
+                Some(Q::List(vec!["Genres".into(), "Overview".into()])),
+            ),
             ("ids", Some(Q::List(vec![]))),
             ("recursive", Some(true.into())),
         ]);

@@ -104,19 +104,19 @@ pub fn use_spring(target: f64, spring: Spring) -> ReadSignal<f64> {
     use_future(move || {
         let wake = wake.clone();
         async move {
-        let mut v = 0.0;
-        loop {
-            let t = *goal.peek();
-            let mut x = *value.peek();
-            if x == t && v == 0.0 {
-                // At rest: sleep until the target changes.
-                wake.notified().await;
-                continue;
+            let mut v = 0.0;
+            loop {
+                let t = *goal.peek();
+                let mut x = *value.peek();
+                if x == t && v == 0.0 {
+                    // At rest: sleep until the target changes.
+                    wake.notified().await;
+                    continue;
+                }
+                spring_step(&mut x, &mut v, t, spring, STEP);
+                value.set(x);
+                tokio::time::sleep(Duration::from_secs_f64(STEP)).await;
             }
-            spring_step(&mut x, &mut v, t, spring, STEP);
-            value.set(x);
-            tokio::time::sleep(Duration::from_secs_f64(STEP)).await;
-        }
         }
     });
     value.into()
@@ -136,27 +136,27 @@ pub fn use_tween(target: f64, seconds: f64, easing: [f64; 4]) -> ReadSignal<f64>
     use_future(move || {
         let wake = wake.clone();
         async move {
-        let mut done = 0u64;
-        loop {
-            let (from, to, n) = *goal.peek();
-            if n == done {
-                wake.notified().await;
-                continue;
-            }
-            let start = std::time::Instant::now();
+            let mut done = 0u64;
             loop {
-                if goal.peek().2 != n {
-                    break;
+                let (from, to, n) = *goal.peek();
+                if n == done {
+                    wake.notified().await;
+                    continue;
                 }
-                let t = start.elapsed().as_secs_f64() / seconds.max(0.001);
-                value.set(from + (to - from) * cubic_bezier(easing, t));
-                if t >= 1.0 {
-                    done = n;
-                    break;
+                let start = std::time::Instant::now();
+                loop {
+                    if goal.peek().2 != n {
+                        break;
+                    }
+                    let t = start.elapsed().as_secs_f64() / seconds.max(0.001);
+                    value.set(from + (to - from) * cubic_bezier(easing, t));
+                    if t >= 1.0 {
+                        done = n;
+                        break;
+                    }
+                    tokio::time::sleep(Duration::from_secs_f64(STEP)).await;
                 }
-                tokio::time::sleep(Duration::from_secs_f64(STEP)).await;
             }
-        }
         }
     });
     value.into()

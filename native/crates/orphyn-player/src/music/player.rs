@@ -10,7 +10,9 @@ use tokio::sync::watch;
 
 use super::output::{self, Event, Msg};
 use super::queue::{self, Advance, PreviousAction};
-use super::types::{PlayerState, PlayerStatus, Progress, QueueModel, RepeatMode, Track, Transition};
+use super::types::{
+    PlayerState, PlayerStatus, Progress, QueueModel, RepeatMode, Track, Transition,
+};
 
 /// Turns a track into the URL to play (direct stream or transcode), given by the app.
 pub type Resolver = Arc<dyn Fn(&Track) -> Option<String> + Send + Sync>;
@@ -74,7 +76,11 @@ impl MusicPlayer {
 
     /// Sets how tracks become URLs (called by the app when the active server changes).
     pub fn set_resolver(&self, resolver: Resolver) {
-        *self.inner.resolver.write().unwrap_or_else(|p| p.into_inner()) = Some(resolver);
+        *self
+            .inner
+            .resolver
+            .write()
+            .unwrap_or_else(|p| p.into_inner()) = Some(resolver);
     }
 
     /// Crossfade hook: stored for the music port (the engine plays gapless for now).
@@ -359,7 +365,6 @@ impl MusicPlayer {
         self.inner.state.lock().unwrap_or_else(|p| p.into_inner())
     }
 
-
     fn publish(&self, c: &Core) {
         self.inner.state_tx.send_replace(Arc::new(c.s.clone()));
         self.inner.progress_tx.send_replace(c.progress);
@@ -389,7 +394,11 @@ impl MusicPlayer {
     }
 
     fn resolve(&self, track: &Track) -> Option<String> {
-        let r = self.inner.resolver.read().unwrap_or_else(|p| p.into_inner());
+        let r = self
+            .inner
+            .resolver
+            .read()
+            .unwrap_or_else(|p| p.into_inner());
         r.as_ref().and_then(|f| f(track))
     }
 
@@ -465,7 +474,10 @@ impl MusicPlayer {
                     Some(i) if matches => {
                         c.load_gen = gen;
                         c.s.model.index = i as isize;
-                        let meta = c.s.current().map(|q| q.track.duration_seconds()).unwrap_or(0.0);
+                        let meta =
+                            c.s.current()
+                                .map(|q| q.track.duration_seconds())
+                                .unwrap_or(0.0);
                         c.progress = Progress {
                             position: 0.0,
                             duration: duration.filter(|d| *d > 0.0).unwrap_or(meta),
