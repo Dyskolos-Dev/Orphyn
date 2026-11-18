@@ -1,0 +1,32 @@
+# The stylesheets of the React app (paths relative to src/renderer/src), in the order the Vite
+# bundle applies them: global styles first (styles/index.ts), then the design system, the shell
+# and the features. build.rs concatenates them (following any @import) into one sheet; nothing is
+# copied, so the two apps cannot drift. Blitz-only fixes go in native/styles/overrides.css.
+# pip.css is left out: it styles the separate PiP window.
+styles/tokens.css
+styles/base.css
+styles/typography.css
+styles/materials.css
+styles/interface-styles.css
+design/controls/controls.css
+design/feedback/feedback.css
+design/lists/lists.css
+design/media/media.css
+design/navigation/navigation.css
+design/overlays/overlays.css
+shell/shell.css
+features/cast/cast.css
+features/music/music.css
+features/music/components/now-playing-layer.css
+features/music/lyrics/lyrics.css
+features/mixes/mixes.css
+features/palette/palette.css
+features/search/search.css
+features/servers/connect.css
+features/settings/settings.css
+features/settings/StyleGallery.css
+features/stats/stats.css
+features/syncplay/syncplay.css
+features/video/video.css
+features/home/home.css
+features/whatsnew/whatsnew.css

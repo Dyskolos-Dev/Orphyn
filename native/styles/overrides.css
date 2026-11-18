@@ -1,0 +1,66 @@
+/*
+ * Blitz-only fixes, applied after the React app's stylesheets (native/styles/manifest.txt).
+ * Rule: only what Blitz renders differently from Chromium/WebKit, each with the reason. Never a
+ * restyle: a visual change belongs in src/renderer/src so both apps get it.
+ */
+
+/* The document Dioxus renders into: the React `html, body, #root` rules now target `.jr-root`,
+   `.jr-body`, `.jr-app` (build.rs), so the real elements only need to fill the window. */
+html,
+body,
+body > #main {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+}
+/* Dioxus Native mounts the app in a `<main id="main">` under <body>. */
+body > #main {
+  display: block;
+}
+.jr-root,
+.jr-body,
+.jr-app {
+  height: 100%;
+}
+
+/* Icons are inline SVG inside a host span (Dioxus needs an element for raw markup). */
+.jr-icon-host {
+  display: inline-flex;
+  flex: none;
+}
+
+/* Windows caption buttons: the bridge's injected stylesheet (bridge/captionButtons.ts). */
+#orphyn-caption-buttons {
+  position: fixed;
+  top: 0;
+  right: 0;
+  z-index: 2147483000;
+  display: flex;
+  height: 52px;
+  align-items: flex-start;
+  color: var(--caption-fg);
+}
+#orphyn-caption-buttons button {
+  box-sizing: border-box;
+  width: 46px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  font: 10px 'Segoe Fluent Icons', 'Segoe MDL2 Assets', sans-serif;
+  color: inherit;
+}
+#orphyn-caption-buttons[data-focused='false'] button {
+  opacity: 0.45;
+}
+#orphyn-caption-buttons button:hover {
+  background: color-mix(in srgb, currentColor 9%, transparent);
+  opacity: 1;
+}
+#orphyn-caption-buttons button[data-action='close']:hover {
+  background: #c42b1c;
+  color: #fff;
+}
