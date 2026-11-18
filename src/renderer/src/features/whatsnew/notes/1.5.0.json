@@ -1,0 +1,52 @@
+{
+  "fr": {
+    "title": "Vos artistes, en grand",
+    "items": [
+      {
+        "icon": "music",
+        "title": "Pages d'artiste enrichies",
+        "text": "Titres populaires, discographie par année (albums, EP et singles, compilations, apparitions), biographie et artistes similaires."
+      },
+      {
+        "icon": "sparkles",
+        "title": "Images d'artistes",
+        "text": "Les artistes sans image sur votre serveur reçoivent leur photo depuis une base en ligne. Désactivable dans Réglages › Musique."
+      },
+      {
+        "icon": "notes",
+        "title": "Top titres de l'année",
+        "text": "Vos 50 titres les plus écoutés de l'année, à lancer depuis « Ton année » ou les mix, et à enregistrer en playlist."
+      },
+      {
+        "icon": "film",
+        "title": "Ton année, en mieux",
+        "text": "Les séries affichent leur affiche, et chaque artiste, album, film ou série ouvre sa page d'un clic."
+      }
+    ]
+  },
+  "en": {
+    "title": "Your artists, front and centre",
+    "items": [
+      {
+        "icon": "music",
+        "title": "Richer artist pages",
+        "text": "Popular songs, discography by year (albums, EPs and singles, compilations, appears on), biography and similar artists."
+      },
+      {
+        "icon": "sparkles",
+        "title": "Artist images",
+        "text": "Artists without an image on your server get their photo from an online database. Can be turned off in Settings › Music."
+      },
+      {
+        "icon": "notes",
+        "title": "Top songs of the year",
+        "text": "Your 50 most played songs of the year, playable from Your year or the mixes, and savable as a playlist."
+      },
+      {
+        "icon": "film",
+        "title": "Your year, improved",
+        "text": "Series show their poster, and every artist, album, film or series opens its page in one click."
+      }
+    ]
+  }
+}

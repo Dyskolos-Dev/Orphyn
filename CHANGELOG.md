@@ -6,6 +6,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [1.5.0] - 2026-11-18
+
+### Added
+
+- Rich artist page: popular songs, discography by year and release type, biography and similar artists.
+- Online artist images (Deezer, TheAudioDB) for artists without a server image, with one switch in Settings > Music for all online artist info.
+- Top songs of the year: playable from Your year and the mixes, savable as a Jellyfin playlist.
+
+### Changed
+
+- Your year: series show their poster, every entry opens its page, the top artist block is better spaced.
+
 ## [1.4.1] - 2026-11-18
 
 ### Fixed
