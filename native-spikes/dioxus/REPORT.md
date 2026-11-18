@@ -42,12 +42,12 @@ Windows (AMD Radeon iGPU, Vulkan, 1080p HEVC, window 1280x720 logical = 2560x144
 | Measure | Result |
 |---|---|
 | Playback | steady **24 fps renders = 24 uploads/s** (source rate), hwdec `d3d11va-copy` |
-| Dropped frames | 1 (vo) / 0 (decoder) in 60 s, 5 after a seek |
-| CPU | **about 3 cores busy** (3.0 to 3.3 cores of the process; 0.3 cores when paused) |
-| GPU | about 47 % 3D engine (video engine 11 %) for the process |
+| Dropped frames | 1 (vo) / 0 (decoder) over the 60 s run, including one seek |
+| CPU | **about 3 cores busy** (3.0 to 3.3 cores for the process, sampled over 30 s; includes mpv hardware-copy decode, BGRA conversion and Blitz repaint) |
+| GPU | roughly 45 % of the 3D engine and 10 % of the video engine (one Get-Counter sample, approximate) |
 | Memory | about 700 MB working set |
 | Seek latency | **about 250 ms** to the new position (click on the bar, 60 % target) |
-| Resize / maximize | works: the texture is recreated for each size (checked 800x500, 1500x900, 640x400, maximized); no glitches seen |
+| Resize / maximize | works: the texture is recreated for each size (800x500, 1500x900, 640x400, maximized) and fps stays at 24; frames were not inspected visually while resizing |
 | Near-4K output | 3300x1860 px output: renders 23-25/s but uploads only 19-20/s (Blitz repaint cannot keep up), so visible drops; **3.3 cores** |
 | 4K source | **not measured**: the Jellyfin test library has no 4K title and this libmpv build has no `lavfi` source |
 
