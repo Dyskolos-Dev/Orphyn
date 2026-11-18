@@ -1,5 +1,6 @@
 //! Feature screens, routed like `app/routes.tsx`. A screen not ported yet renders the `StubPage`
 //! of the React app (its nav label as the name); porting one = replacing its arm below.
+pub mod cast;
 pub mod discord;
 pub mod music;
 pub mod search;
@@ -13,14 +14,12 @@ pub mod video;
 
 use dioxus::prelude::*;
 
-use crate::i18n::use_i18n;
 use crate::router::{use_router, Route};
 use crate::shell::StubPage;
 use crate::state::use_app;
 
 #[component]
 pub fn RoutedPage() -> Element {
-    let t = use_i18n();
     let router = use_router();
     let app = use_app();
     let route = router.route();
@@ -28,7 +27,6 @@ pub fn RoutedPage() -> Element {
     if (app.session)().is_none() {
         return rsx! { servers::OnboardingPage {} };
     }
-    let stub = |key: &str| rsx! { StubPage { name: t.t(key) } };
     match route {
         Route::MusicAlbum { id } => rsx! { music::AlbumPage { key: "{id}", id } },
         Route::Onboarding => rsx! { servers::OnboardingPage {} },
@@ -52,7 +50,7 @@ pub fn RoutedPage() -> Element {
         Route::MusicSongs => rsx! { music::library::SongsPage {} },
         Route::Search { q } => rsx! { search::SearchPage { q } },
         Route::Settings => rsx! { settings::SettingsPage {} },
-        Route::Cast => stub("common:nav.cast"),
+        Route::Cast => rsx! { cast::CastPage {} },
         Route::Stats => rsx! { stats::StatsPage {} },
         Route::NotFound { path } => rsx! { StubPage { name: path } },
     }

@@ -17,6 +17,7 @@ pub const OVERRIDES_CSS: &str = concat!(
     include_str!("../../../styles/overrides/video-player.css"),
     include_str!("../../../styles/overrides/settings.css"),
     include_str!("../../../styles/overrides/search.css"),
+    include_str!("../../../styles/overrides/cast.css"),
 );
 
 const LOGO_PNG: &[u8] = include_bytes!("../../../../src/renderer/src/assets/orphyn-logo.png");

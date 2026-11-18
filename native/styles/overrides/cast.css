@@ -1,0 +1,44 @@
+/* Cast + SyncPlay: Blitz-only fixes (the React stylesheets come from the manifest). */
+.jr-cast-anchor {
+  position: relative;
+  display: flex;
+}
+.jr-cast-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  background: transparent;
+}
+.jr-cast-popover {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 8px);
+  z-index: 61;
+  width: 290px;
+  border-radius: 14px;
+  overflow: hidden;
+}
+.jr-cast-page__group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+.jr-cast-page__device {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px;
+}
+.jr-cast-page__text {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+.jr-cast-page__volume {
+  width: 120px;
+}
+.jr-cast-screen__scrubber .jr-slider {
+  min-width: 0;
+}

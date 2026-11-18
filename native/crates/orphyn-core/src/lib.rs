@@ -6,16 +6,15 @@
 pub mod accounts;
 /// Copied from `src-tauri/src/artwork` (Deezer artist images, top tracks, related artists).
 pub mod artwork;
-pub mod discord {
-    //! Copied from `src-tauri/src/discord/activity.rs`; the IPC service is ported with the Discord
-    //! feature.
-    pub mod activity;
-}
+/// Copied from `src-tauri/src/discord`, with the IPC worker as a framework-free service.
+pub mod discord;
+/// Copied from `src-tauri/src/cast` (discovery, Chromecast, UPnP/DLNA, AirPlay, sessions).
+pub mod cast;
 pub mod error;
 pub mod profile;
 pub mod storage;
-pub mod updater {
-    //! Copied from `src-tauri/src/updater/state.rs`; download and install are ported with the
-    //! updater feature.
-    pub mod state;
-}
+/// OS media controls (souvlaki), ported from `src-tauri/src/media_controls`.
+pub mod media_controls;
+/// State machine copied from `src-tauri/src/updater`; manifest check, download, minisign
+/// verification and install written without Tauri.
+pub mod updater;

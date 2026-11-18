@@ -974,6 +974,14 @@ fn Player(item_id: String, start: Option<i64>) -> Element {
             class: "jr-video-player",
             "data-controls": controls_attr,
             onmousemove: move |_| show_controls(),
+            crate::features::cast::VideoCastHost {
+                request: crate::features::cast::VideoCastRequest {
+                    item_id: item_id.clone(),
+                    title: title.clone(),
+                    subtitle: subtitle.clone(),
+                    artwork_url: data.as_ref().and_then(|d| crate::features::music::track_art(&base, d, 640)),
+                },
+            }
             if let Some(w) = widget.clone() {
                 object {
                     class: "jr-video-player__video",

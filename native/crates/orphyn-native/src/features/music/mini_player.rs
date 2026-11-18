@@ -82,6 +82,7 @@ pub fn MiniPlayer() -> Element {
                 }
             }
             div { class: "jrm-mini__right",
+                crate::features::cast::MusicCastButton {}
                 VolumeControl {}
                 IconButton {
                     icon: "message-square-quote",

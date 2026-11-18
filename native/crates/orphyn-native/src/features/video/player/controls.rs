@@ -361,6 +361,7 @@ pub fn PlayerControls(p: ControlsProps) -> Element {
                         }
                     }
                     div { class: "jr-video-controls__right",
+                        crate::features::cast::VideoCastButton { on_hold_change: Some(on_hold) }
                         Anchor { which: Pop::Speed, on_open: toggle,
                             button {
                                 r#type: "button",

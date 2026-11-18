@@ -104,6 +104,7 @@ fn Sheet(y: f64) -> Element {
                     }
                 }
                 div { class: "jrm-np__header-end", style: "align-items: center; gap: 8px;",
+                    crate::features::cast::MusicCastButton {}
                     CurrentTrackHeart { variant: "glass" }
                 }
             }
