@@ -6,6 +6,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [2.0.3] - 2026-11-19
+
+### Changed
+
+- Full-screen player: the large album cover with a deep blur is back (computed once per album).
+- Film and series banners no longer show the overview (episodes still do); the Synopsis section keeps it.
+- The app icon shows in the Start menu, taskbar and Alt+Tab; the React/Tauri code is gone from the repository.
+
 ## [2.0.2] - 2026-11-19
 
 ### Changed

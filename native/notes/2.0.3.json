@@ -1,0 +1,18 @@
+{
+  "fr": {
+    "title": "Plus beau, plus épuré",
+    "items": [
+      { "icon": "music", "title": "Fond du lecteur", "text": "Le lecteur plein écran retrouve la pochette de l'album en grand, avec un flou profond, sans ralentir l'ouverture." },
+      { "icon": "film", "title": "Bannières épurées", "text": "Le résumé n'est plus posé sur les grandes bannières de l'accueil, des films et des séries : il reste dans la section Synopsis. Les épisodes le gardent sur leur bannière." },
+      { "icon": "sparkles", "title": "L'icône partout", "text": "L'icône d'Orphyn s'affiche dans le menu Démarrer, la barre des tâches et Alt+Tab." }
+    ]
+  },
+  "en": {
+    "title": "Nicer and cleaner",
+    "items": [
+      { "icon": "music", "title": "Player background", "text": "The full-screen player brings back the large album cover with a deep blur, without slowing down its opening." },
+      { "icon": "film", "title": "Cleaner banners", "text": "The overview no longer sits on the large banners of the home, films and series: it stays in the Synopsis section. Episodes keep it on their banner." },
+      { "icon": "sparkles", "title": "The icon everywhere", "text": "Orphyn's icon shows in the Start menu, the taskbar and Alt+Tab." }
+    ]
+  }
+}
