@@ -33,6 +33,9 @@ fn DeviceVolume(device_id: String) -> Element {
     }
 }
 
+/// Answer of a selection handler: `Ok`, or the failure message.
+pub type SelectDone = Callback<Result<(), String>>;
+
 #[derive(Clone, PartialEq, Props)]
 pub struct CastPickerProps {
     pub scope: CastScope,
@@ -41,7 +44,7 @@ pub struct CastPickerProps {
     pub on_close: EventHandler<()>,
     /// Moves playback to the device, or back to this computer with `None`.
     /// The handler answers through the callback (possibly later): `Ok` or the failure message.
-    pub on_select: EventHandler<(Option<CastDevice>, Callback<Result<(), String>>)>,
+    pub on_select: EventHandler<(Option<CastDevice>, SelectDone)>,
 }
 
 #[component]

@@ -9,6 +9,7 @@ use orphyn_core::cast::{CastEvent, CastService};
 use tokio::sync::mpsc::{unbounded_channel, UnboundedReceiver, UnboundedSender};
 
 /// Message for the UI loop (`CastUi` provider).
+#[allow(clippy::large_enum_variant)]
 #[derive(Debug, Clone)]
 pub enum UiMsg {
     Event(CastEvent),
