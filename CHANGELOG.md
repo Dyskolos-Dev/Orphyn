@@ -6,6 +6,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [2.0.1] - 2026-11-19
+
+### Fixed
+
+- Windows: no command window opens beside the app any more (closing it closed Orphyn).
+- What's new did not show after updating to 2.0.
+
 ## [2.0.0] - Unreleased
 
 ### Changed

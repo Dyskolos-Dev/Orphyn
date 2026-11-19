@@ -146,7 +146,9 @@ fn read_leveldb(dir: &Path) -> BTreeMap<String, String> {
             Some(1) => v[1..].iter().map(|&b| b as char).collect::<String>(),
             Some(0) => {
                 let units: Vec<u16> = v[1..]
-                    .as_chunks::<2>().0.iter()
+                    .as_chunks::<2>()
+                    .0
+                    .iter()
                     .map(|p| u16::from_le_bytes(*p))
                     .collect();
                 String::from_utf16_lossy(&units)
@@ -190,7 +192,9 @@ fn read_sqlite(path: &Path) -> BTreeMap<String, String> {
     });
     for (key, blob) in rows.into_iter().flatten().flatten() {
         let units: Vec<u16> = blob
-            .as_chunks::<2>().0.iter()
+            .as_chunks::<2>()
+            .0
+            .iter()
             .map(|p| u16::from_le_bytes(*p))
             .collect();
         out.insert(key, String::from_utf16_lossy(&units));

@@ -1,0 +1,20 @@
+{
+  "fr": {
+    "title": "Orphyn, désormais 100 % natif",
+    "items": [
+      { "icon": "sparkles", "title": "Une app entièrement native", "text": "Orphyn est réécrit en Rust et dessine lui-même son interface, sans moteur web : plus rapide, plus léger et fluide sur Linux." },
+      { "icon": "film", "title": "Lecture vidéo intégrée", "text": "Le lecteur vidéo est embarqué dans l'installeur : rien de plus à installer." },
+      { "icon": "music", "title": "Vos comptes et réglages conservés", "text": "Vos serveurs et vos préférences sont repris depuis la version 1.5." },
+      { "icon": "open", "title": "Plus propre au lancement", "text": "Sur Windows, Orphyn ne s'accompagne plus d'une fenêtre de commande, et l'écran Nouveautés s'affiche de nouveau après une mise à jour." }
+    ]
+  },
+  "en": {
+    "title": "Orphyn, now 100% native",
+    "items": [
+      { "icon": "sparkles", "title": "A fully native app", "text": "Orphyn is rewritten in Rust and draws its own interface, with no web engine: faster, lighter and smooth on Linux." },
+      { "icon": "film", "title": "Built-in video playback", "text": "The video player ships inside the installer: nothing more to install." },
+      { "icon": "music", "title": "Your accounts and settings kept", "text": "Your servers and preferences carry over from version 1.5." },
+      { "icon": "open", "title": "Cleaner start", "text": "On Windows, Orphyn no longer opens a command window beside it, and What's new shows again after an update." }
+    ]
+  }
+}

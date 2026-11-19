@@ -162,6 +162,13 @@ jobs:
           codesign --verify --deep --strict --verbose=2 "$app"
           codesign -dv "$app" 2>&1 | grep -E 'Signature=adhoc|Identifier'
           ls "$app/Contents/MacOS" "$app/Contents/Frameworks"
+          # The bundled libmpv and all its dependencies must load (it is opened at run time, so a
+          # missing dylib would only show when a film starts).
+          python3 -c "import ctypes,sys; ctypes.CDLL(sys.argv[1]); print('libmpv loads')" "$app/Contents/MacOS/libmpv.2.dylib"
+          # The app must start and stay up (a crash at launch fails the release).
+          "$app/Contents/MacOS/Orphyn" & pid=$!
+          sleep 15
+          kill -0 "$pid" && echo "Orphyn is running" && kill "$pid"
 
       - name: Upload to the draft release
         shell: bash

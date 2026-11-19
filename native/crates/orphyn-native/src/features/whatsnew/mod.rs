@@ -10,9 +10,6 @@ use crate::i18n::{use_i18n, Lang};
 use crate::state::{use_app, use_services};
 
 const LAST_SEEN_KEY: &str = "orphyn.lastSeenVersion";
-/// The first release that stored `orphyn.lastSeenVersion` is 1.0.3: an install that has an
-/// account but no stored value comes from this version or an earlier one.
-const LEGACY_VERSION: &str = "1.0.2";
 
 macro_rules! notes {
     ($($v:literal),* $(,)?) => {
@@ -25,7 +22,7 @@ macro_rules! notes {
 /// Every bundled note file, as `(version, json)`.
 const FILES: &[(&str, &str)] = notes![
     "1.0.2", "1.0.3", "1.0.4", "1.0.5", "1.1.0", "1.2.0", "1.2.1", "1.3.0", "1.4.0", "1.4.1",
-    "1.5.0"
+    "1.5.0", "2.0.0", "2.0.1"
 ];
 
 #[derive(Debug, Clone, Deserialize, PartialEq)]
@@ -94,7 +91,8 @@ pub fn bundled_notes() -> Vec<VersionNotes> {
 }
 
 /// Notes to present at launch, newest first. A fresh install (nothing stored, no account) shows
-/// nothing; an unstored version with an account is an upgrade from [`LEGACY_VERSION`]; skipped
+/// nothing; an unstored version with an account is an upgrade whose last seen version is unknown
+/// (the 1.x web storage is not migrated): only the running version's notes show; skipped
 /// versions all show up. Versions newer than the running app are never shown.
 pub fn notes_to_show(
     last_seen: Option<&str>,
@@ -104,7 +102,13 @@ pub fn notes_to_show(
 ) -> Vec<VersionNotes> {
     let from = match last_seen {
         Some(v) => v,
-        None if has_account => LEGACY_VERSION,
+        None if has_account => {
+            return notes
+                .iter()
+                .filter(|n| compare_versions(&n.version, current).is_eq())
+                .cloned()
+                .collect();
+        }
         None => return Vec::new(),
     };
     let mut out: Vec<VersionNotes> = notes
@@ -246,7 +250,7 @@ mod tests {
     #[test]
     fn every_bundled_file_parses_with_both_languages() {
         assert_eq!(bundled_notes().len(), FILES.len());
-        assert_eq!(bundled_notes()[0].version, "1.5.0");
+        assert_eq!(bundled_notes()[0].version, "2.0.1");
     }
 
     #[test]
@@ -271,6 +275,15 @@ mod tests {
             shown(None, false).is_empty(),
             "a fresh install shows nothing"
         );
-        assert_eq!(shown(None, true), ["1.2.0", "1.1.0", "1.0.3"]);
+        assert_eq!(shown(None, true), ["1.2.0"]);
+    }
+
+    #[test]
+    fn the_running_version_has_bundled_notes() {
+        let v = crate::features::system::app_version();
+        assert!(
+            FILES.iter().any(|(n, _)| *n == v),
+            "add notes/{v}.json to FILES"
+        );
     }
 }

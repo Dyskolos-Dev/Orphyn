@@ -173,10 +173,8 @@ fn LyricsBody(lyrics: Lyrics) -> Element {
         };
         // Scroll only the lyrics box: the active line sits at ~35 % of its height.
         spawn(async move {
-            let (Ok(b), Ok(l)) = (
-                box_el.get_client_rect().await,
-                line.get_client_rect().await,
-            ) else {
+            let (Ok(b), Ok(l)) = (box_el.get_client_rect().await, line.get_client_rect().await)
+            else {
                 return;
             };
             // Blitz rects are layout positions that ignore the box's own scroll (only the

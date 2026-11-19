@@ -88,7 +88,9 @@ fn find_feat(s: &str) -> Option<(usize, usize)> {
 
 fn split_joiners(s: &str) -> Vec<String> {
     let mut parts = vec![s.to_string()];
-    for sep in [";", ", ", " & ", " + ", " / ", " × ", " x ", " with ", " and "] {
+    for sep in [
+        ";", ", ", " & ", " + ", " / ", " × ", " x ", " with ", " and ",
+    ] {
         parts = parts
             .into_iter()
             .flat_map(|p| {
@@ -292,7 +294,10 @@ mod tests {
 
     #[test]
     fn names_with_ampersand_are_not_cut() {
-        assert_eq!(split_artist_credit("C&C Music Factory").names, ["C&C Music Factory"]);
+        assert_eq!(
+            split_artist_credit("C&C Music Factory").names,
+            ["C&C Music Factory"]
+        );
         assert_eq!(split_artist_credit("AC/DC").names, ["AC/DC"]);
         let roots = [
             artist("1", "Simon"),
