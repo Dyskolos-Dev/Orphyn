@@ -39,8 +39,14 @@ pub fn RoutedPage() -> Element {
         Route::VideoItem { item_id } => {
             rsx! { video::browse::VideoItemPage { key: "{item_id}", item_id } }
         }
-        Route::VideoPlay { item_id } => {
-            rsx! { video::player::VideoPlayerPage { key: "{item_id}", item_id } }
+        Route::VideoPlay {
+            item_id,
+            start,
+            trailer,
+        } => {
+            // A trailer never resumes (start 0).
+            let start = if trailer { Some(0) } else { start };
+            rsx! { video::player::VideoPlayerPage { key: "{item_id}", item_id, start } }
         }
         Route::MusicHome => rsx! { music::library::MusicHomePage {} },
         Route::MusicAlbums => rsx! { music::library::AlbumsPage {} },

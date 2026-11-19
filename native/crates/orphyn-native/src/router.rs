@@ -14,7 +14,12 @@ pub enum Route {
     VideoHome,
     VideoLibrary { library_id: String },
     VideoItem { item_id: String },
-    VideoPlay { item_id: String },
+    /// `?start=ticks` resumes there; `?trailer=1` plays a trailer (no resume, nothing reported).
+    VideoPlay {
+        item_id: String,
+        start: Option<i64>,
+        trailer: bool,
+    },
     // features/music/routes.tsx
     MusicHome,
     MusicAlbums,
@@ -95,7 +100,11 @@ impl Route {
             ["video"] => Route::VideoHome,
             ["video", "library", x] => Route::VideoLibrary { library_id: id(x) },
             ["video", "item", x] => Route::VideoItem { item_id: id(x) },
-            ["video", "play", x] => Route::VideoPlay { item_id: id(x) },
+            ["video", "play", x] => Route::VideoPlay {
+                item_id: id(x),
+                start: param("start").parse().ok().filter(|t: &i64| *t >= 0),
+                trailer: param("trailer") == "1",
+            },
             ["music"] => Route::MusicHome,
             ["music", "albums"] => Route::MusicAlbums,
             ["music", "artists"] => Route::MusicArtists,
@@ -121,7 +130,18 @@ impl Route {
             Route::VideoHome => "/video".into(),
             Route::VideoLibrary { library_id } => format!("/video/library/{}", encode(library_id)),
             Route::VideoItem { item_id } => format!("/video/item/{}", encode(item_id)),
-            Route::VideoPlay { item_id } => format!("/video/play/{}", encode(item_id)),
+            Route::VideoPlay {
+                item_id,
+                start,
+                trailer,
+            } => {
+                let base = format!("/video/play/{}", encode(item_id));
+                match (start, trailer) {
+                    (_, true) => format!("{base}?trailer=1"),
+                    (Some(t), false) if *t > 0 => format!("{base}?start={t}"),
+                    _ => base,
+                }
+            }
             Route::MusicHome => "/music".into(),
             Route::MusicAlbums => "/music/albums".into(),
             Route::MusicArtists => "/music/artists".into(),
@@ -298,6 +318,19 @@ pub fn use_router() -> Router {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn play_route_keeps_start_and_trailer() {
+        let r = Route::parse("/video/play/abc?start=600");
+        assert_eq!(
+            r,
+            Route::VideoPlay { item_id: "abc".into(), start: Some(600), trailer: false }
+        );
+        assert_eq!(r.path(), "/video/play/abc?start=600");
+        let t = Route::parse("/video/play/abc?trailer=1");
+        assert_eq!(t.path(), "/video/play/abc?trailer=1");
+        assert_eq!(Route::parse("/video/play/abc").path(), "/video/play/abc");
+    }
 
     #[test]
     fn parses_every_react_route() {
