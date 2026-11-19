@@ -52,7 +52,9 @@ async fn create_join_clock_and_leave_on_a_real_server() {
     assert!(est.delay() < 5_000.0, "delay {}", est.delay());
     assert!(est.offset().abs() < 3_600_000.0, "offset {}", est.offset());
 
-    create_group(&client, "orphyn live test").await.expect("create");
+    create_group(&client, "orphyn live test")
+        .await
+        .expect("create");
     let mut group = None;
     for _ in 0..50 {
         let found = events.lock().unwrap().iter().find_map(|e| match e {

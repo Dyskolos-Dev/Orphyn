@@ -25,7 +25,11 @@ pub fn plan_command(cmd: &SyncPlayCommand, now_local: f64, offset_ms: f64) -> Co
     match cmd.command {
         CommandKind::Unpause => {
             if when_local >= now_local {
-                CommandPlan { at_local: when_local, position_seconds: position, late: false }
+                CommandPlan {
+                    at_local: when_local,
+                    position_seconds: position,
+                    late: false,
+                }
             } else {
                 CommandPlan {
                     at_local: now_local,
@@ -39,13 +43,20 @@ pub fn plan_command(cmd: &SyncPlayCommand, now_local: f64, offset_ms: f64) -> Co
             position_seconds: position,
             late: when_local < now_local,
         },
-        _ => CommandPlan { at_local: now_local, position_seconds: position, late: when_local < now_local },
+        _ => CommandPlan {
+            at_local: now_local,
+            position_seconds: position,
+            late: when_local < now_local,
+        },
     }
 }
 
 /// The server repeats a command to whoever reports Ready again: apply each one once.
 pub fn command_key(cmd: &SyncPlayCommand) -> String {
-    format!("{:?}|{}|{}|{}", cmd.command, cmd.playlist_item_id, cmd.when, cmd.position_ticks)
+    format!(
+        "{:?}|{}|{}|{}",
+        cmd.command, cmd.playlist_item_id, cmd.when, cmd.position_ticks
+    )
 }
 
 /// Where the group is now (s), given the last Unpause and the server clock.
@@ -81,7 +92,11 @@ pub fn drift_action(drift_s: f64, can_nudge: bool) -> DriftAction {
     }
     let abs = drift_s.abs();
     if !can_nudge {
-        return if abs > SEEK_ONLY_THRESHOLD_S { DriftAction::Seek } else { DriftAction::None };
+        return if abs > SEEK_ONLY_THRESHOLD_S {
+            DriftAction::Seek
+        } else {
+            DriftAction::None
+        };
     }
     if abs <= DEAD_BAND_S {
         return DriftAction::Rate(1.0);
@@ -170,7 +185,11 @@ pub fn describe_members(
     let mut out = vec![Member {
         name: self_name.to_string(),
         is_self: true,
-        state: if self_ready { MemberState::Ready } else { MemberState::Buffering },
+        state: if self_ready {
+            MemberState::Ready
+        } else {
+            MemberState::Buffering
+        },
     }];
     out.extend(others.into_iter().map(|n| Member {
         name: n.clone(),
@@ -182,7 +201,9 @@ pub fn describe_members(
 
 /// Who the group waits for, when we can tell (we are ready and there is one other member).
 pub fn waiting_for(members: &[Member]) -> Option<String> {
-    let mut it = members.iter().filter(|m| !m.is_self && m.state == MemberState::Buffering);
+    let mut it = members
+        .iter()
+        .filter(|m| !m.is_self && m.state == MemberState::Buffering);
     match (it.next(), it.next()) {
         (Some(m), None) => Some(m.name.clone()),
         _ => None,
@@ -200,8 +221,13 @@ pub fn likely_author(participants: &[String], self_name: &str) -> Option<String>
 
 /// Two-letter initials for an avatar.
 pub fn member_initials(name: &str) -> String {
-    let mut parts = name.trim().split(|c: char| c.is_whitespace() || "._-".contains(c)).filter(|s| !s.is_empty());
-    let Some(first) = parts.next() else { return "?".into() };
+    let mut parts = name
+        .trim()
+        .split(|c: char| c.is_whitespace() || "._-".contains(c))
+        .filter(|s| !s.is_empty());
+    let Some(first) = parts.next() else {
+        return "?".into();
+    };
     match parts.next() {
         None => first.chars().take(2).collect::<String>().to_uppercase(),
         Some(second) => format!(
@@ -213,7 +239,9 @@ pub fn member_initials(name: &str) -> String {
     }
 }
 
-pub const AVATAR_COLORS: [&str; 8] = ["blue", "teal", "green", "orange", "pink", "purple", "indigo", "red"];
+pub const AVATAR_COLORS: [&str; 8] = [
+    "blue", "teal", "green", "orange", "pink", "purple", "indigo", "red",
+];
 
 /// Stable system colour name for a member's avatar, from their name.
 pub fn member_color(name: &str) -> &'static str {
@@ -242,9 +270,24 @@ mod tests {
     #[test]
     fn plans_unpause_in_the_future_and_late() {
         // Server 1000 ms ahead of local: When 5000 server = 4000 local.
-        let p = plan_command(&cmd(CommandKind::Unpause, 5000.0, 20_000_000.0), 3000.0, 1000.0);
-        assert_eq!(p, CommandPlan { at_local: 4000.0, position_seconds: 2.0, late: false });
-        let late = plan_command(&cmd(CommandKind::Unpause, 5000.0, 20_000_000.0), 4500.0, 1000.0);
+        let p = plan_command(
+            &cmd(CommandKind::Unpause, 5000.0, 20_000_000.0),
+            3000.0,
+            1000.0,
+        );
+        assert_eq!(
+            p,
+            CommandPlan {
+                at_local: 4000.0,
+                position_seconds: 2.0,
+                late: false
+            }
+        );
+        let late = plan_command(
+            &cmd(CommandKind::Unpause, 5000.0, 20_000_000.0),
+            4500.0,
+            1000.0,
+        );
         assert!(late.late);
         assert_eq!(late.at_local, 4500.0);
         assert!((late.position_seconds - 2.5).abs() < 1e-9);
@@ -253,16 +296,25 @@ mod tests {
     #[test]
     fn plans_pause_seek_stop() {
         let p = plan_command(&cmd(CommandKind::Pause, 5000.0, 10_000_000.0), 6000.0, 0.0);
-        assert_eq!((p.at_local, p.position_seconds, p.late), (6000.0, 1.0, true));
+        assert_eq!(
+            (p.at_local, p.position_seconds, p.late),
+            (6000.0, 1.0, true)
+        );
         let s = plan_command(&cmd(CommandKind::Seek, 5000.0, 30_000_000.0), 1000.0, 0.0);
-        assert_eq!((s.at_local, s.position_seconds, s.late), (1000.0, 3.0, false));
+        assert_eq!(
+            (s.at_local, s.position_seconds, s.late),
+            (1000.0, 3.0, false)
+        );
     }
 
     #[test]
     fn command_keys_differ_by_command_and_time() {
         let a = cmd(CommandKind::Pause, 1.0, 2.0);
         assert_eq!(command_key(&a), command_key(&a.clone()));
-        assert_ne!(command_key(&a), command_key(&cmd(CommandKind::Unpause, 1.0, 2.0)));
+        assert_ne!(
+            command_key(&a),
+            command_key(&cmd(CommandKind::Unpause, 1.0, 2.0))
+        );
     }
 
     #[test]
@@ -293,7 +345,10 @@ mod tests {
         assert_eq!(queue_move(3, 0, 4), QueueMove::Next);
         assert_eq!(queue_move(2, 1, 4), QueueMove::Previous);
         assert_eq!(queue_move(0, 3, 4), QueueMove::Jump);
-        let group = vec![QueueEntry { item_id: "a".into(), playlist_item_id: "1".into() }];
+        let group = vec![QueueEntry {
+            item_id: "a".into(),
+            playlist_item_id: "1".into(),
+        }];
         assert!(same_items(&["a".into()], &group));
         assert!(!same_items(&["b".into()], &group));
     }
@@ -304,11 +359,19 @@ mod tests {
         let m = describe_members(&names, "me", true, GroupState::Waiting);
         assert_eq!(m[1].state, MemberState::Buffering);
         assert_eq!(waiting_for(&m).as_deref(), Some("bob"));
-        let m = describe_members(&["me".into(), "a".into(), "b".into()], "me", true, GroupState::Waiting);
+        let m = describe_members(
+            &["me".into(), "a".into(), "b".into()],
+            "me",
+            true,
+            GroupState::Waiting,
+        );
         assert_eq!(m[1].state, MemberState::Waiting);
         assert_eq!(waiting_for(&m), None);
         let m = describe_members(&names, "me", false, GroupState::Playing);
-        assert_eq!((m[0].state, m[1].state), (MemberState::Buffering, MemberState::Ready));
+        assert_eq!(
+            (m[0].state, m[1].state),
+            (MemberState::Buffering, MemberState::Ready)
+        );
         assert_eq!(likely_author(&names, "me").as_deref(), Some("bob"));
         assert_eq!(likely_author(&["me".into()], "me"), None);
     }

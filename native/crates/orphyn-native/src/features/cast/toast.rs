@@ -39,7 +39,12 @@ impl Toasts {
         let id = *self.next.peek();
         self.next.set(id + 1);
         self.items.with_mut(|v| {
-            v.push(Toast { id, title, description, error });
+            v.push(Toast {
+                id,
+                title,
+                description,
+                error,
+            });
             let extra = v.len().saturating_sub(MAX_VISIBLE);
             v.drain(..extra);
         });
@@ -60,7 +65,11 @@ impl Toasts {
 }
 
 fn icon_for(error: bool) -> &'static str {
-    if error { "triangle-alert" } else { "info" }
+    if error {
+        "triangle-alert"
+    } else {
+        "info"
+    }
 }
 
 /// Renders the stack (bottom of the window, above the player bar like the React viewport).

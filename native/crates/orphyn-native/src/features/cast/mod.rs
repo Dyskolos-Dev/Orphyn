@@ -129,7 +129,10 @@ static MUSIC_REMOTE: std::sync::Mutex<Option<std::sync::Arc<music::MusicRemote>>
     std::sync::Mutex::new(None);
 
 fn take_music_remote() -> Option<std::sync::Arc<music::MusicRemote>> {
-    MUSIC_REMOTE.lock().unwrap_or_else(|p| p.into_inner()).take()
+    MUSIC_REMOTE
+        .lock()
+        .unwrap_or_else(|p| p.into_inner())
+        .take()
 }
 
 /// Device the music plays on (`None` = this computer).

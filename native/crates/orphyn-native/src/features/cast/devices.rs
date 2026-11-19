@@ -55,8 +55,11 @@ pub fn group_devices(devices: &[CastDevice]) -> Vec<(DeviceGroup, Vec<CastDevice
     [DeviceGroup::Speaker, DeviceGroup::Tv]
         .into_iter()
         .filter_map(|g| {
-            let mut list: Vec<CastDevice> =
-                devices.iter().filter(|d| group_of(d) == g).cloned().collect();
+            let mut list: Vec<CastDevice> = devices
+                .iter()
+                .filter(|d| group_of(d) == g)
+                .cloned()
+                .collect();
             list.sort_by_key(|d| d.name.to_lowercase());
             (!list.is_empty()).then_some((g, list))
         })
@@ -84,7 +87,11 @@ mod tests {
 
     #[test]
     fn scope_filters_by_capability() {
-        let all = [dev("tv", true, true, false), dev("spk", true, false, false), dev("raop", false, false, false)];
+        let all = [
+            dev("tv", true, true, false),
+            dev("spk", true, false, false),
+            dev("raop", false, false, false),
+        ];
         assert_eq!(devices_for_scope(&all, CastScope::Video).len(), 1);
         assert_eq!(devices_for_scope(&all, CastScope::Music).len(), 2);
     }

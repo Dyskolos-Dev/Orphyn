@@ -45,7 +45,12 @@ pub async fn fetch_items_by_ids(
                 ],
             )
             .await?;
-        for item in raw.get("Items").and_then(|v| v.as_array()).into_iter().flatten() {
+        for item in raw
+            .get("Items")
+            .and_then(|v| v.as_array())
+            .into_iter()
+            .flatten()
+        {
             if let Ok(dto) = serde_json::from_value::<BaseItemDto>(item.clone()) {
                 found.insert(dto.id.replace('-', "").to_lowercase(), dto);
             }

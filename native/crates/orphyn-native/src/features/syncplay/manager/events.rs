@@ -4,7 +4,9 @@ use super::*;
 
 impl SyncPlayManager {
     pub(super) fn on_user(&self, user: String, joined: bool) {
-        let Some(mut group) = self.state().group.clone() else { return };
+        let Some(mut group) = self.state().group.clone() else {
+            return;
+        };
         if joined {
             group.participants.push(user.clone());
         } else if let Some(i) = group.participants.iter().position(|p| *p == user) {
@@ -12,7 +14,11 @@ impl SyncPlayManager {
         }
         self.update(|s| s.group = Some(group));
         self.refresh_members();
-        self.notify(if joined { Notice::UserJoined(user) } else { Notice::UserLeft(user) });
+        self.notify(if joined {
+            Notice::UserJoined(user)
+        } else {
+            Notice::UserLeft(user)
+        });
     }
 
     pub(super) fn on_group_joined(&self, group: SyncPlayGroup) {
@@ -29,7 +35,11 @@ impl SyncPlayManager {
             s.sheet_open = false;
         });
         self.refresh_members();
-        self.notify(if was_rejoin { Notice::Reconnected } else { Notice::Joined(name) });
+        self.notify(if was_rejoin {
+            Notice::Reconnected
+        } else {
+            Notice::Joined(name)
+        });
         if share {
             self.lock().share_on_join = false;
             self.share_local(false);
@@ -99,8 +109,12 @@ impl SyncPlayManager {
     pub(super) fn refresh_members(&self) {
         let s = self.state();
         let Some(group) = &s.group else { return };
-        let members =
-            sp::describe_members(&group.participants, &s.self_name, s.self_ready, s.group_state);
+        let members = sp::describe_members(
+            &group.participants,
+            &s.self_name,
+            s.self_ready,
+            s.group_state,
+        );
         self.lock().others_seen = members.len().saturating_sub(1);
         self.update(|s| s.members = members);
     }
@@ -142,7 +156,12 @@ impl SyncPlayManager {
                     missing.push(id.clone());
                 }
             }
-            (missing, g.conn.as_ref().map(|c| (c.client.clone(), c.user_id.clone())))
+            (
+                missing,
+                g.conn
+                    .as_ref()
+                    .map(|c| (c.client.clone(), c.user_id.clone())),
+            )
         };
         if let (false, Some((client, user))) = (missing.is_empty(), conn) {
             let found = sp::fetch_items_by_ids(&client, &user, &missing)
@@ -180,7 +199,8 @@ impl SyncPlayManager {
         let resets = QUEUE_RESETS.contains(&queue.reason.as_str());
         let ids: Vec<String> = queue.playlist.iter().map(|e| e.item_id.clone()).collect();
         let same_entry = entry.is_some()
-            && before.as_ref().map(|b| &b.playlist_item_id) == entry.as_ref().map(|e| &e.playlist_item_id);
+            && before.as_ref().map(|b| &b.playlist_item_id)
+                == entry.as_ref().map(|e| &e.playlist_item_id);
         if known && same_entry && !resets {
             // Entries added, removed or moved around the one playing: playback goes on untouched.
             let music = self.lock().music.clone();
@@ -235,7 +255,10 @@ impl SyncPlayManager {
             s.current_kind = Some(kind);
         });
         if !self.is_mine(LocalKind::Queue) && resets {
-            self.notify(Notice::NowPlaying { title: item_title(&item), by: self.author() });
+            self.notify(Notice::NowPlaying {
+                title: item_title(&item),
+                by: self.author(),
+            });
         }
         let start = queue.start_position_ticks / TICKS_PER_SECOND;
         let (video, music) = {
@@ -438,7 +461,9 @@ pub fn playable_of(
     let mut tracks = Vec::new();
     let mut index = 0;
     for (i, e) in queue.playlist.iter().enumerate() {
-        let Some(it) = items.get(&e.item_id) else { continue };
+        let Some(it) = items.get(&e.item_id) else {
+            continue;
+        };
         if i as i64 == queue.playing_item_index {
             index = tracks.len();
         }

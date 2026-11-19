@@ -13,11 +13,11 @@ use std::collections::HashMap;
 use std::sync::{Arc, Mutex, MutexGuard, OnceLock, Weak};
 use std::time::Duration;
 
+use orphyn_jellyfin::endpoints::Session;
 use orphyn_jellyfin::syncplay::{
     self as sp, ClockOffsetEstimator, CommandKind, GroupState, JellyfinSocket, Member, PlayQueue,
     QueueEntry, SocketStatus, SyncPlayCommand, SyncPlayErrorKind, SyncPlayEvent, SyncPlayGroup,
 };
-use orphyn_jellyfin::endpoints::Session;
 use orphyn_jellyfin::{BaseItemDto, Client, TICKS_PER_SECOND};
 
 mod events;
@@ -333,7 +333,9 @@ impl SyncPlayManager {
     // ----------------------------------------------------------------------- groups
 
     pub async fn list_groups(&self, session: &Session) -> Result<Vec<SyncPlayGroup>, String> {
-        sp::list_groups(&session.client).await.map_err(|e| e.to_string())
+        sp::list_groups(&session.client)
+            .await
+            .map_err(|e| e.to_string())
     }
 
     pub fn create(&self, session: Session, user_name: String, name: String) {
@@ -418,7 +420,10 @@ impl SyncPlayManager {
             tasks: Vec::new(),
         });
         self.when_open().await?;
-        let tasks = vec![self.spawn_time_sync(client.clone(), time), self.spawn_drift()];
+        let tasks = vec![
+            self.spawn_time_sync(client.clone(), time),
+            self.spawn_drift(),
+        ];
         if let Some(c) = self.lock().conn.as_mut() {
             c.tasks = tasks;
         }
@@ -438,7 +443,11 @@ impl SyncPlayManager {
     }
 
     /// A burst of samples, then one now and then; pings the server with the round trip.
-    fn spawn_time_sync(&self, client: Client, time: Arc<Mutex<ClockOffsetEstimator>>) -> JoinHandle<()> {
+    fn spawn_time_sync(
+        &self,
+        client: Client,
+        time: Arc<Mutex<ClockOffsetEstimator>>,
+    ) -> JoinHandle<()> {
         runtime().spawn(async move {
             let mut taken = 0usize;
             loop {
@@ -546,9 +555,16 @@ impl SyncPlayManager {
     pub fn video_loaded(&self) {
         let s = self.state();
         let video = self.lock().video.clone();
-        let (Some(entry), Some(v)) = (playing_entry(&s.queue), video) else { return };
-        if s.current_kind == Some(MediaKind::Video) && v.item_id().as_deref() == Some(entry.item_id.as_str()) {
-            let start = s.queue.as_ref().map_or(0.0, |q| q.start_position_ticks / TICKS_PER_SECOND);
+        let (Some(entry), Some(v)) = (playing_entry(&s.queue), video) else {
+            return;
+        };
+        if s.current_kind == Some(MediaKind::Video)
+            && v.item_id().as_deref() == Some(entry.item_id.as_str())
+        {
+            let start = s
+                .queue
+                .as_ref()
+                .map_or(0.0, |q| q.start_position_ticks / TICKS_PER_SECOND);
             self.align(Some(start));
         }
     }
@@ -606,7 +622,9 @@ impl SyncPlayManager {
     pub fn player_changed(&self) {
         let Some(p) = self.player() else { return };
         let s = self.state();
-        let Some(entry) = playing_entry(&s.queue) else { return };
+        let Some(entry) = playing_entry(&s.queue) else {
+            return;
+        };
         if p.item_id().as_deref() != Some(entry.item_id.as_str()) {
             // Another item than the group's (being switched): it waits for the group.
             if p.is_playing() {
@@ -625,7 +643,12 @@ impl SyncPlayManager {
         }
         let (awaiting, reported, buffer_pending, grace_until) = {
             let g = self.lock();
-            (g.awaiting_ready, g.reported_ready, g.buffer_task.is_some(), g.grace_until)
+            (
+                g.awaiting_ready,
+                g.reported_ready,
+                g.buffer_task.is_some(),
+                g.grace_until,
+            )
         };
         if awaiting {
             if ready {
@@ -687,7 +710,9 @@ impl SyncPlayManager {
             }
             (client, p, entry)
         };
-        let (Some(client), Some(p), Some(entry)) = (client, p, entry) else { return };
+        let (Some(client), Some(p), Some(entry)) = (client, p, entry) else {
+            return;
+        };
         let body = sp::BufferingReport {
             when: self.server_now(),
             position_ticks: p.position() * TICKS_PER_SECOND,
@@ -733,7 +758,13 @@ impl SyncPlayManager {
         let p = self.player();
         let (last, allow, grace, rate, entry) = {
             let g = self.lock();
-            (g.last_unpause, g.allow_play, g.grace_until, g.rate, playing_entry(&g.ui.queue))
+            (
+                g.last_unpause,
+                g.allow_play,
+                g.grace_until,
+                g.rate,
+                playing_entry(&g.ui.queue),
+            )
         };
         let (_, ready_clock) = self.time_offset();
         let (Some(p), Some((when, ticks)), Some(entry)) = (p, last, entry) else {
@@ -748,7 +779,10 @@ impl SyncPlayManager {
             }
             return;
         }
-        if p.item_id().as_deref() != Some(entry.item_id.as_str()) || !p.is_playing() || !p.is_ready() {
+        if p.item_id().as_deref() != Some(entry.item_id.as_str())
+            || !p.is_playing()
+            || !p.is_ready()
+        {
             return;
         }
         if now_ms() < grace {
@@ -826,13 +860,17 @@ impl SyncPlayManager {
     }
 
     pub fn request_next(&self) {
-        let Some(entry) = playing_entry(&self.state().queue) else { return };
+        let Some(entry) = playing_entry(&self.state().queue) else {
+            return;
+        };
         self.mark(LocalKind::Queue);
         self.send(move |c| async move { sp::next_item(&c, &entry.playlist_item_id).await });
     }
 
     pub fn request_previous(&self) {
-        let Some(entry) = playing_entry(&self.state().queue) else { return };
+        let Some(entry) = playing_entry(&self.state().queue) else {
+            return;
+        };
         self.mark(LocalKind::Queue);
         self.send(move |c| async move { sp::previous_item(&c, &entry.playlist_item_id).await });
     }
@@ -930,7 +968,9 @@ impl SyncPlayManager {
     }
 
     fn rejoin(&self) {
-        let Some(group) = self.state().group.clone() else { return };
+        let Some(group) = self.state().group.clone() else {
+            return;
+        };
         {
             let mut g = self.lock();
             g.rejoining = true;
@@ -962,7 +1002,11 @@ impl SyncPlayManager {
                     self.on_user(user, false);
                 }
             }
-            SyncPlayEvent::StateUpdate { group_id, state, reason } => {
+            SyncPlayEvent::StateUpdate {
+                group_id,
+                state,
+                reason,
+            } => {
                 if mine(&group_id) {
                     self.on_state_update(state, &reason);
                 }

@@ -6,8 +6,8 @@ use std::net::{Ipv4Addr, SocketAddrV4};
 use std::sync::{Arc, Mutex, MutexGuard, Weak};
 use std::time::Duration;
 
-use mdns_sd::{ServiceDaemon, ServiceEvent};
 use super::runtime::{spawn, JoinHandle};
+use mdns_sd::{ServiceDaemon, ServiceEvent};
 use tokio::net::UdpSocket;
 
 use super::description::parse_device_description;

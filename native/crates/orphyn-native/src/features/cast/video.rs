@@ -65,7 +65,11 @@ pub(super) fn stop_video_cast(mut ui: super::CastUi, svc: &Services, ended: bool
     ui.target.set(None);
     hub().service.disconnect(&target.device_id);
     if let Some(s) = session {
-        svc.video.seek(if ended { s.duration_sec } else { s.position_sec });
+        svc.video.seek(if ended {
+            s.duration_sec
+        } else {
+            s.position_sec
+        });
         svc.video.resume();
     }
 }
@@ -231,4 +235,3 @@ pub fn VideoCastButton(on_hold_change: Option<EventHandler<bool>>) -> Element {
         }
     }
 }
-

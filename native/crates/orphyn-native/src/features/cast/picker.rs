@@ -15,7 +15,9 @@ fn DeviceVolume(device_id: String) -> Element {
     let t = use_i18n();
     let cast = use_cast();
     let mut drag = use_signal(|| None::<f64>);
-    let volume = drag().or_else(|| cast.session_of(&device_id).map(|s| s.volume)).unwrap_or(1.0);
+    let volume = drag()
+        .or_else(|| cast.session_of(&device_id).map(|s| s.volume))
+        .unwrap_or(1.0);
     let id = device_id.clone();
     rsx! {
         div { class: "jr-cast__volume",
@@ -52,7 +54,12 @@ pub fn CastPicker(props: CastPickerProps) -> Element {
     let t = use_i18n();
     let cast = use_cast();
     let toasts = use_toasts();
-    let CastPickerProps { scope, current_id, on_close, on_select } = props;
+    let CastPickerProps {
+        scope,
+        current_id,
+        on_close,
+        on_select,
+    } = props;
     // Discovery runs only while the picker is open.
     use_hook(|| hub().service.start_discovery());
     use_drop(|| hub().service.stop_discovery());
@@ -76,7 +83,10 @@ pub fn CastPicker(props: CastPickerProps) -> Element {
                 match result {
                     Ok(()) if id.is_none() => on_close.call(()),
                     Ok(()) => {}
-                    Err(e) => toasts.error(t.tf("cast:connectFailed", &[("device", name.clone())]), Some(e)),
+                    Err(e) => toasts.error(
+                        t.tf("cast:connectFailed", &[("device", name.clone())]),
+                        Some(e),
+                    ),
                 }
             });
             on_select.call((device, done));
@@ -122,7 +132,12 @@ struct DeviceRowProps {
 fn DeviceRow(props: DeviceRowProps) -> Element {
     let t = use_i18n();
     let cast = use_cast();
-    let DeviceRowProps { device, icon, current_id, on_choose } = props;
+    let DeviceRowProps {
+        device,
+        icon,
+        current_id,
+        on_choose,
+    } = props;
     let connecting = (cast.connecting)();
     let id = device.as_ref().map(|d| d.id.clone());
     let selected = id == current_id;

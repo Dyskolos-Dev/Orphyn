@@ -7,11 +7,13 @@ pub mod manager;
 use std::sync::Arc;
 
 use dioxus::prelude::*;
-use orphyn_jellyfin::syncplay::{self as sp, member_color, member_initials, MemberState, SyncPlayGroup};
+use orphyn_jellyfin::syncplay::{
+    self as sp, member_color, member_initials, MemberState, SyncPlayGroup,
+};
 use orphyn_jellyfin::JfError;
 
-pub use manager::{MediaKind, Notice, Phase, SyncPlayState, UiEvent};
 use manager::manager;
+pub use manager::{MediaKind, Notice, Phase, SyncPlayState, UiEvent};
 
 use crate::design::{Button, Icon, IconButton, Spinner};
 use crate::features::cast::use_toasts;
@@ -50,7 +52,9 @@ pub fn use_syncplay_provider() -> SyncPlayUi {
                 state.set(s);
             }
         });
-        let Some(mut events) = m.take_events() else { return };
+        let Some(mut events) = m.take_events() else {
+            return;
+        };
         spawn(async move {
             while let Some(event) = events.recv().await {
                 match event {
@@ -86,7 +90,10 @@ pub fn notice_text(t: &I18n, n: &Notice) -> (String, bool) {
         Notice::Seeked(w) => (by("seeked", w), false),
         Notice::NowPlaying { title, by } => (
             match by {
-                Some(w) => f("nowPlayingBy", &[("name", w.clone()), ("title", title.clone())]),
+                Some(w) => f(
+                    "nowPlayingBy",
+                    &[("name", w.clone()), ("title", title.clone())],
+                ),
                 None => f("nowPlaying", &[("title", title.clone())]),
             },
             false,
@@ -145,7 +152,11 @@ pub fn SyncPlayButton(
     let s = (sp.state)();
     let inside = in_group(&s);
     let count = s.members.len();
-    let label = t.t(if kind == MediaKind::Video { "syncplay:watchTogether" } else { "syncplay:listenTogether" });
+    let label = t.t(if kind == MediaKind::Video {
+        "syncplay:watchTogether"
+    } else {
+        "syncplay:listenTogether"
+    });
     rsx! {
         span { class: "jr-sp-button",
             IconButton {
@@ -180,7 +191,10 @@ pub fn SyncPlayBadge(kind: MediaKind) -> Element {
     } else {
         t.tf("syncplay:badge", &[("count", count.to_string())])
     };
-    let label = t.tf("syncplay:badgeLabel", &[("name", group.name.clone()), ("count", count.to_string())]);
+    let label = t.tf(
+        "syncplay:badgeLabel",
+        &[("name", group.name.clone()), ("count", count.to_string())],
+    );
     rsx! {
         button {
             r#type: "button",
@@ -219,12 +233,23 @@ fn GroupPanel() -> Element {
     let t = use_i18n();
     let sp = use_syncplay();
     let s = (sp.state)();
-    let Some(group) = s.group.clone() else { return rsx! {} };
+    let Some(group) = s.group.clone() else {
+        return rsx! {};
+    };
     let item = s.current_item.as_ref().map(manager::item_title);
     let has_queue = s.queue.as_ref().is_some_and(|q| !q.playlist.is_empty());
-    let now = item.unwrap_or_else(|| if has_queue { "—".into() } else { t.t("syncplay:sheet.nothing") });
+    let now = item.unwrap_or_else(|| {
+        if has_queue {
+            "—".into()
+        } else {
+            t.t("syncplay:sheet.nothing")
+        }
+    });
     let people = t.tc("syncplay:sheet.people", s.members.len() as i64, &[]);
-    let status = t.t(&format!("syncplay:sheet.state.{}", state_name(s.group_state)));
+    let status = t.t(&format!(
+        "syncplay:sheet.state.{}",
+        state_name(s.group_state)
+    ));
     rsx! {
         div { class: "jr-sp-panel",
             div { class: "jr-sp-group-head",
@@ -295,7 +320,9 @@ fn JoinPanel() -> Element {
     let connecting = (sp.state)().phase == Phase::Connecting;
 
     let load = Callback::new(move |()| {
-        let Some(session) = (app.session)() else { return };
+        let Some(session) = (app.session)() else {
+            return;
+        };
         loading.set(true);
         spawn(async move {
             match sp::list_groups(&session.client).await {
@@ -330,9 +357,19 @@ fn JoinPanel() -> Element {
         let user_name = user_name.clone();
         let default_name = default_name.clone();
         move |_| {
-            let Some(session) = (app.session)() else { return };
+            let Some(session) = (app.session)() else {
+                return;
+            };
             let n = name.peek().trim().to_string();
-            manager().create(session, user_name.clone(), if n.is_empty() { default_name.clone() } else { n });
+            manager().create(
+                session,
+                user_name.clone(),
+                if n.is_empty() {
+                    default_name.clone()
+                } else {
+                    n
+                },
+            );
         }
     };
     let rooms = groups();
@@ -422,7 +459,11 @@ pub fn SyncPlayHost() -> Element {
         .map(|a| a.server_name.clone())
         .unwrap_or_default();
     let done_variant = if inside { "filled" } else { "gray" };
-    let title = t.t(if s.sheet_kind == MediaKind::Video { "syncplay:watchTogether" } else { "syncplay:listenTogether" });
+    let title = t.t(if s.sheet_kind == MediaKind::Video {
+        "syncplay:watchTogether"
+    } else {
+        "syncplay:listenTogether"
+    });
     let description = t.tf("syncplay:sheet.description", &[("server", server)]);
     rsx! {
         div { class: "jr-sheet-layer jr-sp-sheet",

@@ -142,8 +142,12 @@ impl CastService {
         self.manager.get_session(device_id)
     }
 
-    fn run<F, Fut>(&self, name: &'static str, f: F, done: impl FnOnce(Result<(), String>) + Send + 'static)
-    where
+    fn run<F, Fut>(
+        &self,
+        name: &'static str,
+        f: F,
+        done: impl FnOnce(Result<(), String>) + Send + 'static,
+    ) where
         F: FnOnce(Arc<CastManager>) -> Fut + Send + 'static,
         Fut: Future<Output = Result<(), String>> + Send + 'static,
     {
@@ -168,7 +172,11 @@ impl CastService {
             return done(Err(e));
         }
         let id = device_id.to_string();
-        self.run("load", move |m| async move { m.load(&id, media).await }, done);
+        self.run(
+            "load",
+            move |m| async move { m.load(&id, media).await },
+            done,
+        );
     }
     pub fn play(&self, device_id: &str) {
         let id = device_id.to_string();
@@ -183,7 +191,11 @@ impl CastService {
             return;
         }
         let id = device_id.to_string();
-        self.run("seek", move |m| async move { m.seek(&id, position_sec).await }, |_| {});
+        self.run(
+            "seek",
+            move |m| async move { m.seek(&id, position_sec).await },
+            |_| {},
+        );
     }
     pub fn stop(&self, device_id: &str) {
         let id = device_id.to_string();
@@ -194,15 +206,27 @@ impl CastService {
             return;
         }
         let id = device_id.to_string();
-        self.run("set_volume", move |m| async move { m.set_volume(&id, volume).await }, |_| {});
+        self.run(
+            "set_volume",
+            move |m| async move { m.set_volume(&id, volume).await },
+            |_| {},
+        );
     }
     pub fn set_muted(&self, device_id: &str, muted: bool) {
         let id = device_id.to_string();
-        self.run("set_muted", move |m| async move { m.set_muted(&id, muted).await }, |_| {});
+        self.run(
+            "set_muted",
+            move |m| async move { m.set_muted(&id, muted).await },
+            |_| {},
+        );
     }
     pub fn disconnect(&self, device_id: &str) {
         let id = device_id.to_string();
-        self.run("disconnect", move |m| async move { m.disconnect(&id).await }, |_| {});
+        self.run(
+            "disconnect",
+            move |m| async move { m.disconnect(&id).await },
+            |_| {},
+        );
     }
     /// App quit: release every transport.
     pub fn dispose(&self) {

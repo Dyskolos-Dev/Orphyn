@@ -130,14 +130,32 @@ mod tests {
     fn estimator_prefers_low_delay_and_caps_samples() {
         let mut e = ClockOffsetEstimator::new(4, 0.5);
         assert_eq!(e.offset(), 0.0);
-        e.add(TimeSample { offset: 100.0, delay: 10.0 });
-        e.add(TimeSample { offset: 102.0, delay: 12.0 });
-        e.add(TimeSample { offset: 500.0, delay: 400.0 });
-        e.add(TimeSample { offset: 900.0, delay: 800.0 });
+        e.add(TimeSample {
+            offset: 100.0,
+            delay: 10.0,
+        });
+        e.add(TimeSample {
+            offset: 102.0,
+            delay: 12.0,
+        });
+        e.add(TimeSample {
+            offset: 500.0,
+            delay: 400.0,
+        });
+        e.add(TimeSample {
+            offset: 900.0,
+            delay: 800.0,
+        });
         assert_eq!(e.offset(), 101.0);
         assert_eq!(e.delay(), 11.0);
-        e.add(TimeSample { offset: f64::NAN, delay: 1.0 });
-        e.add(TimeSample { offset: 100.0, delay: 9.0 });
+        e.add(TimeSample {
+            offset: f64::NAN,
+            delay: 1.0,
+        });
+        e.add(TimeSample {
+            offset: 100.0,
+            delay: 9.0,
+        });
         assert_eq!(e.count(), 4);
         e.reset();
         assert_eq!(e.count(), 0);

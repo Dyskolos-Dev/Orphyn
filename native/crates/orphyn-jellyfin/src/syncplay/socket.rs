@@ -88,7 +88,13 @@ impl JellyfinSocket {
     ) -> Self {
         let (tx, rx) = mpsc::unbounded_channel();
         let status = Arc::new(Mutex::new(SocketStatus::Idle));
-        let task = runtime.spawn(run(url, rx, Arc::new(on_message), Arc::new(on_status), status.clone()));
+        let task = runtime.spawn(run(
+            url,
+            rx,
+            Arc::new(on_message),
+            Arc::new(on_status),
+            status.clone(),
+        ));
         Self { tx, status, task }
     }
 
@@ -193,7 +199,10 @@ async fn session(
     set: &impl Fn(SocketStatus),
     attempt: &mut u32,
 ) -> Ended {
-    let connect = tokio::time::timeout(Duration::from_secs(15), tokio_tungstenite::connect_async(url));
+    let connect = tokio::time::timeout(
+        Duration::from_secs(15),
+        tokio_tungstenite::connect_async(url),
+    );
     let ws = tokio::select! {
         r = connect => match r {
             Ok(Ok((ws, _))) => ws,
@@ -282,7 +291,10 @@ mod tests {
             socket_url("https://jf.example/base/", "tok en", "dev-1"),
             "wss://jf.example/base/socket?api_key=tok%20en&deviceId=dev-1"
         );
-        assert_eq!(socket_url("http://10.0.0.2:8096", "t", "d"), "ws://10.0.0.2:8096/socket?api_key=t&deviceId=d");
+        assert_eq!(
+            socket_url("http://10.0.0.2:8096", "t", "d"),
+            "ws://10.0.0.2:8096/socket?api_key=t&deviceId=d"
+        );
     }
 
     #[test]

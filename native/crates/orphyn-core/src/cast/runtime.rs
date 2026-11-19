@@ -3,8 +3,8 @@
 use std::future::Future;
 use std::sync::OnceLock;
 
-pub use tokio::task::JoinHandle;
 use tokio::runtime::{Handle, Runtime};
+pub use tokio::task::JoinHandle;
 
 static RUNTIME: OnceLock<Runtime> = OnceLock::new();
 

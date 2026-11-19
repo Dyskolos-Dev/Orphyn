@@ -1,7 +1,7 @@
 //! `/cast`: the devices found on the network, and a remote control for the one a session is
 //! open on (the React app routes this page to a stub; the native one is a small device list).
 use dioxus::prelude::*;
-use orphyn_core::cast::{CastStatus};
+use orphyn_core::cast::CastStatus;
 
 use super::devices::group_devices;
 use super::hub::hub;

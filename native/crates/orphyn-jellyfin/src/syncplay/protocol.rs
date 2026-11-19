@@ -73,12 +73,30 @@ pub enum SyncPlayErrorKind {
 pub enum SyncPlayEvent {
     Command(SyncPlayCommand),
     GroupJoined(SyncPlayGroup),
-    GroupLeft { group_id: String },
-    UserJoined { group_id: String, user: String },
-    UserLeft { group_id: String, user: String },
-    StateUpdate { group_id: String, state: GroupState, reason: String },
-    PlayQueue { group_id: String, queue: PlayQueue },
-    Error { group_id: String, kind: SyncPlayErrorKind },
+    GroupLeft {
+        group_id: String,
+    },
+    UserJoined {
+        group_id: String,
+        user: String,
+    },
+    UserLeft {
+        group_id: String,
+        user: String,
+    },
+    StateUpdate {
+        group_id: String,
+        state: GroupState,
+        reason: String,
+    },
+    PlayQueue {
+        group_id: String,
+        queue: PlayQueue,
+    },
+    Error {
+        group_id: String,
+        kind: SyncPlayErrorKind,
+    },
 }
 
 pub const EMPTY_GUID: &str = "00000000000000000000000000000000";
@@ -181,7 +199,11 @@ pub fn parse_group(raw: &Value) -> Option<SyncPlayGroup> {
         participants: obj
             .get("Participants")
             .and_then(Value::as_array)
-            .map(|a| a.iter().filter_map(|p| p.as_str().map(String::from)).collect())
+            .map(|a| {
+                a.iter()
+                    .filter_map(|p| p.as_str().map(String::from))
+                    .collect()
+            })
             .unwrap_or_default(),
         last_updated_at: obj
             .get("LastUpdatedAt")
@@ -216,7 +238,10 @@ pub fn parse_command(raw: &Value) -> Option<SyncPlayCommand> {
 pub fn parse_play_queue(raw: &Value) -> Option<PlayQueue> {
     let obj = raw.as_object()?;
     let list = obj.get("Playlist")?.as_array()?;
-    let non_empty = |v: Option<&Value>| v.filter(|v| v.as_str().is_some_and(|s| !s.is_empty())).cloned();
+    let non_empty = |v: Option<&Value>| {
+        v.filter(|v| v.as_str().is_some_and(|s| !s.is_empty()))
+            .cloned()
+    };
     let playlist = list
         .iter()
         .filter_map(|e| {
@@ -262,8 +287,14 @@ pub fn parse_syncplay_message(msg: &SocketMessage) -> Option<SyncPlayEvent> {
                 group_id: if g.is_empty() { group_id } else { g },
             })
         }
-        "UserJoined" => Some(SyncPlayEvent::UserJoined { group_id, user: text(Some(data)) }),
-        "UserLeft" => Some(SyncPlayEvent::UserLeft { group_id, user: text(Some(data)) }),
+        "UserJoined" => Some(SyncPlayEvent::UserJoined {
+            group_id,
+            user: text(Some(data)),
+        }),
+        "UserLeft" => Some(SyncPlayEvent::UserLeft {
+            group_id,
+            user: text(Some(data)),
+        }),
         "StateUpdate" => {
             let o = data.as_object()?;
             Some(SyncPlayEvent::StateUpdate {
@@ -336,10 +367,20 @@ pub async fn set_new_queue(
 
 pub async fn queue_items(client: &Client, item_ids: &[String], next: bool) -> JfResult<()> {
     let mode = if next { "QueueNext" } else { "Queue" };
-    post(client, "Queue", json!({ "ItemIds": item_ids, "Mode": mode })).await
+    post(
+        client,
+        "Queue",
+        json!({ "ItemIds": item_ids, "Mode": mode }),
+    )
+    .await
 }
 pub async fn set_playlist_item(client: &Client, playlist_item_id: &str) -> JfResult<()> {
-    post(client, "SetPlaylistItem", json!({ "PlaylistItemId": playlist_item_id })).await
+    post(
+        client,
+        "SetPlaylistItem",
+        json!({ "PlaylistItemId": playlist_item_id }),
+    )
+    .await
 }
 /// The server ignores it unless `current` is still the playing entry: duplicates are harmless.
 pub async fn next_item(client: &Client, current: &str) -> JfResult<()> {
@@ -396,7 +437,12 @@ pub async fn report_ready(client: &Client, r: &BufferingReport) -> JfResult<()> 
 }
 /// Tells the server our round-trip time (ms); it uses it to place `When` far enough ahead.
 pub async fn send_ping(client: &Client, ping_ms: f64) -> JfResult<()> {
-    post(client, "Ping", json!({ "Ping": ping_ms.max(0.0).round() as i64 })).await
+    post(
+        client,
+        "Ping",
+        json!({ "Ping": ping_ms.max(0.0).round() as i64 }),
+    )
+    .await
 }
 
 /// `GET /GetUtcTime`: when the server received the request and sent the answer (ms).
@@ -430,7 +476,10 @@ mod tests {
     fn dates_round_trip_and_cut_fraction() {
         let ms = parse_server_date(&json!("2026-11-17T18:27:41.0429711Z")).unwrap();
         assert_eq!(to_server_date(ms), "2026-11-17T18:27:41.042Z");
-        assert_eq!(parse_server_date(&json!("1970-01-01T00:00:01Z")), Some(1000.0));
+        assert_eq!(
+            parse_server_date(&json!("1970-01-01T00:00:01Z")),
+            Some(1000.0)
+        );
         assert!(parse_server_date(&json!("nope")).is_none());
         assert!(parse_server_date(&json!(3)).is_none());
     }
@@ -457,7 +506,10 @@ mod tests {
             }
             other => panic!("{other:?}"),
         }
-        let bad = msg("SyncPlayCommand", json!({"Command":"Boom","When":"2026-11-17T18:27:41Z"}));
+        let bad = msg(
+            "SyncPlayCommand",
+            json!({"Command":"Boom","When":"2026-11-17T18:27:41Z"}),
+        );
         assert!(parse_syncplay_message(&bad).is_none());
         assert!(parse_syncplay_message(&msg("KeepAlive", json!(null))).is_none());
     }
@@ -487,7 +539,10 @@ mod tests {
             Some(SyncPlayEvent::PlayQueue { queue, .. }) => {
                 assert_eq!(
                     queue.playlist,
-                    vec![QueueEntry { item_id: "i1".into(), playlist_item_id: "p1".into() }]
+                    vec![QueueEntry {
+                        item_id: "i1".into(),
+                        playlist_item_id: "p1".into()
+                    }]
                 );
                 assert!(queue.is_playing);
             }
@@ -499,14 +554,25 @@ mod tests {
         ));
         assert!(matches!(
             err,
-            Some(SyncPlayEvent::Error { kind: SyncPlayErrorKind::JoinGroupDenied, .. })
+            Some(SyncPlayEvent::Error {
+                kind: SyncPlayErrorKind::JoinGroupDenied,
+                ..
+            })
         ));
         let left = parse_syncplay_message(&msg(
             "SyncPlayGroupUpdate",
             json!({"GroupId":"G-2","Type":"GroupLeft","Data":null}),
         ));
-        assert_eq!(left, Some(SyncPlayEvent::GroupLeft { group_id: "g2".into() }));
-        let weird = msg("SyncPlayGroupUpdate", json!({"GroupId":"g","Type":"Weird","Data":null}));
+        assert_eq!(
+            left,
+            Some(SyncPlayEvent::GroupLeft {
+                group_id: "g2".into()
+            })
+        );
+        let weird = msg(
+            "SyncPlayGroupUpdate",
+            json!({"GroupId":"g","Type":"Weird","Data":null}),
+        );
         assert!(parse_syncplay_message(&weird).is_none());
     }
 }

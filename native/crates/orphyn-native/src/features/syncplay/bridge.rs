@@ -16,7 +16,11 @@ fn normalize(id: &str) -> String {
 }
 
 fn ids_of(s: &PlayerState) -> Vec<String> {
-    s.model.queue.iter().map(|q| normalize(&q.track.id)).collect()
+    s.model
+        .queue
+        .iter()
+        .map(|q| normalize(&q.track.id))
+        .collect()
 }
 
 /// `next` is `prev` with entries added at the end: the extra ids, else `None`.
@@ -38,7 +42,11 @@ pub fn inserted_after(prev: &[String], next: &[String], index: i64) -> Option<Ve
     if !head.iter().zip(next).all(|(a, b)| a == b) {
         return None;
     }
-    if !tail.iter().enumerate().all(|(i, id)| next.get(head_len + added + i) == Some(id)) {
+    if !tail
+        .iter()
+        .enumerate()
+        .all(|(i, id)| next.get(head_len + added + i) == Some(id))
+    {
         return None;
     }
     Some(next[head_len..head_len + added].to_vec())
@@ -52,7 +60,10 @@ pub struct MusicSync {
 
 impl SyncPlayer for MusicSync {
     fn item_id(&self) -> Option<String> {
-        self.player.state().current().map(|q| normalize(&q.track.id))
+        self.player
+            .state()
+            .current()
+            .map(|q| normalize(&q.track.id))
     }
     fn position(&self) -> f64 {
         self.player.progress().position
@@ -78,12 +89,18 @@ impl SyncPlayer for MusicSync {
 
 impl MusicBridge for MusicSync {
     fn player(&self) -> Arc<dyn SyncPlayer> {
-        Arc::new(MusicSync { player: self.player.clone() })
+        Arc::new(MusicSync {
+            player: self.player.clone(),
+        })
     }
 
     fn local_queue(&self) -> (Vec<String>, i64, bool) {
         let s = self.player.state();
-        (ids_of(&s), s.model.index as i64, s.status == PlayerStatus::Playing)
+        (
+            ids_of(&s),
+            s.model.index as i64,
+            s.status == PlayerStatus::Playing,
+        )
     }
 
     fn load(&self, tracks: Vec<BaseItemDto>, index: usize) {
@@ -114,7 +131,12 @@ impl MusicBridge for MusicSync {
 }
 
 /// Turns a person's change of the music player into a group request (pure, for tests).
-pub fn music_intent(s: &PlayerState, prev: &PlayerState, following_audio: bool, intents: &dyn MusicIntents) {
+pub fn music_intent(
+    s: &PlayerState,
+    prev: &PlayerState,
+    following_audio: bool,
+    intents: &dyn MusicIntents,
+) {
     let prev_ids = ids_of(prev);
     let ids = ids_of(s);
     if prev_ids != ids {
@@ -197,10 +219,14 @@ impl MusicIntents for ManagerIntents {
 /// Registers the music player with the manager and watches it for the person's changes.
 pub fn start_music(player: MusicPlayer) {
     let m = manager();
-    m.set_music_bridge(Arc::new(MusicSync { player: player.clone() }));
+    m.set_music_bridge(Arc::new(MusicSync {
+        player: player.clone(),
+    }));
     let mut state_rx = player.subscribe_state();
     spawn(async move {
-        let intents = ManagerIntents { player: player.clone() };
+        let intents = ManagerIntents {
+            player: player.clone(),
+        };
         let mut prev = state_rx.borrow_and_update().clone();
         while state_rx.changed().await.is_ok() {
             let s = state_rx.borrow_and_update().clone();
@@ -267,7 +293,11 @@ pub enum VideoIntent {
     Seek(f64),
 }
 
-pub fn video_intent(prev: &PlaybackSnapshot, now: &PlaybackSnapshot, elapsed_s: f64) -> Option<VideoIntent> {
+pub fn video_intent(
+    prev: &PlaybackSnapshot,
+    now: &PlaybackSnapshot,
+    elapsed_s: f64,
+) -> Option<VideoIntent> {
     if prev.item_id != now.item_id {
         return None;
     }
@@ -279,10 +309,17 @@ pub fn video_intent(prev: &PlaybackSnapshot, now: &PlaybackSnapshot, elapsed_s: 
     if was_playing && matches!(now.status, PlaybackStatus::Paused) {
         return Some(VideoIntent::Pause);
     }
-    let both_active = matches!(prev.status, PlaybackStatus::Playing | PlaybackStatus::Paused)
-        && matches!(now.status, PlaybackStatus::Playing | PlaybackStatus::Paused);
+    let both_active = matches!(
+        prev.status,
+        PlaybackStatus::Playing | PlaybackStatus::Paused
+    ) && matches!(now.status, PlaybackStatus::Playing | PlaybackStatus::Paused);
     if both_active {
-        let expected = prev.position_seconds + if was_playing { elapsed_s * prev.rate } else { 0.0 };
+        let expected = prev.position_seconds
+            + if was_playing {
+                elapsed_s * prev.rate
+            } else {
+                0.0
+            };
         if (now.position_seconds - expected).abs() > 1.5 {
             return Some(VideoIntent::Seek(now.position_seconds));
         }
@@ -293,7 +330,9 @@ pub fn video_intent(prev: &PlaybackSnapshot, now: &PlaybackSnapshot, elapsed_s: 
 /// Registers the video player with the manager and watches it for the person's changes.
 pub fn start_video(video: VideoController) {
     let m = manager();
-    m.set_video(Arc::new(VideoSync { video: video.clone() }));
+    m.set_video(Arc::new(VideoSync {
+        video: video.clone(),
+    }));
     let mut rx = video.subscribe();
     spawn(async move {
         let mut prev = rx.borrow_and_update().clone();
@@ -313,7 +352,10 @@ pub fn start_video(video: VideoController) {
                     m.video_loaded();
                 } else {
                     // An item opened here while in a group becomes the group's.
-                    m.video_item_started(now.item_id.as_deref().unwrap_or(""), now.position_seconds);
+                    m.video_item_started(
+                        now.item_id.as_deref().unwrap_or(""),
+                        now.position_seconds,
+                    );
                 }
             } else if following && !m.is_quiet() {
                 match video_intent(&prev, &now, elapsed) {
@@ -342,15 +384,24 @@ mod tests {
 
     #[test]
     fn appended_and_inserted_after() {
-        assert_eq!(appended(&v(&["a", "b"]), &v(&["a", "b", "c", "d"])), Some(v(&["c", "d"])));
+        assert_eq!(
+            appended(&v(&["a", "b"]), &v(&["a", "b", "c", "d"])),
+            Some(v(&["c", "d"]))
+        );
         assert_eq!(appended(&v(&["a", "b"]), &v(&["a", "x", "c"])), None);
         assert_eq!(appended(&v(&["a"]), &v(&["a"])), None);
         assert_eq!(
             inserted_after(&v(&["a", "b", "c"]), &v(&["a", "x", "y", "b", "c"]), 0),
             Some(v(&["x", "y"]))
         );
-        assert_eq!(inserted_after(&v(&["a", "b"]), &v(&["a", "b", "x"]), 1), Some(v(&["x"])));
-        assert_eq!(inserted_after(&v(&["a", "b"]), &v(&["a", "x", "c"]), 0), None);
+        assert_eq!(
+            inserted_after(&v(&["a", "b"]), &v(&["a", "b", "x"]), 1),
+            Some(v(&["x"]))
+        );
+        assert_eq!(
+            inserted_after(&v(&["a", "b"]), &v(&["a", "x", "c"]), 0),
+            None
+        );
         assert_eq!(inserted_after(&v(&["a"]), &v(&["a", "b"]), -1), None);
     }
 
@@ -376,10 +427,16 @@ mod tests {
             self.0.lock().unwrap().push(format!("jump {id}"));
         }
         fn new_queue(&self, ids: Vec<String>, index: usize, _: f64) {
-            self.0.lock().unwrap().push(format!("new {} {index}", ids.join(",")));
+            self.0
+                .lock()
+                .unwrap()
+                .push(format!("new {} {index}", ids.join(",")));
         }
         fn queue(&self, ids: Vec<String>, next: bool) {
-            self.0.lock().unwrap().push(format!("queue {} {next}", ids.join(",")));
+            self.0
+                .lock()
+                .unwrap()
+                .push(format!("queue {} {next}", ids.join(",")));
         }
     }
 
@@ -391,12 +448,19 @@ mod tests {
             .map(|(i, id)| {
                 QueueItem::new(
                     format!("u{i}"),
-                    BaseItemDto { id: (*id).into(), ..BaseItemDto::default() },
+                    BaseItemDto {
+                        id: (*id).into(),
+                        ..BaseItemDto::default()
+                    },
                 )
             })
             .collect();
         PlayerState {
-            model: QueueModel { queue, index, ..QueueModel::default() },
+            model: QueueModel {
+                queue,
+                index,
+                ..QueueModel::default()
+            },
             want_playing: want,
             seek_nonce: nonce,
             ..PlayerState::default()
@@ -413,11 +477,26 @@ mod tests {
     #[test]
     fn music_changes_become_group_requests() {
         let base = state(&["a", "b", "c"], 0, false, 0);
-        assert_eq!(intent(&base, &state(&["a", "b", "c"], 1, false, 0), true), ["next"]);
-        assert_eq!(intent(&state(&["a", "b", "c"], 1, false, 0), &base, true), ["previous"]);
-        assert_eq!(intent(&base, &state(&["a", "b", "c"], 2, false, 0), true), ["jump c"]);
-        assert_eq!(intent(&base, &state(&["a", "b", "c"], 0, true, 0), true), ["play"]);
-        assert_eq!(intent(&state(&["a", "b", "c"], 0, true, 0), &base, true), ["pause"]);
+        assert_eq!(
+            intent(&base, &state(&["a", "b", "c"], 1, false, 0), true),
+            ["next"]
+        );
+        assert_eq!(
+            intent(&state(&["a", "b", "c"], 1, false, 0), &base, true),
+            ["previous"]
+        );
+        assert_eq!(
+            intent(&base, &state(&["a", "b", "c"], 2, false, 0), true),
+            ["jump c"]
+        );
+        assert_eq!(
+            intent(&base, &state(&["a", "b", "c"], 0, true, 0), true),
+            ["play"]
+        );
+        assert_eq!(
+            intent(&state(&["a", "b", "c"], 0, true, 0), &base, true),
+            ["pause"]
+        );
         assert!(intent(&base, &state(&["a", "b", "c"], 0, false, 1), true).is_empty());
         assert!(intent(&base, &state(&["a", "b", "c"], 1, false, 0), false).is_empty());
         assert_eq!(
@@ -428,7 +507,10 @@ mod tests {
             intent(&base, &state(&["a", "x", "b", "c"], 0, false, 0), true),
             ["queue x true"]
         );
-        assert_eq!(intent(&base, &state(&["z", "y"], 0, true, 0), true), ["new z,y 0"]);
+        assert_eq!(
+            intent(&base, &state(&["z", "y"], 0, true, 0), true),
+            ["new z,y 0"]
+        );
     }
 
     fn snap(item: &str, status: PlaybackStatus, pos: f64) -> PlaybackSnapshot {
@@ -443,12 +525,30 @@ mod tests {
     #[test]
     fn video_changes_become_intents() {
         use PlaybackStatus::{Paused, Playing};
-        assert_eq!(video_intent(&snap("a", Paused, 5.0), &snap("a", Playing, 5.0), 0.2), Some(VideoIntent::Play));
-        assert_eq!(video_intent(&snap("a", Playing, 5.0), &snap("a", Paused, 5.2), 0.2), Some(VideoIntent::Pause));
+        assert_eq!(
+            video_intent(&snap("a", Paused, 5.0), &snap("a", Playing, 5.0), 0.2),
+            Some(VideoIntent::Play)
+        );
+        assert_eq!(
+            video_intent(&snap("a", Playing, 5.0), &snap("a", Paused, 5.2), 0.2),
+            Some(VideoIntent::Pause)
+        );
         // Playing on: the position follows the clock, no seek.
-        assert_eq!(video_intent(&snap("a", Playing, 5.0), &snap("a", Playing, 5.25), 0.25), None);
-        assert_eq!(video_intent(&snap("a", Playing, 5.0), &snap("a", Playing, 60.0), 0.25), Some(VideoIntent::Seek(60.0)));
-        assert_eq!(video_intent(&snap("a", Paused, 5.0), &snap("a", Paused, 30.0), 0.25), Some(VideoIntent::Seek(30.0)));
-        assert_eq!(video_intent(&snap("a", Playing, 5.0), &snap("b", Playing, 0.0), 0.25), None);
+        assert_eq!(
+            video_intent(&snap("a", Playing, 5.0), &snap("a", Playing, 5.25), 0.25),
+            None
+        );
+        assert_eq!(
+            video_intent(&snap("a", Playing, 5.0), &snap("a", Playing, 60.0), 0.25),
+            Some(VideoIntent::Seek(60.0))
+        );
+        assert_eq!(
+            video_intent(&snap("a", Paused, 5.0), &snap("a", Paused, 30.0), 0.25),
+            Some(VideoIntent::Seek(30.0))
+        );
+        assert_eq!(
+            video_intent(&snap("a", Playing, 5.0), &snap("b", Playing, 0.0), 0.25),
+            None
+        );
     }
 }

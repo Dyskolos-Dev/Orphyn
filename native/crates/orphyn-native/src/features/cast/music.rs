@@ -86,7 +86,12 @@ impl MusicRemote {
 
     /// Stops listening (the device is released by the caller).
     pub fn dispose(&self) {
-        if let Some(id) = self.handler.lock().unwrap_or_else(|p| p.into_inner()).take() {
+        if let Some(id) = self
+            .handler
+            .lock()
+            .unwrap_or_else(|p| p.into_inner())
+            .take()
+        {
             self.hub.remove_handler(id);
         }
         self.state().gen += 1;
@@ -145,7 +150,8 @@ impl MusicRemote {
             });
         }
         if active {
-            self.player.remote_event(RemoteEvent::Position(s.position_sec));
+            self.player
+                .remote_event(RemoteEvent::Position(s.position_sec));
         }
         match changed {
             Some(CastStatus::Playing) => self.player.remote_event(RemoteEvent::Playing(true)),
@@ -167,12 +173,14 @@ impl RemoteOutput for MusicRemote {
             i.last_status = None;
         }
         let (hub, device) = (self.hub.clone(), self.device_id.clone());
-        hub.clone().service.load(&device.clone(), media, move |result| match result {
-            Err(e) => hub.fail(&device, e),
-            // The receiver starts playing on load: pause it when the player did not want that.
-            Ok(()) if !autoplay => hub.service.pause(&device),
-            Ok(()) => {}
-        });
+        hub.clone()
+            .service
+            .load(&device.clone(), media, move |result| match result {
+                Err(e) => hub.fail(&device, e),
+                // The receiver starts playing on load: pause it when the player did not want that.
+                Ok(()) if !autoplay => hub.service.pause(&device),
+                Ok(()) => {}
+            });
     }
 
     fn play(&self) {
@@ -186,7 +194,9 @@ impl RemoteOutput for MusicRemote {
     }
     fn set_volume(&self, volume: f32) {
         // Some receivers (AirPlay) have no remote volume: not an error worth showing.
-        self.hub.service.set_volume(&self.device_id, f64::from(volume));
+        self.hub
+            .service
+            .set_volume(&self.device_id, f64::from(volume));
     }
     fn stop(&self) {
         self.hub.service.stop(&self.device_id);

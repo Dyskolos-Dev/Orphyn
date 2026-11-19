@@ -14,7 +14,10 @@ use tokio::sync::mpsc::{unbounded_channel, UnboundedReceiver, UnboundedSender};
 pub enum UiMsg {
     Event(CastEvent),
     /// A device gave up while it played something for the app (refused media, link lost).
-    Failure { device_id: String, message: String },
+    Failure {
+        device_id: String,
+        message: String,
+    },
 }
 
 pub type Handler = Arc<dyn Fn(&CastEvent) + Send + Sync>;
