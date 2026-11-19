@@ -150,6 +150,7 @@ pub fn app() -> Element {
                 div { class: "jr-app", AppShell {} }
                 crate::features::whatsnew::WhatsNewHost {}
                 crate::features::updater::UpdateNotice {}
+                crate::features::palette::PaletteHost {}
                 crate::features::cast::ToastHost {}
                 crate::features::syncplay::SyncPlayHost {}
                 CaptionButtons {

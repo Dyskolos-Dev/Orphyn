@@ -144,7 +144,7 @@ pub fn OverlayHost() -> Element {
     let left = open.x.min(vw - width - EDGE).max(EDGE);
     let top = open.y.min(vh - height - EDGE).max(EDGE);
 
-    let focus_at = move |idx: usize| {
+    let mut focus_at = move |idx: usize| {
         cursor.set(Some(idx));
         if let Some(m) = mounted.peek().get(&idx).cloned() {
             spawn(async move {

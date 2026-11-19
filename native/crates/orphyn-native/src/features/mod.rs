@@ -3,6 +3,7 @@
 pub mod cast;
 pub mod discord;
 pub mod music;
+pub mod palette;
 pub mod search;
 pub mod servers;
 pub mod settings;
