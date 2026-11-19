@@ -17,3 +17,9 @@
 .jr-step-enter { animation: jr-step-in-fwd 240ms cubic-bezier(0.22, 1, 0.36, 1) both; }
 .jr-step-enter-back { animation: jr-step-in-back 240ms cubic-bezier(0.22, 1, 0.36, 1) both; }
 .jr-check-pop { animation: jr-check-pop 420ms cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+
+/* Settings > Home: Blitz has no drag-and-drop reordering (framer-motion `Reorder`), so the
+   grip is replaced by an up / down pair stacked in the same 28px column. */
+.jr-home-row__handle { height: auto; width: 28px; cursor: default; }
+.jr-home-row__moves { display: flex; flex-direction: column; gap: 0; }
+.jr-home-row__moves .jr-icon-button { width: 28px; height: 18px; }

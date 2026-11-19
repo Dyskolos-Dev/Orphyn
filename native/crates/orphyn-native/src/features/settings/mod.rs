@@ -1,5 +1,7 @@
 //! Settings page (`SettingsPage.tsx`): a pane list on the left, the pane on the right.
+mod about;
 mod appearance;
+mod home;
 mod playback;
 mod style_gallery;
 mod servers_pane;
@@ -7,6 +9,7 @@ mod ui;
 
 use dioxus::prelude::*;
 
+pub use about::open_external;
 pub use playback::apply_playback_prefs;
 pub use servers_pane::switch_server;
 
@@ -14,12 +17,15 @@ use crate::design::Icon;
 use crate::i18n::use_i18n;
 use crate::shell::ShellPage;
 
-const PANES: [(&str, &str); 5] = [
+const PANES: [(&str, &str); 8] = [
     ("general", "settings"),
     ("appearance", "palette"),
+    ("home", "layout-dashboard"),
     ("servers", "server"),
     ("playback", "play"),
     ("music", "music"),
+    ("discord", "message-circle"),
+    ("about", "info"),
 ];
 
 #[component]
@@ -52,6 +58,9 @@ pub fn SettingsPage() -> Element {
                     h2 { class: "jr-settings__pane-title", "{title}" }
                     match current {
                         "appearance" => rsx! { appearance::AppearancePane {} },
+                        "home" => rsx! { home::HomePane {} },
+                        "about" => rsx! { about::AboutPane {} },
+                        "discord" => rsx! { crate::features::discord::DiscordPane {} },
                         "servers" => rsx! { servers_pane::ServersPane {} },
                         "playback" => rsx! { playback::PlaybackPane {} },
                         "music" => rsx! { playback::MusicPane {} },
