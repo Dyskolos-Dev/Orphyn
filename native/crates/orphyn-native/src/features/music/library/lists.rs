@@ -200,6 +200,7 @@ pub fn PlaylistsPage() -> Element {
         page_size: Some(60),
         ..ItemsParams::default()
     };
+    let ui = crate::features::music::playlists::use_playlist_ui();
     let (paged, more) = use_items_list(params);
     rsx! {
         LibraryGrid {
@@ -209,7 +210,10 @@ pub fn PlaylistsPage() -> Element {
             empty_icon: "list-music",
             empty_title: t.t("music:playlists.empty"),
             empty_message: t.t("music:playlists.emptyHint"),
-            sort: rsx! { SortMenu { pref, options } },
+            sort: rsx! {
+                Button { icon: "plus", onclick: move |_| ui.open_new(Vec::new()), {t.t("music:playlistSheet.title")} }
+                SortMenu { pref, options }
+            },
             on_more: more,
             on_retry: Callback::new(move |_| {}),
         }

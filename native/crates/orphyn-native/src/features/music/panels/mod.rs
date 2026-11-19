@@ -11,4 +11,4 @@ pub use host::PanelsHost;
 pub use lyrics::LyricsView;
 pub use menus::{use_track_menu, TrackMenu};
 pub use queue::QueueView;
-pub use radio::{start_radio, RadioIndicator};
+pub use radio::{start_radio, use_radio_starter, RadioIndicator};

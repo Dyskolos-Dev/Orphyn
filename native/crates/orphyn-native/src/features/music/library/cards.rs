@@ -7,6 +7,7 @@ use orphyn_jellyfin::{BaseItemDto, ItemsParams};
 use orphyn_player::music::MusicPlayer;
 
 use crate::design::{use_overlay, Artwork, IconButton, MenuItem};
+use crate::features::music::panels::use_track_menu;
 use crate::features::music::{art, toggle_favorite, use_base_url};
 use crate::i18n::use_i18n;
 use crate::router::use_router;
@@ -169,6 +170,7 @@ pub fn MediaCard(
     let svc = use_services();
     let app = use_app();
     let router = use_router();
+    let track_menu_ctx = use_track_menu();
     let overlay = use_overlay();
     let kind = if round { "round" } else { "square" };
     let actions = if playable {
@@ -191,7 +193,9 @@ pub fn MediaCard(
                     e.prevent_default();
                     let p = e.client_coordinates();
                     let session = app.session.peek().clone();
-                    overlay.menu(p.x, p.y, container_menu(t, &menu_svc, session, &menu_item));
+                    let mut items = container_menu(t, &menu_svc, session, &menu_item);
+                    track_menu_ctx.container_items(p.x, p.y, &menu_item, false, &mut items);
+                    overlay.menu(p.x, p.y, items);
                 },
                 div { class: "jr-card__art",
                     if round && image.is_none() {

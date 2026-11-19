@@ -3,6 +3,7 @@ use dioxus::prelude::*;
 use orphyn_jellyfin::keys::{self, stale};
 use orphyn_jellyfin::{BaseItemDto, ItemsPage, ItemsParams};
 
+use super::panels::use_track_menu;
 use super::rows::SongRows;
 use super::{art, format_total, toggle_favorite, use_base_url};
 use crate::design::{
@@ -200,6 +201,8 @@ fn DetailHeader(
         svc.music.clone(),
     );
     let fav_item = item.clone();
+    let menu_item = item.clone();
+    let menu_ctx = use_track_menu();
     rsx! {
         header { class: "jrm-detail",
             Artwork { src: image, shadow: true, class: "jrm-detail__art" }
@@ -246,10 +249,12 @@ fn DetailHeader(
                             let p = e.client_coordinates();
                             let (a, b) = (p3.clone(), p4.clone());
                             let (next, last) = (menu_list.clone(), menu_list.clone());
-                            overlay.menu(p.x, p.y, vec![
+                            let mut items = vec![
                                 MenuItem::action(t.t("music:actions.playNext"), Some("list-start"), move |_| a.play_next(&next)),
                                 MenuItem::action(t.t("music:actions.addToQueue"), Some("list-end"), move |_| b.add_to_queue(&last)),
-                            ]);
+                            ];
+                            menu_ctx.container_items(p.x, p.y, &menu_item, true, &mut items);
+                            overlay.menu(p.x, p.y, items);
                         },
                     }
                 }

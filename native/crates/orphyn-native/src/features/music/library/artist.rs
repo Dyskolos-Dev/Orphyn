@@ -13,6 +13,7 @@ use super::cards::{artist_songs, track_menu, ArtistCard, MediaCard};
 use crate::design::{
     use_overlay, Artwork, Button, EmptyState, IconButton, Shelf, Spinner, TrackRow,
 };
+use crate::features::music::panels::use_radio_starter;
 use crate::features::music::rows::FavoriteAccessory;
 use crate::features::music::{
     art, toggle_favorite, track_art, track_artist, track_artist_id, use_base_url, use_music,
@@ -634,8 +635,7 @@ fn ArtistHeader(
     let src = jf_image.or_else(|| found.data.as_deref().cloned().flatten());
     let fav_item = artist.clone();
     let radio_item = artist.id.clone();
-    let radio_session = app.session;
-    let radio_svc = svc.clone();
+    let start_radio = use_radio_starter();
     rsx! {
         header { class: "jrm-detail jrm-artist__header",
             Artwork { src, shape: "circle", shadow: true, fallback: "user", class: "jrm-detail__art jrm-artist__photo" }
@@ -656,18 +656,7 @@ fn ArtistHeader(
                     Button {
                         variant: "tinted",
                         icon: "radio",
-                        onclick: move |_| {
-                            // startRadio: an instant mix seeded by the artist.
-                            let Some(s) = radio_session.peek().clone() else { return };
-                            let (svc, id) = (radio_svc.clone(), radio_item.clone());
-                            spawn(async move {
-                                if let Ok(list) = s.instant_mix(&id, 50).await {
-                                    if !list.is_empty() {
-                                        svc.music.play(&list, Some(0), Some(false));
-                                    }
-                                }
-                            });
-                        },
+                        onclick: move |_| start_radio(radio_item.clone()),
                         {t.t("mixes:radio.start")}
                     }
                     IconButton {

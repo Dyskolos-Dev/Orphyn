@@ -8,7 +8,8 @@ use orphyn_player::music::MusicPlayer;
 
 use crate::design::Icon;
 use crate::i18n::use_i18n;
-use crate::state::use_services;
+use crate::design::toast::use_toasts;
+use crate::state::{use_app, use_services};
 
 /// Songs of one artist, random order (`songs()` of `mixes/api.ts`).
 async fn artist_songs(s: &Session, artist: &str, limit: u32) -> Vec<BaseItemDto> {
@@ -155,5 +156,26 @@ pub fn RadioIndicator() -> Element {
                 Icon { name: "x", size: 12 }
             }
         }
+    }
+}
+
+/// `startRadio` with its toasts: "Radio started: <name>" or the error one. Call the result with
+/// the song, album or artist id.
+pub fn use_radio_starter() -> impl Fn(String) + Clone + 'static {
+    let player = use_services().music;
+    let session = use_app().session;
+    let toasts = use_toasts();
+    let t = use_i18n();
+    move |id: String| {
+        let Some(s) = session.peek().clone() else {
+            return;
+        };
+        let p = player.clone();
+        spawn(async move {
+            match start_radio(p, s, id).await {
+                Some(name) => toasts.info(t.tf("mixes:radio.started", &[("name", name)]), None),
+                None => toasts.error(t.t("mixes:radio.failed"), None),
+            }
+        });
     }
 }

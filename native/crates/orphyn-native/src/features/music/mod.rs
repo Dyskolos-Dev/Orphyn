@@ -5,6 +5,7 @@ pub mod library;
 mod mini_player;
 mod now_playing;
 pub mod panels;
+pub mod playlists;
 mod rows;
 mod transport;
 

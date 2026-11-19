@@ -5,19 +5,18 @@
 //! let menu = use_track_menu();
 //! onclick: move |e| menu.open(e.client_coordinates().x, e.client_coordinates().y, track.clone())
 //! ```
-use std::time::Duration;
-
 use dioxus::prelude::*;
-use orphyn_jellyfin::client::Q;
 use orphyn_jellyfin::endpoints::Session;
 use orphyn_jellyfin::{keys, BaseItemDto, ItemsParams};
 use orphyn_player::music::MusicPlayer;
 
-use super::radio::start_radio;
+use super::radio::use_radio_starter;
 use crate::design::{use_overlay, MenuItem, Overlay};
 use crate::features::music::{toggle_favorite, track_artist_id};
 use crate::i18n::{use_i18n, I18n};
 use crate::router::{use_router, Router};
+use super::super::playlists::{add_to_playlist, use_playlist_ui, PlaylistUi};
+use crate::design::toast::{use_toasts, Toasts};
 use crate::state::{use_app, use_services, Services};
 
 #[derive(Clone)]
@@ -28,6 +27,9 @@ pub struct TrackMenu {
     svc: Services,
     session: Option<Session>,
     overlay: Overlay,
+    toasts: Toasts,
+    ui: PlaylistUi,
+    radio: std::rc::Rc<dyn Fn(String)>,
 }
 
 pub fn use_track_menu() -> TrackMenu {
@@ -38,6 +40,9 @@ pub fn use_track_menu() -> TrackMenu {
         router: use_router(),
         session: (use_app().session)(),
         overlay: use_overlay(),
+        toasts: use_toasts(),
+        ui: use_playlist_ui(),
+        radio: std::rc::Rc::new(use_radio_starter()),
         svc,
     }
 }
@@ -75,23 +80,11 @@ impl TrackMenu {
                 Some("list-plus"),
                 move |_| me.pick_playlist(x, y, vec![id.clone()]),
             ));
-            let (player, session, id) =
-                (self.player.clone(), self.session.clone(), track.id.clone());
+            let (radio, id) = (self.radio.clone(), track.id.clone());
             items.push(MenuItem::action(
                 t.t("mixes:radio.start"),
                 Some("radio"),
-                move |_| {
-                    let Some(s) = session.clone() else {
-                        return;
-                    };
-                    let (p, id) = (player.clone(), id.clone());
-                    spawn(async move {
-                        // The radio notice of the React app is a toast; the queue shows the radio.
-                        if start_radio(p, s, id).await.is_none() {
-                            log::warn!("[radio] could not start the radio");
-                        }
-                    });
-                },
+                move |_| radio(id.clone()),
             ));
         }
         items.push(MenuItem::Separator);
@@ -122,6 +115,30 @@ impl TrackMenu {
         items
     }
 
+    /// `useContainerMenuWithPlaylists`: an album's menu gets "Add to Playlist…" after the queue
+    /// actions. `radio` adds the album header's "Start Radio" right after Play / Shuffle.
+    pub fn container_items(&self, x: f64, y: f64, item: &BaseItemDto, radio: bool, items: &mut Vec<MenuItem>) {
+        if self.session.is_none() || !item.is_type("MusicAlbum") {
+            return;
+        }
+        let (me, id) = (self.clone(), item.id.clone());
+        let at = 5.min(items.len());
+        items.insert(
+            at,
+            MenuItem::action(self.t.t("music:playlistMenu.add"), Some("list-plus"), move |_| {
+                me.pick_playlist(x, y, vec![id.clone()])
+            }),
+        );
+        if radio {
+            let (start, id) = (self.radio.clone(), item.id.clone());
+            let at = 3.min(items.len());
+            items.insert(
+                at,
+                MenuItem::action(self.t.t("mixes:radio.start"), Some("radio"), move |_| start(id.clone())),
+            );
+        }
+    }
+
     /// The cached item wins over the (possibly stale) row, like `CurrentTrackHeart`.
     fn is_favorite(&self, track: &BaseItemDto) -> bool {
         self.session
@@ -136,12 +153,14 @@ impl TrackMenu {
             .unwrap_or_else(|| track.is_favorite())
     }
 
-    /// Lists the playlists in a menu at (`x`, `y`) and adds `ids` to the picked one.
-    fn pick_playlist(&self, x: f64, y: f64, ids: Vec<String>) {
+    /// "New Playlist…" and the user's playlists in a menu at (`x`, `y`); adds `ids` to the picked
+    /// one (`PlaylistPicker`).
+    pub fn pick_playlist(&self, x: f64, y: f64, ids: Vec<String>) {
         let Some(session) = self.session.clone() else {
             return;
         };
-        let (overlay, svc, t) = (self.overlay, self.svc.clone(), self.t);
+        let (overlay, svc, t, toasts, ui) =
+            (self.overlay, self.svc.clone(), self.t, self.toasts, self.ui);
         spawn(async move {
             let params = ItemsParams {
                 include_item_types: vec!["Playlist".into()],
@@ -155,38 +174,35 @@ impl TrackMenu {
                 .await
                 .map(|p| p.items)
                 .unwrap_or_default();
-            let mut items = vec![MenuItem::Header(t.t("music:playlistMenu.add"))];
+            let new_ids = ids.clone();
+            let mut items = vec![MenuItem::action(
+                t.t("music:playlistMenu.new"),
+                Some("plus"),
+                move |_| ui.open_new(new_ids.clone()),
+            )];
+            if !lists.is_empty() {
+                items.push(MenuItem::Separator);
+            }
             for list in lists {
                 let (session, svc, ids) = (session.clone(), svc.clone(), ids.clone());
                 let name = list.name().to_string();
-                items.push(MenuItem::action(name, Some("list-music"), move |_| {
-                    add_to_playlist(svc.clone(), session.clone(), list.id.clone(), ids.clone())
-                }));
+                items.push(MenuItem::action(
+                    name.clone(),
+                    Some("list-music"),
+                    move |_| {
+                        add_to_playlist(
+                            svc.clone(),
+                            session.clone(),
+                            toasts,
+                            t,
+                            list.id.clone(),
+                            name.clone(),
+                            ids.clone(),
+                        )
+                    },
+                ));
             }
             overlay.menu(x, y, items);
         });
     }
-}
-
-/// `POST /Playlists/{id}/Items` (`addToPlaylist`), then refreshes the playlist's cached items.
-fn add_to_playlist(svc: Services, session: Session, playlist: String, ids: Vec<String>) {
-    let url = session.client.authed_url(
-        &format!("/Playlists/{playlist}/Items"),
-        &[
-            ("ids", Some(Q::List(ids))),
-            ("userId", Some(Q::Str(session.user_id.clone()))),
-        ],
-    );
-    spawn(async move {
-        let done = tokio::task::spawn_blocking(move || {
-            orphyn_player::music::http::post_empty(&url, Duration::from_secs(20))
-        })
-        .await;
-        match done {
-            Ok(Ok(())) => svc
-                .cache
-                .invalidate(&keys::playlist_items(&session.account_id, &playlist)),
-            _ => log::warn!("[playlist] could not add the songs"),
-        }
-    });
 }
