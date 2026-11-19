@@ -82,6 +82,7 @@ pub fn MiniPlayer() -> Element {
                 }
             }
             div { class: "jrm-mini__right",
+                crate::features::syncplay::SyncPlayButton { kind: crate::features::syncplay::MediaKind::Audio }
                 crate::features::cast::MusicCastButton {}
                 VolumeControl {}
                 IconButton {

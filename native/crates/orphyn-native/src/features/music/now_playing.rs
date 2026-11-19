@@ -104,6 +104,8 @@ fn Sheet(y: f64) -> Element {
                     }
                 }
                 div { class: "jrm-np__header-end", style: "align-items: center; gap: 8px;",
+                    crate::features::syncplay::SyncPlayBadge { kind: crate::features::syncplay::MediaKind::Audio }
+                    crate::features::syncplay::SyncPlayButton { kind: crate::features::syncplay::MediaKind::Audio, variant: "glass" }
                     crate::features::cast::MusicCastButton {}
                     CurrentTrackHeart { variant: "glass" }
                 }

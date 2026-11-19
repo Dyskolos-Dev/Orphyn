@@ -7,6 +7,7 @@ pub mod search;
 pub mod servers;
 pub mod settings;
 pub mod stats;
+pub mod syncplay;
 pub mod system;
 pub mod updater;
 pub mod whatsnew;
