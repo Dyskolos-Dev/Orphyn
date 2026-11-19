@@ -4,7 +4,7 @@
 use std::time::Instant;
 
 use dioxus::prelude::*;
-use dioxus_native::winit::raw_window_handle::{HasWindowHandle, RawWindowHandle};
+use dioxus_native::winit::raw_window_handle::HasWindowHandle;
 use orphyn_core::discord::activity::Presence;
 use orphyn_core::discord::DiscordService;
 use orphyn_core::media_controls::{
@@ -34,7 +34,9 @@ pub fn use_system() -> System {
 fn hwnd(win: &dyn dioxus_native::winit::window::Window) -> usize {
     match win.window_handle().map(|h| h.as_raw()) {
         #[cfg(target_os = "windows")]
-        Ok(RawWindowHandle::Win32(h)) => h.hwnd.get() as usize,
+        Ok(dioxus_native::winit::raw_window_handle::RawWindowHandle::Win32(h)) => {
+            h.hwnd.get() as usize
+        }
         _ => 0,
     }
 }
