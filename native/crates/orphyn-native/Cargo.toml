@@ -16,6 +16,7 @@ name = "orphyn-native"
 path = "src/main.rs"
 
 [dependencies]
+tempfile.workspace = true
 orphyn-core.workspace = true
 orphyn-jellyfin.workspace = true
 orphyn-player.workspace = true
@@ -37,4 +38,3 @@ rusty-leveldb = "4"
 rusqlite = { version = "0.37", features = ["bundled"] }
 
 [dev-dependencies]
-tempfile.workspace = true

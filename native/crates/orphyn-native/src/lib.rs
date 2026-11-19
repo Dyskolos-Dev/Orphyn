@@ -10,6 +10,7 @@ pub mod assets;
 pub mod design;
 pub mod features;
 pub mod i18n;
+pub mod migration;
 pub mod motion;
 pub mod preferences;
 pub mod query;
@@ -66,6 +67,7 @@ impl log::Log for StderrLogger {
 pub fn run() {
     load_dotenv();
     let _ = log::set_logger(&StderrLogger).map(|()| log::set_max_level(log::LevelFilter::Info));
+    migration::run_if_needed(&orphyn_core::storage::LocalStorage::open_default());
     let config = dioxus_native::Config::new()
         .with_window_attributes(window::attributes())
         .with_font_ctx(assets::font_context());
