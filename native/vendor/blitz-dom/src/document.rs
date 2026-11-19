@@ -888,7 +888,36 @@ impl BaseDocument {
     /// it so that stale NodeIds are never dereferenced after the slot is freed.
     pub(crate) fn remove_node_from_tree(&mut self, node_id: NodeId) -> Option<Node> {
         self.clear_interaction_state_for_removed_node(node_id);
+        self.forget_hoisted_child(node_id);
         self.nodes.remove(node_id)
+    }
+
+    /// A hoisted (out-of-flow) box is listed in its containing block's `hoisted_children`, which
+    /// is only rebuilt when that block is laid out again. Freeing the box (a pseudo-element or
+    /// anonymous box dropped by a style change, e.g. switching interface style) must unlist it
+    /// and force the containing block to lay out again, or layout indexes a freed slot.
+    fn forget_hoisted_child(&mut self, node_id: NodeId) {
+        let Some(cb_id) = self
+            .nodes
+            .get(node_id)
+            .and_then(|n| n.oof_containing_block.get())
+        else {
+            return;
+        };
+        let Some(owner) = self.nodes.get_mut(cb_id) else {
+            return;
+        };
+        let listed = {
+            let mut hoisted = owner.hoisted_children.borrow_mut();
+            let before = hoisted.len();
+            hoisted.retain(|id| *id != node_id);
+            hoisted.len() != before
+        };
+        if listed {
+            owner.invalidate_layout_cache();
+            owner.insert_damage(crate::layout::damage::ONLY_RELAYOUT);
+            owner.mark_damaged();
+        }
     }
 
     /// The nearest element ancestor of `node_id` that is still in the

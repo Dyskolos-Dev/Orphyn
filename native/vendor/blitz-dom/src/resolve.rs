@@ -476,3 +476,109 @@ impl BaseDocument {
         // taffy::print_tree(self, root_node_id)
     }
 }
+
+#[cfg(test)]
+mod style_switch_tests {
+    use crate::{Attribute, BaseDocument, DocumentConfig, qual_name};
+    use blitz_traits::shell::{ColorScheme, Viewport};
+
+    fn qn(name: &str) -> crate::QualName {
+        crate::QualName {
+            prefix: None,
+            ns: crate::ns!(),
+            local: markup5ever::LocalName::from(name),
+        }
+    }
+
+    const CSS: &str = "
+        .root { --a: 1; position: relative; }
+        .root[data-style='minimal'] .track::after { content: \"m\"; position: absolute; top: 0; right: 0; }
+        .root[data-style='glass'] .track::before { position: absolute; bottom: 0; }
+        .root[data-style='minimal'] .track:nth-child(even) { background: #eee; }
+        .root[data-style='minimal'] .track + .track { border-top: 1px solid #ccc; }
+        .root[data-style='minimal'] .track:hover { background: #ddd; }
+        .root[data-style='minimal'][data-window-focused='true'] .active { color: red; }
+        .root[data-style='glass'] .track { backdrop-filter: blur(4px); }
+        .root[data-style='cinema'] .track:nth-child(odd) { opacity: .9; }
+        .root[data-reduce-transparency] *, .root[data-reduce-transparency] *::before, .root[data-reduce-transparency] *::after { backdrop-filter: none !important; }
+        .track::before { content: \"\"; display: block; height: 2px; }
+        .track::after { content: \"x\"; }
+        .root[data-reduce-transparency] .track { background: #fff; }
+        .root[data-reduce-transparency] .track:nth-child(even) { background: #f4f4f4; }
+    ";
+
+    fn make_doc() -> (BaseDocument, crate::NodeId, Vec<crate::NodeId>) {
+        let mut doc = BaseDocument::new(DocumentConfig {
+            viewport: Some(Viewport::new(400, 300, 1.0, ColorScheme::Light)),
+            ua_stylesheets: vec![
+                crate::UserAgentStylesheet::default_sheet(),
+                crate::UserAgentStylesheet::parse(CSS),
+            ],
+            ..Default::default()
+        });
+        let root_id = doc.root_node().id;
+        let attr = |n, v: &str| Attribute { name: n, value: v.to_string() };
+        let mut m = doc.mutate();
+        let html = m.create_element(qual_name!("html"), vec![]);
+        let body = m.create_element(qual_name!("body"), vec![]);
+        let root = m.create_element(
+            qual_name!("div"),
+            vec![attr(qual_name!("class"), "root"), attr(qn("data-style"), "classic")],
+        );
+        let tracks: Vec<_> = (0..6)
+            .map(|i| {
+                let cls = if i == 2 { "track active" } else { "track" };
+                m.create_element(qual_name!("div"), vec![attr(qual_name!("class"), cls)])
+            })
+            .collect();
+        m.append_children(root, &tracks);
+        m.append_children(body, &[root]);
+        m.append_children(html, &[body]);
+        m.append_children(root_id, &[html]);
+        drop(m);
+        doc.resolve(0.0);
+        (doc, root, tracks)
+    }
+
+    /// Switching the style attribute on the root away from a style and back (A, B, A) must
+    /// restyle and relayout without panicking, with sibling and `:nth-child` rules involved.
+    #[test]
+    fn switching_style_attribute_away_and_back_resolves() {
+        let (mut doc, root, _) = make_doc();
+        for i in 0..20 {
+            for s in ["minimal", "glass", "minimal", "cinema", "classic", "minimal"] {
+                doc.mutate().set_attribute(root, qn("data-style"), s);
+                doc.mutate().set_attribute(
+                    root,
+                    qn("data-window-focused"),
+                    if i % 2 == 0 { "true" } else { "false" },
+                );
+                if s == "minimal" {
+                    doc.mutate().set_attribute(root, qn("data-reduce-transparency"), "true");
+                } else {
+                    doc.mutate().clear_attribute(root, qn("data-reduce-transparency"));
+                }
+                doc.resolve_inner(0.0);
+            }
+        }
+    }
+
+    /// Regression: freeing a hoisted (out-of-flow) box, as a style switch does when it drops a
+    /// `::before`/`::after`, must unlist it from its containing block's `hoisted_children`;
+    /// layout would otherwise index the freed slot (`invalid SlotMap key used`).
+    #[test]
+    fn freeing_a_hoisted_box_unlists_it_from_its_containing_block() {
+        let (mut doc, root, tracks) = make_doc();
+        let hoisted = tracks[1];
+        doc.nodes[hoisted].oof_containing_block.set(Some(root));
+        doc.nodes[root].hoisted_children.borrow_mut().push(hoisted);
+
+        doc.remove_and_drop_pe(hoisted);
+
+        for (_, n) in doc.nodes.iter() {
+            assert!(n.hoisted_children.borrow().iter().all(|id| doc.nodes.contains_key(*id)));
+        }
+        doc.mark_all_damaged();
+        doc.resolve_inner(0.0);
+    }
+}
