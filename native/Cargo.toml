@@ -50,6 +50,7 @@ orphyn-player = { path = "crates/orphyn-player" }
 # instead of panicking): see vendor/blitz-dom and README.md, "Pinned pre-release crates".
 [patch.crates-io]
 blitz-dom = { path = "vendor/blitz-dom" }
+dioxus-native = { path = "vendor/dioxus-native" }
 
 [profile.dev]
 # Stylo, wgpu and Vello are unusably slow unoptimised; our own crates stay debuggable.

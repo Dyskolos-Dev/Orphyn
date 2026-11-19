@@ -1,0 +1,22 @@
+/* Blitz additions to pip.css: the window is transparent, the card is the window. */
+.jr-root,
+.jr-body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+  background: transparent !important;
+  user-select: none;
+}
+.pip__resize {
+  background: transparent;
+}
+.pip__range {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+}
+.pip__range .jr-slider {
+  width: 100%;
+}

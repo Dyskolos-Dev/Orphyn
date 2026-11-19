@@ -1596,8 +1596,6 @@ dependencies = [
 [[package]]
 name = "dioxus-native"
 version = "0.8.0-alpha.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7cd1cb86fdf731605cbeaf33c8a0a4752ee012f5c6a61ee506ba5963a4a1c8b3"
 dependencies = [
  "android-activity",
  "anyrender",

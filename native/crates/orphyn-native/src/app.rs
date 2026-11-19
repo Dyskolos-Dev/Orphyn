@@ -54,6 +54,7 @@ pub fn app() -> Element {
     crate::features::system::use_system_provider(&svc);
     crate::design::toast::use_toast_provider();
     crate::features::cast::use_cast_provider();
+    crate::features::pip::use_pip_provider();
     crate::features::syncplay::use_syncplay_provider();
 
     // The saved session, or (development) the test server of ORPHYN_E2E_* when there is none.
@@ -152,6 +153,7 @@ pub fn app() -> Element {
                 crate::features::whatsnew::WhatsNewHost {}
                 crate::features::updater::UpdateNotice {}
                 crate::features::palette::PaletteHost {}
+                crate::features::pip::PipHost {}
                 crate::design::toast::ToastHost {}
                 crate::features::syncplay::SyncPlayHost {}
                 CaptionButtons {

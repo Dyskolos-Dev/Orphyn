@@ -84,6 +84,7 @@ pub fn MiniPlayer() -> Element {
             div { class: "jrm-mini__right",
                 crate::features::syncplay::SyncPlayButton { kind: crate::features::syncplay::MediaKind::Audio }
                 crate::features::cast::MusicCastButton {}
+                crate::features::pip::PipButton { kind: crate::features::pip::Kind::Music }
                 VolumeControl {}
                 IconButton {
                     icon: "message-square-quote",

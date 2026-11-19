@@ -405,6 +405,15 @@ pub fn PlayerControls(p: ControlsProps) -> Element {
                                 }
                             }
                         }
+                        crate::features::pip::PipButton {
+                            kind: crate::features::pip::Kind::Video,
+                            variant: "glass",
+                            title: [p.title.clone(), p.subtitle.clone().unwrap_or_default()]
+                                .into_iter()
+                                .filter(|s| !s.is_empty())
+                                .collect::<Vec<_>>()
+                                .join(" · "),
+                        }
                         IconButton {
                             variant: "glass",
                             icon: fs_icon,
