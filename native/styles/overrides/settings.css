@@ -23,3 +23,13 @@
 .jr-home-row__handle { height: auto; width: 28px; cursor: default; }
 .jr-home-row__moves { display: flex; flex-direction: column; gap: 0; }
 .jr-home-row__moves .jr-icon-button { width: 28px; height: 18px; }
+
+/* Settings > Servers "Actif" badge: Blitz drops padding and logical margins on an inline span
+   in a text run, so the pill sat glued to the name. Same values as the React rule, made an
+   inline-block with a physical margin. */
+.jr-settings__badge {
+  display: inline-block;
+  margin-inline-start: 0;
+  margin-left: var(--space-2);
+  vertical-align: middle;
+}
