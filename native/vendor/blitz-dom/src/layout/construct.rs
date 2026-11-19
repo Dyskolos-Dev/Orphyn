@@ -868,6 +868,7 @@ fn create_text_editor(doc: &mut BaseDocument, input_element_id: NodeId, is_multi
         .map(|s| stylo_to_parley::base_direction(s.clone_direction(), s.clone_unicode_bidi()))
         .unwrap_or(parley::BaseDirection::Auto);
 
+    let element_type_is_password = node.attr(local_name!("type")) == Some("password");
     let initial_text = if is_multiline {
         node.text_content()
     } else {
@@ -885,6 +886,10 @@ fn create_text_editor(doc: &mut BaseDocument, input_element_id: NodeId, is_multi
         unreachable!();
     };
 
+    text_input_data.set_masked(
+        !is_multiline
+            && element_type_is_password,
+    );
     let editor = &mut text_input_data.editor;
     editor.set_scale(doc.viewport.scale_f64() as f32);
     editor.set_width(None);

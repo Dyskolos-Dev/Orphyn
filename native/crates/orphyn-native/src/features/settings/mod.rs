@@ -1,6 +1,7 @@
 //! Settings page (`SettingsPage.tsx`): a pane list on the left, the pane on the right.
 mod appearance;
 mod playback;
+mod style_gallery;
 mod servers_pane;
 mod ui;
 

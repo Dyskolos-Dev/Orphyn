@@ -117,7 +117,8 @@ impl BaseDocument {
 
         match event {
             GeneratedTextInputEvent::Input => {
-                let value = input_data.editor.raw_text().to_string();
+                input_data.sync_masked(&mut self.font_ctx.lock().unwrap(), &mut self.layout_ctx);
+                let value = input_data.value();
                 dispatch_event(DomEvent::new(
                     node_id,
                     DomEventData::Input(BlitzInputEvent { value }),

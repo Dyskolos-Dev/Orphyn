@@ -298,7 +298,9 @@ impl BaseDocument {
             } else {
                 //if damage.contains(CONSTRUCT_DESCENDENT) {
                 let layout_children = doc.nodes[node_id].layout_children.borrow_mut().take();
-                if let Some(layout_children) = layout_children {
+                if let Some(mut layout_children) = layout_children {
+                    // Forget the removed boxes for good: layout would index them and panic.
+                    layout_children.retain(|id| doc.nodes.contains_key(*id));
                     for child_id in layout_children.iter().copied() {
                         // Anonymous blocks and pseudo-elements can be removed from the
                         // slab between render passes; skip stale IDs.

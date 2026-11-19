@@ -1,1 +1,10 @@
 /* Blitz-only fixes for the music-library port. */
+
+/* Blitz has no container query units: `100cqi` in --jr-shelf-item-w resolved to 0, so shelf items
+   (cards, titles) collapsed to a few pixels. In the grid, 100% is the list's content box, which is
+   exactly `100cqi - 2 * gutter`, so the same item width is computed from it. */
+.jr-shelf__list {
+  grid-auto-columns: calc(
+    (100% - (var(--jr-shelf-n) - 1) * var(--jr-shelf-gap)) / var(--jr-shelf-n)
+  );
+}

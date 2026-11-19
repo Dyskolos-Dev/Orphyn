@@ -72,6 +72,9 @@ pub struct TextInputData {
     /// vertical offset. It is kept up to date so that the caret remains visible within the
     /// input's content box.
     pub scroll_offset: f32,
+    /// `type=password`: the editor shows bullets while the real value lives in `real`.
+    pub masked: bool,
+    real: String,
 }
 
 // FIXME: Implement Clone for PlainEditor
@@ -88,6 +91,8 @@ impl TextInputData {
             editor,
             is_multiline,
             scroll_offset: 0.0,
+            masked: false,
+            real: String::new(),
         }
     }
 
@@ -97,6 +102,15 @@ impl TextInputData {
         layout_ctx: &mut LayoutContext<TextBrush>,
         text: &str,
     ) {
+        if self.masked {
+            self.real = text.to_string();
+            let bullets = bullets_for(text);
+            if self.editor.text() != bullets.as_str() {
+                self.editor.set_text(&bullets);
+                self.editor.driver(font_ctx, layout_ctx).refresh_layout();
+            }
+            return;
+        }
         if self.editor.text() != text {
             self.editor.set_text(text);
             self.editor.driver(font_ctx, layout_ctx).refresh_layout();
@@ -800,5 +814,106 @@ impl TextInputData {
                 None
             }
         }
+    }
+}
+
+const MASK_CHAR: char = '\u{2022}';
+
+fn bullets_for(text: &str) -> String {
+    text.chars().map(|_| MASK_CHAR).collect()
+}
+
+impl TextInputData {
+    /// The value of the field (the real text for a password input).
+    pub fn value(&self) -> String {
+        if self.masked {
+            self.real.clone()
+        } else {
+            self.editor.raw_text().to_string()
+        }
+    }
+
+    /// Turn the masking of a `type=password` input on, keeping what is typed.
+    pub fn set_masked(&mut self, masked: bool) {
+        if masked && !self.masked {
+            self.real = self.editor.raw_text().to_string();
+            self.masked = true;
+            let bullets = bullets_for(&self.real);
+            self.editor.set_text(&bullets);
+        } else if !masked && self.masked {
+            self.masked = false;
+            let real = std::mem::take(&mut self.real);
+            self.editor.set_text(&real);
+        }
+    }
+
+    /// After an edit of the bullet text: the single changed span (typing, delete, paste, IME)
+    /// is found by common prefix / suffix and applied to the real value, then the field shows
+    /// bullets again with the caret where it was.
+    pub fn sync_masked(&mut self, font_ctx: &mut FontContext, layout_ctx: &mut LayoutContext<TextBrush>) {
+        if !self.masked {
+            return;
+        }
+        let shown: Vec<char> = self.editor.raw_text().chars().collect();
+        let old: Vec<char> = self.real.chars().collect();
+        let mut p = 0;
+        while p < shown.len() && p < old.len() && shown[p] == MASK_CHAR {
+            p += 1;
+        }
+        let mut s = 0;
+        while s < shown.len() - p
+            && s < old.len() - p
+            && shown[shown.len() - 1 - s] == MASK_CHAR
+        {
+            s += 1;
+        }
+        let mut real: String = old[..p].iter().collect();
+        real.extend(&shown[p..shown.len() - s]);
+        real.extend(&old[old.len() - s..]);
+        if real == self.real && shown.iter().all(|c| *c == MASK_CHAR) {
+            return;
+        }
+        self.real = real;
+
+        // Bullets are 3 bytes: map the caret / anchor (bytes in the edited text) to the same
+        // char positions in the bullet text.
+        let text = self.editor.raw_text().to_string();
+        let sel = self.editor.raw_selection();
+        let to_chars = |b: usize| text.get(..b.min(text.len())).map_or(0, |t| t.chars().count());
+        let (a, f) = (to_chars(sel.anchor().index()), to_chars(sel.focus().index()));
+        let bullets = bullets_for(&self.real);
+        self.editor.set_text(&bullets);
+        let width = MASK_CHAR.len_utf8();
+        let mut driver = self.editor.driver(font_ctx, layout_ctx);
+        driver.select_byte_range(a * width, f * width);
+        driver.refresh_layout();
+    }
+}
+
+#[cfg(test)]
+mod mask_tests {
+    use super::*;
+
+    fn edit(data: &mut TextInputData, shown: &str) {
+        let (mut f, mut l) = (FontContext::default(), LayoutContext::new());
+        data.editor.set_text(shown);
+        data.editor.driver(&mut f, &mut l).move_to_text_end();
+        data.sync_masked(&mut f, &mut l);
+    }
+
+    #[test]
+    fn password_keeps_the_real_value_behind_bullets() {
+        let mut d = TextInputData::new(false);
+        d.set_masked(true);
+        edit(&mut d, "a");
+        edit(&mut d, "\u{2022}bc");
+        assert_eq!(d.value(), "abc");
+        assert_eq!(d.editor.raw_text(), "\u{2022}\u{2022}\u{2022}");
+        // delete the middle char, then insert in the middle
+        edit(&mut d, "\u{2022}\u{2022}");
+        assert_eq!(d.value().chars().count(), 2);
+        edit(&mut d, "\u{2022}X\u{2022}");
+        assert_eq!(d.value().chars().nth(1), Some('X'));
+        assert!(d.editor.raw_text().chars().all(|c| c == '\u{2022}'));
     }
 }

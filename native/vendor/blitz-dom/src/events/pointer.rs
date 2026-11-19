@@ -832,9 +832,15 @@ pub(crate) fn handle_wheel<F: FnMut(DomEvent)>(
     event: BlitzWheelEvent,
     mut dispatch_event: F,
 ) {
+    // Scroll offsets are CSS px. A wheel notch is ~100 CSS px (Chromium, the React app); winit's
+    // pixel deltas (touchpads) are physical px, so they are divided by the scale factor once.
+    let scale = (doc.viewport.scale() as f64).max(0.1);
+    // winit reports Windows wheel notches already multiplied by the system "lines per notch" (3),
+    // X11 / Wayland report 1 per notch: 100 CSS px per notch either way.
+    let line = if cfg!(windows) { 100.0 / 3.0 } else { 100.0 };
     let (scroll_x, scroll_y) = match event.delta {
-        BlitzWheelDelta::Lines(x, y) => (x * 20.0, y * 20.0),
-        BlitzWheelDelta::Pixels(x, y) => (x, y),
+        BlitzWheelDelta::Lines(x, y) => (x * line, y * line),
+        BlitzWheelDelta::Pixels(x, y) => (x / scale, y / scale),
     };
 
     let has_changed = doc.scroll_chain_by(

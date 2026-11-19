@@ -2,11 +2,12 @@
 use dioxus::prelude::*;
 use serde_json::Value;
 
+use super::style_gallery::{PreviewLayout, StyleGallery, StylePreview};
 use super::ui::{List, ListRow, Toggle};
 use crate::design::{Button, Segment, SegmentedControl, Slider};
 use crate::i18n::use_i18n;
 use crate::state::{use_app, use_services};
-use crate::theme::{accent_tokens, ThemeMode, ACCENT_PRESETS, INTERFACE_STYLES};
+use crate::theme::{accent_tokens, ThemeMode, ACCENT_PRESETS};
 
 const CORNERS: [&str; 3] = ["sharp", "standard", "round"];
 const DENSITY: [&str; 3] = ["comfortable", "standard", "compact"];
@@ -58,8 +59,8 @@ pub fn AppearancePane() -> Element {
         let set = set.clone();
         move |key: &'static str, v: &'static str| set(key, Value::from(v))
     };
-    let (s_style, s_mode, s_accent, s_follow) =
-        (svc.clone(), svc.clone(), svc.clone(), svc.clone());
+    let (s_mode, s_accent, s_follow) =
+        (svc.clone(), svc.clone(), svc.clone());
     let s_reset = svc.clone();
     let transparency = if solid { 0 } else { a.transparency };
     let (set_t, set_c, set_d, set_x, set_sb, set_bd, set_m, set_v) = (
@@ -75,20 +76,16 @@ pub fn AppearancePane() -> Element {
 
     rsx! {
         div { class: "jr-appearance",
+            figure { class: "jr-appearance__preview",
+                StylePreview { style, layout: PreviewLayout { sidebar: a.sidebar, backdrop: a.backdrop, video_cards: a.video_cards }, large: true }
+                figcaption { class: "jr-appearance__caption",
+                    span { class: "jr-appearance__caption-title", {style_name.clone()} }
+                    span { {t.t("settings:appearance.previewCaption")} }
+                }
+            }
             List { header: t.t("settings:appearance.style.header"),
                 li { class: "jr-list__item",
-                    div { class: "jr-appearance__styles",
-                        SegmentedControl {
-                            label: t.t("settings:appearance.style.label"),
-                            value: style,
-                            options: INTERFACE_STYLES
-                                .iter()
-                                .map(|s| Segment { value: s, label: t.t(&format!("settings:appearance.styles.{s}.name")) })
-                                .collect::<Vec<_>>(),
-                            on_change: move |v: &'static str| app.set_style(&s_style, v),
-                        }
-                        p { class: "jr-appearance__hint", {t.t(&format!("settings:appearance.styles.{style}.description"))} }
-                    }
+                    StyleGallery {}
                 }
             }
             List { header: t.t("settings:appearance.mode.header"),
