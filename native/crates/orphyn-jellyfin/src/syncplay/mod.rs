@@ -1,6 +1,8 @@
 //! Jellyfin SyncPlay (server 10.9+): the Rust counterpart of `src/renderer/src/jellyfin/syncplay`
 //! (+ the pure decisions of `features/syncplay/logic.ts`). REST requests, WebSocket messages,
 //! server clock estimation, command scheduling and drift correction.
+#[cfg(test)]
+mod live;
 pub mod logic;
 pub mod protocol;
 pub mod socket;
