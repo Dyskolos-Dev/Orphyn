@@ -61,9 +61,9 @@ impl PipChrome {
         let scale = self.win.scale_factor();
         let width = geometry::toggled_width((self.width)()) * scale;
         let w = width.round() as u32;
-        let _ = self
-            .win
-            .request_surface_size(PhysicalSize::new(w, geometry::height_for(w, self.kind.ratio())).into());
+        let _ = self.win.request_surface_size(
+            PhysicalSize::new(w, geometry::height_for(w, self.kind.ratio())).into(),
+        );
     }
 
     pub fn press(mut self, x: f64, y: f64) {

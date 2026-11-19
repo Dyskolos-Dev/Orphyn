@@ -115,7 +115,11 @@ fn PlaylistEntries() -> Element {
             async move { s.items_page(&p, 0).await }
         }
     });
-    let items = list.data.as_deref().map(|p| p.items.clone()).unwrap_or_default();
+    let items = list
+        .data
+        .as_deref()
+        .map(|p| p.items.clone())
+        .unwrap_or_default();
     rsx! {
         for p in items {
             SidebarItem {

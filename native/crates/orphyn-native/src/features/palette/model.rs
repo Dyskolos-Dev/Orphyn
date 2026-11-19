@@ -135,7 +135,14 @@ fn cmd(
 
 fn page(id: &str, icon: &'static str, to: &str, keywords: &[&'static str]) -> Command {
     let key = format!("go-{id}");
-    cmd(&key, Group::Navigate, &key, icon, keywords, Action::Navigate(to.into()))
+    cmd(
+        &key,
+        Group::Navigate,
+        &key,
+        icon,
+        keywords,
+        Action::Navigate(to.into()),
+    )
 }
 
 /// The commands available in `ctx`, in display order. Not offered natively: Picture in Picture,
@@ -153,12 +160,30 @@ pub fn commands(ctx: &Context) -> Vec<Command> {
         );
         play.shortcut = Some("Space");
         out.push(play);
-        out.push(cmd("next", Group::Playback, "next", "skip-forward", &["skip", "suivant"], Action::Next));
-        out.push(cmd("previous", Group::Playback, "previous", "skip-back", &["back", "precedent"], Action::Previous));
+        out.push(cmd(
+            "next",
+            Group::Playback,
+            "next",
+            "skip-forward",
+            &["skip", "suivant"],
+            Action::Next,
+        ));
+        out.push(cmd(
+            "previous",
+            Group::Playback,
+            "previous",
+            "skip-back",
+            &["back", "precedent"],
+            Action::Previous,
+        ));
         out.push(cmd(
             "shuffle",
             Group::Playback,
-            if ctx.shuffle { "shuffle-off" } else { "shuffle-on" },
+            if ctx.shuffle {
+                "shuffle-off"
+            } else {
+                "shuffle-on"
+            },
             "shuffle",
             &["random", "aleatoire"],
             Action::ToggleShuffle,
@@ -184,35 +209,89 @@ pub fn commands(ctx: &Context) -> Vec<Command> {
         out.push(cmd(
             "favorite",
             Group::Playback,
-            if ctx.favorite { "unfavorite" } else { "favorite" },
+            if ctx.favorite {
+                "unfavorite"
+            } else {
+                "favorite"
+            },
             "heart",
             &["like", "heart", "coeur", "favori", "favourite"],
             Action::ToggleFavorite,
         ));
     }
 
-    out.push(page("home", "home", "/video", &["accueil", "watch", "video"]));
-    out.push(page("movies", "film", "/video/library/movies", &["films", "cinema"]));
-    out.push(page("series", "tv", "/video/library/series", &["tv", "shows", "series tv", "emissions"]));
+    out.push(page(
+        "home",
+        "home",
+        "/video",
+        &["accueil", "watch", "video"],
+    ));
+    out.push(page(
+        "movies",
+        "film",
+        "/video/library/movies",
+        &["films", "cinema"],
+    ));
+    out.push(page(
+        "series",
+        "tv",
+        "/video/library/series",
+        &["tv", "shows", "series tv", "emissions"],
+    ));
     out.push(page("music", "music", "/music", &["musique"]));
     out.push(page("albums", "disc", "/music/albums", &[]));
     out.push(page("artists", "user", "/music/artists", &["artistes"]));
-    out.push(page("playlists", "list-music", "/music/playlists", &["listes de lecture"]));
-    out.push(page("songs", "music", "/music/songs", &["titres", "tracks", "morceaux", "chansons"]));
-    out.push(page("favorites", "star", "/music/favorites", &["favoris", "likes", "liked"]));
-    out.push(page("search", "search", "/search", &["recherche", "find", "chercher"]));
+    out.push(page(
+        "playlists",
+        "list-music",
+        "/music/playlists",
+        &["listes de lecture"],
+    ));
+    out.push(page(
+        "songs",
+        "music",
+        "/music/songs",
+        &["titres", "tracks", "morceaux", "chansons"],
+    ));
+    out.push(page(
+        "favorites",
+        "star",
+        "/music/favorites",
+        &["favoris", "likes", "liked"],
+    ));
+    out.push(page(
+        "search",
+        "search",
+        "/search",
+        &["recherche", "find", "chercher"],
+    ));
     out.push(page(
         "stats",
         "bar-chart-3",
         "/stats",
-        &["stats", "statistiques", "wrapped", "year", "annee", "bilan", "recap"],
+        &[
+            "stats",
+            "statistiques",
+            "wrapped",
+            "year",
+            "annee",
+            "bilan",
+            "recap",
+        ],
     ));
     out.push(cmd(
         "customise-home",
         Group::Navigate,
         "customise-home",
         "layout-dashboard",
-        &["home screen", "personnaliser accueil", "rows", "rangees", "layout", "edit home"],
+        &[
+            "home screen",
+            "personnaliser accueil",
+            "rows",
+            "rangees",
+            "layout",
+            "edit home",
+        ],
         Action::Navigate("/settings?pane=home".into()),
     ));
     out.push(page(
@@ -246,9 +325,21 @@ pub fn commands(ctx: &Context) -> Vec<Command> {
     out.push(cmd(
         "toggle-theme",
         Group::Appearance,
-        if ctx.dark { "theme-light" } else { "theme-dark" },
+        if ctx.dark {
+            "theme-light"
+        } else {
+            "theme-dark"
+        },
         if ctx.dark { "sun" } else { "moon" },
-        &["dark", "light", "sombre", "clair", "theme", "mode", "apparence"],
+        &[
+            "dark",
+            "light",
+            "sombre",
+            "clair",
+            "theme",
+            "mode",
+            "apparence",
+        ],
         Action::SetDark(!ctx.dark),
     ));
     for style in ctx.styles.iter().filter(|s| **s != ctx.style) {
@@ -267,7 +358,14 @@ pub fn commands(ctx: &Context) -> Vec<Command> {
             Group::Servers,
             "",
             "server",
-            &["switch server", "server", "changer de serveur", "serveur", "compte", "account"],
+            &[
+                "switch server",
+                "server",
+                "changer de serveur",
+                "serveur",
+                "compte",
+                "account",
+            ],
             Action::SwitchServer(a.id.clone()),
         );
         c.title = Some(a.name.clone());
@@ -339,7 +437,11 @@ pub fn search_commands(
         .iter()
         .map(|c| {
             let (title, aliases) = command_names(c, lang, translate);
-            Named { command: c.clone(), title, aliases }
+            Named {
+                command: c.clone(),
+                title,
+                aliases,
+            }
         })
         .collect();
     if query.trim().is_empty() {
@@ -350,14 +452,25 @@ pub fn search_commands(
                 .unwrap_or(usize::MAX)
         };
         let mut v: Vec<(usize, Named)> = named.into_iter().enumerate().collect();
-        v.sort_by(|a, b| pos(&a.1.command.id).cmp(&pos(&b.1.command.id)).then(a.0.cmp(&b.0)));
+        v.sort_by(|a, b| {
+            pos(&a.1.command.id)
+                .cmp(&pos(&b.1.command.id))
+                .then(a.0.cmp(&b.0))
+        });
         return v
             .into_iter()
-            .map(|(_, n)| CommandMatch { command: n.command, title: n.title, indices: Vec::new(), score: 0.0 })
+            .map(|(_, n)| CommandMatch {
+                command: n.command,
+                title: n.title,
+                indices: Vec::new(),
+                score: 0.0,
+            })
             .collect();
     }
     rank(&named, query, |n| {
-        std::iter::once(n.title.clone()).chain(n.aliases.iter().cloned()).collect()
+        std::iter::once(n.title.clone())
+            .chain(n.aliases.iter().cloned())
+            .collect()
     })
     .into_iter()
     .map(|r| CommandMatch {
@@ -498,7 +611,11 @@ pub fn build_model(input: &BuildInput) -> Model {
                     key: format!(
                         "item:{}:{}",
                         s.kind.key(),
-                        if item.id.is_empty() { item.name() } else { &item.id }
+                        if item.id.is_empty() {
+                            item.name()
+                        } else {
+                            &item.id
+                        }
                     ),
                     kind: s.kind,
                     item: item.clone(),
@@ -540,11 +657,16 @@ pub fn build_model(input: &BuildInput) -> Model {
             let entries: Vec<Entry> = input
                 .commands
                 .iter()
-                .filter(|m| m.command.group == group && !recent.iter().any(|r| r.command.id == m.command.id))
+                .filter(|m| {
+                    m.command.group == group && !recent.iter().any(|r| r.command.id == m.command.id)
+                })
                 .map(command_entry)
                 .collect();
             if !entries.is_empty() {
-                sections.push(Section { id: format!("group:{}", group.key()), entries });
+                sections.push(Section {
+                    id: format!("group:{}", group.key()),
+                    entries,
+                });
             }
         }
     }
@@ -556,20 +678,29 @@ pub fn build_model(input: &BuildInput) -> Model {
         group_starts.push(at);
         at += s.entries.len();
     }
-    Model { sections, flat, group_starts }
+    Model {
+        sections,
+        flat,
+        group_starts,
+    }
 }
 
 /// App route that opens a library result.
 pub fn open_route(kind: LibraryKind, item: &BaseItemDto) -> String {
     let id = &item.id;
     match kind {
-        LibraryKind::Movie | LibraryKind::Series | LibraryKind::Episode => format!("/video/item/{id}"),
+        LibraryKind::Movie | LibraryKind::Series | LibraryKind::Episode => {
+            format!("/video/item/{id}")
+        }
         LibraryKind::Artist => format!("/music/artist/{id}"),
         LibraryKind::Album => format!("/music/album/{id}"),
         LibraryKind::Playlist => format!("/music/playlist/{id}"),
         LibraryKind::Song => format!(
             "/music/album/{}",
-            item.album_id.as_deref().filter(|a| !a.is_empty()).unwrap_or(id)
+            item.album_id
+                .as_deref()
+                .filter(|a| !a.is_empty())
+                .unwrap_or(id)
         ),
     }
 }
@@ -596,7 +727,9 @@ pub fn play_action(kind: LibraryKind, item: &BaseItemDto) -> Option<PlayAction> 
 
 /// Highlight positions of `term` in a library name.
 pub fn highlight_of(term: &str, name: &str) -> Vec<usize> {
-    fuzzy_match(term, name).map(|m| m.indices).unwrap_or_default()
+    fuzzy_match(term, name)
+        .map(|m| m.indices)
+        .unwrap_or_default()
 }
 
 // ---------------------------------------------------------------------------------- navigation
@@ -618,15 +751,25 @@ pub struct NavState {
 
 impl Default for NavState {
     fn default() -> Self {
-        NavState { query: String::new(), index: 0, source: Source::Keyboard }
+        NavState {
+            query: String::new(),
+            index: 0,
+            source: Source::Keyboard,
+        }
     }
 }
 
 #[derive(Clone, Debug, PartialEq)]
 pub enum NavAction {
     SetQuery(String),
-    Move { delta: isize, count: usize },
-    CycleGroup { direction: isize, group_starts: Vec<usize> },
+    Move {
+        delta: isize,
+        count: usize,
+    },
+    CycleGroup {
+        direction: isize,
+        group_starts: Vec<usize>,
+    },
     Hover(usize),
     Clamp(usize),
 }
@@ -647,7 +790,11 @@ pub fn nav_reduce(state: &NavState, action: NavAction) -> NavState {
     match action {
         NavAction::SetQuery(q) => {
             if q != state.query {
-                s = NavState { query: q, index: 0, source: Source::Keyboard };
+                s = NavState {
+                    query: q,
+                    index: 0,
+                    source: Source::Keyboard,
+                };
             }
         }
         NavAction::Move { delta, count } => {
@@ -659,7 +806,10 @@ pub fn nav_reduce(state: &NavState, action: NavAction) -> NavState {
                 s.index = (state.index as isize + delta).rem_euclid(count as isize) as usize;
             }
         }
-        NavAction::CycleGroup { direction, group_starts } => {
+        NavAction::CycleGroup {
+            direction,
+            group_starts,
+        } => {
             if !group_starts.is_empty() {
                 let current = group_of(state.index, &group_starts) as isize;
                 let n = group_starts.len() as isize;
@@ -724,8 +874,16 @@ mod tests {
             style: "classic".into(),
             styles: ["classic", "glass", "cinema"].map(String::from).to_vec(),
             accounts: vec![
-                AccountInfo { id: "a".into(), name: "Home".into(), active: true },
-                AccountInfo { id: "b".into(), name: "Friends".into(), active: false },
+                AccountInfo {
+                    id: "a".into(),
+                    name: "Home".into(),
+                    active: true,
+                },
+                AccountInfo {
+                    id: "b".into(),
+                    name: "Friends".into(),
+                    active: false,
+                },
             ],
             signed_in: true,
             ..Context::default()
@@ -757,8 +915,14 @@ mod tests {
         assert!(!idle.contains(&"favorite".to_string()));
         assert!(idle.contains(&"go-stats".to_string()));
         assert!(idle.contains(&"server-b".to_string()));
-        assert!(!idle.contains(&"server-a".to_string()), "the active server is not offered");
-        assert!(!idle.contains(&"style-classic".to_string()), "the style in use is not offered");
+        assert!(
+            !idle.contains(&"server-a".to_string()),
+            "the active server is not offered"
+        );
+        assert!(
+            !idle.contains(&"style-classic".to_string()),
+            "the style in use is not offered"
+        );
         assert!(idle.contains(&"style-glass".to_string()));
         let mut playing = ctx();
         playing.has_track = true;
@@ -767,7 +931,10 @@ mod tests {
         let cmds = commands(&playing);
         let pp = cmds.iter().find(|c| c.id == "play-pause").unwrap();
         assert_eq!((pp.label_key.as_str(), pp.icon), ("pause", "pause"));
-        assert_eq!(cmds.iter().find(|c| c.id == "toggle-theme").unwrap().action, Action::SetDark(false));
+        assert_eq!(
+            cmds.iter().find(|c| c.id == "toggle-theme").unwrap().action,
+            Action::SetDark(false)
+        );
         let mut out = ctx();
         out.signed_in = false;
         assert!(!ids(&out).contains(&"sign-out".to_string()));
@@ -812,7 +979,10 @@ mod tests {
         assert_eq!(r.len(), cmds.len());
         assert_eq!(r[0].command.id, "go-stats");
         assert_eq!(r[1].command.id, "refresh");
-        assert_eq!(r[2].command.id, "go-home", "others keep their registration order");
+        assert_eq!(
+            r[2].command.id, "go-home",
+            "others keep their registration order"
+        );
     }
 
     fn model_for(query: &str, library: &[LibrarySection], recent: &[String]) -> Model {
@@ -832,12 +1002,33 @@ mod tests {
         let recent = vec!["go-stats".to_string()];
         let m = model_for("", &[], &recent);
         let ids: Vec<_> = m.sections.iter().map(|s| s.id.as_str()).collect();
-        assert_eq!(ids, ["recent", "group:navigate", "group:actions", "group:appearance", "group:servers"]);
+        assert_eq!(
+            ids,
+            [
+                "recent",
+                "group:navigate",
+                "group:actions",
+                "group:appearance",
+                "group:servers"
+            ]
+        );
         // A recent command is not repeated in its group.
         let nav = &m.sections[1];
         assert!(nav.entries.iter().all(|e| e.key() != "cmd:go-stats"));
-        assert_eq!(m.group_starts, vec![0, 1, 1 + nav.entries.len(), m.group_starts[3], m.group_starts[4]]);
-        assert_eq!(m.flat.len(), m.sections.iter().map(|s| s.entries.len()).sum::<usize>());
+        assert_eq!(
+            m.group_starts,
+            vec![
+                0,
+                1,
+                1 + nav.entries.len(),
+                m.group_starts[3],
+                m.group_starts[4]
+            ]
+        );
+        assert_eq!(
+            m.flat.len(),
+            m.sections.iter().map(|s| s.entries.len()).sum::<usize>()
+        );
     }
 
     #[test]
@@ -845,7 +1036,9 @@ mod tests {
         let library = vec![LibrarySection {
             id: "movies",
             kind: LibraryKind::Movie,
-            items: (0..6).map(|i| item(&format!("m{i}"), "Settings of the Heart")).collect(),
+            items: (0..6)
+                .map(|i| item(&format!("m{i}"), "Settings of the Heart"))
+                .collect(),
         }];
         // "stats" is a keyword of a command, but no title matches strongly: library first.
         let m = model_for("hear", &library, &[]);
@@ -866,34 +1059,82 @@ mod tests {
         let song: BaseItemDto =
             serde_json::from_value(json!({"Id": "s", "AlbumId": "al"})).unwrap();
         assert_eq!(open_route(LibraryKind::Song, &song), "/music/album/al");
-        assert_eq!(open_route(LibraryKind::Playlist, &song), "/music/playlist/s");
+        assert_eq!(
+            open_route(LibraryKind::Playlist, &song),
+            "/music/playlist/s"
+        );
         assert_eq!(open_route(LibraryKind::Episode, &song), "/video/item/s");
-        assert_eq!(play_action(LibraryKind::Movie, &song), Some(PlayAction::Video("/video/play/s".into())));
+        assert_eq!(
+            play_action(LibraryKind::Movie, &song),
+            Some(PlayAction::Video("/video/play/s".into()))
+        );
         assert_eq!(play_action(LibraryKind::Series, &song), None);
-        assert_eq!(play_action(LibraryKind::Album, &song), Some(PlayAction::Audio("s".into())));
+        assert_eq!(
+            play_action(LibraryKind::Album, &song),
+            Some(PlayAction::Audio("s".into()))
+        );
         assert_eq!(play_action(LibraryKind::Album, &item("", "x")), None);
     }
 
     #[test]
     fn navigation_wraps_jumps_and_clamps() {
         let s = NavState::default();
-        let s = nav_reduce(&s, NavAction::Move { delta: -1, count: 5 });
+        let s = nav_reduce(
+            &s,
+            NavAction::Move {
+                delta: -1,
+                count: 5,
+            },
+        );
         assert_eq!(s.index, 4, "Up on the first row wraps to the last");
         let s = nav_reduce(&s, NavAction::Move { delta: 1, count: 5 });
         assert_eq!(s.index, 0);
         let s = nav_reduce(&s, NavAction::Move { delta: 1, count: 0 });
         assert_eq!(s.index, 0);
         let starts = vec![0, 2, 5];
-        let s = nav_reduce(&s, NavAction::CycleGroup { direction: 1, group_starts: starts.clone() });
+        let s = nav_reduce(
+            &s,
+            NavAction::CycleGroup {
+                direction: 1,
+                group_starts: starts.clone(),
+            },
+        );
         assert_eq!(s.index, 2);
         let s = nav_reduce(&s, NavAction::Move { delta: 1, count: 8 });
-        let s = nav_reduce(&s, NavAction::CycleGroup { direction: 1, group_starts: starts.clone() });
-        assert_eq!(s.index, 5, "Tab from inside the second group goes to the third");
-        let s = nav_reduce(&s, NavAction::CycleGroup { direction: 1, group_starts: starts.clone() });
+        let s = nav_reduce(
+            &s,
+            NavAction::CycleGroup {
+                direction: 1,
+                group_starts: starts.clone(),
+            },
+        );
+        assert_eq!(
+            s.index, 5,
+            "Tab from inside the second group goes to the third"
+        );
+        let s = nav_reduce(
+            &s,
+            NavAction::CycleGroup {
+                direction: 1,
+                group_starts: starts.clone(),
+            },
+        );
         assert_eq!(s.index, 0, "and wraps");
-        let s = nav_reduce(&s, NavAction::CycleGroup { direction: -1, group_starts: starts });
+        let s = nav_reduce(
+            &s,
+            NavAction::CycleGroup {
+                direction: -1,
+                group_starts: starts,
+            },
+        );
         assert_eq!(s.index, 5);
-        let s = nav_reduce(&s, NavAction::Move { delta: -1, count: 8 });
+        let s = nav_reduce(
+            &s,
+            NavAction::Move {
+                delta: -1,
+                count: 8,
+            },
+        );
         assert_eq!(s.index, 4);
         let s = nav_reduce(&s, NavAction::Move { delta: 3, count: 8 });
         assert_eq!(s.index, 7);
@@ -902,7 +1143,10 @@ mod tests {
         let s = nav_reduce(&s, NavAction::Hover(1));
         assert_eq!((s.index, s.source), (1, Source::Pointer));
         let s = nav_reduce(&s, NavAction::SetQuery("abc".into()));
-        assert_eq!((s.index, s.source, s.query.as_str()), (0, Source::Keyboard, "abc"));
+        assert_eq!(
+            (s.index, s.source, s.query.as_str()),
+            (0, Source::Keyboard, "abc")
+        );
         let again = nav_reduce(&s, NavAction::SetQuery("abc".into()));
         assert_eq!(again, s);
     }

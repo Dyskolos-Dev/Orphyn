@@ -6,10 +6,10 @@ pub mod generate;
 use std::time::Duration;
 
 use dioxus::prelude::*;
+use orphyn_core::storage::LocalStorage;
 use orphyn_jellyfin::api::search::played_key;
 use orphyn_jellyfin::endpoints::{Session, DEFAULT_FIELDS};
 use orphyn_jellyfin::{ItemsParams, JfResult};
-use orphyn_core::storage::LocalStorage;
 
 use crate::design::toast::use_toasts;
 use crate::design::{Button, EmptyState, Spinner};
@@ -261,7 +261,10 @@ pub fn mix_labels(t: I18n, mix: &Mix) -> (String, String) {
     } else {
         t.tf(
             "mixes:with",
-            &[("artists", mix.artists[..mix.artists.len().min(3)].join(", "))],
+            &[(
+                "artists",
+                mix.artists[..mix.artists.len().min(3)].join(", "),
+            )],
         )
     };
     (name, subtitle)
@@ -397,14 +400,28 @@ pub fn MixPage(id: String) -> Element {
     let (l1, l2) = (mix.tracks.clone(), mix.tracks.clone());
     let save = {
         let name = name.clone();
-        let ids: Vec<String> = mix.tracks.iter().map(|x| x.id.clone()).filter(|i| !i.is_empty()).collect();
+        let ids: Vec<String> = mix
+            .tracks
+            .iter()
+            .map(|x| x.id.clone())
+            .filter(|i| !i.is_empty())
+            .collect();
         move |_| {
-            let Some(session) = session.clone() else { return };
-            create_playlist(session, toasts, t, name.clone(), ids.clone(), move |created| {
-                if let Some(id) = created {
-                    router.push(&format!("/music/playlist/{id}"));
-                }
-            });
+            let Some(session) = session.clone() else {
+                return;
+            };
+            create_playlist(
+                session,
+                toasts,
+                t,
+                name.clone(),
+                ids.clone(),
+                move |created| {
+                    if let Some(id) = created {
+                        router.push(&format!("/music/playlist/{id}"));
+                    }
+                },
+            );
         }
     };
     rsx! {

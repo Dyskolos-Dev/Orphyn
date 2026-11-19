@@ -37,7 +37,8 @@ pub fn use_in_view(delay: f64) -> (Signal<bool>, Signal<Option<Rc<MountedData>>>
             for _ in 0..20 {
                 if let Ok(r) = node.get_client_rect().await {
                     if r.size.height > 0.0 {
-                        let vh = window.surface_size().height as f64 / window.scale_factor().max(0.1);
+                        let vh =
+                            window.surface_size().height as f64 / window.scale_factor().max(0.1);
                         if r.origin.y < vh * (1.0 - BOTTOM_MARGIN) {
                             if delay > 0.0 {
                                 tokio::time::sleep(Duration::from_secs_f64(delay)).await;

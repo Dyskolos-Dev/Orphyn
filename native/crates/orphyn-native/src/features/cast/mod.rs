@@ -13,10 +13,10 @@ use std::collections::HashMap;
 use dioxus::prelude::*;
 use orphyn_core::cast::{CastDevice, CastEvent, CastKind, CastSessionState};
 
+pub use crate::design::toast::use_toasts;
 pub use devices::CastScope;
 pub use page::CastPage;
 pub use picker::CastPicker;
-pub use crate::design::toast::use_toasts;
 pub use video::{VideoCastButton, VideoCastHost, VideoCastRequest};
 
 use crate::i18n::use_i18n;

@@ -10,13 +10,13 @@ use orphyn_jellyfin::endpoints::Session;
 use orphyn_jellyfin::{keys, BaseItemDto, ItemsParams};
 use orphyn_player::music::MusicPlayer;
 
+use super::super::playlists::{add_to_playlist, use_playlist_ui, PlaylistUi};
 use super::radio::use_radio_starter;
+use crate::design::toast::{use_toasts, Toasts};
 use crate::design::{use_overlay, MenuItem, Overlay};
 use crate::features::music::{toggle_favorite, track_artist_id};
 use crate::i18n::{use_i18n, I18n};
 use crate::router::{use_router, Router};
-use super::super::playlists::{add_to_playlist, use_playlist_ui, PlaylistUi};
-use crate::design::toast::{use_toasts, Toasts};
 use crate::state::{use_app, use_services, Services};
 
 #[derive(Clone)]
@@ -117,7 +117,14 @@ impl TrackMenu {
 
     /// `useContainerMenuWithPlaylists`: an album's menu gets "Add to Playlist…" after the queue
     /// actions. `radio` adds the album header's "Start Radio" right after Play / Shuffle.
-    pub fn container_items(&self, x: f64, y: f64, item: &BaseItemDto, radio: bool, items: &mut Vec<MenuItem>) {
+    pub fn container_items(
+        &self,
+        x: f64,
+        y: f64,
+        item: &BaseItemDto,
+        radio: bool,
+        items: &mut Vec<MenuItem>,
+    ) {
         if self.session.is_none() || !item.is_type("MusicAlbum") {
             return;
         }
@@ -125,16 +132,20 @@ impl TrackMenu {
         let at = 5.min(items.len());
         items.insert(
             at,
-            MenuItem::action(self.t.t("music:playlistMenu.add"), Some("list-plus"), move |_| {
-                me.pick_playlist(x, y, vec![id.clone()])
-            }),
+            MenuItem::action(
+                self.t.t("music:playlistMenu.add"),
+                Some("list-plus"),
+                move |_| me.pick_playlist(x, y, vec![id.clone()]),
+            ),
         );
         if radio {
             let (start, id) = (self.radio.clone(), item.id.clone());
             let at = 3.min(items.len());
             items.insert(
                 at,
-                MenuItem::action(self.t.t("mixes:radio.start"), Some("radio"), move |_| start(id.clone())),
+                MenuItem::action(self.t.t("mixes:radio.start"), Some("radio"), move |_| {
+                    start(id.clone())
+                }),
             );
         }
     }

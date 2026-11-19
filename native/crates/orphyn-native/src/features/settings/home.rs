@@ -119,7 +119,13 @@ fn load(
         .unwrap_or_else(|| MUSIC_DEFAULT.iter().map(|k| row_json(k, None)).collect())
 }
 
-fn save(scope: &str, key: &str, svc: &crate::state::Services, rows: &[Value], libs: &[(String, String)]) {
+fn save(
+    scope: &str,
+    key: &str,
+    svc: &crate::state::Services,
+    rows: &[Value],
+    libs: &[(String, String)],
+) {
     let mut o = json!({"version": 2, "rows": rows});
     if scope == "video" {
         // Every library is known now, so a row the person removed stays removed.
@@ -139,7 +145,10 @@ fn row_title(scope: &str, row: &Value, t: &crate::i18n::I18n) -> String {
         .or_else(|| row.get("param").and_then(Value::as_str))
         .unwrap_or("")
         .to_string();
-    t.tf(&format!("home:rows.{scope}.{kind}.title"), &[("name", name)])
+    t.tf(
+        &format!("home:rows.{scope}.{kind}.title"),
+        &[("name", name)],
+    )
 }
 
 #[component]
@@ -423,7 +432,9 @@ fn AddRowSheet(
         if d.2 {
             if d.0 == "latest" {
                 for (id, name) in libraries.clone().unwrap_or_default() {
-                    let have = rows.iter().any(|r| str_of(r, "type") == "latest" && str_of(r, "param") == id);
+                    let have = rows
+                        .iter()
+                        .any(|r| str_of(r, "type") == "latest" && str_of(r, "param") == id);
                     options.push((
                         t.tf("home:rows.video.latest.title", &[("name", name.clone())]),
                         t.t(&desc_key),
@@ -436,7 +447,13 @@ fn AddRowSheet(
             continue;
         }
         let have = rows.iter().any(|r| str_of(r, "type") == d.0);
-        options.push((t.t(&name_key), t.t(&desc_key), d.5.to_string(), row_json(d.0, None), have));
+        options.push((
+            t.t(&name_key),
+            t.t(&desc_key),
+            d.5.to_string(),
+            row_json(d.0, None),
+            have,
+        ));
     }
     rsx! {
         Sheet { title: t.t("home:addRow"), description: t.t("home:addRowHint"), on_close: move |_| on_close.call(()),

@@ -47,7 +47,11 @@ pub fn MusicPip(chrome: PipChrome) -> Element {
     let step = artwork_step((chrome.width)() * chrome.win.scale_factor());
     let art_step = {
         let current = best.peek().clone();
-        let next = if current.0 == track_id { current.1.max(step) } else { step };
+        let next = if current.0 == track_id {
+            current.1.max(step)
+        } else {
+            step
+        };
         if current != (track_id.clone(), next) {
             best.set((track_id.clone(), next));
         }
@@ -106,15 +110,27 @@ pub fn MusicPip(chrome: PipChrome) -> Element {
     }
 
     let unit = chrome.unit();
-    let fav_label = if favorite { t.t("pip:unfavorite") } else { t.t("pip:favorite") };
-    let play_label = if playing { t.t("pip:pause") } else { t.t("pip:play") };
+    let fav_label = if favorite {
+        t.t("pip:unfavorite")
+    } else {
+        t.t("pip:favorite")
+    };
+    let play_label = if playing {
+        t.t("pip:pause")
+    } else {
+        t.t("pip:play")
+    };
     let play_icon = if playing { "pause" } else { "play" };
     let back_label = t.t("pip:backToOrphyn");
     let close_label = t.t("pip:close");
     let pip_scale = format!("--pip-scale: {unit};");
     let mut bar: Signal<Option<Rc<MountedData>>> = use_signal(|| None);
-    let (p_prev, p_toggle, p_next, p_seek) =
-        (player.clone(), player.clone(), player.clone(), player.clone());
+    let (p_prev, p_toggle, p_next, p_seek) = (
+        player.clone(),
+        player.clone(),
+        player.clone(),
+        player.clone(),
+    );
     let (c_press, c_move, c_up, c_dbl, c_back, c_close) = (
         chrome.clone(),
         chrome.clone(),

@@ -59,8 +59,7 @@ pub fn AppearancePane() -> Element {
         let set = set.clone();
         move |key: &'static str, v: &'static str| set(key, Value::from(v))
     };
-    let (s_mode, s_accent, s_follow) =
-        (svc.clone(), svc.clone(), svc.clone());
+    let (s_mode, s_accent, s_follow) = (svc.clone(), svc.clone(), svc.clone());
     let s_reset = svc.clone();
     let transparency = if solid { 0 } else { a.transparency };
     let (set_t, set_c, set_d, set_x, set_sb, set_bd, set_m, set_v) = (

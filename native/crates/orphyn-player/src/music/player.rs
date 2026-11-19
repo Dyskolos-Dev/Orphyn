@@ -34,7 +34,9 @@ pub trait RemoteOutput: Send + Sync {
 #[derive(Debug, Clone, PartialEq)]
 pub enum RemoteEvent {
     /// The current track is loaded on the device.
-    Loaded { duration: Option<f64> },
+    Loaded {
+        duration: Option<f64>,
+    },
     Position(f64),
     /// The device finished the track.
     Ended,

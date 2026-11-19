@@ -13,8 +13,8 @@ pub mod stats;
 pub mod syncplay;
 pub mod system;
 pub mod updater;
-pub mod whatsnew;
 pub mod video;
+pub mod whatsnew;
 
 use dioxus::prelude::*;
 

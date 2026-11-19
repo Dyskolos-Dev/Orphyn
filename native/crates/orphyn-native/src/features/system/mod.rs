@@ -94,9 +94,10 @@ fn now_playing(
         snap.duration_seconds,
     ) {
         let item = video_item?;
-        let series = item.series_name.clone().filter(|_| {
-            item.item_type.as_deref() == Some("Episode")
-        });
+        let series = item
+            .series_name
+            .clone()
+            .filter(|_| item.item_type.as_deref() == Some("Episode"));
         let duration = match &p {
             Presence::Video { duration_sec, .. } => *duration_sec,
             Presence::Music { duration_sec, .. } => *duration_sec,
@@ -121,10 +122,18 @@ fn now_playing(
     let state = music.state();
     let progress = music.progress();
     let track = state.current().map(|q| &*q.track);
-    let p = music_presence(base, track, state.status, progress.position, progress.duration)?;
+    let p = music_presence(
+        base,
+        track,
+        state.status,
+        progress.position,
+        progress.duration,
+    )?;
     let track = track?;
     let duration = match &p {
-        Presence::Music { duration_sec, .. } | Presence::Video { duration_sec, .. } => *duration_sec,
+        Presence::Music { duration_sec, .. } | Presence::Video { duration_sec, .. } => {
+            *duration_sec
+        }
     };
     Some(Now {
         status: if state.status == PlayerStatus::Paused {
@@ -193,7 +202,8 @@ pub fn use_system_provider(svc: &Services) {
                 // music presence flash meanwhile.
                 let snap = video.snapshot();
                 if let Some(id) = snap.item_id.as_deref() {
-                    let active = !matches!(snap.status, PlaybackStatus::Idle | PlaybackStatus::Ended);
+                    let active =
+                        !matches!(snap.status, PlaybackStatus::Idle | PlaybackStatus::Ended);
                     let known = video_item.as_ref().is_some_and(|i| i.id == id);
                     if active && !known && fetching.as_deref() != Some(id) {
                         fetching = Some(id.to_string());
@@ -207,8 +217,14 @@ pub fn use_system_provider(svc: &Services) {
                 }
                 let now = now_playing(&base, &music, &video, video_item.as_ref());
                 let presence = now.as_ref().and_then(|n| n.presence.clone());
-                let elapsed = sent.as_ref().map_or(0.0, |(_, at)| at.elapsed().as_secs_f64());
-                if should_send(sent.as_ref().and_then(|(p, _)| p.as_ref()), presence.as_ref(), elapsed) {
+                let elapsed = sent
+                    .as_ref()
+                    .map_or(0.0, |(_, at)| at.elapsed().as_secs_f64());
+                if should_send(
+                    sent.as_ref().and_then(|(p, _)| p.as_ref()),
+                    presence.as_ref(),
+                    elapsed,
+                ) {
                     sent = Some((presence.clone(), Instant::now()));
                     discord.set_presence(presence);
                     // The OS overlay follows the same triggers: item, state or a seek.
@@ -244,6 +260,9 @@ pub fn app_version() -> String {
     const PACKAGE_JSON: &str = include_str!("../../../../../../package.json");
     serde_json::from_str::<serde_json::Value>(PACKAGE_JSON)
         .ok()
-        .and_then(|v| v.get("version").and_then(|s| s.as_str().map(str::to_string)))
+        .and_then(|v| {
+            v.get("version")
+                .and_then(|s| s.as_str().map(str::to_string))
+        })
         .unwrap_or_else(|| env!("CARGO_PKG_VERSION").to_string())
 }

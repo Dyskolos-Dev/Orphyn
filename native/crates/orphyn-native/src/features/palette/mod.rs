@@ -34,8 +34,8 @@ use crate::theme::{Resolved, ThemeMode, INTERFACE_STYLES};
 use fuzzy::highlight_runs;
 use model::{
     build_model, commands, highlight_of, nav_reduce, open_route, play_action, read_recent_commands,
-    record_recent_command, search_commands, AccountInfo, Action, BuildInput, Context, Entry,
-    LibraryKind, LibrarySection, Lang, NavAction, NavState, PlayAction, Repeat, Source,
+    record_recent_command, search_commands, AccountInfo, Action, BuildInput, Context, Entry, Lang,
+    LibraryKind, LibrarySection, NavAction, NavState, PlayAction, Repeat, Source,
 };
 
 const DEBOUNCE_MS: u64 = 180;
@@ -79,7 +79,9 @@ pub fn is_palette_shortcut(key: &WKey, mods: ModifiersState) -> bool {
 /// Always mounted by the app root: listens for the shortcut and shows the palette over the app.
 #[component]
 pub fn PaletteHost() -> Element {
-    let ui = use_context_provider(|| PaletteUi { open: Signal::new(false) });
+    let ui = use_context_provider(|| PaletteUi {
+        open: Signal::new(false),
+    });
     let mut modifiers = use_signal(ModifiersState::default);
     dioxus_native::use_window_event(move |event, _| match event {
         WindowEvent::ModifiersChanged(m) => modifiers.set(m.state()),
@@ -100,7 +102,11 @@ pub fn PaletteHost() -> Element {
 
 fn item_subtitle(kind: LibraryKind, item: &BaseItemDto) -> Option<String> {
     let joined = |parts: [String; 2]| {
-        let s = parts.into_iter().filter(|p| !p.is_empty()).collect::<Vec<_>>().join(" · ");
+        let s = parts
+            .into_iter()
+            .filter(|p| !p.is_empty())
+            .collect::<Vec<_>>()
+            .join(" · ");
         (!s.is_empty()).then_some(s)
     };
     match kind {
@@ -108,10 +114,15 @@ fn item_subtitle(kind: LibraryKind, item: &BaseItemDto) -> Option<String> {
         LibraryKind::Episode => item.series_name.clone(),
         LibraryKind::Album => joined([
             item.album_artist.clone().unwrap_or_default(),
-            item.production_year.map(|y| y.to_string()).unwrap_or_default(),
+            item.production_year
+                .map(|y| y.to_string())
+                .unwrap_or_default(),
         ]),
         LibraryKind::Song => joined([
-            item.album_artist.clone().or_else(|| item.artists.first().cloned()).unwrap_or_default(),
+            item.album_artist
+                .clone()
+                .or_else(|| item.artists.first().cloned())
+                .unwrap_or_default(),
             item.album.clone().unwrap_or_default(),
         ]),
         _ => None,
@@ -121,8 +132,16 @@ fn item_subtitle(kind: LibraryKind, item: &BaseItemDto) -> Option<String> {
 fn initials(name: &str) -> String {
     let parts: Vec<&str> = name.split_whitespace().collect();
     let first = parts.first().and_then(|p| p.chars().next());
-    let last = if parts.len() > 1 { parts.last().and_then(|p| p.chars().next()) } else { None };
-    first.into_iter().chain(last).flat_map(char::to_uppercase).collect()
+    let last = if parts.len() > 1 {
+        parts.last().and_then(|p| p.chars().next())
+    } else {
+        None
+    };
+    first
+        .into_iter()
+        .chain(last)
+        .flat_map(char::to_uppercase)
+        .collect()
 }
 
 fn library_kind(k: ResultKind) -> LibraryKind {
@@ -210,7 +229,11 @@ fn PalettePanel() -> Element {
     let favorite = track.as_ref().map(|tr| {
         session
             .as_ref()
-            .and_then(|s| svc.cache.peek::<BaseItemDto>(&keys::item(&s.account_id, &tr.id)).data)
+            .and_then(|s| {
+                svc.cache
+                    .peek::<BaseItemDto>(&keys::item(&s.account_id, &tr.id))
+                    .data
+            })
             .map(|c| c.is_favorite())
             .unwrap_or_else(|| tr.is_favorite())
     });
@@ -261,7 +284,13 @@ fn PalettePanel() -> Element {
     let searching = term_now.chars().count() >= 2;
     let (search, _) = use_search(&term_now);
     let acc = active_id.clone().unwrap_or_default();
-    let mut playlists_key = vec!["jf".to_string(), acc, "palette".into(), "playlists".into(), term_now.clone()];
+    let mut playlists_key = vec![
+        "jf".to_string(),
+        acc,
+        "palette".into(),
+        "playlists".into(),
+        term_now.clone(),
+    ];
     if !searching {
         playlists_key.push("off".into());
     }
@@ -292,11 +321,19 @@ fn PalettePanel() -> Element {
             library = group_results(data, &term_now)
                 .sections
                 .into_iter()
-                .map(|s| LibrarySection { id: s.id, kind: library_kind(s.kind), items: s.items })
+                .map(|s| LibrarySection {
+                    id: s.id,
+                    kind: library_kind(s.kind),
+                    items: s.items,
+                })
                 .collect();
         }
         if let Some(lists) = playlists.data.as_ref().filter(|l| !l.is_empty()) {
-            library.push(LibrarySection { id: "playlists", kind: LibraryKind::Playlist, items: (**lists).clone() });
+            library.push(LibrarySection {
+                id: "playlists",
+                kind: LibraryKind::Playlist,
+                items: (**lists).clone(),
+            });
         }
     }
 
@@ -338,60 +375,75 @@ fn PalettePanel() -> Element {
 
     let run = {
         let (svc, base_session) = (svc.clone(), session.clone());
-        move |entry: Entry, secondary: bool| {
-            match entry {
-                Entry::Command { matched, .. } => {
-                    let cmd = matched.command;
-                    let mut recents = recent_ids;
-                    recents.set(record_recent_command(&svc.storage, &cmd.id));
-                    ui.hide();
-                    match cmd.action {
-                        Action::Navigate(to) => router.push(&to),
-                        Action::TogglePlay => svc.music.toggle(),
-                        Action::Next => svc.music.next(),
-                        Action::Previous => svc.music.previous(),
-                        Action::ToggleShuffle => svc.music.toggle_shuffle(),
-                        Action::CycleRepeat => svc.music.cycle_repeat(),
-                        Action::NowPlaying => music.show(NowPlayingView::Player),
-                        Action::ToggleFavorite => {
-                            if let Some(tr) = (music.state)().current().map(|q| q.track.clone()) {
-                                let value = base_session
-                                    .as_ref()
-                                    .and_then(|s| svc.cache.peek::<BaseItemDto>(&keys::item(&s.account_id, &tr.id)).data)
-                                    .map(|c| c.is_favorite())
-                                    .unwrap_or_else(|| tr.is_favorite());
-                                let mut item = (*tr).clone();
-                                item.user_data.get_or_insert_with(Default::default).is_favorite = value;
-                                toggle_favorite(&svc, base_session.clone(), &item, !value);
-                            }
+        move |entry: Entry, secondary: bool| match entry {
+            Entry::Command { matched, .. } => {
+                let cmd = matched.command;
+                let mut recents = recent_ids;
+                recents.set(record_recent_command(&svc.storage, &cmd.id));
+                ui.hide();
+                match cmd.action {
+                    Action::Navigate(to) => router.push(&to),
+                    Action::TogglePlay => svc.music.toggle(),
+                    Action::Next => svc.music.next(),
+                    Action::Previous => svc.music.previous(),
+                    Action::ToggleShuffle => svc.music.toggle_shuffle(),
+                    Action::CycleRepeat => svc.music.cycle_repeat(),
+                    Action::NowPlaying => music.show(NowPlayingView::Player),
+                    Action::ToggleFavorite => {
+                        if let Some(tr) = (music.state)().current().map(|q| q.track.clone()) {
+                            let value = base_session
+                                .as_ref()
+                                .and_then(|s| {
+                                    svc.cache
+                                        .peek::<BaseItemDto>(&keys::item(&s.account_id, &tr.id))
+                                        .data
+                                })
+                                .map(|c| c.is_favorite())
+                                .unwrap_or_else(|| tr.is_favorite());
+                            let mut item = (*tr).clone();
+                            item.user_data
+                                .get_or_insert_with(Default::default)
+                                .is_favorite = value;
+                            toggle_favorite(&svc, base_session.clone(), &item, !value);
                         }
-                        Action::Refresh => {
-                            if let Some(s) = &base_session {
-                                svc.cache.invalidate(&keys::all(&s.account_id));
-                            }
+                    }
+                    Action::Refresh => {
+                        if let Some(s) = &base_session {
+                            svc.cache.invalidate(&keys::all(&s.account_id));
                         }
-                        Action::SignOut => sign_out(app, &svc),
-                        Action::SetDark(dark) => app.set_theme(&svc, |t| {
-                            t.mode = if dark { ThemeMode::Dark } else { ThemeMode::Light };
-                        }),
-                        Action::SetStyle(style) => {
-                            if let Some(s) = INTERFACE_STYLES.iter().copied().find(|s| *s == style) {
-                                app.set_style(&svc, s);
-                            }
+                    }
+                    Action::SignOut => sign_out(app, &svc),
+                    Action::SetDark(dark) => app.set_theme(&svc, |t| {
+                        t.mode = if dark {
+                            ThemeMode::Dark
+                        } else {
+                            ThemeMode::Light
+                        };
+                    }),
+                    Action::SetStyle(style) => {
+                        if let Some(s) = INTERFACE_STYLES.iter().copied().find(|s| *s == style) {
+                            app.set_style(&svc, s);
                         }
-                        Action::SwitchServer(id) => crate::features::settings::switch_server(app, &svc, &id),
+                    }
+                    Action::SwitchServer(id) => {
+                        crate::features::settings::switch_server(app, &svc, &id)
                     }
                 }
-                Entry::Item { kind, item, .. } => {
-                    let play = if secondary { play_action(kind, &item) } else { None };
-                    ui.hide();
-                    match play {
-                        Some(PlayAction::Video(route)) => router.push(&route),
-                        Some(PlayAction::Audio(_)) => {
-                            svc.music.play(std::slice::from_ref(&item), Some(0), Some(false))
-                        }
-                        None => router.push(&open_route(kind, &item)),
+            }
+            Entry::Item { kind, item, .. } => {
+                let play = if secondary {
+                    play_action(kind, &item)
+                } else {
+                    None
+                };
+                ui.hide();
+                match play {
+                    Some(PlayAction::Video(route)) => router.push(&route),
+                    Some(PlayAction::Audio(_)) => {
+                        svc.music
+                            .play(std::slice::from_ref(&item), Some(0), Some(false))
                     }
+                    None => router.push(&open_route(kind, &item)),
                 }
             }
         }
@@ -403,7 +455,11 @@ fn PalettePanel() -> Element {
         let (entry, starts) = (active_entry.clone(), model.group_starts.clone());
         move |e: KeyboardEvent| {
             let mods = e.modifiers();
-            let secondary = if cfg!(target_os = "macos") { mods.meta() } else { mods.ctrl() };
+            let secondary = if cfg!(target_os = "macos") {
+                mods.meta()
+            } else {
+                mods.ctrl()
+            };
             let mut reduce = |a: NavAction| {
                 let next = nav_reduce(&nav.peek(), a);
                 nav.set(next);
@@ -444,7 +500,11 @@ fn PalettePanel() -> Element {
     let loading = searching && (!settled || search.fetching) && library.is_empty();
     let empty = count == 0 && !loading;
     let can_play = matches!(&active_entry, Some(Entry::Item { kind, item, .. }) if play_action(*kind, item).is_some());
-    let mod_key = if cfg!(target_os = "macos") { "⌘" } else { "Ctrl" };
+    let mod_key = if cfg!(target_os = "macos") {
+        "⌘"
+    } else {
+        "Ctrl"
+    };
     let opacity = p();
     let panel_style = format!(
         "opacity: {opacity}; transform: translateY({}px) scale({});",
@@ -627,4 +687,3 @@ fn Highlighted(text: String, indices: Vec<usize>) -> Element {
         }
     }
 }
-

@@ -115,9 +115,8 @@ pub fn civil_from_days(z: i64) -> (i32, u32, u32) {
 /// Unix seconds of an ISO 8601 timestamp (`2026-03-04T21:15:00.1234567Z`, offsets accepted).
 pub fn parse_iso(iso: &str) -> Option<i64> {
     let b = iso.as_bytes();
-    let num = |from: usize, len: usize| -> Option<i64> {
-        iso.get(from..from + len)?.parse::<i64>().ok()
-    };
+    let num =
+        |from: usize, len: usize| -> Option<i64> { iso.get(from..from + len)?.parse::<i64>().ok() };
     if b.len() < 10 || b[4] != b'-' || b[7] != b'-' {
         return None;
     }
@@ -140,7 +139,11 @@ pub fn parse_iso(iso: &str) -> Option<i64> {
         if let Some(sign) = rest.chars().next().filter(|c| *c == '+' || *c == '-') {
             let off = &rest[1..];
             let h: i64 = off.get(0..2)?.parse().ok()?;
-            let m: i64 = off.get(3..5).or(off.get(2..4)).and_then(|s| s.parse().ok()).unwrap_or(0);
+            let m: i64 = off
+                .get(3..5)
+                .or(off.get(2..4))
+                .and_then(|s| s.parse().ok())
+                .unwrap_or(0);
             let total = h * 3600 + m * 60;
             secs -= if sign == '+' { total } else { -total };
         }
@@ -214,7 +217,8 @@ impl Ranking {
             cur.plays += plays;
         } else {
             self.order.push(entry.key.clone());
-            self.map.insert(entry.key.clone(), RankedEntry { plays, ..entry });
+            self.map
+                .insert(entry.key.clone(), RankedEntry { plays, ..entry });
         }
     }
 
@@ -228,7 +232,11 @@ impl Ranking {
             .iter()
             .filter_map(|k| self.map.get(k).cloned())
             .collect();
-        v.sort_by(|a, b| b.plays.cmp(&a.plays).then_with(|| locale_cmp(&a.name, &b.name)));
+        v.sort_by(|a, b| {
+            b.plays
+                .cmp(&a.plays)
+                .then_with(|| locale_cmp(&a.name, &b.name))
+        });
         v.truncate(limit);
         v
     }
@@ -240,10 +248,16 @@ fn minutes_of(item: &BaseItemDto, plays: i64) -> f64 {
 
 /// The artist of a song: (id, name).
 fn artist_of(item: &BaseItemDto) -> Option<(String, String)> {
-    let first = item.artist_items.first().or_else(|| item.album_artists.first());
+    let first = item
+        .artist_items
+        .first()
+        .or_else(|| item.album_artists.first());
     if let Some(a) = first {
         if let Some(name) = a.name.as_deref().filter(|n| !n.is_empty()) {
-            return Some((a.id.clone().unwrap_or_else(|| name.to_string()), name.to_string()));
+            return Some((
+                a.id.clone().unwrap_or_else(|| name.to_string()),
+                name.to_string(),
+            ));
         }
     }
     let name = item
@@ -257,7 +271,10 @@ fn artist_of(item: &BaseItemDto) -> Option<(String, String)> {
 /// The series an episode belongs to, as an item whose Primary image is the series poster.
 fn series_item_of(ep: &BaseItemDto) -> Option<BaseItemDto> {
     let id = ep.series_id.as_deref().filter(|s| !s.is_empty())?;
-    let tag = ep.series_primary_image_tag.as_deref().filter(|s| !s.is_empty())?;
+    let tag = ep
+        .series_primary_image_tag
+        .as_deref()
+        .filter(|s| !s.is_empty())?;
     serde_json::from_value(json!({
         "Id": id,
         "Name": ep.series_name,
@@ -293,10 +310,18 @@ pub fn top_songs(
         ranked.push((item, plays));
     }
     ranked.sort_by(|a, b| {
-        b.1.cmp(&a.1)
-            .then_with(|| locale_cmp(a.0.name.as_deref().unwrap_or(""), b.0.name.as_deref().unwrap_or("")))
+        b.1.cmp(&a.1).then_with(|| {
+            locale_cmp(
+                a.0.name.as_deref().unwrap_or(""),
+                b.0.name.as_deref().unwrap_or(""),
+            )
+        })
     });
-    ranked.into_iter().take(limit).map(|(i, _)| i.clone()).collect()
+    ranked
+        .into_iter()
+        .take(limit)
+        .map(|(i, _)| i.clone())
+        .collect()
 }
 
 pub fn aggregate_year(items: &[BaseItemDto], year: i32, opts: &AggregateOptions) -> YearStats {
@@ -397,7 +422,10 @@ pub fn aggregate_year(items: &[BaseItemDto], year: i32, opts: &AggregateOptions)
                     item: item.clone(),
                     art: None,
                     target_id: Some(item.id.clone()),
-                    subtitle: item.production_year.filter(|y| *y != 0).map(|y| y.to_string()),
+                    subtitle: item
+                        .production_year
+                        .filter(|y| *y != 0)
+                        .map(|y| y.to_string()),
                 },
                 plays,
             );
@@ -434,7 +462,11 @@ pub fn aggregate_year(items: &[BaseItemDto], year: i32, opts: &AggregateOptions)
         .map(|(name, p)| GenreEntry {
             name,
             plays: p,
-            share: if genre_total > 0 { p as f64 / genre_total as f64 } else { 0.0 },
+            share: if genre_total > 0 {
+                p as f64 / genre_total as f64
+            } else {
+                0.0
+            },
         })
         .collect();
 
@@ -471,7 +503,9 @@ pub fn aggregate_year(items: &[BaseItemDto], year: i32, opts: &AggregateOptions)
         },
         facts: Facts {
             total_minutes,
-            busiest_month: (max_month > 0).then(|| months.iter().position(|m| *m == max_month)).flatten(),
+            busiest_month: (max_month > 0)
+                .then(|| months.iter().position(|m| *m == max_month))
+                .flatten(),
             top_artist_share: match top_artists.first() {
                 Some(a) if music_plays > 0 => a.plays as f64 / music_plays as f64,
                 _ => 0.0,
@@ -509,7 +543,14 @@ mod tests {
         parse_iso(iso).unwrap()
     }
 
-    fn song(id: &str, name: &str, artist: &str, album: &str, plays: i64, played: &str) -> BaseItemDto {
+    fn song(
+        id: &str,
+        name: &str,
+        artist: &str,
+        album: &str,
+        plays: i64,
+        played: &str,
+    ) -> BaseItemDto {
         serde_json::from_value(json!({
             "Id": id, "Name": name, "Type": "Audio", "RunTimeTicks": 1_800_000_000i64,
             "AlbumId": format!("al-{album}"), "Album": album, "AlbumArtist": artist,
@@ -581,7 +622,14 @@ mod tests {
             episode("e1", "Show", 3, "2026-03-07T10:00:00Z"),
             episode("e2", "Show", 1, "2026-03-08T10:00:00Z"),
         ];
-        let st = aggregate_year(&items, 2026, &AggregateOptions { now: at(NOW), ..Default::default() });
+        let st = aggregate_year(
+            &items,
+            2026,
+            &AggregateOptions {
+                now: at(NOW),
+                ..Default::default()
+            },
+        );
         assert!(!st.is_empty);
         assert_eq!(st.music.plays, 20);
         assert_eq!(st.music.distinct_songs, 3);
@@ -607,7 +655,10 @@ mod tests {
         assert_eq!(st.video.series[0].target_id.as_deref(), Some("s-Show"));
         let art = st.video.series[0].art.as_ref().unwrap();
         assert_eq!(art.id, "s-Show");
-        assert_eq!(art.image_tags.get("Primary").map(String::as_str), Some("tag"));
+        assert_eq!(
+            art.image_tags.get("Primary").map(String::as_str),
+            Some("tag")
+        );
         assert_eq!(st.facts.total_minutes, 60 + 360);
         // March holds 10 + 5 + 2 + 3 + 1 plays, July 5.
         assert_eq!(st.facts.busiest_month, Some(2));
@@ -619,9 +670,23 @@ mod tests {
     #[test]
     fn past_years_use_the_full_length_and_empty_years_are_empty() {
         let items = vec![song("1", "One", "A", "Al", 1, "2024-03-04T10:00:00Z")];
-        let st = aggregate_year(&items, 2024, &AggregateOptions { now: at(NOW), ..Default::default() });
+        let st = aggregate_year(
+            &items,
+            2024,
+            &AggregateOptions {
+                now: at(NOW),
+                ..Default::default()
+            },
+        );
         assert!((st.facts.minutes_per_day - 3.0 / 366.0).abs() < 1e-9);
-        let empty = aggregate_year(&items, 2025, &AggregateOptions { now: at(NOW), ..Default::default() });
+        let empty = aggregate_year(
+            &items,
+            2025,
+            &AggregateOptions {
+                now: at(NOW),
+                ..Default::default()
+            },
+        );
         assert!(empty.is_empty);
         assert_eq!(empty.facts.busiest_month, None);
         assert_eq!(empty.facts.top_artist_share, 0.0);
@@ -634,11 +699,20 @@ mod tests {
             song("2", "Two", "B", "Al", 1, "2020-01-01T00:00:00Z"),
             song("3", "Three", "C", "Al", 1, "2020-01-01T00:00:00Z"),
         ];
-        let plugin: PluginPlays = [("1".to_string(), 3), ("2".to_string(), 7), ("3".to_string(), 1)].into();
+        let plugin: PluginPlays = [
+            ("1".to_string(), 3),
+            ("2".to_string(), 7),
+            ("3".to_string(), 1),
+        ]
+        .into();
         let st = aggregate_year(
             &items,
             2026,
-            &AggregateOptions { plugin_plays: Some(&plugin), now: at(NOW), limit: Some(2) },
+            &AggregateOptions {
+                plugin_plays: Some(&plugin),
+                now: at(NOW),
+                limit: Some(2),
+            },
         );
         assert_eq!(st.music.songs.len(), 2);
         assert_eq!(st.music.songs[0].name, "Two");

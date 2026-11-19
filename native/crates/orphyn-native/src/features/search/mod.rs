@@ -4,19 +4,14 @@ mod fold;
 mod grouping;
 mod recents;
 
-// The palette lives in `features/palette`; until `features/mod.rs` declares it (`pub mod palette;`)
-// it is compiled from here. Remove this line when that declaration is added.
-#[path = "../palette/mod.rs"]
-pub mod palette;
-
 use std::time::Duration;
 
 use dioxus::prelude::*;
 use orphyn_jellyfin::api::search::{self, SearchResults};
 use orphyn_jellyfin::images::{build_image_url, ImageKind, ImageOptions};
 use orphyn_jellyfin::keys::{stale, Key};
-use orphyn_jellyfin::QueryState;
 use orphyn_jellyfin::BaseItemDto;
+use orphyn_jellyfin::QueryState;
 
 use crate::design::{Artwork, Button, EmptyState, Icon, TrackRow};
 use crate::features::music::use_base_url;
@@ -77,7 +72,9 @@ fn item_subtitle(kind: ResultKind, item: &BaseItemDto) -> Option<String> {
         ResultKind::Episode => item.series_name.clone(),
         ResultKind::Album => joined(vec![
             item.album_artist.clone().unwrap_or_default(),
-            item.production_year.map(|y| y.to_string()).unwrap_or_default(),
+            item.production_year
+                .map(|y| y.to_string())
+                .unwrap_or_default(),
         ]),
         ResultKind::Song => joined(vec![
             item.album_artist
@@ -284,7 +281,12 @@ fn Results(term: String, data: SearchResults, remember: EventHandler<()>) -> Ele
 }
 
 #[component]
-fn TopCard(kind: ResultKind, item: BaseItemDto, base: String, remember: EventHandler<()>) -> Element {
+fn TopCard(
+    kind: ResultKind,
+    item: BaseItemDto,
+    base: String,
+    remember: EventHandler<()>,
+) -> Element {
     let t = use_i18n();
     let router = use_router();
     let round = kind == ResultKind::Artist;

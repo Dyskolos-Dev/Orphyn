@@ -68,7 +68,8 @@ pub fn verify(bytes: &[u8], signature_b64: &str) -> Result<(), String> {
         String::from_utf8(raw).map_err(|e| e.to_string())
     };
     let pk = minisign_verify::PublicKey::decode(&dec(PUBKEY)?).map_err(|e| e.to_string())?;
-    let sig = minisign_verify::Signature::decode(&dec(signature_b64)?).map_err(|e| e.to_string())?;
+    let sig =
+        minisign_verify::Signature::decode(&dec(signature_b64)?).map_err(|e| e.to_string())?;
     pk.verify(bytes, &sig, false).map_err(|e| e.to_string())
 }
 

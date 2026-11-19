@@ -255,7 +255,11 @@ mod tests {
         let r = m("gth", "Go to Home").unwrap();
         let chars: Vec<char> = "Go to Home".chars().collect();
         assert!(r.indices.windows(2).all(|w| w[0] < w[1]));
-        let hit: String = r.indices.iter().map(|i| chars[*i].to_ascii_lowercase()).collect();
+        let hit: String = r
+            .indices
+            .iter()
+            .map(|i| chars[*i].to_ascii_lowercase())
+            .collect();
         assert_eq!(hit, "gth");
         // Word starts are preferred: G, t(o), H.
         assert_eq!(r.indices, vec![0, 3, 6]);
@@ -276,10 +280,14 @@ mod tests {
     #[test]
     fn aliases_match_without_highlight_and_with_a_penalty() {
         let items = vec![("Open Settings", "preferences")];
-        let r = rank(&items, "preferences", |(a, b)| vec![a.to_string(), b.to_string()]);
+        let r = rank(&items, "preferences", |(a, b)| {
+            vec![a.to_string(), b.to_string()]
+        });
         assert_eq!(r.len(), 1);
         assert!(r[0].indices.is_empty());
-        let direct = rank(&items, "settings", |(a, b)| vec![a.to_string(), b.to_string()]);
+        let direct = rank(&items, "settings", |(a, b)| {
+            vec![a.to_string(), b.to_string()]
+        });
         assert!(!direct[0].indices.is_empty());
     }
 

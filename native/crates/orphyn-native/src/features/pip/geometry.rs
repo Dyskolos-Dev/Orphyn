@@ -115,7 +115,11 @@ pub fn is_visible(x: i32, y: i32, size: (u32, u32), monitors: &[(i32, i32, u32, 
 }
 
 /// Bottom-right corner of a monitor with a margin (the default place of a first PiP).
-pub fn default_position(monitor: (i32, i32, u32, u32), size: (u32, u32), margin: i32) -> (i32, i32) {
+pub fn default_position(
+    monitor: (i32, i32, u32, u32),
+    size: (u32, u32),
+    margin: i32,
+) -> (i32, i32) {
     (
         monitor.0 + monitor.2 as i32 - size.0 as i32 - margin,
         monitor.1 + monitor.3 as i32 - size.1 as i32 - margin,
@@ -194,6 +198,9 @@ mod tests {
 
     #[test]
     fn default_position_is_bottom_right() {
-        assert_eq!(default_position((0, 0, 1920, 1080), (320, 380), 24), (1576, 676));
+        assert_eq!(
+            default_position((0, 0, 1920, 1080), (320, 380), 24),
+            (1576, 676)
+        );
     }
 }

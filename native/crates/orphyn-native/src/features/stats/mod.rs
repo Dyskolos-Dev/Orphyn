@@ -21,8 +21,8 @@ use crate::router::use_router;
 use crate::shell::ShellPage;
 use crate::state::{use_app, use_services};
 use aggregate::{
-    aggregate_year, available_years, count_plugin_rows, days_from_civil, top_songs,
-    year_of_secs, AggregateOptions, GenreEntry, PluginPlays, RankedEntry, YearStats,
+    aggregate_year, available_years, count_plugin_rows, days_from_civil, top_songs, year_of_secs,
+    AggregateOptions, GenreEntry, PluginPlays, RankedEntry, YearStats,
 };
 use reveal::{format_number, CountUp, Reveal};
 
@@ -62,8 +62,14 @@ pub fn StatsPage() -> Element {
     let year = picked().unwrap_or_else(|| year_of_secs(now));
 
     let session = (app.session)();
-    let acc = session.as_ref().map(|s| s.account_id.clone()).unwrap_or_default();
-    let user = session.as_ref().map(|s| s.user_id.clone()).unwrap_or_default();
+    let acc = session
+        .as_ref()
+        .map(|s| s.account_id.clone())
+        .unwrap_or_default();
+    let user = session
+        .as_ref()
+        .map(|s| s.user_id.clone())
+        .unwrap_or_default();
 
     // `usePlayedItems`: every played song, film and episode, cached for ten minutes.
     let played = use_query(played_key(&acc, &user), PLAYED_STALE, {
@@ -106,12 +112,19 @@ pub fn StatsPage() -> Element {
     let is_loading = played.is_loading() || (items.is_some() && plugin_loading);
     let is_error = played.data.is_none() && played.error.is_some();
 
-    let years = items.as_ref().map(|i| available_years(i, now)).unwrap_or_default();
+    let years = items
+        .as_ref()
+        .map(|i| available_years(i, now))
+        .unwrap_or_default();
     let stats: Option<YearStats> = items.as_ref().filter(|_| ready).map(|i| {
         aggregate_year(
             i,
             year,
-            &AggregateOptions { plugin_plays: plugin_plays.as_ref(), now, limit: None },
+            &AggregateOptions {
+                plugin_plays: plugin_plays.as_ref(),
+                now,
+                limit: None,
+            },
         )
     });
     let top_tracks: Vec<BaseItemDto> = items
@@ -125,7 +138,10 @@ pub fn StatsPage() -> Element {
         let options: Vec<Segment> = years
             .iter()
             .take(5)
-            .map(|y| Segment { value: year_str(*y), label: y.to_string() })
+            .map(|y| Segment {
+                value: year_str(*y),
+                label: y.to_string(),
+            })
             .collect();
         rsx! {
             SegmentedControl {
@@ -193,7 +209,12 @@ enum Shape {
 
 /// `Art`: artwork of an item at `size` CSS pixels (requested at 2x), a cover or a 2:3 poster.
 #[component]
-fn Art(item: BaseItemDto, size: u32, #[props(default = false)] round: bool, shape: Shape) -> Element {
+fn Art(
+    item: BaseItemDto,
+    size: u32,
+    #[props(default = false)] round: bool,
+    shape: Shape,
+) -> Element {
     let base = use_base_url();
     let width = size * 2;
     let src = build_image_url(
@@ -214,7 +235,11 @@ fn Art(item: BaseItemDto, size: u32, #[props(default = false)] round: bool, shap
     if shape == Shape::Poster {
         cls.push_str(" jrs-art--poster");
     }
-    let fallback = if shape == Shape::Poster { "clapperboard" } else { "music" };
+    let fallback = if shape == Shape::Poster {
+        "clapperboard"
+    } else {
+        "music"
+    };
     rsx! {
         div { class: "{cls}",
             if let Some(src) = src {
@@ -304,7 +329,11 @@ fn Ranking(entries: Vec<RankedEntry>, kind: Kind) -> Element {
 
 #[component]
 fn Posters(entries: Vec<RankedEntry>, kind: Kind, shape: Shape) -> Element {
-    let cls = if shape == Shape::Poster { "jrs-posters jrs-posters--poster" } else { "jrs-posters" };
+    let cls = if shape == Shape::Poster {
+        "jrs-posters jrs-posters--poster"
+    } else {
+        "jrs-posters"
+    };
     rsx! {
         div { class: "{cls}",
             for (i, e) in entries.into_iter().enumerate() {
@@ -341,7 +370,11 @@ fn GenreRow(genre: GenreEntry, max: f64, index: usize) -> Element {
 
 #[component]
 fn Genres(genres: Vec<GenreEntry>) -> Element {
-    let max = genres.first().map(|g| g.share).filter(|s| *s > 0.0).unwrap_or(1.0);
+    let max = genres
+        .first()
+        .map(|g| g.share)
+        .filter(|s| *s > 0.0)
+        .unwrap_or(1.0);
     rsx! {
         ul { class: "jrs-genres",
             for (i, g) in genres.into_iter().enumerate() {
@@ -355,11 +388,15 @@ fn mix_covers(base: &str, tracks: &[BaseItemDto]) -> Vec<String> {
     let mut seen: Vec<&str> = Vec::new();
     let mut out = Vec::new();
     for t in tracks {
-        let Some(album) = t.album_id.as_deref().filter(|a| !a.is_empty()) else { continue };
+        let Some(album) = t.album_id.as_deref().filter(|a| !a.is_empty()) else {
+            continue;
+        };
         if seen.contains(&album) {
             continue;
         }
-        let Some(url) = track_art(base, t, 240) else { continue };
+        let Some(url) = track_art(base, t, 240) else {
+            continue;
+        };
         seen.push(album);
         out.push(url);
         if out.len() == 4 {
@@ -442,12 +479,32 @@ fn TopSongs(year: i32, tracks: Vec<BaseItemDto>) -> Element {
 
 fn month_name(t: I18n, month0: usize) -> String {
     const EN: [&str; 12] = [
-        "January", "February", "March", "April", "May", "June", "July", "August", "September",
-        "October", "November", "December",
+        "January",
+        "February",
+        "March",
+        "April",
+        "May",
+        "June",
+        "July",
+        "August",
+        "September",
+        "October",
+        "November",
+        "December",
     ];
     const FR: [&str; 12] = [
-        "janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre",
-        "octobre", "novembre", "décembre",
+        "janvier",
+        "février",
+        "mars",
+        "avril",
+        "mai",
+        "juin",
+        "juillet",
+        "août",
+        "septembre",
+        "octobre",
+        "novembre",
+        "décembre",
     ];
     let names = if t.lang().code() == "fr" { FR } else { EN };
     names[month0.min(11)].to_string()
@@ -457,7 +514,13 @@ fn month_name(t: I18n, month0: usize) -> String {
 fn Story(stats: YearStats, top_tracks: Vec<BaseItemDto>, exact: bool) -> Element {
     let t = use_i18n();
     let lang = t.lang().code();
-    let YearStats { year, music, video, facts, .. } = stats;
+    let YearStats {
+        year,
+        music,
+        video,
+        facts,
+        ..
+    } = stats;
     let top_artist = music.artists.first().cloned();
     let has_video = video.movie_plays + video.episode_plays > 0;
     let month = facts.busiest_month.map(|m| month_name(t, m));

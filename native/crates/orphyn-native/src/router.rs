@@ -12,8 +12,12 @@ use dioxus::prelude::*;
 pub enum Route {
     // features/video/routes.tsx
     VideoHome,
-    VideoLibrary { library_id: String },
-    VideoItem { item_id: String },
+    VideoLibrary {
+        library_id: String,
+    },
+    VideoItem {
+        item_id: String,
+    },
     /// `?start=ticks` resumes there; `?trailer=1` plays a trailer (no resume, nothing reported).
     VideoPlay {
         item_id: String,
@@ -22,22 +26,34 @@ pub enum Route {
     },
     // features/music/routes.tsx
     MusicHome,
-    MusicMix { id: String },
+    MusicMix {
+        id: String,
+    },
     MusicAlbums,
     MusicArtists,
     MusicPlaylists,
     MusicFavorites,
     MusicSongs,
-    MusicAlbum { id: String },
-    MusicArtist { id: String },
-    MusicPlaylist { id: String },
+    MusicAlbum {
+        id: String,
+    },
+    MusicArtist {
+        id: String,
+    },
+    MusicPlaylist {
+        id: String,
+    },
     // search, settings, servers, cast, stats
-    Search { q: String },
+    Search {
+        q: String,
+    },
     Settings,
     Onboarding,
     Cast,
     Stats,
-    NotFound { path: String },
+    NotFound {
+        path: String,
+    },
 }
 
 fn decode(s: &str) -> String {
@@ -327,7 +343,11 @@ mod tests {
         let r = Route::parse("/video/play/abc?start=600");
         assert_eq!(
             r,
-            Route::VideoPlay { item_id: "abc".into(), start: Some(600), trailer: false }
+            Route::VideoPlay {
+                item_id: "abc".into(),
+                start: Some(600),
+                trailer: false
+            }
         );
         assert_eq!(r.path(), "/video/play/abc?start=600");
         let t = Route::parse("/video/play/abc?trailer=1");

@@ -88,8 +88,7 @@ pub fn match_score(name: Option<&str>, term: &str) -> i32 {
     if n.starts_with(&q) {
         return 2;
     }
-    if n
-        .split(|c: char| c.is_whitespace() || "-–:._".contains(c))
+    if n.split(|c: char| c.is_whitespace() || "-–:._".contains(c))
         .any(|w| w.starts_with(&q))
     {
         return 1;
@@ -209,7 +208,8 @@ mod tests {
 
     #[test]
     fn routes() {
-        let song: BaseItemDto = serde_json::from_value(json!({"Id": "s", "AlbumId": "al"})).unwrap();
+        let song: BaseItemDto =
+            serde_json::from_value(json!({"Id": "s", "AlbumId": "al"})).unwrap();
         assert_eq!(route_for(ResultKind::Song, &song), "/music/album/al");
         assert_eq!(route_for(ResultKind::Movie, &song), "/video/item/s");
         assert_eq!(route_for(ResultKind::Artist, &song), "/music/artist/s");

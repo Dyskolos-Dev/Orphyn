@@ -140,7 +140,10 @@ pub fn WhatsNewSheet(notes: Vec<VersionNotes>, on_close: EventHandler<()>) -> El
         return rsx! {};
     };
     let fr = t.lang() == Lang::Fr;
-    let title = t.tf("common:whatsNew.title", &[("version", newest.version.clone())]);
+    let title = t.tf(
+        "common:whatsNew.title",
+        &[("version", newest.version.clone())],
+    );
     rsx! {
         Sheet {
             title,
@@ -264,7 +267,10 @@ mod tests {
         };
         assert_eq!(shown(Some("1.0.3"), true), ["1.2.0", "1.1.0"]);
         assert!(shown(Some("1.2.0"), true).is_empty());
-        assert!(shown(None, false).is_empty(), "a fresh install shows nothing");
+        assert!(
+            shown(None, false).is_empty(),
+            "a fresh install shows nothing"
+        );
         assert_eq!(shown(None, true), ["1.2.0", "1.1.0", "1.0.3"]);
     }
 }

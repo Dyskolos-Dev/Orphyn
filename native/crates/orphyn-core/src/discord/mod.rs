@@ -89,7 +89,9 @@ pub struct DiscordService {
 }
 
 fn settings_path() -> Option<PathBuf> {
-    crate::profile::data_dir().ok().map(|d| d.join(SETTINGS_FILE))
+    crate::profile::data_dir()
+        .ok()
+        .map(|d| d.join(SETTINGS_FILE))
 }
 
 fn load_settings(path: Option<&std::path::Path>) -> Settings {

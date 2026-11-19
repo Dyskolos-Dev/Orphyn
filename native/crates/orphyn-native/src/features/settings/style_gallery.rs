@@ -27,7 +27,11 @@ pub fn StylePreview(
     let landscape = layout.video_cards == "landscape";
     let cards = if landscape { 5 } else { 8 };
     let rows = if large { 6 } else { 4 };
-    let class = if large { "jr-style-preview jr-style-preview--large" } else { "jr-style-preview" };
+    let class = if large {
+        "jr-style-preview jr-style-preview--large"
+    } else {
+        "jr-style-preview"
+    };
     rsx! {
         div {
             class: "{class}",

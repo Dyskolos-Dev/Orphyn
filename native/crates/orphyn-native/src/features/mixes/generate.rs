@@ -224,9 +224,7 @@ pub fn diversify(tracks: &[Track], opts: &Diversify) -> Vec<Track> {
         if out.len() >= limit {
             break;
         }
-        if t.id.is_empty()
-            || ids.contains(&t.id)
-            || opts.exclude.is_some_and(|e| e.contains(&t.id))
+        if t.id.is_empty() || ids.contains(&t.id) || opts.exclude.is_some_and(|e| e.contains(&t.id))
         {
             continue;
         }
@@ -640,7 +638,14 @@ mod tests {
     use super::*;
     use orphyn_jellyfin::{NameIdPair, UserItemData};
 
-    fn track(id: &str, artist: &str, album: &str, genre: &str, plays: i64, last: Option<&str>) -> Track {
+    fn track(
+        id: &str,
+        artist: &str,
+        album: &str,
+        genre: &str,
+        plays: i64,
+        last: Option<&str>,
+    ) -> Track {
         Track {
             id: id.into(),
             name: Some(format!("Song {id}")),
@@ -700,8 +705,14 @@ mod tests {
                 .collect::<Vec<_>>()
         };
         let out = blend_pools(&[
-            Pool { tracks: mk("a", 6), weight: 3.0 },
-            Pool { tracks: mk("b", 6), weight: 1.0 },
+            Pool {
+                tracks: mk("a", 6),
+                weight: 3.0,
+            },
+            Pool {
+                tracks: mk("b", 6),
+                weight: 1.0,
+            },
         ]);
         assert_eq!(out.len(), 12);
         let from_a = out.iter().take(8).filter(|t| t.id.starts_with('a')).count();
@@ -725,12 +736,35 @@ mod tests {
     fn assemble_needs_enough_tracks() {
         let mk = |n: usize| -> Vec<Track> {
             (0..n)
-                .map(|i| track(&format!("t{i}"), &format!("a{i}"), &format!("b{i}"), "g", 0, None))
+                .map(|i| {
+                    track(
+                        &format!("t{i}"),
+                        &format!("a{i}"),
+                        &format!("b{i}"),
+                        "g",
+                        0,
+                        None,
+                    )
+                })
                 .collect()
         };
         let mut rng = Rng::seeded("x");
-        assert!(assemble_tracks(&[Pool { tracks: mk(4), weight: 1.0 }], &mut rng).is_none());
-        let got = assemble_tracks(&[Pool { tracks: mk(12), weight: 1.0 }], &mut rng).unwrap();
+        assert!(assemble_tracks(
+            &[Pool {
+                tracks: mk(4),
+                weight: 1.0
+            }],
+            &mut rng
+        )
+        .is_none());
+        let got = assemble_tracks(
+            &[Pool {
+                tracks: mk(12),
+                weight: 1.0,
+            }],
+            &mut rng,
+        )
+        .unwrap();
         assert_eq!(got.len(), 12);
     }
 
@@ -739,7 +773,10 @@ mod tests {
         let ts: Vec<Track> = (0..5)
             .map(|i| track(&format!("t{i}"), "a", "b", "g", 1, None))
             .collect();
-        assert_eq!(make_top_year_mix(2026, ts.clone(), 0).unwrap().id, "topYear-2026");
+        assert_eq!(
+            make_top_year_mix(2026, ts.clone(), 0).unwrap().id,
+            "topYear-2026"
+        );
         assert!(make_top_year_mix(2026, ts[..4].to_vec(), 0).is_none());
     }
 }

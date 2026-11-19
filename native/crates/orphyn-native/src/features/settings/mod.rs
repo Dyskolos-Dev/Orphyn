@@ -3,8 +3,8 @@ mod about;
 mod appearance;
 mod home;
 mod playback;
-mod style_gallery;
 mod servers_pane;
+mod style_gallery;
 mod ui;
 
 use dioxus::prelude::*;

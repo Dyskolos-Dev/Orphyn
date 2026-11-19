@@ -132,7 +132,13 @@ pub fn ToastHost() -> Element {
 fn ToastItem(id: u64) -> Element {
     let t = use_i18n();
     let toasts = use_toasts();
-    let Some(options) = toasts.items.peek().iter().find(|r| r.id == id).map(|r| r.options.clone()) else {
+    let Some(options) = toasts
+        .items
+        .peek()
+        .iter()
+        .find(|r| r.id == id)
+        .map(|r| r.options.clone())
+    else {
         return rsx! {};
     };
     let mut paused = use_signal(|| false);

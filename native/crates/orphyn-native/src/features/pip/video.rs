@@ -78,7 +78,11 @@ pub fn VideoPip(chrome: PipChrome, title: String) -> Element {
         });
     }
 
-    let play_label = if playing { t.t("pip:pause") } else { t.t("pip:play") };
+    let play_label = if playing {
+        t.t("pip:pause")
+    } else {
+        t.t("pip:play")
+    };
     let play_icon = if playing { "pause" } else { "play" };
     let back_label = t.t("pip:backToOrphyn");
     let close_label = t.t("pip:close");
