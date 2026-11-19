@@ -36,7 +36,19 @@ use crate::{
 
 impl BaseDocument {
     /// Restyle the tree and then relayout it
+    /// A panic while restyling or laying out (a stale style or layout state after a style switch)
+    /// must never take the app down: log it, rebuild everything on the next frame and carry on.
     pub fn resolve(&mut self, current_time_for_animations: f64) {
+        let outcome = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+            self.resolve_inner(current_time_for_animations)
+        }));
+        if outcome.is_err() {
+            eprintln!("[blitz] resolve panicked; the document is rebuilt on the next frame");
+            self.mark_all_damaged();
+        }
+    }
+
+    fn resolve_inner(&mut self, current_time_for_animations: f64) {
         if TDocument::as_node(&self.root_node())
             .first_element_child()
             .is_none()

@@ -23,3 +23,15 @@
 .jrm-lyric[data-state='active'] {
   transform: none;
 }
+
+/* Now Playing backdrop. The React app drifts two 90vmax blobs under blur(80px) saturate(1.6)
+   forever: in Blitz that is a full-window filter pass on every frame, which made opening the
+   sheet (and everything after) janky. The blobs show a 160 px cover scaled up ~10x, which is
+   already soft, so the blur is dropped, the drift is frozen (a static composition) and the
+   saturation is replaced by a little more opacity. */
+.jrm-np__blob {
+  filter: none;
+  will-change: auto;
+  animation: none;
+  opacity: 0.85;
+}

@@ -146,7 +146,7 @@ pub fn container_menu(
 /// First letters of the first two words (`initials` of `Artwork.tsx`).
 fn initials(name: &str) -> String {
     name.split_whitespace()
-        .filter_map(|w| w.chars().next())
+        .filter_map(|w| w.chars().find(|c| c.is_alphanumeric()))
         .take(2)
         .collect::<String>()
         .to_uppercase()

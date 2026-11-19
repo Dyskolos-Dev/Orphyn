@@ -88,7 +88,7 @@ fn find_feat(s: &str) -> Option<(usize, usize)> {
 
 fn split_joiners(s: &str) -> Vec<String> {
     let mut parts = vec![s.to_string()];
-    for sep in [";", ",", "&", "+", "/", " × ", " x ", " with ", " and "] {
+    for sep in [";", ", ", " & ", " + ", " / ", " × ", " x ", " with ", " and "] {
         parts = parts
             .into_iter()
             .flat_map(|p| {
@@ -146,7 +146,7 @@ pub fn group_artists(album_artists: &[BaseItemDto], everyone: &[BaseItemDto]) ->
         .chain(everyone)
         .filter_map(|a| a.name.as_deref().filter(|n| !n.is_empty()).map(artist_key))
         .collect();
-    let group_key_of = |name: &str| -> String {
+    let group_key_of = |name: &str, root: bool| -> String {
         let own = artist_key(name);
         let split = split_artist_credit(name);
         let Some(head) = split.names.first() else {
@@ -156,7 +156,8 @@ pub fn group_artists(album_artists: &[BaseItemDto], everyone: &[BaseItemDto]) ->
             return own;
         }
         let head_key = artist_key(head);
-        if split.featured || known.contains(&head_key) {
+        // A real artist entity (album artist) is never split: "Simon & Garfunkel" stays itself.
+        if split.featured || (!root && known.contains(&head_key)) {
             head_key
         } else {
             own
@@ -175,7 +176,7 @@ pub fn group_artists(album_artists: &[BaseItemDto], everyone: &[BaseItemDto]) ->
         if a.id.is_empty() {
             return;
         }
-        let key = group_key_of(name);
+        let key = group_key_of(name, root);
         match groups.get_mut(&key) {
             None => {
                 if root {
@@ -287,6 +288,21 @@ mod tests {
         assert!(s.featured);
         assert_eq!(s.names, ["Daft Punk", "Pharrell Williams", "Nile Rodgers"]);
         assert_eq!(split_artist_credit("Solo").names, ["Solo"]);
+    }
+
+    #[test]
+    fn names_with_ampersand_are_not_cut() {
+        assert_eq!(split_artist_credit("C&C Music Factory").names, ["C&C Music Factory"]);
+        assert_eq!(split_artist_credit("AC/DC").names, ["AC/DC"]);
+        let roots = [
+            artist("1", "Simon"),
+            artist("2", "Simon & Garfunkel"),
+            artist("3", "C&C Music Factory"),
+        ];
+        let g = group_artists(&roots, &roots);
+        assert_eq!(g.len(), 3);
+        assert_eq!(g[1].item.name(), "Simon & Garfunkel");
+        assert_eq!(g[2].item.name(), "C&C Music Factory");
     }
 
     #[test]

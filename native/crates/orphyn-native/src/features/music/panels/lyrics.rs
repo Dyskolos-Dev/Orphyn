@@ -173,15 +173,16 @@ fn LyricsBody(lyrics: Lyrics) -> Element {
         };
         // Scroll only the lyrics box: the active line sits at ~35 % of its height.
         spawn(async move {
-            let (Ok(b), Ok(l), Ok(off)) = (
+            let (Ok(b), Ok(l)) = (
                 box_el.get_client_rect().await,
                 line.get_client_rect().await,
-                box_el.get_scroll_offset().await,
             ) else {
                 return;
             };
-            let top =
-                off.y + l.origin.y + l.size.height / 2.0 - (b.origin.y + b.size.height * 0.35);
+            // Blitz rects are layout positions that ignore the box's own scroll (only the
+            // viewport scroll is removed), so the line's offset inside the content is simply
+            // the difference of the two: adding the scroll offset would count it twice.
+            let top = l.origin.y - b.origin.y + l.size.height / 2.0 - b.size.height * 0.35;
             let _ = box_el
                 .scroll(
                     PixelsVector2D::new(0.0, top.max(0.0)),

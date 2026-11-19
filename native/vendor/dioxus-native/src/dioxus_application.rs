@@ -159,6 +159,11 @@ impl DioxusNativeApplication {
             p.attributes,
         );
         let id = self.init_window(config, event_loop);
+        // The main window is resumed by `can_create_surfaces`; a window opened later has to
+        // create its render surface itself, or it stays blank (the invisible PiP).
+        if let Some(view) = self.inner.windows.get_mut(&id) {
+            view.resume();
+        }
         self.extras.insert(ticket, (id, p.on_close));
     }
 
