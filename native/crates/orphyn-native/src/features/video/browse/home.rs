@@ -416,7 +416,7 @@ fn HeroCarousel(items: Vec<BaseItemDto>) -> Element {
                     title: current.name().to_string(),
                     eyebrow: t.t("video:home.featured"),
                     meta: rsx! { "{hero_meta(current)}" },
-                    description: current.overview.clone(),
+                    description: None,
                     progress,
                     progress_caption: progress.map(|_| t.tf(
                         "video:item.minutesLeft",

@@ -427,7 +427,7 @@ pub fn VideoItemPage(item_id: String) -> Element {
                     "{meta_line} "
                     Badges { item: data.clone() }
                 },
-                description: overview.clone(),
+                description: None,
                 progress,
                 progress_caption: progress.map(|_| t.tf(
                     "video:item.minutesLeft",

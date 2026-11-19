@@ -22,7 +22,7 @@ macro_rules! notes {
 /// Every bundled note file, as `(version, json)`.
 const FILES: &[(&str, &str)] = notes![
     "1.0.2", "1.0.3", "1.0.4", "1.0.5", "1.1.0", "1.2.0", "1.2.1", "1.3.0", "1.4.0", "1.4.1",
-    "1.5.0", "2.0.0", "2.0.1"
+    "1.5.0", "2.0.0", "2.0.1", "2.0.2"
 ];
 
 #[derive(Debug, Clone, Deserialize, PartialEq)]
@@ -250,7 +250,7 @@ mod tests {
     #[test]
     fn every_bundled_file_parses_with_both_languages() {
         assert_eq!(bundled_notes().len(), FILES.len());
-        assert_eq!(bundled_notes()[0].version, "2.0.1");
+        assert_eq!(bundled_notes()[0].version, "2.0.2");
     }
 
     #[test]

@@ -1,0 +1,14 @@
+{
+  "fr": {
+    "title": "Des bannières plus épurées",
+    "items": [
+      { "icon": "film", "title": "Bannières films et séries", "text": "Le résumé n'apparaît plus dans la grande bannière de l'accueil et des pages de films et séries : il reste dans la section Synopsis, sans doublon." }
+    ]
+  },
+  "en": {
+    "title": "Cleaner banners",
+    "items": [
+      { "icon": "film", "title": "Film and series banners", "text": "The overview no longer shows in the large banner of the home and film/series pages: it stays in the Synopsis section, without duplicates." }
+    ]
+  }
+}
