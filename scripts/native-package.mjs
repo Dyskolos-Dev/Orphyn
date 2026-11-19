@@ -299,7 +299,7 @@ function linux() {
   copyFileSync(exe, join(root, 'usr/bin/orphyn'))
   chmodSync(join(root, 'usr/bin/orphyn'), 0o755)
   writeFileSync(join(root, 'usr/share/applications/orphyn.desktop'), desktop('orphyn'))
-  copyFileSync(join(ROOT, 'build/icon.png'), join(root, 'usr/share/icons/hicolor/512x512/apps/orphyn.png'))
+  copyFileSync(join(ROOT, 'build/icons/icon-512.png'), join(root, 'usr/share/icons/hicolor/512x512/apps/orphyn.png'))
   writeFileSync(
     join(root, 'DEBIAN/control'),
     `Package: orphyn
@@ -331,7 +331,7 @@ Description: ${DESCRIPTION}
   run(
     linuxdeploy,
     ['--appdir', appdir, '--executable', exe, '--library', mpvLib, '--desktop-file', dsk,
-      '--icon-file', join(ROOT, 'build/icon.png'), '--icon-filename', 'orphyn', '--output', 'appimage'],
+      '--icon-file', join(ROOT, 'build/icons/icon-512.png'), '--icon-filename', 'orphyn', '--output', 'appimage'],
     { cwd: OUT, env: { ...process.env, APPIMAGE_EXTRACT_AND_RUN: '1', LINUXDEPLOY_OUTPUT_VERSION: VERSION } },
   )
   const built = readdirSync(OUT).find((f) => f.endsWith('.AppImage'))
