@@ -4,7 +4,7 @@ Categories=AudioVideo;Video;Audio;Player;
 Comment={{comment}}
 {{/if}}
 Exec={{exec}}
-StartupWMClass={{exec}}
+StartupWMClass=orphyn
 Icon={{icon}}
 Name={{name}}
 Terminal=false

@@ -10,6 +10,7 @@ use std::path::{Path, PathBuf};
 use std::{env, fs};
 
 fn main() {
+    embed_windows_icon();
     let manifest_dir = PathBuf::from(env::var("CARGO_MANIFEST_DIR").unwrap());
     let native = manifest_dir.join("../..");
     let src = native.join("styles/app");
@@ -72,11 +73,7 @@ fn append_css(path: &Path, out: &mut String, depth: usize) {
         )
     });
     let rel = path.to_string_lossy().replace('\\', "/");
-    let rel = rel
-        .split("styles/app/")
-        .last()
-        .unwrap_or(&rel)
-        .to_string();
+    let rel = rel.split("styles/app/").last().unwrap_or(&rel).to_string();
     writeln!(out, "/* ==== {rel} ==== */").unwrap();
     for line in text.lines() {
         let t = line.trim();
@@ -180,3 +177,20 @@ fn rewrite_root_selectors(css: &str) -> String {
     }
     out
 }
+
+/// Embeds `build/icon.ico` as the exe's icon resource (Explorer, Start menu and taskbar shortcuts
+/// show it), plus the version info of the file properties.
+#[cfg(windows)]
+fn embed_windows_icon() {
+    let ico =
+        PathBuf::from(env::var("CARGO_MANIFEST_DIR").unwrap()).join("../../../build/icon.ico");
+    println!("cargo:rerun-if-changed={}", ico.display());
+    let mut res = winresource::WindowsResource::new();
+    res.set_icon(ico.to_str().unwrap());
+    res.set("ProductName", "Orphyn");
+    res.set("FileDescription", "Orphyn");
+    res.compile().expect("embedding the Windows icon");
+}
+
+#[cfg(not(windows))]
+fn embed_windows_icon() {}

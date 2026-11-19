@@ -13,4 +13,3 @@ build/installer-art/
 
 # Native (full Rust) app build output
 native/target/
-native-spikes/*/target/

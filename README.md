@@ -62,24 +62,22 @@ You need a [Jellyfin](https://jellyfin.org) server, version 10.9 or later.
 
 ## 🛠️ Development
 
-Requires Node.js 22+, npm and Rust stable (1.85+). The native app lives in [`native/`](native/README.md) (Dioxus Native / Blitz, wgpu, libmpv); the React app is only its design reference. On Linux you need the packages listed in [docs/NATIVE-RELEASE.md](docs/NATIVE-RELEASE.md), and libmpv at runtime (`ORPHYN_MPV_DIR` on Windows).
+Requires Rust stable (1.85+). The app is written in Rust with Dioxus Native (Blitz, wgpu, libmpv) and lives in [`native/`](native/README.md). On Linux you need the packages listed in [docs/NATIVE-RELEASE.md](docs/NATIVE-RELEASE.md), and libmpv at runtime (`ORPHYN_MPV_DIR` on Windows). Node.js 22+ is only needed to package the installers.
 
 ```bash
-npm install
-npm run dev
+cd native
+cargo run -p orphyn-native
 ```
 
-| Script | What it does |
+| Command | What it does |
 |---|---|
-| `npm run dev` | Starts the app with hot reload |
-| `npm run check` | Typecheck, lint, unit tests, renderer build, and the Rust format, lint and tests |
-| `npm run e2e` | End-to-end tests against a real server (see [docs/QA.md](docs/QA.md)) |
-| `cd native && cargo run -p orphyn-native` | Runs the native app |
+| `cd native && cargo run -p orphyn-native` | Runs the app |
+| `npm run check` | Clippy (warnings are errors) and the tests of the Rust workspace |
 | `npm run dist` | Builds the native installers for the current system into `dist/native/` (see [docs/NATIVE-RELEASE.md](docs/NATIVE-RELEASE.md)) |
 
 Releases are built by GitHub Actions when a `v*` tag is pushed (see [CONTRIBUTING.md](CONTRIBUTING.md)).
 
-Learn more in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md), [docs/TAURI.md](docs/TAURI.md), [docs/DESIGN.md](docs/DESIGN.md), [docs/JELLYFIN.md](docs/JELLYFIN.md), [docs/CASTING.md](docs/CASTING.md) and [docs/DISCORD.md](docs/DISCORD.md).
+Learn more in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md), [docs/DESIGN.md](docs/DESIGN.md), [docs/JELLYFIN.md](docs/JELLYFIN.md), [docs/CASTING.md](docs/CASTING.md) and [docs/DISCORD.md](docs/DISCORD.md).
 
 ## 📄 License
 

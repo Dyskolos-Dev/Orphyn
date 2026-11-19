@@ -28,7 +28,7 @@ sets `status: 'needs-login'`; route to the login screen then.
 `list, add, rename, remove, setActive, getActive, getToken, getDeviceId, getStatus`.
 
 - Stored in `accounts.json` in the app data folder; the access token itself is in the OS keychain
-  (`accessToken` is always `null` in the file, see `docs/TAURI.md`).
+  (`accessToken` is always `null` in the file).
 - **Passwords are never stored or logged.** Only the token returned by `AuthenticateByName` is kept.
 - If encryption is unavailable (Linux without keyring, or the `basic_text` backend) tokens are kept
   **in memory only**, a warning is logged and `getStatus()` returns `{ encrypted: false, warning }`:

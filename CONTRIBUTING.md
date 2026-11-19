@@ -5,11 +5,11 @@ Thank you for helping. This guide explains how to propose changes. Read [docs/AR
 ## Getting started
 
 ```bash
-npm install
-npm run dev
+cd native
+cargo run -p orphyn-native
 ```
 
-Requirements: Node.js 22 or newer, npm, Rust stable (1.85+), and a Jellyfin server 10.9+ to test against. On Linux, install the Tauri system packages listed in [docs/TAURI.md](docs/TAURI.md).
+Requirements: Rust stable (1.85+), libmpv, and a Jellyfin server 10.9+ to test against. On Linux, install the system packages listed in [docs/NATIVE-RELEASE.md](docs/NATIVE-RELEASE.md). Node.js 22 or newer is only needed to package the installers.
 
 ## Branch naming
 
@@ -53,7 +53,7 @@ Run the full check and make sure it passes:
 npm run check
 ```
 
-It runs typecheck, lint, unit tests, the renderer build, then `cargo fmt --check`, `clippy -D warnings` and `cargo test`. Also run `npm run format:check` and fix any formatting issue with `npm run format`.
+It runs `cargo clippy -D warnings` and `cargo test` on the `native/` workspace. Also run `cargo fmt` there.
 
 Pull requests must:
 
@@ -69,7 +69,7 @@ Use the pull request template: it lists these points as a checklist.
 
 Orphyn ships in French and English. **Every user-visible string must exist in both languages**:
 
-- add the key to `src/renderer/src/i18n/locales/en/<namespace>.json` **and** to `src/renderer/src/i18n/locales/fr/<namespace>.json`;
+- add the key to `native/locales/en/<namespace>.json` **and** to `native/locales/fr/<namespace>.json`;
 - use the same key in both files; never hard-code a user-visible string in a component;
 - a feature edits only its own namespace file (see the namespace convention in `docs/ARCHITECTURE.md`).
 
@@ -77,19 +77,19 @@ A missing key in either language is a bug, and reviewers will ask for it to be f
 
 ## Releasing
 
-1. Bump the version in `package.json` (and `package-lock.json`, e.g. `npm version 1.1.0 --no-git-tag-version`) and in `src-tauri/Cargo.toml` (then `cargo check --manifest-path src-tauri/Cargo.toml` to update `Cargo.lock`). `src-tauri/tauri.conf.json` reads the version from `package.json`. Add the entry to `CHANGELOG.md`.
-   **Also add `src/renderer/src/features/whatsnew/notes/<version>.json`** (`{ "fr": { "title", "items" }, "en": { ... } }`, each item `{ "icon", "title", "text" }`, in both languages): it is the "What's new" sheet users see once after updating. A unit test fails when the running version has no notes.
-2. Check locally: `npm run check`, `npm run e2e` (with the test server variables, see [docs/QA.md](docs/QA.md)) and `npm run dist` (installers in `dist/tauri-target/release/bundle/`; it signs the updater files with `~/.orphyn/updater.key` when `TAURI_SIGNING_PRIVATE_KEY` is not set).
+1. Bump the version in `package.json` (and `package-lock.json`, e.g. `npm version 1.1.0 --no-git-tag-version`) and in the `native/` workspace (`version` in `native/Cargo.toml`, then `cargo check` there to update `Cargo.lock`). The app reads its displayed version from `package.json`. Add the entry to `CHANGELOG.md`.
+   **Also add `native/notes/<version>.json` (and the version in the `notes!` list of `native/crates/orphyn-native/src/features/whatsnew/mod.rs`)** (`{ "fr": { "title", "items" }, "en": { ... } }`, each item `{ "icon", "title", "text" }`, in both languages): it is the "What's new" sheet users see once after updating. A unit test fails when the running version has no notes.
+2. Check locally: `npm run check` and `npm run dist` (installers in `dist/native/`; it signs the updater files with `~/.orphyn/updater.key` when `TAURI_SIGNING_PRIVATE_KEY` is not set).
 3. Commit, then tag and push the tag: `git tag v1.1.0 && git push origin main v1.1.0`.
-4. The **Release** workflow (`tauri-apps/tauri-action`) builds Windows, macOS (Apple silicon and Intel) and Linux into a draft release, adds `latest.json` (the Tauri updater feed) and the `.sig` files, then writes `latest.yml` / `latest-linux.yml` / `latest-mac.yml` for the 1.0.x clients with `scripts/electron-update-bridge.mjs`, and publishes the release. It must end published (not a draft), otherwise installed apps cannot see it.
+4. The **Release** workflow (`scripts/native-package.mjs`) builds Windows, macOS (Apple silicon and Intel) and Linux into a draft release, adds `latest.json` (the updater feed) and the `.sig` files, then writes `latest.yml` / `latest-linux.yml` / `latest-mac.yml` for the 1.0.x clients with `scripts/electron-update-bridge.mjs`, and publishes the release. It must end published (not a draft), otherwise installed apps cannot see it.
 
-The workflow needs two repository secrets: `TAURI_SIGNING_PRIVATE_KEY` (the content of the updater private key file) and `TAURI_SIGNING_PRIVATE_KEY_PASSWORD` (empty for the current key). The public key is in `src-tauri/tauri.conf.json`; the private key is never committed. Losing it means installed apps can no longer verify updates.
+The workflow needs two repository secrets: `TAURI_SIGNING_PRIVATE_KEY` (the content of the updater private key file) and `TAURI_SIGNING_PRIVATE_KEY_PASSWORD` (empty for the current key). The public key is `PUBKEY` in `native/crates/orphyn-core/src/updater/mod.rs`; the private key is never committed. Losing it means installed apps can no longer verify updates.
 
 The installer artwork (`build/icon.ico`, the DMG background) comes from the logo: regenerate it with `node build/scripts/generate-installer-assets.mjs` when the logo changes. The Windows installer pages are generated by `npm run installer-art` (run by `npm run dist` and by the workflow).
 
 Installed apps check for updates 10 seconds after launch and every 6 hours (Settings > About). Windows (NSIS), macOS and the Linux AppImage download in the background and install on restart; the `.deb` only tells the user a new version exists and opens the release page.
 
-Code signing of the installers is optional and out of scope for now (Windows SmartScreen and macOS Gatekeeper warn on first launch). See the Tauri documentation on Windows and macOS code signing to add it to the workflow.
+Code signing of the installers is optional and out of scope for now (Windows SmartScreen and macOS Gatekeeper warn on first launch).
 
 ## Reporting bugs and requesting features
 

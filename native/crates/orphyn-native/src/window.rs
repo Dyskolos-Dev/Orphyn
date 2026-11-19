@@ -69,6 +69,7 @@ pub fn save_bounds(b: &SavedBounds) {
 pub fn attributes() -> WindowAttributes {
     let mut attrs = WindowAttributes::default()
         .with_title("Orphyn")
+        .with_window_icon(window_icon())
         .with_min_surface_size(LogicalSize::new(MIN_WIDTH, MIN_HEIGHT));
     let forced = std::env::var("ORPHYN_WIN").ok().and_then(|v| {
         let (w, h) = v.split_once('x')?;
@@ -114,9 +115,24 @@ fn platform_attributes(attrs: WindowAttributes) -> WindowAttributes {
     ))
 }
 
+/// Wayland app_id / X11 WM_CLASS "orphyn": the name of the installed .desktop file and its
+/// StartupWMClass, so docks and Alt+Tab use the installed icon.
 #[cfg(not(any(windows, target_os = "macos")))]
 fn platform_attributes(attrs: WindowAttributes) -> WindowAttributes {
-    attrs
+    use dioxus_native::winit::platform::{
+        wayland::WindowAttributesWayland, x11::WindowAttributesX11,
+    };
+    let wayland = std::env::var_os("WAYLAND_DISPLAY").is_some_and(|v| !v.is_empty())
+        && std::env::var("XDG_SESSION_TYPE").map_or(true, |t| t != "x11");
+    if wayland {
+        attrs.with_platform_attributes(Box::new(
+            WindowAttributesWayland::default().with_name("orphyn", "orphyn"),
+        ))
+    } else {
+        attrs.with_platform_attributes(Box::new(
+            WindowAttributesX11::default().with_name("orphyn", "orphyn"),
+        ))
+    }
 }
 
 /// Current bounds of a window (to save on resize / move).
@@ -183,4 +199,23 @@ pub fn CaptionButtons(fullscreen: bool, focused: bool, maximized: bool, dark: bo
             }
         }
     }
+}
+
+/// The Orphyn icon (build/icons/icon-512.png), decoded for the window: title bar, taskbar and
+/// Alt+Tab on Windows, the dock / task switcher on Linux (macOS takes the bundle's .icns).
+fn window_icon() -> Option<dioxus_native::winit::icon::Icon> {
+    use dioxus_native::winit::icon::{Icon, RgbaIcon};
+    const PNG: &[u8] = include_bytes!("../../../../build/icons/icon-512.png");
+    let mut reader = png::Decoder::new(std::io::Cursor::new(PNG))
+        .read_info()
+        .ok()?;
+    let mut buf = vec![0; reader.output_buffer_size()?];
+    let info = reader.next_frame(&mut buf).ok()?;
+    if info.color_type != png::ColorType::Rgba || info.bit_depth != png::BitDepth::Eight {
+        return None;
+    }
+    buf.truncate(info.buffer_size());
+    RgbaIcon::new(buf, info.width, info.height)
+        .ok()
+        .map(Icon::from)
 }

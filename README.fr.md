@@ -62,19 +62,17 @@ Il te faut un serveur [Jellyfin](https://jellyfin.org) en version 10.9 ou plus.
 
 ## 🛠️ Développement
 
-Node.js 22+, npm et Rust stable (1.85+) sont nécessaires. L'app native vit dans [`native/`](native/README.md) (Dioxus Native / Blitz, wgpu, libmpv) ; l'app React ne sert plus que de référence de design. Sous Linux, il faut les paquets listés dans [docs/NATIVE-RELEASE.md](docs/NATIVE-RELEASE.md), et libmpv à l'exécution (`ORPHYN_MPV_DIR` sous Windows).
+Rust stable (1.85+) est nécessaire. L'app est écrite en Rust avec Dioxus Native (Blitz, wgpu, libmpv) et vit dans [`native/`](native/README.md). Sous Linux, il faut les paquets listés dans [docs/NATIVE-RELEASE.md](docs/NATIVE-RELEASE.md), et libmpv à l'exécution (`ORPHYN_MPV_DIR` sous Windows). Node.js 22+ ne sert qu'à empaqueter les installeurs.
 
 ```bash
-npm install
-npm run dev
+cd native
+cargo run -p orphyn-native
 ```
 
-| Script | Rôle |
+| Commande | Ce qu'elle fait |
 |---|---|
-| `npm run dev` | Lance l'app avec rechargement à chaud |
-| `npm run check` | Types, lint, tests unitaires, build du renderer, puis format, lint et tests Rust |
-| `npm run e2e` | Tests de bout en bout sur un vrai serveur (voir [docs/QA.md](docs/QA.md)) |
-| `cd native && cargo run -p orphyn-native` | Lance l'app native |
+| `cd native && cargo run -p orphyn-native` | Lance l'app |
+| `npm run check` | Clippy (avertissements = erreurs) et tests du workspace Rust |
 | `npm run dist` | Construit les installeurs natifs du système courant dans `dist/native/` (voir [docs/NATIVE-RELEASE.md](docs/NATIVE-RELEASE.md)) |
 
 Les releases sont construites par GitHub Actions quand un tag `v*` est poussé (voir [CONTRIBUTING.md](CONTRIBUTING.md)).

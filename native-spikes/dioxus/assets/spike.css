@@ -1,4 +1,0 @@
-/* Spike-only glue (kept tiny): the app's real stylesheets are in orphyn.css, unmodified. */
-html, body { margin: 0; padding: 0; height: 100%; }
-.jr-root { height: 100vh; width: 100vw; display: flex; flex-direction: column; background: var(--surface-window); color: var(--label); font-family: Inter, system-ui, sans-serif; }
-.jr-root > .jr-shell { flex: 1; min-height: 0; }
