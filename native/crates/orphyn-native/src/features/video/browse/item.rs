@@ -414,6 +414,8 @@ pub fn VideoItemPage(item_id: String) -> Element {
     let page_title = data.name().to_string();
     let highlight = data.is_type("Episode").then(|| id.clone());
     let overview = data.overview.clone().filter(|o| !o.is_empty());
+    let is_episode = data.is_type("Episode");
+    let synopsis = if is_episode { None } else { overview.clone() };
 
     rsx! {
         ShellPage { title: page_title, header: PageHeader::Inline, class: "jr-video-detail",
@@ -427,7 +429,9 @@ pub fn VideoItemPage(item_id: String) -> Element {
                     "{meta_line} "
                     Badges { item: data.clone() }
                 },
-                description: None,
+                // Only an episode shows its overview on the banner; films and series keep it in the Synopsis
+                // section below, never twice.
+                description: if is_episode { overview.clone() } else { None },
                 progress,
                 progress_caption: progress.map(|_| t.tf(
                     "video:item.minutesLeft",
@@ -475,7 +479,7 @@ pub fn VideoItemPage(item_id: String) -> Element {
             if let Some(sid) = series_id.clone() {
                 EpisodeShelf { series_id: sid, initial_season_id: initial_season, highlight_id: highlight }
             }
-            if let Some(o) = overview {
+            if let Some(o) = synopsis {
                 section { class: "jr-video-section jr-video-synopsis",
                     h2 { class: "jr-text-title-2 jr-color-primary", {t.t("video:item.synopsis")} }
                     p { class: "jr-text-body jr-color-secondary jr-selectable", "{o}" }
