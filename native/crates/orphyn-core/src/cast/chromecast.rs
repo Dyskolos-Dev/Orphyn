@@ -425,7 +425,7 @@ fn poll(link: &mut Link, handlers: &SharedHandlers, tick: u64) -> TResult<()> {
             emit(handlers, |h| (h.on_update)(update));
         }
     }
-    if tick % 5 == 0 {
+    if tick.is_multiple_of(5) {
         let status = link.device.receiver.get_status().map_err(err_text)?;
         let update = TransportUpdate {
             volume: status.volume.level.map(|l| f64::from(l).clamp(0.0, 1.0)),

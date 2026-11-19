@@ -240,7 +240,7 @@ impl UpnpTransport {
             let mut volume_due = false;
             if !ended_now {
                 f.tick += 1;
-                volume_due = f.tick % 5 == 0;
+                volume_due = f.tick.is_multiple_of(5);
             }
             (f.handlers.clone(), volume_due)
         };

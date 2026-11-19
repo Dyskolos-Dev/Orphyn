@@ -203,7 +203,7 @@ async fn session(
             }
             Err(_) => return Ended::Lost,
         },
-        cmd = wait_close(rx) => { let _ = cmd; return Ended::Closed; }
+        () = wait_close(rx) => return Ended::Closed,
     };
     *attempt = 0;
     set(SocketStatus::Open);
