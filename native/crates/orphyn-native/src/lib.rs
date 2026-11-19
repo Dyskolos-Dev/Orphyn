@@ -7,6 +7,7 @@
 //! `ORPHYN_USER_DATA_DIR` (debug: separate profile), `ORPHYN_MPV_DIR` (libmpv folder).
 pub mod app;
 pub mod assets;
+pub mod capture;
 pub mod design;
 pub mod features;
 pub mod i18n;
@@ -68,8 +69,19 @@ pub fn run() {
     load_dotenv();
     let _ = log::set_logger(&StderrLogger).map(|()| log::set_max_level(log::LevelFilter::Info));
     migration::run_if_needed(&orphyn_core::storage::LocalStorage::open_default());
+    // Capture mode (capture.rs): a hidden window, painted offscreen once the screen has settled.
+    let mut attributes = window::attributes();
+    if let Some(shot) = capture::settings() {
+        attributes = attributes
+            .with_visible(false)
+            .with_surface_size(dioxus_native::LogicalSize::new(
+                f64::from(shot.width),
+                f64::from(shot.height),
+            ));
+        capture::install();
+    }
     let config = dioxus_native::Config::new()
-        .with_window_attributes(window::attributes())
+        .with_window_attributes(attributes)
         .with_font_ctx(assets::font_context());
     dioxus_native::launch_cfg(app::app, vec![], vec![Box::new(config)]);
 }

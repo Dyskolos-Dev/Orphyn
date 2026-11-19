@@ -64,6 +64,7 @@ pub use {
 
 pub use blitz_dom::{FontContext, Widget, build_single_font_ctx};
 pub use config::Config;
+pub use dioxus_application::{FrameHook, set_frame_hook};
 pub use event_handlers::WinitEventHandlerId;
 pub use hooks::{use_back_button, use_window_event};
 pub use winit;

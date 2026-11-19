@@ -17,6 +17,19 @@ use crate::{DioxusNativeWindowRenderer, RendererOptions};
 use crate::event_handlers::WindowEventHandlers;
 use crate::{BlitzShellEvent, DioxusDocument, WindowConfig, contexts::DioxusNativeDocument};
 
+/// Orphyn patch (capture mode): called with the main window's document after every event batch.
+pub type FrameHook = Box<dyn FnMut(&mut blitz_dom::BaseDocument, &dyn ActiveEventLoop) -> bool>;
+
+thread_local! {
+    static FRAME_HOOK: std::cell::RefCell<Option<FrameHook>> = const { std::cell::RefCell::new(None) };
+}
+
+/// Orphyn patch: registers the hook (capture mode). The loop then wakes every 100 ms, at once
+/// again when the hook returns true.
+pub fn set_frame_hook(hook: FrameHook) {
+    FRAME_HOOK.with(|h| *h.borrow_mut() = Some(hook));
+}
+
 /// Dioxus-native specific event type
 pub enum DioxusNativeEvent {
     /// A hotreload event, basically telling us to update our templates.
@@ -99,6 +112,26 @@ impl DioxusNativeApplication {
             }
             None => on_close(),
         }
+    }
+
+    fn run_frame_hook(&mut self, event_loop: &dyn ActiveEventLoop) {
+        if !FRAME_HOOK.with(|h| h.borrow().is_some()) {
+            return;
+        }
+        let mut busy = false;
+        if let Some(main) = self.main_window.and_then(|id| self.inner.windows.get_mut(&id)) {
+            main.poll();
+            let doc = main.downcast_doc_mut::<DioxusDocument>();
+            FRAME_HOOK.with(|h| {
+                if let Some(hook) = h.borrow_mut().as_mut() {
+                    busy = hook(&mut doc.inner.borrow_mut(), event_loop);
+                }
+            });
+        }
+        let wait = if busy { 1 } else { 100 };
+        event_loop.set_control_flow(winit::event_loop::ControlFlow::WaitUntil(
+            std::time::Instant::now() + std::time::Duration::from_millis(wait),
+        ));
     }
 
     fn ticket_of(&self, window: WindowId) -> Option<u64> {
@@ -289,6 +322,7 @@ impl ApplicationHandler for DioxusNativeApplication {
 
     fn about_to_wait(&mut self, event_loop: &dyn ActiveEventLoop) {
         self.inner.about_to_wait(event_loop);
+        self.run_frame_hook(event_loop);
     }
 
     fn can_create_surfaces(&mut self, event_loop: &dyn ActiveEventLoop) {

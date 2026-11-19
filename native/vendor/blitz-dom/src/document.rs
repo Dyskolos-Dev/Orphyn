@@ -1305,6 +1305,11 @@ impl BaseDocument {
         }
     }
 
+    /// Orphyn patch (capture mode): images still being fetched or decoded.
+    pub fn pending_image_count(&self) -> usize {
+        self.pending_images.values().map(Vec::len).sum()
+    }
+
     /// Whether the Document has pending requests for "critical" resources (that should block rendering)
     pub fn has_pending_critical_resources(&self) -> bool {
         !self.pending_critical_resources.is_empty()

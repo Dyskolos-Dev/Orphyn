@@ -19,6 +19,7 @@ use crate::window::{self, CaptionButtons};
 
 pub fn app() -> Element {
     let svc = use_context_provider(Services::open);
+    crate::capture::prepare(&svc);
     let win = dioxus_native::use_window();
     let storage = svc.storage.clone();
 
@@ -28,8 +29,14 @@ pub fn app() -> Element {
         lang: Signal::new(language.peek().resolve()),
     });
     let app = use_context_provider(|| AppState {
-        theme: Signal::new(ThemeState::load(&storage)),
-        interface: Signal::new(InterfaceState::load(&storage)),
+        theme: Signal::new({
+            let mut theme = ThemeState::load(&storage);
+            if let Some(mode) = crate::capture::settings().and_then(|s| s.theme) {
+                theme.mode = mode;
+            }
+            theme
+        }),
+        interface: Signal::new(crate::capture::interface(InterfaceState::load(&storage))),
         os_dark: Signal::new(win.theme() == Some(Theme::Dark)),
         window: Signal::new(WindowFacts {
             platform: window::platform(),
@@ -50,7 +57,7 @@ pub fn app() -> Element {
     use_context_provider(|| Overlay {
         menu: Signal::new(None),
     });
-    crate::features::music::use_music_provider(&svc);
+    let music_ui = crate::features::music::use_music_provider(&svc);
     crate::features::system::use_system_provider(&svc);
     crate::design::toast::use_toast_provider();
     crate::features::music::playlists::use_playlist_provider();
@@ -65,6 +72,7 @@ pub fn app() -> Element {
             let session = svc.active_session();
             let has = session.is_some();
             app.activate(&svc, session);
+            crate::capture::spawn_scene(&svc, app, music_ui, router);
             if let (false, Ok(url), Ok(user), Ok(pw)) = (
                 has,
                 std::env::var("ORPHYN_E2E_URL"),
@@ -145,17 +153,25 @@ pub fn app() -> Element {
         .collect();
     let _ = i18n;
     let maximized = win.is_maximized();
+    // Capture mode shows neither What's new, the update notice nor toasts.
+    let overlays = !crate::capture::active();
     rsx! {
         style { {crate::assets::APP_CSS} }
         style { {crate::assets::OVERRIDES_CSS} }
         div { class: "jr-root", style: "{tokens.style}", ..attrs,
             div { class: "jr-body",
                 div { class: "jr-app", AppShell {} }
-                crate::features::whatsnew::WhatsNewHost {}
-                crate::features::updater::UpdateNotice {}
+                if overlays || crate::capture::shows_whats_new() {
+                    crate::features::whatsnew::WhatsNewHost {}
+                }
+                if overlays {
+                    crate::features::updater::UpdateNotice {}
+                }
                 crate::features::palette::PaletteHost {}
                 crate::features::pip::PipHost {}
-                crate::design::toast::ToastHost {}
+                if overlays {
+                    crate::design::toast::ToastHost {}
+                }
                 crate::features::music::playlists::PlaylistHost {}
                 crate::features::syncplay::SyncPlayHost {}
                 CaptionButtons {

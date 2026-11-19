@@ -22,6 +22,10 @@ orphyn-jellyfin.workspace = true
 orphyn-player.workspace = true
 dioxus.workspace = true
 dioxus-native.workspace = true
+anyrender.workspace = true
+anyrender_vello_cpu = { version = "=0.18.0", default-features = false }
+blitz-paint = "=0.3.0-beta.4"
+blitz-traits = "=0.3.0-beta.4"
 blitz-dom.workspace = true
 parley = "=0.12.0"
 winit.workspace = true

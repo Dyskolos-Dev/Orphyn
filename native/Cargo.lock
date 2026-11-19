@@ -4223,8 +4223,12 @@ dependencies = [
 name = "orphyn-native"
 version = "2.0.3"
 dependencies = [
+ "anyrender",
+ "anyrender_vello_cpu",
  "base64 0.22.1",
  "blitz-dom",
+ "blitz-paint",
+ "blitz-traits",
  "dioxus",
  "dioxus-native",
  "dirs",
