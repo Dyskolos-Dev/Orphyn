@@ -1,7 +1,7 @@
 [package]
 name = "orphyn-native"
 description = "Orphyn, the full-Rust desktop Jellyfin client (Dioxus Native / Blitz, no web engine)"
-version.workspace = true
+version = "2.0.0"
 edition.workspace = true
 rust-version.workspace = true
 license.workspace = true
@@ -30,3 +30,11 @@ tokio.workspace = true
 log.workspace = true
 base64 = "0.22"
 sys-locale = "0.3"
+# 1.5 migration (src/migration.rs): read the old webview's localStorage (WebView2 LevelDB on
+# Windows, WebKit SQLite on macOS / Linux).
+dirs.workspace = true
+rusty-leveldb = "4"
+rusqlite = { version = "0.37", features = ["bundled"] }
+
+[dev-dependencies]
+tempfile.workspace = true

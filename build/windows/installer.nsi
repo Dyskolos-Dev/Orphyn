@@ -557,6 +557,8 @@ Function .onInit
   !endif
 FunctionEnd
 
+; The native app has no web engine: this section only runs for a build that asks for WebView2.
+!if "${INSTALLWEBVIEW2MODE}" != "skip"
 Section WebView2
   ; Check if Webview2 is already installed and skip this section
   ${If} ${RunningX64}
@@ -648,6 +650,7 @@ Section WebView2
     !endif
   ${EndIf}
 SectionEnd
+!endif
 
 Section Install
   SetOutPath $INSTDIR
@@ -672,21 +675,6 @@ Section Install
   ; Copy external binaries
   {{#each binaries}}
     File /a "/oname={{this}}" "{{no-escape @key}}"
-  {{/each}}
-
-  ; Create file associations
-  {{#each file_associations as |association| ~}}
-    {{#each association.ext as |ext| ~}}
-       !insertmacro APP_ASSOCIATE "{{ext}}" "{{or association.name ext}}" "{{association-description association.description ext}}" "$\"$INSTDIR\${MAINBINARYNAME}.exe$\",0" "Open with ${PRODUCTNAME}" "$\"$INSTDIR\${MAINBINARYNAME}.exe$\" $\"%1$\""
-    {{/each}}
-  {{/each}}
-
-  ; Register deep links
-  {{#each deep_link_protocols as |protocol| ~}}
-    WriteRegStr SHCTX "Software\Classes\\{{protocol}}" "URL Protocol" ""
-    WriteRegStr SHCTX "Software\Classes\\{{protocol}}" "" "URL:${BUNDLEID} protocol"
-    WriteRegStr SHCTX "Software\Classes\\{{protocol}}\DefaultIcon" "" "$\"$INSTDIR\${MAINBINARYNAME}.exe$\",0"
-    WriteRegStr SHCTX "Software\Classes\\{{protocol}}\shell\open\command" "" "$\"$INSTDIR\${MAINBINARYNAME}.exe$\" $\"%1$\""
   {{/each}}
 
   ; Create uninstaller
@@ -823,22 +811,6 @@ Section Uninstall
   {{#each binaries}}
     Delete "$INSTDIR\\{{this}}"
   {{/each}}
-
-  ; Delete app associations
-  {{#each file_associations as |association| ~}}
-    {{#each association.ext as |ext| ~}}
-      !insertmacro APP_UNASSOCIATE "{{ext}}" "{{or association.name ext}}"
-    {{/each}}
-  {{/each}}
-
-  ; Delete deep links
-  {{#each deep_link_protocols as |protocol| ~}}
-    ReadRegStr $R7 SHCTX "Software\Classes\\{{protocol}}\shell\open\command" ""
-    ${If} $R7 == "$\"$INSTDIR\${MAINBINARYNAME}.exe$\" $\"%1$\""
-      DeleteRegKey SHCTX "Software\Classes\\{{protocol}}"
-    ${EndIf}
-  {{/each}}
-
 
   ; Delete uninstaller
   Delete "$INSTDIR\uninstall.exe"

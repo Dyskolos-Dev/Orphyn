@@ -56,11 +56,13 @@ Télécharge l'installeur de ton système dans la [dernière release](https://gi
 >
 > Les mises à jour s'installent ensuite depuis l'app, sans autre étape.
 
+Orphyn 2 est une app entièrement native (Rust, sans moteur web). La vidéo est lue par [libmpv](https://mpv.io), que les installeurs embarquent : rien à installer sur Windows, macOS ni avec l'AppImage. Le `.deb` dépend du paquet `libmpv2` (Ubuntu 24.04 / Debian 13 et plus récents), que `apt` installe pour toi. Si tu utilises déjà Orphyn 1.5, il se met à jour vers la version native et garde tes comptes et tes réglages.
+
 Il te faut un serveur [Jellyfin](https://jellyfin.org) en version 10.9 ou plus.
 
 ## 🛠️ Développement
 
-Node.js 22+, npm et Rust stable (1.85+) sont nécessaires. Sous Linux, il faut aussi les paquets système de Tauri listés dans [docs/TAURI.md](docs/TAURI.md).
+Node.js 22+, npm et Rust stable (1.85+) sont nécessaires. L'app native vit dans [`native/`](native/README.md) (Dioxus Native / Blitz, wgpu, libmpv) ; l'app React ne sert plus que de référence de design. Sous Linux, il faut les paquets listés dans [docs/NATIVE-RELEASE.md](docs/NATIVE-RELEASE.md), et libmpv à l'exécution (`ORPHYN_MPV_DIR` sous Windows).
 
 ```bash
 npm install
@@ -72,7 +74,8 @@ npm run dev
 | `npm run dev` | Lance l'app avec rechargement à chaud |
 | `npm run check` | Types, lint, tests unitaires, build du renderer, puis format, lint et tests Rust |
 | `npm run e2e` | Tests de bout en bout sur un vrai serveur (voir [docs/QA.md](docs/QA.md)) |
-| `npm run dist` | Construit les installeurs du système courant dans `dist/tauri-target/release/bundle/` |
+| `cd native && cargo run -p orphyn-native` | Lance l'app native |
+| `npm run dist` | Construit les installeurs natifs du système courant dans `dist/native/` (voir [docs/NATIVE-RELEASE.md](docs/NATIVE-RELEASE.md)) |
 
 Les releases sont construites par GitHub Actions quand un tag `v*` est poussé (voir [CONTRIBUTING.md](CONTRIBUTING.md)).
 

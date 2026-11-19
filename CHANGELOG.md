@@ -6,6 +6,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [2.0.0] - Unreleased
+
+### Changed
+
+- Orphyn is now 100 % native: the app is written in Rust and draws its own interface, with no web engine. It starts faster and uses far less memory.
+- Video is played by libmpv, bundled in the Windows installer, the macOS app and the Linux AppImage (the `.deb` depends on `libmpv2`).
+- Installers and updates: same file names, same update signing key. Orphyn 1.5 updates to this version by itself.
+
+### Added
+
+- First start after an update from 1.5: accounts (same keychain entries), settings and window size and position are imported automatically; the 1.5 files are left untouched.
+
 ## [1.5.0] - 2026-11-18
 
 ### Added

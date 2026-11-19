@@ -1,12 +1,20 @@
-// Rebuilds latest.json from the release's .sig files, so every platform is listed even when a
-// relaunched build job overwrote it with only its own entry.
+// Writes latest.json from the release's .sig files (the native build jobs do not write one), so every
+// platform is listed. An existing latest.json in the folder is completed instead.
 // Usage: node scripts/complete-updater-json.mjs <dir with latest.json and *.sig> <tag>
-import { readFileSync, readdirSync, writeFileSync } from 'node:fs'
+import { existsSync, readFileSync, readdirSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 
 const [dir, tag] = process.argv.slice(2)
 const base = `https://github.com/Dyskolos-Dev/Orphyn/releases/download/${tag}/`
-const manifest = JSON.parse(readFileSync(join(dir, 'latest.json'), 'utf8'))
+const manifestPath = join(dir, 'latest.json')
+const manifest = existsSync(manifestPath)
+  ? JSON.parse(readFileSync(manifestPath, 'utf8'))
+  : {
+      version: tag.replace(/^v/, ''),
+      notes: 'See CHANGELOG.md for what is new in this version.',
+      pub_date: new Date().toISOString(),
+      platforms: {},
+    }
 const rules = [
   [/_x64-setup\.exe\.sig$/, ['windows-x86_64', 'windows-x86_64-nsis']],
   [/_x64\.app\.tar\.gz\.sig$/, ['darwin-x86_64', 'darwin-x86_64-app']],

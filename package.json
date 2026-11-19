@@ -1,6 +1,6 @@
 {
   "name": "orphyn",
-  "version": "1.5.0",
+  "version": "2.0.0",
   "productName": "Orphyn",
   "description": "Orphyn - a desktop Jellyfin client for music, movies and series",
   "private": true,
@@ -14,7 +14,7 @@
   "scripts": {
     "dev": "tauri dev",
     "build": "tauri build --no-bundle",
-    "dist": "node scripts/tauri-build.mjs",
+    "dist": "node scripts/native-package.mjs",
     "predist": "npm run installer-art",
     "dev:renderer": "vite --config vite.renderer.config.ts",
     "build:renderer": "vite build --config vite.renderer.config.ts",

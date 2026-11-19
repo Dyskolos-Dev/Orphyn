@@ -1,23 +1,62 @@
-# Release: on a v* tag, build the installers on each operating system and publish ONE GitHub
-# release (not a draft) holding:
+# Release: on a v* tag, build the native app (Rust, no web engine, libmpv bundled) on each operating
+# system and publish ONE GitHub release holding:
 #   - the installers: Windows NSIS setup, macOS .dmg (Apple silicon and Intel), Linux AppImage + .deb
-#   - latest.json and the .sig files the in-app updater (tauri-plugin-updater) reads
+#   - the updater archives and their .sig files (NSIS setup, .app.tar.gz, .AppImage, .deb), signed with
+#     the minisign key of the 1.5 app, and latest.json: 1.5 installs (tauri-plugin-updater) update to
+#     the native build through them, and the native app keeps reading the same latest.json
 #   - latest.yml / latest-linux.yml / latest-mac.yml for the 1.0.x clients (electron-updater),
 #     written by scripts/electron-update-bridge.mjs (see docs/TAURI.md, "Updating from 1.0.x")
-# The release stays a draft while the builds upload, and is published by the last job once every
-# file is there: installed clients never see a half-filled release.
+# Packaging is scripts/native-package.mjs (see docs/NATIVE-RELEASE.md). The release stays a draft while
+# the builds upload, and is published by the last job once every file is there.
+#
+# Dry run: Actions > Release > Run workflow (tag name of your choice, "publish" left off): the same
+# jobs run, the draft stays a draft and its assets are listed in the job summary.
 name: Release
 
 on:
   push:
     tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release tag (a dry run leaves the release a draft: nothing is tagged or published)'
+        required: true
+        default: 'v2.0.0-dryrun'
+      publish:
+        description: 'Publish the release once the assets are complete'
+        type: boolean
+        default: false
 
 permissions:
   contents: write
 
+env:
+  TAG: ${{ github.event_name == 'push' && github.ref_name || inputs.tag }}
+  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
 jobs:
+  prepare:
+    name: prepare the draft
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+
+      - name: Check the tag against the version
+        if: github.event_name == 'push'
+        run: |
+          version=$(node -p "require('./package.json').version")
+          [ "$TAG" = "v$version" ] || { echo "tag $TAG does not match package.json $version"; exit 1; }
+
+      - name: Create the draft release
+        run: |
+          gh release view "$TAG" >/dev/null 2>&1 || gh release create "$TAG" --draft \
+            --target "$GITHUB_SHA" --title "Orphyn $TAG" \
+            --notes "See CHANGELOG.md for what is new in this version."
+
   build:
     name: build (${{ matrix.name }})
+    needs: prepare
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: true
@@ -30,10 +69,11 @@ jobs:
             os: macos-latest
             args: --target aarch64-apple-darwin
           - name: macos-x64
-            os: macos-latest
+            os: macos-15-intel
             args: --target x86_64-apple-darwin
           - name: linux
-            os: ubuntu-22.04
+            # libmpv2 (the package the .deb depends on) is in Ubuntu 24.04 and newer.
+            os: ubuntu-24.04
             args: ''
     steps:
       - name: Check out the repository
@@ -45,24 +85,48 @@ jobs:
           node-version: 22
           cache: npm
 
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
       - name: Set up Rust
         uses: dtolnay/rust-toolchain@stable
-        with:
-          targets: ${{ runner.os == 'macOS' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
 
       - name: Cache cargo
         uses: Swatinem/rust-cache@v2
         with:
-          workspaces: src-tauri -> ../dist/tauri-target
-          key: ${{ matrix.name }}
+          workspaces: native
+          key: release-${{ matrix.name }}
 
-      - name: Install Tauri system packages (Linux)
+      - name: Install system packages (Linux)
         if: runner.os == 'Linux'
         run: |
           sudo apt-get update
-          sudo apt-get install -y libwebkit2gtk-4.1-dev libayatana-appindicator3-dev \
-            librsvg2-dev libsoup-3.0-dev libjavascriptcoregtk-4.1-dev libdbus-1-dev patchelf \
-            gstreamer1.0-plugins-good gstreamer1.0-libav
+          sudo apt-get install -y build-essential pkg-config libasound2-dev libxkbcommon-dev \
+            libwayland-dev libx11-dev libvulkan-dev libssl-dev libdbus-1-dev libfontconfig1-dev \
+            libmpv-dev libmpv2 desktop-file-utils
+          mkdir -p "$HOME/tools"
+          base=https://github.com/linuxdeploy
+          curl -fsSL -o "$HOME/tools/linuxdeploy" "$base/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage"
+          curl -fsSL -o "$HOME/tools/linuxdeploy-plugin-appimage" "$base/linuxdeploy-plugin-appimage/releases/download/continuous/linuxdeploy-plugin-appimage-x86_64.AppImage"
+          chmod +x "$HOME/tools/"*
+          echo "$HOME/tools" >> "$GITHUB_PATH"
+          echo "LINUXDEPLOY=$HOME/tools/linuxdeploy" >> "$GITHUB_ENV"
+
+      - name: Install libmpv and the dmg tool (macOS)
+        if: runner.os == 'macOS'
+        run: brew install mpv create-dmg
+
+      - name: Download libmpv (Windows)
+        if: runner.os == 'Windows'
+        shell: bash
+        run: |
+          mkdir mpv
+          gh release download --repo shinchiro/mpv-winbuild-cmake --pattern 'mpv-dev-x86_64-2*.7z' --dir mpv
+          7z e -y -omv mpv/*.7z libmpv-2.dll
+          echo "ORPHYN_MPV_DIR=$PWD/mv" >> "$GITHUB_ENV"
+          ls -la mv
 
       - name: Install dependencies
         run: npm ci
@@ -74,31 +138,37 @@ jobs:
           npx playwright install chromium
           npm run installer-art
 
-      - name: Build and upload
-        uses: tauri-apps/tauri-action@v0
+      - name: Install the NSIS compiler (Windows)
+        if: runner.os == 'Windows'
+        run: choco install nsis -y --no-progress
+
+      - name: Build the app and the installers
+        shell: bash
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           # Updater signing key (content of the private key file) and its password.
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
-        with:
-          tagName: ${{ github.ref_name }}
-          releaseName: Orphyn ${{ github.ref_name }}
-          releaseBody: See CHANGELOG.md for what is new in this version.
-          releaseDraft: true
-          prerelease: false
-          includeUpdaterJson: true
-          args: ${{ matrix.args }}
+          MAKENSIS: C:\Program Files (x86)\NSIS\makensis.exe
+        run: node scripts/native-package.mjs --require-sign ${{ matrix.args }}
 
       - name: Verify the macOS app signature
-        # No developer certificate: the bundle is signed ad hoc (bundle.macOS.signingIdentity "-").
-        # An unsigned or broken signature makes macOS report the app as "damaged" on Apple silicon.
+        # No developer certificate: the bundle is signed ad hoc. An unsigned or broken signature
+        # makes macOS report the app as "damaged" on Apple silicon. Checked on the shipped archive.
         if: runner.os == 'macOS'
         run: |
-          app=$(find dist/tauri-target -maxdepth 6 -path '*/bundle/macos/Orphyn.app' | head -n 1)
-          echo "Checking $app"
+          mkdir verify
+          tar -xzf dist/native/Orphyn_*.app.tar.gz -C verify
+          app=verify/Orphyn.app
           codesign --verify --deep --strict --verbose=2 "$app"
           codesign -dv "$app" 2>&1 | grep -E 'Signature=adhoc|Identifier'
+          ls "$app/Contents/MacOS" "$app/Contents/Frameworks"
+
+      - name: Upload to the draft release
+        shell: bash
+        run: |
+          for f in dist/native/*; do
+            [ -f "$f" ] && gh release upload "$TAG" "$f" --clobber
+          done
 
   publish:
     name: publish
@@ -114,9 +184,6 @@ jobs:
           node-version: 22
 
       - name: Write the update files of the 1.0.x clients
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TAG: ${{ github.ref_name }}
         run: |
           mkdir assets
           gh release download "$TAG" --dir assets \
@@ -125,20 +192,34 @@ jobs:
           gh release upload "$TAG" --clobber \
             assets/latest.yml assets/latest-linux.yml assets/latest-mac.yml
 
-      - name: Complete latest.json with every platform
-        # A relaunched build job rewrites latest.json with its own entry only: rebuild it from
-        # the .sig files so the in-app updater sees every platform.
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TAG: ${{ github.ref_name }}
+      - name: Write latest.json with every platform
+        # Built from the .sig files, so the in-app updater (1.5 and native) sees every platform.
         run: |
           mkdir updater
-          gh release download "$TAG" --dir updater --pattern 'latest.json' --pattern '*.sig'
+          gh release download "$TAG" --dir updater --pattern '*.sig'
           node scripts/complete-updater-json.mjs updater "$TAG"
           gh release upload "$TAG" --clobber updater/latest.json
 
+      - name: Check the assets of the four targets
+        run: |
+          gh release view "$TAG" --json assets --jq '.assets[].name' | sort | tee assets.txt
+          {
+            echo '### Assets of '"$TAG"
+            echo '```'
+            cat assets.txt
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+          missing=0
+          for re in '^Orphyn_.*_x64-setup\.exe$' '^Orphyn_.*_x64-setup\.exe\.sig$' \
+            '^Orphyn_.*_aarch64\.dmg$' '^Orphyn_.*_x64\.dmg$' \
+            '^Orphyn_aarch64\.app\.tar\.gz$' '^Orphyn_aarch64\.app\.tar\.gz\.sig$' \
+            '^Orphyn_x64\.app\.tar\.gz$' '^Orphyn_x64\.app\.tar\.gz\.sig$' \
+            '^Orphyn_.*_amd64\.AppImage$' '^Orphyn_.*_amd64\.AppImage\.sig$' \
+            '^Orphyn_.*_amd64\.deb$' '^latest\.json$' '^latest\.yml$' '^latest-linux\.yml$' '^latest-mac\.yml$'; do
+            grep -Eq "$re" assets.txt || { echo "missing asset: $re"; missing=1; }
+          done
+          exit $missing
+
       - name: Publish the release
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TAG: ${{ github.ref_name }}
+        if: github.event_name == 'push' || inputs.publish
         run: gh release edit "$TAG" --draft=false --latest
