@@ -1,9 +1,15 @@
 //! `ShellSidebar` + `Sidebar` / `SidebarSection` / `SidebarItem` of the design system.
 use dioxus::prelude::*;
 
+use orphyn_jellyfin::keys::{self, stale};
+use orphyn_jellyfin::ItemsParams;
+
 use crate::design::{Icon, IconButton};
+use crate::features::servers::ServerSwitcher;
 use crate::i18n::use_i18n;
+use crate::query::use_query;
 use crate::router::{use_router, Route};
+use crate::state::{use_app, use_services};
 
 pub struct SidebarEntry {
     pub id: &'static str,
@@ -66,13 +72,61 @@ pub const BUILTIN_SIDEBAR_ITEMS: &[SidebarEntry] = &[
         to: "/music/playlists",
     },
     SidebarEntry {
+        id: "music.favorites",
+        section: "music",
+        label_key: "music:nav.favorites",
+        icon: "heart",
+        to: "/music/favorites",
+    },
+    SidebarEntry {
         id: "music.songs",
         section: "music",
         label_key: "shell:nav.songs",
         icon: "music",
         to: "/music/songs",
     },
+    SidebarEntry {
+        id: "stats.stats",
+        section: "more",
+        label_key: "stats:nav",
+        icon: "bar-chart-3",
+        to: "/stats",
+    },
 ];
+
+/// The user's playlists under "Music" (`PlaylistHost.tsx` registers them as sidebar items).
+#[component]
+fn PlaylistEntries() -> Element {
+    let app = use_app();
+    let Some(session) = (app.session)() else {
+        return rsx! {};
+    };
+    let params = ItemsParams {
+        include_item_types: vec!["Playlist".into()],
+        media_types: vec!["Audio".into()],
+        sort_by: vec!["SortName".into()],
+        sort_order: Some("Ascending".into()),
+        ..ItemsParams::default()
+    };
+    let list = use_query(keys::items(&session.account_id, &params), stale::ITEM, {
+        let (s, p) = (session.clone(), params.clone());
+        move || {
+            let (s, p) = (s.clone(), p.clone());
+            async move { s.items_page(&p, 0).await }
+        }
+    });
+    let items = list.data.as_deref().map(|p| p.items.clone()).unwrap_or_default();
+    rsx! {
+        for p in items {
+            SidebarItem {
+                key: "playlist.{p.id}",
+                icon: "list-music",
+                label: p.name().to_string(),
+                to: format!("/music/playlist/{}", p.id),
+            }
+        }
+    }
+}
 
 #[component]
 fn SidebarItem(icon: &'static str, label: String, to: String) -> Element {
@@ -125,6 +179,8 @@ fn SidebarSection(title: String, children: Element) -> Element {
 pub fn ShellSidebar() -> Element {
     let t = use_i18n();
     let router = use_router();
+    let app = use_app();
+    let svc = use_services();
     let window = dioxus_native::use_window();
     // The field mirrors ?q= while on /search; typing navigates there.
     let url_query = match router.route() {
@@ -191,16 +247,28 @@ pub fn ShellSidebar() -> Element {
                     for (id, icon, label, to) in items("music") {
                         SidebarItem { key: "{id}", icon, label, to }
                     }
+                    PlaylistEntries {}
+                }
+                SidebarSection { title: t.t("shell:nav.more"),
+                    for (id, icon, label, to) in items("more") {
+                        SidebarItem { key: "{id}", icon, label, to }
+                    }
                 }
             }
             div { class: "jr-sidebar__footer",
                 div { class: "jr-shell__footer-row",
-                    div { class: "jr-shell__server-switcher" }
+                    div { class: "jr-shell__server-switcher", ServerSwitcher {} }
                     IconButton {
                         class: "jr-shell__refresh",
                         icon: "rotate-cw",
                         label: refresh_title,
                         size: "small",
+                        onclick: move |_| {
+                            // Marks every query of the account stale: the open screens refetch.
+                            if let Some(s) = (app.session)() {
+                                svc.cache.invalidate(&keys::all(&s.account_id));
+                            }
+                        },
                     }
                 }
                 ul { class: "jr-sidebar-section__list",
