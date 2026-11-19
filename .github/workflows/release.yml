@@ -188,7 +188,7 @@ jobs:
           mkdir assets
           gh release download "$TAG" --dir assets \
             --pattern '*-setup.exe' --pattern '*.AppImage' --pattern '*.dmg'
-          node scripts/electron-update-bridge.mjs assets "$TAG"
+          node scripts/electron-update-bridge.mjs assets
           gh release upload "$TAG" --clobber \
             assets/latest.yml assets/latest-linux.yml assets/latest-mac.yml
 
