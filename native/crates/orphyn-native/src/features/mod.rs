@@ -2,6 +2,7 @@
 //! of the React app (its nav label as the name); porting one = replacing its arm below.
 pub mod cast;
 pub mod discord;
+pub mod mixes;
 pub mod music;
 pub mod palette;
 pub mod pip;
@@ -50,6 +51,7 @@ pub fn RoutedPage() -> Element {
             rsx! { video::player::VideoPlayerPage { key: "{item_id}", item_id, start } }
         }
         Route::MusicHome => rsx! { music::library::MusicHomePage {} },
+        Route::MusicMix { id } => rsx! { mixes::MixPage { key: "{id}", id } },
         Route::MusicAlbums => rsx! { music::library::AlbumsPage {} },
         Route::MusicArtists => rsx! { music::library::ArtistsPage {} },
         Route::MusicArtist { id } => rsx! { music::library::ArtistPage { key: "{id}", id } },

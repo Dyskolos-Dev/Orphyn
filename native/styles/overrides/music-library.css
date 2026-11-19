@@ -8,3 +8,10 @@
     (100% - (var(--jr-shelf-n) - 1) * var(--jr-shelf-gap)) / var(--jr-shelf-n)
   );
 }
+
+/* Mix covers (features/mixes): Blitz has no container query units, so the lettering is sized in px. */
+.jrx-cover__text { padding: 14px; }
+.jrx-cover__name { font-size: 22px; }
+.jrx-detail__art .jrx-cover__text { padding: 20px; }
+.jrx-detail__art .jrx-cover__name { font-size: 30px; }
+.jrx-detail__art { width: 232px; height: 232px; }

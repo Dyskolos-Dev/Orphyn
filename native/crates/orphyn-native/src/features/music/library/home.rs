@@ -243,6 +243,21 @@ fn title_of(t: crate::i18n::I18n, row: &HomeRow) -> String {
     )
 }
 
+/// A shelf of the music home made of mixes (`MixRow`); nothing is drawn while there are none.
+#[component]
+fn MixShelf(row: HomeRow, count: usize) -> Element {
+    let t = use_i18n();
+    let mixes = crate::features::mixes::mixes_for_row(&row.kind, count);
+    let title = t.t(&format!("mixes:rows.{}.title", row.kind));
+    rsx! {
+        MusicShelf { row: row.clone(), title, count: mixes.len(),
+            for m in mixes {
+                crate::features::mixes::MixCard { key: "{m.id}", mix: m }
+            }
+        }
+    }
+}
+
 /// `useItems`/`useAlbums` as one query: the items of a `GET /Items` page.
 fn use_items(params: ItemsParams, enabled: bool) -> Vec<BaseItemDto> {
     let app = use_app();
@@ -344,7 +359,7 @@ fn MusicRow(row: HomeRow) -> Element {
         "genre" => rsx! { GenreRow { row, count } },
         "artist" => rsx! { ArtistRow { row, count } },
         "randomAlbums" => rsx! { RandomAlbums { row, count } },
-        // The mix rows come with features/mixes.
+        "mixForYou" | "mixDaily" | "mixGenres" => rsx! { MixShelf { row, count } },
         _ => rsx! {},
     }
 }

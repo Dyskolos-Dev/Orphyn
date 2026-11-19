@@ -22,6 +22,7 @@ pub enum Route {
     },
     // features/music/routes.tsx
     MusicHome,
+    MusicMix { id: String },
     MusicAlbums,
     MusicArtists,
     MusicPlaylists,
@@ -105,6 +106,7 @@ impl Route {
                 start: param("start").parse().ok().filter(|t: &i64| *t >= 0),
                 trailer: param("trailer") == "1",
             },
+            ["music"] if !param("mix").is_empty() => Route::MusicMix { id: param("mix") },
             ["music"] => Route::MusicHome,
             ["music", "albums"] => Route::MusicAlbums,
             ["music", "artists"] => Route::MusicArtists,
@@ -143,6 +145,7 @@ impl Route {
                 }
             }
             Route::MusicHome => "/music".into(),
+            Route::MusicMix { id } => format!("/music?mix={}", encode(id)),
             Route::MusicAlbums => "/music/albums".into(),
             Route::MusicArtists => "/music/artists".into(),
             Route::MusicPlaylists => "/music/playlists".into(),

@@ -6,7 +6,7 @@ mod mini_player;
 mod now_playing;
 pub mod panels;
 pub mod playlists;
-mod rows;
+pub mod rows;
 mod transport;
 
 use std::sync::Arc;
