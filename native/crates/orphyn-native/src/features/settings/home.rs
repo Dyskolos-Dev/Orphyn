@@ -224,10 +224,7 @@ pub fn HomePane() -> Element {
                                         index: i,
                                         last: i == last,
                                         rows: current.clone(),
-                                        on_change: {
-                                            let commit = commit;
-                                            move |n| commit.call(n)
-                                        },
+                                        on_change: move |n| commit.call(n),
                                     }
                                 }
                             }
@@ -240,7 +237,7 @@ pub fn HomePane() -> Element {
                             size: "small",
                             icon: "rotate-ccw",
                             onclick: {
-                                let (key, svc, libs, commit) = (key.clone(), svc.clone(), libs.clone(), commit.clone());
+                                let (key, svc, libs, commit) = (key.clone(), svc.clone(), libs.clone(), commit);
                                 move |_| {
                                     svc.storage.remove(&key);
                                     commit.call(load(sc, &key, &svc, &libs));
@@ -259,7 +256,6 @@ pub fn HomePane() -> Element {
                     libraries: if sc == "video" { Some(libs.clone()) } else { None },
                     on_close: move |_| adding.set(false),
                     on_add: {
-                        let commit = commit.clone();
                         move |(row, rest): (Value, Vec<Value>)| {
                             let mut next = rest;
                             next.push(row);

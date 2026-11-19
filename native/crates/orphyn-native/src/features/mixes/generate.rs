@@ -183,7 +183,7 @@ impl Rng {
     }
 
     /// In [0, 1).
-    pub fn next(&mut self) -> f64 {
+    pub fn next_f64(&mut self) -> f64 {
         self.0 = self.0.wrapping_add(0x6d2b_79f5);
         let mut t = self.0;
         t = (t ^ (t >> 15)).wrapping_mul(t | 1);
@@ -195,7 +195,7 @@ impl Rng {
 pub fn shuffled<T: Clone>(items: &[T], rng: &mut Rng) -> Vec<T> {
     let mut out = items.to_vec();
     for i in (1..out.len()).rev() {
-        let j = (rng.next() * (i + 1) as f64).floor() as usize;
+        let j = (rng.next_f64() * (i + 1) as f64).floor() as usize;
         out.swap(i, j);
     }
     out
@@ -379,7 +379,7 @@ pub fn sample_by_plays(tracks: &[Track], n: usize, rng: &mut Rng) -> Vec<Track> 
     let mut out = Vec::new();
     while out.len() < n && !rest.is_empty() {
         let total: i64 = rest.iter().map(|x| x.1).sum();
-        let mut r = rng.next() * total as f64;
+        let mut r = rng.next_f64() * total as f64;
         let mut at = rest.len() - 1;
         for (i, x) in rest.iter().enumerate() {
             r -= x.1 as f64;
@@ -674,11 +674,11 @@ mod tests {
             Rng::seeded("2026-03-05:forYou-1"),
         );
         for _ in 0..20 {
-            let x = a.next();
-            assert_eq!(x, b.next());
+            let x = a.next_f64();
+            assert_eq!(x, b.next_f64());
             assert!((0.0..1.0).contains(&x));
         }
-        assert_ne!(Rng::seeded("a").next(), Rng::seeded("b").next());
+        assert_ne!(Rng::seeded("a").next_f64(), Rng::seeded("b").next_f64());
     }
 
     #[test]
