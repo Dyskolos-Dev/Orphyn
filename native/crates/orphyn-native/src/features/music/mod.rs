@@ -1,6 +1,7 @@
 //! Music feature: the reference port (album page, mini player, Now Playing sheet). See
 //! native/PORTING.md for the patterns it demonstrates.
 mod album;
+mod backdrop;
 pub mod library;
 mod mini_player;
 mod now_playing;

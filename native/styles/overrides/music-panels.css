@@ -25,10 +25,9 @@
 }
 
 /* Now Playing backdrop. The React app drifts two 90vmax blobs under blur(80px) saturate(1.6):
-   in Blitz that is a full-window filter pass on every frame (janky opening). Here the cover is a
-   24 px image (downsized by the server) stretched over the whole view: the smooth upscale is the
-   blur, nothing is filtered at runtime. Saturation is replaced by a stronger opacity; the new
-   track's cover fades in over the previous one. */
+   in Blitz that is a full-window filter pass on every frame (janky opening). Here the cover is
+   blurred and saturated once on the CPU (features/music/backdrop.rs) into a small bitmap that is
+   stretched over the whole view; nothing is filtered at runtime. A new cover fades in. */
 .jrm-np__blob {
   inset: 0;
   top: 0;

@@ -45,9 +45,8 @@ fn Sheet(y: f64) -> Element {
         return rsx! {};
     };
     let art = track_art(&base, &track, 640);
-    // Tiny cover: the server downsizes it, and stretching it over the window gives the soft,
-    // heavy-blur look with no filter pass (a real blur per frame made opening janky).
-    let bg = track_art(&base, &track, 24);
+    // Blurred once per album on the CPU (see backdrop.rs), then stretched: no runtime filter.
+    let bg = super::backdrop::use_backdrop();
     let artist_id = track_artist_id(&track);
     let mut open = music.open;
     let view_name = match view {
@@ -73,9 +72,9 @@ fn Sheet(y: f64) -> Element {
             style: "transform: translateY({y}%);",
             onkeydown: move |e| if e.key() == Key::Named(NamedKey::Escape) { open.set(false) },
             div { class: "jrm-np__bg", "aria-hidden": "true",
-                if let Some(bg) = &bg {
-                    // Keyed on the track: a new element fades in on every track change.
-                    div { key: "{track.id}", class: "jrm-np__blob", style: "background-image: url(\"{bg}\");" }
+                if let Some((key, bg)) = &bg {
+                    // Keyed on the album: a new element fades in when the cover changes.
+                    div { key: "{key}", class: "jrm-np__blob", style: "background-image: url(\"{bg}\");" }
                 }
                 div { class: "jrm-np__scrim" }
             }
