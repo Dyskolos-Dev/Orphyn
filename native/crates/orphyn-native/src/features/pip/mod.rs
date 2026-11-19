@@ -68,7 +68,7 @@ pub fn use_pip_provider() -> Pip {
     let i18n = use_i18n();
     let main = use_window();
     let windows = use_extra_windows();
-    use_context_provider(|| Pip {
+    let pip = use_context_provider(|| Pip {
         music_window: Signal::new(None),
         video_window: Signal::new(None),
         deps: Rc::new(Deps {
@@ -79,7 +79,17 @@ pub fn use_pip_provider() -> Pip {
             main,
         }),
         windows,
-    })
+    });
+    // Development: `ORPHYN_PIP=music` opens the mini player window at start (screenshots).
+    use_hook({
+        let pip = pip.clone();
+        move || {
+            if std::env::var("ORPHYN_PIP").as_deref() == Ok("music") {
+                pip.open(Kind::Music, String::new());
+            }
+        }
+    });
+    pip
 }
 
 impl Pip {

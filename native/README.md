@@ -73,3 +73,14 @@ window covering a 2560x1440 screen, process CPU over 10 to 20 s of playback):
 
 Next steps: a libmpv build that accepts `yuyv422` (or another packed YUV format) halves the upload
 again; a GPU interop path (D3D11 / Vulkan) would remove the copy entirely.
+
+## Extra windows (PiP)
+
+`vendor/dioxus-native` is 0.8.0-alpha.3 plus one patch (`src/extra_windows.rs`, a few hooks in
+`dioxus_application.rs` and `lib.rs`): `use_extra_windows()` gives an `ExtraWindows` with
+`open(attributes, build_vdom, on_close)`, `close(handle)` and `close_window(winit_id)`. The closure builds
+the window's own `VirtualDom` on the UI thread, so it can capture the app's services; a transparent
+window gets a transparent clear colour; closing the main window closes the extras. Re-apply when bumping.
+The PiP windows (`features/pip`) use it: the music one reads the player's signals, the video one draws the
+same mpv instance as the player page (the page's own video is hidden meanwhile). `ORPHYN_PIP=music`
+opens the mini player at start (development).
