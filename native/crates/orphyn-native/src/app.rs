@@ -52,6 +52,7 @@ pub fn app() -> Element {
     });
     crate::features::music::use_music_provider(&svc);
     crate::features::system::use_system_provider(&svc);
+    crate::design::toast::use_toast_provider();
     crate::features::cast::use_cast_provider();
     crate::features::syncplay::use_syncplay_provider();
 
@@ -151,7 +152,7 @@ pub fn app() -> Element {
                 crate::features::whatsnew::WhatsNewHost {}
                 crate::features::updater::UpdateNotice {}
                 crate::features::palette::PaletteHost {}
-                crate::features::cast::ToastHost {}
+                crate::design::toast::ToastHost {}
                 crate::features::syncplay::SyncPlayHost {}
                 CaptionButtons {
                     fullscreen: facts.fullscreen,

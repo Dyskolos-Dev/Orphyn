@@ -83,17 +83,19 @@ impl Toasts {
         id
     }
 
-    pub fn info(self, title: String, description: Option<String>) -> u64 {
+    pub fn info(self, title: String, description: Option<String>) {
         let mut o = ToastOptions::new(title);
         o.description = description;
-        self.show(o)
+        o.icon = Some("info");
+        self.show(o);
     }
 
-    pub fn error(self, title: String, description: Option<String>) -> u64 {
+    pub fn error(self, title: String, description: Option<String>) {
         let mut o = ToastOptions::new(title);
         o.description = description;
         o.error = true;
-        self.show(o)
+        o.icon = Some("triangle-alert");
+        self.show(o);
     }
 
     pub fn dismiss(mut self, id: u64) {

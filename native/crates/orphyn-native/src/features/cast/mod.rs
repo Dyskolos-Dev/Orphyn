@@ -6,7 +6,6 @@ mod hub;
 mod music;
 mod page;
 mod picker;
-pub mod toast;
 mod video;
 
 use std::collections::HashMap;
@@ -17,7 +16,7 @@ use orphyn_core::cast::{CastDevice, CastEvent, CastKind, CastSessionState};
 pub use devices::CastScope;
 pub use page::CastPage;
 pub use picker::CastPicker;
-pub use toast::{use_toasts, ToastHost};
+pub use crate::design::toast::use_toasts;
 pub use video::{VideoCastButton, VideoCastHost, VideoCastRequest};
 
 use crate::i18n::use_i18n;
@@ -70,7 +69,7 @@ impl CastUi {
 pub fn use_cast_provider() -> CastUi {
     let t = use_i18n();
     let svc = use_services();
-    let toasts = toast::use_toast_provider();
+    let toasts = use_toasts();
     let ui = use_context_provider(|| CastUi {
         devices: Signal::new(Vec::new()),
         sessions: Signal::new(HashMap::new()),

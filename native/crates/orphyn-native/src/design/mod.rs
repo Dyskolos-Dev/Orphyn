@@ -5,6 +5,7 @@
 pub mod icons;
 pub mod media;
 pub mod overlay;
+pub mod toast;
 
 use dioxus::prelude::*;
 
