@@ -255,7 +255,7 @@ fn pip_css() -> &'static str {
     use std::sync::OnceLock;
     static CSS: OnceLock<String> = OnceLock::new();
     CSS.get_or_init(|| {
-        let react = include_str!("../../../../../../src/renderer/src/features/pip/pip.css")
+        let react = include_str!("../../../../../styles/app/features/pip/pip.css")
             .replace("html[data-", ".jr-root[data-");
         format!("{react}\n{}", include_str!("pip_native.css"))
     })

@@ -1,10 +1,10 @@
-//! Build-time bundling of the React app's sources, so the native app never carries copies:
+//! Build-time bundling of the stylesheets, locales and notes kept under native/:
 //!
 //! - `app.css`: the stylesheets listed in `native/styles/manifest.txt`, read from
-//!   `src/renderer/src`, `@import`s inlined, with the `html` / `body` / `#root` selectors
+//!   `native/styles/app`, `@import`s inlined, with the `html` / `body` / `#root` selectors
 //!   re-anchored on the app's root elements (`.jr-root`, `.jr-body`, `.jr-app`): Dioxus renders
 //!   inside `<body>`, so the theme attributes live on `.jr-root` instead of `<html>`.
-//! - `locales.rs`: every `src/renderer/src/i18n/locales/<lang>/<ns>.json`, as `include_str!`s.
+//! - `locales.rs`: every `native/locales/<lang>/<ns>.json`, as `include_str!`s.
 use std::fmt::Write as _;
 use std::path::{Path, PathBuf};
 use std::{env, fs};
@@ -12,7 +12,7 @@ use std::{env, fs};
 fn main() {
     let manifest_dir = PathBuf::from(env::var("CARGO_MANIFEST_DIR").unwrap());
     let native = manifest_dir.join("../..");
-    let src = native.join("../src/renderer/src");
+    let src = native.join("styles/app");
     let out = PathBuf::from(env::var("OUT_DIR").unwrap());
 
     let manifest = native.join("styles/manifest.txt");
@@ -27,11 +27,11 @@ fn main() {
     }
     fs::write(out.join("app.css"), rewrite_root_selectors(&css)).unwrap();
 
-    let locales = src.join("i18n/locales");
+    let locales = native.join("locales");
     println!("cargo:rerun-if-changed={}", locales.display());
     let mut code = String::from("pub static LOCALES: &[(&str, &str, &str)] = &[\n");
     let mut langs: Vec<_> = fs::read_dir(&locales)
-        .expect("src/renderer/src/i18n/locales")
+        .expect("native/locales")
         .flatten()
         .map(|e| e.path())
         .filter(|p| p.is_dir())
@@ -73,7 +73,7 @@ fn append_css(path: &Path, out: &mut String, depth: usize) {
     });
     let rel = path.to_string_lossy().replace('\\', "/");
     let rel = rel
-        .split("src/renderer/src/")
+        .split("styles/app/")
         .last()
         .unwrap_or(&rel)
         .to_string();

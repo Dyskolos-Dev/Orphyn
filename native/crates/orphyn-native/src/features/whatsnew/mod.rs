@@ -1,4 +1,4 @@
-//! "What's new": the release notes of `src/renderer/src/features/whatsnew/notes/<version>.json`
+//! "What's new": the release notes of `native/notes/<version>.json`
 //! (bundled at build time), shown once after each update (`WhatsNewHost.tsx`, `WhatsNewSheet.tsx`).
 use dioxus::prelude::*;
 use serde::Deserialize;
@@ -14,7 +14,7 @@ const LAST_SEEN_KEY: &str = "orphyn.lastSeenVersion";
 macro_rules! notes {
     ($($v:literal),* $(,)?) => {
         &[$(($v, include_str!(concat!(
-            "../../../../../../src/renderer/src/features/whatsnew/notes/", $v, ".json"
+            "../../../../../notes/", $v, ".json"
         )))),*]
     };
 }

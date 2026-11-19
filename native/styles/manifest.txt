@@ -1,4 +1,4 @@
-# The stylesheets of the React app (paths relative to src/renderer/src), in the order the Vite
+# The stylesheets of the React app (paths relative to native/styles/app), in the order the Vite
 # bundle applies them: global styles first (styles/index.ts), then the design system, the shell
 # and the features. build.rs concatenates them (following any @import) into one sheet; nothing is
 # copied, so the two apps cannot drift. Blitz-only fixes go in native/styles/overrides.css.

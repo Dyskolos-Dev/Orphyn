@@ -20,7 +20,7 @@ pub const OVERRIDES_CSS: &str = concat!(
     include_str!("../../../styles/overrides/cast.css"),
 );
 
-const LOGO_PNG: &[u8] = include_bytes!("../../../../src/renderer/src/assets/orphyn-logo.png");
+const LOGO_PNG: &[u8] = include_bytes!("../../../assets/orphyn-logo.png");
 const INTER: &[u8] = include_bytes!("../../../assets/fonts/inter-latin-wght-normal.woff2");
 const INTER_ITALIC: &[u8] = include_bytes!("../../../assets/fonts/inter-latin-wght-italic.woff2");
 
