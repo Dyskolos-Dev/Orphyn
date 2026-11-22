@@ -42,6 +42,7 @@ pub fn AppShell() -> Element {
         scroller: Signal::new(None),
     });
     let immersive = (shell.immersive)() > 0;
+    features::watchlist::use_watchlist_provider();
 
     // Scroll restoration: a new page starts at the top, back / forward return to where it was.
     let nav_id = (router.nav_id)();
@@ -98,6 +99,7 @@ pub fn AppShell() -> Element {
                 }
             }
             features::music::NowPlaying {}
+            features::watchlist::WatchlistHost {}
             OverlayHost {}
         }
     }

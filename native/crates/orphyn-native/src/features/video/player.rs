@@ -369,6 +369,7 @@ fn Player(item_id: String, start: Option<i64>) -> Element {
     let svc = use_services();
     let router = use_router();
     let mut shell = use_shell();
+    let watchlist = crate::features::watchlist::use_watchlist();
     let window = dioxus_native::use_window();
     let video = svc.video.clone();
     // ShellImmersive: the player takes the whole window.
@@ -818,6 +819,10 @@ fn Player(item_id: String, start: Option<i64>) -> Element {
     let mut handled_end = use_signal(|| false);
     if ended && !*handled_end.peek() {
         handled_end.set(true);
+        // A film played to the end leaves the watchlist; a series stays.
+        if data.as_ref().is_some_and(|d| d.is_type("Movie")) {
+            watchlist.remove(&item_id);
+        }
         if next.is_some() && auto_play_next && !dismissed() {
             play_next();
         } else if next.is_none() {

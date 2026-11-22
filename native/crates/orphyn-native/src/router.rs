@@ -12,6 +12,7 @@ use dioxus::prelude::*;
 pub enum Route {
     // features/video/routes.tsx
     VideoHome,
+    VideoWatchlist,
     VideoLibrary {
         library_id: String,
     },
@@ -115,6 +116,7 @@ impl Route {
         match parts.as_slice() {
             [] | [""] => Route::VideoHome,
             ["video"] => Route::VideoHome,
+            ["video", "watchlist"] => Route::VideoWatchlist,
             ["video", "library", x] => Route::VideoLibrary { library_id: id(x) },
             ["video", "item", x] => Route::VideoItem { item_id: id(x) },
             ["video", "play", x] => Route::VideoPlay {
@@ -146,6 +148,7 @@ impl Route {
     pub fn path(&self) -> String {
         match self {
             Route::VideoHome => "/video".into(),
+            Route::VideoWatchlist => "/video/watchlist".into(),
             Route::VideoLibrary { library_id } => format!("/video/library/{}", encode(library_id)),
             Route::VideoItem { item_id } => format!("/video/item/{}", encode(item_id)),
             Route::VideoPlay {
@@ -359,6 +362,7 @@ mod tests {
     fn parses_every_react_route() {
         for path in [
             "/video",
+            "/video/watchlist",
             "/video/library/movies",
             "/video/item/abc",
             "/video/play/abc",

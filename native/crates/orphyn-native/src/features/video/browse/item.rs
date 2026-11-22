@@ -466,6 +466,9 @@ pub fn VideoItemPage(item_id: String) -> Element {
                         pressed: played,
                         onclick: move |_| a_played.mark_played(&pid, !played),
                     }
+                    if data.is_type("Movie") || is_series {
+                        crate::features::watchlist::WatchlistButton { item: data.clone() }
+                    }
                     IconButton {
                         variant: "glass",
                         size: "large",

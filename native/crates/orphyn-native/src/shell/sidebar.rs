@@ -44,6 +44,13 @@ pub const BUILTIN_SIDEBAR_ITEMS: &[SidebarEntry] = &[
         to: "/video/library/series",
     },
     SidebarEntry {
+        id: "watch.watchlist",
+        section: "watch",
+        label_key: "shell:nav.watchlist",
+        icon: "bookmark",
+        to: "/video/watchlist",
+    },
+    SidebarEntry {
         id: "music.home",
         section: "music",
         label_key: "shell:nav.home",
@@ -133,7 +140,12 @@ fn PlaylistEntries() -> Element {
 }
 
 #[component]
-fn SidebarItem(icon: &'static str, label: String, to: String) -> Element {
+fn SidebarItem(
+    icon: &'static str,
+    label: String,
+    to: String,
+    #[props(default = 0)] badge: usize,
+) -> Element {
     let router = use_router();
     let active = router.route().is_active_link(&to);
     let cls = if active {
@@ -147,8 +159,13 @@ fn SidebarItem(icon: &'static str, label: String, to: String) -> Element {
                 class: "{cls}",
                 "aria-current": active.then_some("page"),
                 onclick: move |e| { e.prevent_default(); router.push(&to) },
-                span { class: "jr-sidebar-item__icon", "aria-hidden": "true", Icon { name: icon, size: 18 } }
+                span { class: "jr-sidebar-item__icon", "aria-hidden": "true", 
+                    if icon == "bookmark" { crate::features::watchlist::BookmarkIcon { size: 18 } } else { Icon { name: icon, size: 18 } }
+                }
                 span { class: "jr-sidebar-item__label", "{label}" }
+                if badge > 0 {
+                    span { class: "jr-sidebar-item__badge", "aria-label": "{badge}", "{badge}" }
+                }
             }
         }
     }
@@ -197,6 +214,7 @@ pub fn ShellSidebar() -> Element {
         synced.set(url_query.clone());
         draft.set(url_query);
     }
+    let new_episodes = crate::features::watchlist::use_watchlist().fresh().len();
     let items = |section: &str| {
         BUILTIN_SIDEBAR_ITEMS
             .iter()
@@ -244,7 +262,7 @@ pub fn ShellSidebar() -> Element {
             div { class: "jr-sidebar__scroll",
                 SidebarSection { title: t.t("shell:nav.watch"),
                     for (id, icon, label, to) in items("watch") {
-                        SidebarItem { key: "{id}", icon, label, to }
+                        SidebarItem { key: "{id}", icon, label, to, badge: if id == "watch.watchlist" { new_episodes } else { 0 } }
                     }
                 }
                 SidebarSection { title: t.t("shell:nav.music"),

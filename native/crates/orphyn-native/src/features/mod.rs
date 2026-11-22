@@ -14,6 +14,7 @@ pub mod syncplay;
 pub mod system;
 pub mod updater;
 pub mod video;
+pub mod watchlist;
 pub mod whatsnew;
 
 use dioxus::prelude::*;
@@ -35,6 +36,7 @@ pub fn RoutedPage() -> Element {
         Route::MusicAlbum { id } => rsx! { music::AlbumPage { key: "{id}", id } },
         Route::Onboarding => rsx! { servers::OnboardingPage {} },
         Route::VideoHome => rsx! { video::browse::VideoHomePage {} },
+        Route::VideoWatchlist => rsx! { watchlist::WatchlistPage {} },
         Route::VideoLibrary { library_id } => {
             rsx! { video::browse::VideoLibraryPage { key: "{library_id}", library_id } }
         }

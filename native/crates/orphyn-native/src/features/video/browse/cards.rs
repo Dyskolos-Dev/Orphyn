@@ -63,6 +63,7 @@ fn type_icon(item: &BaseItemDto) -> &'static str {
 pub struct ItemActions {
     svc: Services,
     session: Option<Session>,
+    watchlist: crate::features::watchlist::WatchlistStore,
 }
 
 pub fn use_item_actions() -> ItemActions {
@@ -70,6 +71,7 @@ pub fn use_item_actions() -> ItemActions {
     ItemActions {
         svc: use_services(),
         session: (app.session)(),
+        watchlist: crate::features::watchlist::use_watchlist(),
     }
 }
 
@@ -163,6 +165,19 @@ pub fn item_menu(
         Some("heart"),
         move |_| a.set_favourite(&id, !favourite),
     ));
+    if item.is_type("Movie") || item.is_type("Series") {
+        let on = actions.watchlist.contains(&item.id);
+        let (store, it) = (actions.watchlist.clone(), item.clone());
+        items.push(MenuItem::action(
+            if on {
+                t.t("video:watchlist.remove")
+            } else {
+                t.t("video:watchlist.add")
+            },
+            None,
+            move |_| store.toggle(&it),
+        ));
+    }
     items
 }
 

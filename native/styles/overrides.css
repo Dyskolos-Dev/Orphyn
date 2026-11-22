@@ -64,3 +64,18 @@ body > #main {
   background: #c42b1c;
   color: #fff;
 }
+
+/* Watchlist: count of new episodes on its sidebar entry. */
+.jr-sidebar-item__badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 9px;
+  background: var(--accent-fill);
+  color: var(--accent-fill-contrast);
+  font: var(--text-caption-1);
+  font-weight: 600;
+}

@@ -35,6 +35,24 @@
     },
     "jumpTo": "Aller à la lettre"
   },
+  "watchlist": {
+    "title": "À regarder",
+    "add": "Ajouter à À regarder",
+    "remove": "Retirer de À regarder",
+    "count_one": "{{count}} titre",
+    "count_other": "{{count}} titres",
+    "sort": "Trier",
+    "sortAdded": "Date d’ajout",
+    "sortTitle": "Titre",
+    "sortRelease": "Date de sortie",
+    "newEpisodes": "Nouveaux épisodes",
+    "newEpisode": "Nouvel épisode : {{series}} {{label}}",
+    "open": "Ouvrir",
+    "empty": {
+      "title": "Rien à regarder pour l’instant",
+      "message": "Marque des films et des séries avec le signet pour les retrouver ici."
+    }
+  },
   "item": {
     "play": "Lire",
     "resume": "Reprendre à {{minutes}} min",

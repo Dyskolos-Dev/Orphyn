@@ -35,6 +35,24 @@
     },
     "jumpTo": "Jump to letter"
   },
+  "watchlist": {
+    "title": "Watchlist",
+    "add": "Add to Watchlist",
+    "remove": "Remove from Watchlist",
+    "count_one": "{{count}} title",
+    "count_other": "{{count}} titles",
+    "sort": "Sort",
+    "sortAdded": "Date Added",
+    "sortTitle": "Title",
+    "sortRelease": "Release Date",
+    "newEpisodes": "New Episodes",
+    "newEpisode": "New episode: {{series}} {{label}}",
+    "open": "Open",
+    "empty": {
+      "title": "Nothing to Watch Yet",
+      "message": "Mark films and series with the bookmark to find them here."
+    }
+  },
   "item": {
     "play": "Play",
     "resume": "Resume at {{minutes}} min",

@@ -238,6 +238,12 @@ pub fn commands(ctx: &Context) -> Vec<Command> {
         "/video/library/series",
         &["tv", "shows", "series tv", "emissions"],
     ));
+    out.push(page(
+        "watchlist",
+        "clock",
+        "/video/watchlist",
+        &["a regarder", "watchlist", "later", "plus tard", "signet", "bookmark"],
+    ));
     out.push(page("music", "music", "/music", &["musique"]));
     out.push(page("albums", "disc", "/music/albums", &[]));
     out.push(page("artists", "user", "/music/artists", &["artistes"]));
