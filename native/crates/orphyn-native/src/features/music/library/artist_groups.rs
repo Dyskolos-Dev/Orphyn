@@ -107,16 +107,12 @@ fn split_joiners(s: &str) -> Vec<String> {
 
 pub struct SplitArtists {
     pub names: Vec<String>,
-    /// The credit used feat./ft./featuring: its head is certainly the main act.
-    pub featured: bool,
 }
 
 pub fn split_artist_credit(credit: &str) -> SplitArtists {
     let mut chunks = Vec::new();
     let mut rest = credit;
-    let mut featured = false;
     while let Some((a, b)) = find_feat(rest) {
-        featured = true;
         chunks.push(&rest[..a]);
         rest = &rest[b..];
     }
@@ -133,7 +129,7 @@ pub fn split_artist_credit(credit: &str) -> SplitArtists {
     if names.is_empty() {
         names.push(credit.trim().to_string());
     }
-    SplitArtists { names, featured }
+    SplitArtists { names }
 }
 
 pub struct ArtistGroup {
@@ -142,28 +138,44 @@ pub struct ArtistGroup {
 }
 
 /// One group per real artist: `album_artists` root the groups, `everyone` attaches variants.
+///
+/// A multi-artist entity ("AaMo, yvnnis", "A feat. B") is split into its parts only when a part is
+/// itself an existing artist entity, or appears in another multi-artist name; otherwise it stays
+/// whole ("Simon & Garfunkel", "Tyler, The Creator"). A split entity is attributed to every part:
+/// parts without an entity of their own become virtual artists backed by the entity ids.
 pub fn group_artists(album_artists: &[BaseItemDto], everyone: &[BaseItemDto]) -> Vec<ArtistGroup> {
-    let known: HashSet<String> = album_artists
-        .iter()
-        .chain(everyone)
-        .filter_map(|a| a.name.as_deref().filter(|n| !n.is_empty()).map(artist_key))
-        .collect();
-    let group_key_of = |name: &str, root: bool| -> String {
-        let own = artist_key(name);
-        let split = split_artist_credit(name);
-        let Some(head) = split.names.first() else {
-            return own;
-        };
-        if split.names.len() < 2 {
-            return own;
-        }
-        let head_key = artist_key(head);
-        // A real artist entity (album artist) is never split: "Simon & Garfunkel" stays itself.
-        if split.featured || (!root && known.contains(&head_key)) {
-            head_key
+    let named =
+        |a: &&BaseItemDto| a.name.as_deref().is_some_and(|n| !n.is_empty()) && !a.id.is_empty();
+    let parts_of = |a: &BaseItemDto| -> Vec<String> {
+        let mut seen = HashSet::new();
+        split_artist_credit(a.name())
+            .names
+            .into_iter()
+            .filter(|p| seen.insert(artist_key(p)))
+            .collect()
+    };
+    let mut single: HashSet<String> = HashSet::new();
+    let mut part_count: HashMap<String, HashSet<String>> = HashMap::new();
+    for a in album_artists.iter().chain(everyone).filter(named) {
+        let parts = parts_of(a);
+        if parts.len() < 2 {
+            single.insert(artist_key(a.name()));
         } else {
-            own
+            for p in &parts {
+                part_count
+                    .entry(artist_key(p))
+                    .or_default()
+                    .insert(artist_key(a.name()));
+            }
         }
+    }
+    let split_of = |a: &BaseItemDto| -> Option<Vec<String>> {
+        let parts = parts_of(a);
+        let matches = |p: &String| {
+            let k = artist_key(p);
+            single.contains(&k) || part_count.get(&k).is_some_and(|s| s.len() > 1)
+        };
+        (parts.len() > 1 && parts.iter().any(matches)).then_some(parts)
     };
     let rank = |a: &BaseItemDto| -> u8 {
         let composite = split_artist_credit(a.name()).names.len() > 1;
@@ -171,17 +183,16 @@ pub fn group_artists(album_artists: &[BaseItemDto], everyone: &[BaseItemDto]) ->
     };
     let mut order: Vec<String> = Vec::new();
     let mut groups: HashMap<String, ArtistGroup> = HashMap::new();
-    let mut add = |a: &BaseItemDto, root: bool| {
-        let Some(name) = a.name.as_deref().filter(|n| !n.is_empty()) else {
-            return;
-        };
-        if a.id.is_empty() {
-            return;
-        }
-        let key = group_key_of(name, root);
-        match groups.get_mut(&key) {
-            None => {
-                if root {
+    let mut deferred: Vec<(&BaseItemDto, Vec<String>, bool)> = Vec::new();
+    for (list, root) in [(album_artists, true), (everyone, false)] {
+        for a in list.iter().filter(named) {
+            if let Some(parts) = split_of(a) {
+                deferred.push((a, parts, root));
+                continue;
+            }
+            let key = artist_key(a.name());
+            match groups.get_mut(&key) {
+                None if root => {
                     order.push(key.clone());
                     groups.insert(
                         key,
@@ -191,25 +202,46 @@ pub fn group_artists(album_artists: &[BaseItemDto], everyone: &[BaseItemDto]) ->
                         },
                     );
                 }
-            }
-            Some(g) => {
-                if !g.ids.contains(&a.id) {
-                    g.ids.push(a.id.clone());
-                }
-                if root && rank(a) < rank(&g.item) {
-                    g.item = a.clone();
-                    let mut ids = vec![a.id.clone()];
-                    ids.extend(g.ids.iter().filter(|i| **i != a.id).cloned());
-                    g.ids = ids;
+                None => {}
+                Some(g) => {
+                    if !g.ids.contains(&a.id) {
+                        g.ids.push(a.id.clone());
+                    }
+                    if root && rank(a) < rank(&g.item) {
+                        g.item = a.clone();
+                        let mut ids = vec![a.id.clone()];
+                        ids.extend(g.ids.iter().filter(|i| **i != a.id).cloned());
+                        g.ids = ids;
+                    }
                 }
             }
         }
-    };
-    for a in album_artists {
-        add(a, true);
     }
-    for a in everyone {
-        add(a, false);
+    for (a, parts, root) in deferred {
+        for part in parts {
+            let key = artist_key(&part);
+            match groups.get_mut(&key) {
+                Some(g) => {
+                    if !g.ids.contains(&a.id) {
+                        g.ids.push(a.id.clone());
+                    }
+                }
+                None if root => {
+                    let mut item = a.clone();
+                    item.name = Some(part);
+                    item.image_tags.clear();
+                    order.push(key.clone());
+                    groups.insert(
+                        key,
+                        ArtistGroup {
+                            item,
+                            ids: vec![a.id.clone()],
+                        },
+                    );
+                }
+                None => {}
+            }
+        }
     }
     order
         .into_iter()
@@ -287,7 +319,6 @@ mod tests {
     #[test]
     fn credits_are_split() {
         let s = split_artist_credit("Daft Punk feat. Pharrell Williams & Nile Rodgers");
-        assert!(s.featured);
         assert_eq!(s.names, ["Daft Punk", "Pharrell Williams", "Nile Rodgers"]);
         assert_eq!(split_artist_credit("Solo").names, ["Solo"]);
     }
@@ -300,14 +331,22 @@ mod tests {
         );
         assert_eq!(split_artist_credit("AC/DC").names, ["AC/DC"]);
         let roots = [
-            artist("1", "Simon"),
-            artist("2", "Simon & Garfunkel"),
-            artist("3", "C&C Music Factory"),
+            artist("1", "Simon & Garfunkel"),
+            artist("2", "C&C Music Factory"),
+            artist("3", "AC/DC"),
+            artist("4", "Tyler, The Creator"),
         ];
         let g = group_artists(&roots, &roots);
-        assert_eq!(g.len(), 3);
-        assert_eq!(g[1].item.name(), "Simon & Garfunkel");
-        assert_eq!(g[2].item.name(), "C&C Music Factory");
+        let names: Vec<_> = g.iter().map(|x| x.item.name().to_string()).collect();
+        assert_eq!(
+            names,
+            [
+                "Simon & Garfunkel",
+                "C&C Music Factory",
+                "AC/DC",
+                "Tyler, The Creator"
+            ]
+        );
     }
 
     #[test]
@@ -321,5 +360,51 @@ mod tests {
         let g = group_artists(&roots, &all);
         assert_eq!(g.len(), 1);
         assert_eq!(g[0].ids, ["1", "2", "3"]);
+    }
+
+    fn names_ids(g: &[ArtistGroup]) -> Vec<(String, Vec<String>)> {
+        g.iter()
+            .map(|x| (x.item.name().to_string(), x.ids.clone()))
+            .collect()
+    }
+
+    #[test]
+    fn multi_artist_entities_split_when_a_part_is_known() {
+        let roots = [
+            artist("1", "HOUDI"),
+            artist("2", "34Murphy, Sobek, HOUDI"),
+            artist("3", "77 degrés, HOUDI"),
+            artist("4", "AaMo, yvnnis"),
+        ];
+        let g = names_ids(&group_artists(&roots, &roots));
+        let ids = |n: &str| g.iter().find(|x| x.0 == n).map(|x| x.1.clone());
+        assert_eq!(ids("HOUDI").unwrap(), ["1", "2", "3"]);
+        assert_eq!(ids("34Murphy").unwrap(), ["2"]);
+        assert_eq!(ids("Sobek").unwrap(), ["2"]);
+        assert_eq!(ids("77 degrés").unwrap(), ["3"]);
+        // No part of "AaMo, yvnnis" is another artist: it stays whole.
+        assert_eq!(ids("AaMo, yvnnis").unwrap(), ["4"]);
+        assert!(ids("AaMo").is_none() && ids("34Murphy, Sobek, HOUDI").is_none());
+    }
+
+    #[test]
+    fn shared_part_between_multi_names_splits_both() {
+        let roots = [
+            artist("1", "34Murphy, Sobek, HOUDI"),
+            artist("2", "77 degrés, HOUDI"),
+        ];
+        let g = names_ids(&group_artists(&roots, &roots));
+        assert_eq!(g.len(), 4);
+        assert_eq!(g.iter().find(|x| x.0 == "HOUDI").unwrap().1, ["1", "2"]);
+    }
+
+    #[test]
+    fn existing_part_joins_its_entity() {
+        let roots = [artist("1", "AaMo"), artist("2", "AaMo, yvnnis")];
+        let g = names_ids(&group_artists(&roots, &roots));
+        assert_eq!(g[0], ("AaMo".into(), vec!["1".into(), "2".into()]));
+        assert_eq!(g[1], ("yvnnis".into(), vec!["2".into()]));
+        let roots = [artist("1", "Simon"), artist("2", "Simon & Garfunkel")];
+        assert_eq!(group_artists(&roots, &roots).len(), 2);
     }
 }
