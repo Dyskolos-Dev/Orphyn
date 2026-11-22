@@ -410,7 +410,7 @@
   min-height: 52px;
   gap: var(--space-4);
   padding: var(--space-3) calc(var(--page-gutter) + var(--titlebar-inset-right, 0px)) var(--space-3)
-    var(--page-gutter);
+    calc(var(--page-gutter) + var(--titlebar-inset-left, 0px));
 }
 .jrm-np__tabs {
   position: absolute;

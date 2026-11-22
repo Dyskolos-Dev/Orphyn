@@ -1,7 +1,5 @@
 //! `VideoLibrary.tsx`: a library of movies or series, sortable and filterable, loaded page by page
-//! while scrolling, with the A-Z rail.
-use std::cell::RefCell;
-use std::collections::HashMap;
+//! while scrolling.
 use std::rc::Rc;
 
 use dioxus::prelude::*;
@@ -9,7 +7,7 @@ use orphyn_jellyfin::{BaseItemDto, ItemsParams};
 
 use super::cards::ItemPoster;
 use super::data::{items_of, use_items, use_views};
-use super::format::{first_index_for_letter, letter_of};
+
 use super::ui::{Grid, MenuButton, Skeleton};
 use crate::design::{EmptyState, MenuItem, Segment, SegmentedControl, Spinner};
 use crate::i18n::use_i18n;
@@ -18,10 +16,6 @@ use crate::shell::ShellPage;
 use crate::state::use_app;
 
 const PAGE_SIZE: u32 = 60;
-const LETTERS: [char; 27] = [
-    '#', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R',
-    'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
-];
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 enum SortKey {
@@ -92,7 +86,6 @@ pub fn VideoLibraryPage(library_id: String) -> Element {
     let mut sort = use_signal(|| SortKey::Name);
     let mut played = use_signal(|| "all");
     let mut genre: Signal<Option<String>> = use_signal(|| None);
-    let mut pending_letter: Signal<Option<char>> = use_signal(|| None);
 
     let alias = match library_id.as_str() {
         "movies" => Some("movies"),
@@ -208,7 +201,7 @@ pub fn VideoLibraryPage(library_id: String) -> Element {
         let (n, filters, params) = (items.len(), filters.clone(), params.clone());
         use_effect(use_reactive!(|scroll, n, has_next, filters, params| {
             let _ = (scroll, sentinel());
-            if !has_next || pending_letter.peek().is_some() {
+            if !has_next {
                 return;
             }
             spawn(async move {
@@ -223,33 +216,6 @@ pub fn VideoLibraryPage(library_id: String) -> Element {
                     load.call((n, params, filters));
                 }
             });
-        }));
-    }
-
-    // A-Z rail: scroll to the letter, loading further pages until it is reached.
-    let cells: Rc<RefCell<HashMap<usize, Rc<MountedData>>>> = use_hook(Default::default);
-    {
-        let (n, items, filters, params) = (items.len(), items.clone(), filters.clone(), params);
-        let cells = cells.clone();
-        use_effect(use_reactive!(|n, has_next, items, filters, params| {
-            let _ = n;
-            let Some(letter) = pending_letter() else {
-                return;
-            };
-            let found = first_index_for_letter(&items, letter);
-            let last = items.last().map(letter_of).unwrap_or('#');
-            match found {
-                Some(i) if letter == '#' || last >= letter || !has_next => {
-                    if let Some(el) = cells.borrow().get(&i).cloned() {
-                        spawn(async move {
-                            let _ = el.scroll_to(ScrollBehavior::Smooth).await;
-                        });
-                    }
-                    pending_letter.set(None);
-                }
-                _ if has_next => load.call((items.len(), params, filters)),
-                _ => pending_letter.set(None),
-            }
         }));
     }
 
@@ -324,18 +290,10 @@ pub fn VideoLibraryPage(library_id: String) -> Element {
             } else {
                 div { class: "jr-video-library",
                     Grid { label: title.clone(),
-                        for (i, item) in items.iter().cloned().enumerate() {
+                        for item in items.iter().cloned() {
                             li { key: "{item.id}", class: "jr-grid__item",
                                 div {
-                                    class: "jr-video-library__cell",
-                                    "data-az-index": "{i}",
-                                    onmounted: {
-                                        let cells = cells.clone();
-                                        move |e: MountedEvent| {
-                                            cells.borrow_mut().insert(i, e.data());
-                                        }
-                                    },
-                                    ItemPoster { item: item.clone() }
+                                div { class: "jr-video-library__cell", ItemPoster { item: item.clone() } }
                                 }
                             }
                         }
@@ -347,19 +305,6 @@ pub fn VideoLibraryPage(library_id: String) -> Element {
                     }
                     if fetching() {
                         div { class: "jr-video-library__loading", Spinner {} }
-                    }
-                    if sort() == SortKey::Name {
-                        nav { class: "jr-video-az", "aria-label": t.t("video:library.jumpTo"),
-                            for l in LETTERS {
-                                button {
-                                    key: "{l}",
-                                    r#type: "button",
-                                    onmousedown: move |e| e.stop_propagation(),
-                                    onclick: move |_| pending_letter.set(Some(l)),
-                                    "{l}"
-                                }
-                            }
-                        }
                     }
                 }
             }

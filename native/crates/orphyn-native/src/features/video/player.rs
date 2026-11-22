@@ -1044,7 +1044,7 @@ fn Player(item_id: String, start: Option<i64>) -> Element {
                 SkipPillButton { key: "{skip_key}", kind: p.kind, on_skip: move |_| do_skip() }
             }
             if show_up_next && next.is_some() {
-                div { class: "jr-video-upnext", "data-theme": "dark",
+                div { class: "jr-video-upnext", "data-theme": "dark", onmousedown: move |e| e.stop_propagation(),
                     div { class: "jr-video-upnext__thumb",
                         if let Some(src) = &up_next_img {
                             img { src: "{src}", alt: "", draggable: "false" }

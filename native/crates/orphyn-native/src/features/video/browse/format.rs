@@ -237,44 +237,6 @@ pub fn hero_meta(item: &BaseItemDto) -> String {
     meta_parts(item).join(" · ")
 }
 
-/// First letter of the sort name, accents stripped; anything else is "#" (`letterOf`).
-pub fn letter_of(item: &BaseItemDto) -> char {
-    let name = item.sort_name().unwrap_or_else(|| item.name().to_string());
-    let first = name.chars().next().map(strip_accent).unwrap_or('#');
-    let up = first.to_ascii_uppercase();
-    if up.is_ascii_uppercase() {
-        up
-    } else {
-        '#'
-    }
-}
-
-fn strip_accent(c: char) -> char {
-    match c {
-        'à'..='å' | 'À'..='Å' => 'a',
-        'ç' | 'Ç' => 'c',
-        'è'..='ë' | 'È'..='Ë' => 'e',
-        'ì'..='ï' | 'Ì'..='Ï' => 'i',
-        'ñ' | 'Ñ' => 'n',
-        'ò'..='ö' | 'Ò'..='Ö' | 'ø' | 'Ø' => 'o',
-        'ù'..='ü' | 'Ù'..='Ü' => 'u',
-        'ý' | 'ÿ' | 'Ý' => 'y',
-        c => c,
-    }
-}
-
-/// Index of the first loaded item whose letter is >= `letter` (items sorted A-Z)
-/// (`firstIndexForLetter`).
-pub fn first_index_for_letter(items: &[BaseItemDto], letter: char) -> Option<usize> {
-    if letter == '#' {
-        return (!items.is_empty()).then_some(0);
-    }
-    items.iter().position(|i| {
-        let l = letter_of(i);
-        l != '#' && l >= letter
-    })
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -378,23 +340,5 @@ mod tests {
         assert_eq!(hero_meta(&m), "2021 · Drama, Crime · 2 h 10 min · R");
         let series = item(json!({"Id":"s","Type":"Series","RunTimeTicks": 5}));
         assert_eq!(meta_parts(&series), Vec::<String>::new());
-    }
-
-    #[test]
-    fn letters_jump_like_the_az_rail() {
-        let items = vec![
-            item(json!({"Id":"1","Name":"12 Angry Men"})),
-            item(json!({"Id":"2","Name":"Åke"})),
-            item(json!({"Id":"3","Name":"Béla"})),
-            item(json!({"Id":"4","Name":"Zorro"})),
-        ];
-        assert_eq!(letter_of(&items[0]), '#');
-        assert_eq!(letter_of(&items[1]), 'A');
-        assert_eq!(letter_of(&items[2]), 'B');
-        assert_eq!(first_index_for_letter(&items, '#'), Some(0));
-        assert_eq!(first_index_for_letter(&items, 'B'), Some(2));
-        assert_eq!(first_index_for_letter(&items, 'C'), Some(3));
-        assert_eq!(first_index_for_letter(&items, 'Z'), Some(3));
-        assert_eq!(first_index_for_letter(&[], 'A'), None);
     }
 }

@@ -57,30 +57,6 @@
   justify-content: center;
   padding: var(--space-6);
 }
-.jr-video-az {
-  position: fixed;
-  top: 50%;
-  right: var(--space-1);
-  transform: translateY(-50%);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  z-index: 5;
-}
-.jr-video-az button {
-  width: var(--space-4);
-  padding: 0;
-  border: 0;
-  background: none;
-  font: var(--text-caption);
-  font-weight: 600;
-  color: var(--accent);
-  cursor: pointer;
-  line-height: 1.25;
-}
-.jr-video-az button:hover {
-  color: var(--label);
-}
 
 /* ---------- Detail ---------- */
 .jr-video-badge {
@@ -180,7 +156,7 @@
   align-items: center;
   gap: var(--space-3);
   /* leave room for the native caption buttons on Windows */
-  padding-inline-end: var(--titlebar-inset-right, 0px);
+  padding-inline: var(--titlebar-inset-left, 0px) var(--titlebar-inset-right, 0px);
 }
 .jr-video-controls__title {
   display: flex;
