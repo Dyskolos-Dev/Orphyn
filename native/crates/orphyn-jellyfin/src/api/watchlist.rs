@@ -194,7 +194,7 @@ impl Session {
             "Client": PREFS_CLIENT,
             "SortBy": "SortName",
             "SortOrder": "Ascending",
-            "CustomPrefs": { PREFS_KEY: list.encode() },
+            "CustomPrefs": { (PREFS_KEY): list.encode() },
         });
         let _: serde_json::Value = self
             .client
