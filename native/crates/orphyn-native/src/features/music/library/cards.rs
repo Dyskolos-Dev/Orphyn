@@ -143,15 +143,6 @@ pub fn container_menu(
     out
 }
 
-/// First letters of the first two words (`initials` of `Artwork.tsx`).
-fn initials(name: &str) -> String {
-    name.split_whitespace()
-        .filter_map(|w| w.chars().find(|c| c.is_alphanumeric()))
-        .take(2)
-        .collect::<String>()
-        .to_uppercase()
-}
-
 /// The `MediaCard` DOM (`<div class="jr-card">`, no list item around it). `round` = `RoundCard`.
 #[component]
 pub fn MediaCard(
@@ -200,7 +191,6 @@ pub fn MediaCard(
                 div { class: "jr-card__art",
                     if round && image.is_none() {
                         Artwork { src: None::<String>, shape, shadow: true, fallback, class: "jr-artwork--initials" }
-                        span { class: "jr-card__initials", {initials(&title)} }
                     } else {
                         Artwork { src: image, shape, shadow: true, fallback }
                     }
@@ -268,7 +258,7 @@ pub fn PlaylistCard(playlist: BaseItemDto) -> Element {
     }
 }
 
-/// `ArtistCard`: a round card, initials when the artist has no picture.
+/// `ArtistCard`: a round card, a placeholder icon when the artist has no picture.
 #[component]
 pub fn ArtistCard(artist: BaseItemDto) -> Element {
     let base = use_base_url();
