@@ -1,0 +1,18 @@
+{
+  "fr": {
+    "title": "Votre liste à regarder",
+    "items": [
+      { "icon": "film", "title": "À regarder", "text": "Ajoutez films et séries à votre liste depuis leur page ou leur menu. Elle est synchronisée entre vos appareils et vous prévient quand un nouvel épisode arrive." },
+      { "icon": "music", "title": "Artistes mieux rangés", "text": "Les artistes réunis sous un même nom (« A, B, C ») sont séparés, et les artistes sans photo n'affichent plus de lettres sous leur vignette." },
+      { "icon": "open", "title": "Corrections", "text": "Les boutons « Lire maintenant » et « Annuler » de fin d'épisode fonctionnent, et sur macOS le lecteur plein écran laisse la place aux boutons de la fenêtre." }
+    ]
+  },
+  "en": {
+    "title": "Your watchlist",
+    "items": [
+      { "icon": "film", "title": "Watchlist", "text": "Add films and series to your list from their page or menu. It syncs across your devices and tells you when a new episode arrives." },
+      { "icon": "music", "title": "Tidier artists", "text": "Artists joined under one name (\"A, B, C\") are split, and artists without a photo no longer show letters under their card." },
+      { "icon": "open", "title": "Fixes", "text": "The end-of-episode Play now and Cancel buttons work, and on macOS the full-screen player leaves room for the window buttons." }
+    ]
+  }
+}

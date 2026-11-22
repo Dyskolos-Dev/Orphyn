@@ -4221,7 +4221,7 @@ dependencies = [
 
 [[package]]
 name = "orphyn-native"
-version = "2.0.3"
+version = "2.0.4"
 dependencies = [
  "anyrender",
  "anyrender_vello_cpu",

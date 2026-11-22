@@ -6,6 +6,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [2.0.4] - 2026-11-22
+
+### Added
+
+- Watchlist for films and series, synced through the server, with a new-episode reminder.
+
+### Fixed
+
+- End-of-episode Play now / Cancel buttons did nothing.
+- macOS: the full-screen player header no longer sits under the window buttons.
+- Artists: multi-artist entities are split; no letters under cards without a picture.
+
 ## [2.0.3] - 2026-11-19
 
 ### Changed
